@@ -116,7 +116,7 @@ def handler(event, context):
             page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
 
         logger.info(f"Page limit set to {page_limit}.")
-        logger.info(f"Attempting to fetch document: {event["document_url"]}")
+        logger.info(f"Attempting to fetch document: {event['document_url']}")
 
         # Download file locally.
         local_path = get_file(event["document_url"], "./data")
