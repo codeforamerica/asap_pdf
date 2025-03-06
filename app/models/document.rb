@@ -105,12 +105,12 @@ class Document < ApplicationRecord
         page_limit: 7
       }.to_json
       begin
-        response = RestClient.post(endpoint_url, payload, { content_type: :json, accept: :json })
+        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
         json_body = JSON.parse(response.body)
         if json_body["statusCode"] == 200
-          self.summary = %Q{"#{json_body["body"]}"}
+          self.summary = '"' + json_body["body"] + '"'
         else
-          raise Exception.new("Inference failed: #{json_body["body"]}")
+          raise StandardError.new("Inference failed: #{json_body["body"]}")
         end
         summary
       end
