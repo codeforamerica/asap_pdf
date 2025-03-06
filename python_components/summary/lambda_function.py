@@ -1,11 +1,11 @@
-import urllib.request
-import os
-import logging
 import json
+import logging
+import os
+import urllib.request
 
 import boto3
-import pdf2image
 import llm
+import pdf2image
 
 
 def get_config():
@@ -82,7 +82,8 @@ def get_summary(model_name: str, api_key: str, attachments: list) -> str:
     model.key = api_key
     response = model.prompt(
         "The following images show a local government document. Could you summarize the contents in two or three sentences?",
-        attachments=attachments
+        # noqa: E501
+        attachments=attachments,
     )
     return response.text()
 

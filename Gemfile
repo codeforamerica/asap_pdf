@@ -21,7 +21,7 @@ gem "bootsnap", require: false
 gem "kamal", "~> 2.5.3", require: false
 gem "thruster", require: false
 gem "redis", "~> 5.4.0"
-gem "sidekiq", "~> 7.3"
+gem "sidekiq", "~> 8.0"
 
 gem "view_component", "~> 3.21"
 gem "overcommit", "~> 0.67.1"
