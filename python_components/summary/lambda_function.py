@@ -21,7 +21,11 @@ def get_models():
 def get_supported_models(local_mode):
     if local_mode:
         config = get_config()
-        return {config["active_model"]: {"key": config["key"]}}
+        return {
+            config["active_model"]: {
+                "key": config["key"]
+            }
+        }
     else:
         return get_models()
 
@@ -77,50 +81,61 @@ def get_summary(model_name: str, api_key: str, attachments: list) -> str:
     model = llm.get_model(model_name)
     model.key = api_key
     response = model.prompt(
-        "The following images show a local government document. Could you summarize the contents in two or three sentences?",  # noqa: E501
+        "The following images show a local government document. Could you summarize the contents in two or three sentences?",
+        # noqa: E501
         attachments=attachments,
     )
     return response.text()
 
 
 def handler(event, context):
-    for required_key in ("model_name", "document_url", "page_limit"):
-        if required_key not in event:
+    try:
+        for required_key in ("model_name", "document_url", "page_limit"):
+            if required_key not in event:
+                raise ValueError(
+                    f"Function called without required parameter, {required_key}."
+                )
+
+        local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
+        supported_models = get_supported_models(local_mode)
+
+        if event["model_name"] not in supported_models.keys():
+            supported_model_list = ",".join(supported_models.keys())
             raise ValueError(
-                f"Function called without required parameter, {required_key}."
+                f"Unsupported model: {event['model_name']}. Options are: {supported_model_list}"
             )
 
-    local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
-    supported_models = get_supported_models(local_mode)
+        if local_mode:
+            api_key = supported_models[event["model_name"]]["key"]
+            config = get_config()
+            page_limit = (
+                config["page_limit"] if event["page_limit"] == 0 else event["page_limit"]
+            )
+        else:
+            api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
+            page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
 
-    if event["model_name"] not in supported_models.keys():
-        supported_model_list = ",".join(supported_models.keys())
-        raise ValueError(
-            f'Unsupported model: {event["model_name"]}. Options are: {supported_model_list}'
-        )
+        logger.info(f"Page limit set to {page_limit}.")
+        logger.info(f"Attempting to fetch document: {event['document_url']}")
 
-    if local_mode:
-        api_key = supported_models[event["model_name"]]["key"]
-        config = get_config()
-        page_limit = (
-            config["page_limit"] if event["page_limit"] == 0 else event["page_limit"]
-        )
-    else:
-        api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
-        page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+        # Download file locally.
+        local_path = get_file(event["document_url"], "./data")
 
-    logger.info(f"Page limit set to {page_limit}.")
-    logger.info(f'Attempting to fetch document: {event["document_url"]}')
+        # Convert to images.
+        logger.info("Converting to images!")
+        attachments = pdf_to_attachments(local_path, "./data", event["page_limit"])
+        num_attachments = len(attachments)
+        logger.info(f"Document has {num_attachments} pages.")
 
-    # Download file locally.
-    local_path = get_file(event["document_url"], "./data")
-
-    # Convert to images.
-    logger.info("Converting to images!")
-    attachments = pdf_to_attachments(local_path, "./data", event["page_limit"])
-    num_attachments = len(attachments)
-    logger.info(f"Document has {num_attachments} pages.")
-
-    # Send images off to our friend.
-    logger.info(f'Summarizing with {event["model_name"]}...')
-    return get_summary(event["model_name"], api_key, attachments)
+        # Send images off to our friend.
+        logger.info(f"Summarizing with {event['model_name']}...")
+        summary = get_summary(event["model_name"], api_key, attachments)
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": str(e),
+        }
+    return {
+        "statusCode": 200,
+        "body": summary,
+    }
