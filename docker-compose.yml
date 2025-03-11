@@ -38,17 +38,13 @@ services:
       - "9000:8080"
     environment:
       - ASAP_LOCAL_MODE=True
-    depends_on:
-      localstack:
-        condition: service_healthy
   lambda_recommendation:
     build:
       context: ./python_components/recommendation
     container_name: lambda_recommendation
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "9001:8080"
     environment:
       - ASAP_LOCAL_MODE=True
-    depends_on:
-      localstack:
-        condition: service_healthy
