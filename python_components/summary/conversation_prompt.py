@@ -38,19 +38,42 @@ total_tokens_used = {
     'output': 0,
 }
 
-initial_prompt = """
-You are an expert in ADA compliance and accessibility requirements for government documents.
+PROMPT = """
+# Government PDF ADA Compliance Exception Analyzer
 
-The U.S. Department of Justice ADA rule requires that state and local government websites make their web content and documents conform with WCAG 2.1 Level AA. There are three exemptions:
-1. Archived Content: Was created before April 24th, 2026; Is retained exclusively for reference, research, or recordkeeping; Is not altered or updated after the date of archiving; and Is organized and stored in a dedicated area or areas clearly identified as being archived.
-2. Not Fundamental for Program Use: Not, currently used to apply for, gain access to, or participate in the public entity’s services, programs, or activities.
-3. Third Party: Content posted by a third party, unless the third party is posting due to contractual, licensing, or other arrangements with the public entity.
+You are an AI assistant specializing in ADA compliance analysis. Your task is to analyze government PDF documents and determine whether they qualify for an exception under the Department of Justice's 2024 final rule on web content and mobile app accessibility.
 
-I am analyzing a PDF document from the City of San Rafael website. The document is titled "2023 Gann Appropriations Limit Report" and is located at "https://www.cityofsanrafael.org/documents/san-rafael-gann-2023".
+## Context
 
-The following jpg images are the pages from the document.
+The Department of Justice published a final rule updating regulations for Title II of the Americans with Disabilities Act (ADA). This rule requires state and local governments to ensure their web content and mobile apps are accessible to people with disabilities according to WCAG 2.1, Level AA standards. However, certain PDF documents may qualify for exceptions.
+
+## Your Task
+
+The attached jpeg documents represent a PDF. Analyze the PDF document information and determine whether it qualifies for an exception from WCAG 2.1, Level AA compliance requirements under one of the following exception categories:
+
+1. **Archived Web Content Exception** - Applies when ALL of these conditions are met:
+   - Created before the compliance date April 24, 2026
+   - Kept only for reference, research, or recordkeeping
+   - Stored in a special area for archived content
+   - Has not been changed since it was archived
+
+2. **Preexisting Conventional Electronic Documents Exception** - Applies when ALL conditions are met:
+   - Document is a PDF file
+   - Document was available on the government's website or mobile app before the compliance date
+   - HOWEVER: This exception does NOT apply if the document is currently being used by individuals to apply for, access, or participate in government services
+
+3. **Content Posted by Third Parties Exception** - Applies when:
+   - Content is posted by third parties (members of the public or others not controlled by or acting for government entities)
+   - The third party is not posting due to contractual, licensing, or other arrangements with the government entity
+   - HOWEVER: This exception does NOT apply to content posted by the government itself, content posted by government contractors/vendors, or to tools/platforms that allow third parties to post content
+
+## Document Information
+
+  - Document title: 2023 Gann Appropriations Limit Report
+  - Document purpose: Report
+  - Document URL: https://www.cityofsanrafael.org/documents/san-rafael-gann-2023
+
 """
-
 
 def run_experiment(pdf_path: str):
     output = {
@@ -70,23 +93,24 @@ def run_experiment(pdf_path: str):
         model.key = config['key']
         attachments = pdf_to_attachments(pdf_path, './data', config['page_limit'])
         conversation = model.conversation()
-        run_prompt(conversation, initial_prompt)
-
+        run_prompt(conversation, PROMPT)
+        boolean_answers = ('True', 'False')
         response = run_prompt(conversation,
-                              'Does this document meet the "Archival Content" exemption criteria? Just answer True or False.')
+                              'True or False does this document meet the "Archived Web Content Exception" exception criteria? ONLY OUTPUT: True or False')
+        assert response.text().strip() in boolean_answers
         output['is_archival'] = response.text().strip() == 'True'
         response = run_prompt(conversation, 'Provide a one sentence explanation of your answer.')
         output['why_archival'] = response.text().strip()
-        run_prompt(conversation, initial_prompt)
-
         response = run_prompt(conversation,
-                              'Does this document meet the "Not Fundamental for Program Use" exemption criteria? Just answer True or False.')
+                              'True or False does this document meet the "Preexisting Conventional Electronic Documents Exception" exception criteria? ONLY OUTPUT: True or False')
+        assert response.text().strip() in boolean_answers
         output['is_app'] = response.text().strip() == 'True'
         response = run_prompt(conversation, 'Provide a one sentence explanation of your answer.')
         output['why_app'] = response.text().strip()
 
         response = run_prompt(conversation,
-                              'Does this document meet the "Third Party" exemption criteria? Just answer True or False.')
+                              'True or False does this document meet the "Content Posted by Third Parties Exception" exception criteria? ONLY OUTPUT: True or False')
+        assert response.text().strip() in boolean_answers
         output['is_third_party'] = response.text().strip() == 'True'
         response = run_prompt(conversation, 'Provide a one sentence explanation of your answer.')
         output['why_third_party'] = response.text().strip()
