@@ -85,14 +85,15 @@ module AsapPdf
     end
     params do
       requires :documents, type: Array do
-        requires :id, type: Integer, desc: "Document ID"
+        requires :document_id, type: Integer, desc: "Document ID"
         requires :type, type: String, desc: "Document inference type"
         requires :value, type: String, desc: "Value of document inference"
       end
     end
-    post "/documents/:id/inference" do
+    post "/documents/inference" do
+      status 201
       params[:documents].map do |doc|
-        inference = DocumentInference.create_or_find_by(document: doc[:id], inference_type: doc[:type])
+        inference = DocumentInference.create_or_find_by(document_id: doc[:document_id], inference_type: doc[:type])
         inference.inference_value = doc[:value]
         inference.inference_confidence = doc[:confidence] if doc[:confidence].present?
         inference.inference_reason = doc[:reason] if doc[:reason].present?
