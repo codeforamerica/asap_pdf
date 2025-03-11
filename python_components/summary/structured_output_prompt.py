@@ -4,14 +4,12 @@ import json
 import logging
 from typing import Optional
 
-import instructor
 import google.generativeai as genai
-from google.genai.types import Part
+import instructor
 import pdf2image
 import pypdf
+from google.genai.types import Part
 from pydantic import BaseModel, Field
-
-
 
 # Create and provide a very simple logger implementation.
 logger = logging.getLogger('experiment_utility')
