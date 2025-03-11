@@ -71,6 +71,35 @@ module AsapPdf
       }}
     end
 
+    desc "Adds or updates a document inference with type" do
+      detail "Adds or updates a document inference with the provided type and document id."
+      tags ["Document Inferences"]
+      produces ["application/json"]
+      consumes ["application/json"]
+      failure [
+                [400, "Bad Request - Invalid parameters"],
+                [401, "Unauthorized"],
+                [403, "Forbidden"],
+                [404, "Site not found"]
+              ]
+    end
+    params do
+      requires :documents, type: Array do
+        requires :id, type: Integer, desc: "Document ID"
+        requires :type, type: String, desc: "Document inference type"
+        requires :value, type: String, desc: "Value of document inference"
+      end
+    end
+    post "/documents/:id/inference" do
+      params[:documents].map do |doc|
+        inference = DocumentInference.create_or_find_by(document: doc[:id], inference_type: doc[:type])
+        inference.inference_value = doc[:value]
+        inference.inference_confidence = doc[:confidence] if doc[:confidence].present?
+        inference.inference_reason = doc[:reason] if doc[:reason].present?
+        inference.save!
+      end
+    end
+
     add_swagger_documentation(
       mount_path: "/swagger_doc",
       openapi_version: "3.0.1",
