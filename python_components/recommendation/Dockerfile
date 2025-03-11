@@ -2,7 +2,6 @@ FROM public.ecr.aws/lambda/python:3.12
 
 # Copy requirements.txt & config.json
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
-COPY config.json ${LAMBDA_TASK_ROOT}
 COPY 2025-03-11-56-llm-gemini.patch ${LAMBDA_TASK_ROOT}
 
 # Install the specified packages
@@ -14,6 +13,9 @@ RUN dnf install poppler-utils git-all -y &&\
     git apply 2025-03-11-56-llm-gemini.patch &&\
     llm install -e '.[test]' &&\
     mkdir ${LAMBDA_TASK_ROOT}/data
+
+# Copy application config
+COPY config.json ${LAMBDA_TASK_ROOT}
 
 # Copy function code
 COPY lambda_function.py ${LAMBDA_TASK_ROOT}
