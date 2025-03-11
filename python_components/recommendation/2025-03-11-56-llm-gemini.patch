@@ -1,0 +1,13 @@
+diff --git a/llm_gemini.py b/llm_gemini.py
+index e74002c..c28de6e 100644
+--- a/llm_gemini.py
++++ b/llm_gemini.py
+@@ -102,7 +102,7 @@ def cleanup_schema(schema, in_properties=False):
+             if key == "properties" and isinstance(value, dict):
+                 cleanup_schema(value, in_properties=True)
+             else:
+-                cleanup_schema(value, in_properties=in_properties)
++                cleanup_schema(value, in_properties=False)
+     elif isinstance(schema, list):
+         for item in schema:
+             cleanup_schema(item, in_properties=in_properties)
