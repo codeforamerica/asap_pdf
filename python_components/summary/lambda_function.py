@@ -1,11 +1,12 @@
-import urllib.request
-import os
-import logging
 import json
+import logging
+import os
+import urllib.request
 
 import boto3
-import pdf2image
 import llm
+import pdf2image
+
 
 def get_config():
     with open('config.json', 'r') as f:
