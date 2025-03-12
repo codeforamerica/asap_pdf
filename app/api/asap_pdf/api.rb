@@ -77,11 +77,11 @@ module AsapPdf
       produces ["application/json"]
       consumes ["application/json"]
       failure [
-                [400, "Bad Request - Invalid parameters"],
-                [401, "Unauthorized"],
-                [403, "Forbidden"],
-                [404, "Site not found"]
-              ]
+        [400, "Bad Request - Invalid parameters"],
+        [401, "Unauthorized"],
+        [403, "Forbidden"],
+        [404, "Site not found"]
+      ]
     end
     params do
       requires :documents, type: Array do
