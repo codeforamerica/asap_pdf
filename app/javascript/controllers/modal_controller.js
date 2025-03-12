@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["summaryView", "metadataView", "historyView", "summaryButton", "metadataButton", "historyButton"]
+  static targets = ["summaryView", "metadataView", "recommendationView", "historyView", "recommendationButton", "summaryButton", "metadataButton", "historyButton"]
 
   submitAndClose(event) {
     // Let the form submit normally
@@ -32,9 +32,16 @@ export default class extends Controller {
     this.updateButtonStyles(this.historyButtonTarget)
   }
 
+  showReccomendationView() {
+    this.hideAllViews()
+    this.recommendationViewTarget.classList.remove("hidden")
+    this.updateButtonStyles(this.recommendationButtonTarget)
+  }
+
   hideAllViews() {
     this.summaryViewTarget.classList.add("hidden")
     this.metadataViewTarget.classList.add("hidden")
+    this.recommendationViewTarget.classList.add("hidden")
     this.historyViewTarget.classList.add("hidden")
   }
 

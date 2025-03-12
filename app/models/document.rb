@@ -3,6 +3,7 @@ class Document < ApplicationRecord
 
   belongs_to :site
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
+  has_many :document_inferences
 
   has_paper_trail versions: {scope: -> { order(created_at: :desc) }}
 
@@ -47,7 +48,10 @@ class Document < ApplicationRecord
     "Press", "Procurement", "Notice", "Report", "Spreadsheet", "Unknown"
   ].freeze
 
-  DECISION_TYPES = [DEFAULT_ACCESSIBILITY_RECOMMENDATION, "Leave", "Convert", "Remove", "Remediate"].freeze
+  LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
+
+  DECISION_TYPES = [DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION,
+    REMEDIATE_ACCESSIBILITY_RECOMMENDATION, "Convert", "Remove"].freeze
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
@@ -56,6 +60,49 @@ class Document < ApplicationRecord
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES}, allow_nil: true
 
   before_validation :set_defaults
+
+  def accessibility_recommendation
+    # Find versions that changed the accessibility_recommendation field
+    accessibility_versions = versions.where("object_changes LIKE ?", "%accessibility_recommendation%")
+    # Get the most recent version that changed this field
+    last_change = accessibility_versions.order(created_at: :desc).first
+
+    # Check if there was a change and if the user was non-nil
+    return self[:accessibility_recommendation] if last_change.present? && last_change.whodunnit.present?
+    accessibility_recommendation_from_inferences
+  end
+
+  def accessibility_recommendation_from_inferences
+    # Otherwise calculate based on inferences
+    if document_inferences.any?
+      exceptions = self.exceptions
+      if exceptions.any?
+        return LEAVE_ACCESSIBILITY_RECOMMENDATION
+      else
+        return REMEDIATE_ACCESSIBILITY_RECOMMENDATION
+      end
+    end
+    DEFAULT_ACCESSIBILITY_RECOMMENDATION
+  end
+
+  def exceptions(include_value_check = true)
+    selected_inferences = document_inferences.select do |inference|
+      base_condition = inference.inference_type.include?("exception")
+      value_condition = inference.inference_value.to_s.downcase == "true"
+
+      include_value_check ? (base_condition && value_condition) : base_condition
+    end
+
+    # Create an array of the keys to determine their position
+    type_order = DocumentInference::INFERENCE_TYPES.keys.map(&:to_s)
+
+    # Sort the selected inferences based on their position in the INFERENCE_TYPES hash
+    selected_inferences.sort_by do |inference|
+      index = type_order.index(inference.inference_type)
+      # Use the index if found, otherwise place at the end
+      index.nil? ? type_order.length : index
+    end
+  end
 
   def s3_path
     "#{site.s3_endpoint_prefix}/#{id}/document.pdf"
