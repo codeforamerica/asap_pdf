@@ -6,6 +6,9 @@ abort("The Rails environment is running in production mode!") if Rails.env.produ
 require "rspec/rails"
 require "rails-controller-testing"
 require "shoulda/matchers"
+require 'capybara/rails'
+
+Capybara.default_driver = :selenium_chrome
 
 begin
   ActiveRecord::Migration.maintain_test_schema!

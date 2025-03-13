@@ -1,5 +1,7 @@
 require "shoulda/matchers"
 require "factory_bot_rails"
+require 'capybara/rspec'
+
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

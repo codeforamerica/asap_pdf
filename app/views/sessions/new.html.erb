@@ -6,7 +6,7 @@
       </div>
       <p class="text-sm text-base-content/70 mb-6">Website PDF Accessibility Checker</p>
     </div>
-    <%= form_with url: session_path do |form| %>
+    <%= form_with url: session_path, :html => {:id => "login-form"} do |form| %>
       <div class="form-control w-full">
         <label class="label">
           <span class="label-text">Email Address</span>
