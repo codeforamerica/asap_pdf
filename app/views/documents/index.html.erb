@@ -4,7 +4,7 @@
 <div class="py-6">
   <div class="mx-auto sm:px-6 lg:px-8">
     <div class="grid grid-cols-[250px_1fr] gap-6">
-      <div class="space-y-6">
+      <div id="sidebar" class="space-y-6">
         <div class="bg-white shadow-sm rounded-lg h-fit">
           <nav class="p-4 space-y-2">
             <%= link_to site_documents_path(@site, status: ''), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].blank? ? 'bg-gray-100' : ''}" do %>
@@ -32,7 +32,7 @@
         </div>
         <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, total_documents: @total_documents } %>
       </div>
-      <div class="px-4 sm:px-0 space-y-0">
+      <div id="document-list" class="px-4 sm:px-0 space-y-0">
         <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b
 ">
           <div class="flex justify-between items-center">

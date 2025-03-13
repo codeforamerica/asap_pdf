@@ -30,6 +30,21 @@ describe "sites function as expected", type: :feature do
       expect(page).to have_content "City of Denver"
       expect(page).to have_content "Colorado"
       expect(page).to have_content "https://www.denvergov.org"
+      click_link "City of Denver"
+    end
+    within("#document-list") do
+      expect(page).to have_content "Colorado: City of Denver"
+      expect(page).to have_content "No documents found"
+    end
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "In Review\n0"
+      expect(page).to have_content "Done\n0"
+      click_button "Filter Results"
+      expect(page).to have_field(id: "start_date")
+      expect(page).to have_field(id: "end_date")
+      expect(page).to have_field(id: "filename")
+      expect(page).to have_field(id: "category")
     end
   end
 
