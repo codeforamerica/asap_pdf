@@ -34,8 +34,7 @@ jobs:
       - name: Compile CSS and JS
         run: |
           npm install -g yarn@1.22.22 tailwindcss@3.4.1
-          cp package.json yarn.lock
-          yarn install --frozen-lockfile
+          yarn install
           yarn build
           yarn build:css
 
