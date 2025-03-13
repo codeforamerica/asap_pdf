@@ -18,9 +18,9 @@ describe "sites function as expected", type: :feature do
 
   it "can create a site" do
     visit "/"
-    click_button "Add Site"
-    expect(page).to have_content "Add New Site"
+    click_button "Add Site", id: "add-site-modal"
     within("#add_site_modal") do
+      expect(page).to have_content "Add New Site"
       fill_in "Name", with: "City of Denver"
       fill_in "Location", with: "Colorado"
       fill_in "URL", with: "https://www.denvergov.org"

@@ -8,7 +8,7 @@ require "rails-controller-testing"
 require "shoulda/matchers"
 require "capybara/rails"
 
-Capybara.default_driver = :selenium_chrome
+#Capybara.default_driver = :selenium_chrome
 
 begin
   ActiveRecord::Migration.maintain_test_schema!
@@ -22,6 +22,10 @@ RSpec.configure do |config|
   ]
 
   config.use_transactional_fixtures = true
+
+  config.before(:each, type: :system) do
+    driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
+  end
 
   # Clean the database between tests
   config.before(:each) do
