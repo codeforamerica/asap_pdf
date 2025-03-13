@@ -50,8 +50,8 @@ group :test do
   gem "simplecov", require: false # Optional: for code coverage
   gem "rails-controller-testing"
   gem "factory_bot_rails", "~> 6.4"
-  gem 'capybara'
-  gem 'webdrivers'
+  gem "capybara"
+  gem "webdrivers"
 end
 
 gem "bcrypt", "~> 3.1"
