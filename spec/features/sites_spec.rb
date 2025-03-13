@@ -1,7 +1,6 @@
 require "rails_helper"
 
 describe "sites function as expected", type: :feature do
-
   def login(user)
     visit "/login"
     within("#login-form") do
@@ -27,7 +26,7 @@ describe "sites function as expected", type: :feature do
       fill_in "URL", with: "https://www.denvergov.org"
       click_button "Add Site"
     end
-    within('#sites-grid') do
+    within("#sites-grid") do
       expect(page).to have_content "City of Denver"
       expect(page).to have_content "Colorado"
       expect(page).to have_content "https://www.denvergov.org"
