@@ -165,6 +165,32 @@ class Document < ApplicationRecord
     summary
   end
 
+  def inference_recommendation
+    if exceptions.none?
+      endpoint_url = "http://localhost:9001/2015-03-31/functions/function/invocations"
+      payload = {
+        model_name: "gemini-2.0-pro-exp-02-05",
+        documents: [{ "id": id, "title": file_name, "url": url, "purpose": document_category }],
+        page_limit: 7
+      }.to_json
+      begin
+        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
+        response_json = JSON.parse(response.body)
+        if response_json["statusCode"] >= 300
+          raise StandardError, response_json["body"]
+        end
+      rescue StandardError => e
+        puts "Upstream error: #{e.message}"
+      rescue RestClient::ExceptionWithResponse => e
+        puts "Error: #{e.response.code} #{e.response.body}"
+      rescue RestClient::Exception => e
+        puts "A RestClient exception occurred: #{e.message}"
+      rescue JSON::ParserError => e
+        puts "The server returned a malformed JSON response: #{e.message}"
+      end
+    end
+  end
+
   def source
     value = read_attribute(:source)
     return nil if value.nil?

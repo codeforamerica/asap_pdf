@@ -22,6 +22,12 @@ application.register("modal", ModalController)
 import ModalNotesController from "./modal_notes_controller"
 application.register("modal-notes", ModalNotesController)
 
+import PasswordToggleController from "./password_toggle_controller"
+application.register("password-toggle", PasswordToggleController)
+
+import RecommendationListController from "./recommendation_list_controller"
+application.register("recommendation-list", RecommendationListController)
+
 import StatusController from "./status_controller"
 application.register("status", StatusController)
 

@@ -23,6 +23,6 @@ class DocumentInference < ApplicationRecord
     }
   }.freeze
 
-  validates :inference_type, inclusion: {in: INFERENCE_TYPES.keys}, presence: true
+  validates :inference_type, inclusion: {in: INFERENCE_TYPES.keys.map(&:to_s)}, presence: true
   validates :inference_value, presence: true
 end

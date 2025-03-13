@@ -24,7 +24,8 @@ Rails.application.routes.draw do
       patch :update_document_category
       patch :update_accessibility_recommendation
       patch :update_notes
-      patch :update_summary
+      patch :update_summary_inference
+      patch :update_recommendation_inference
     end
   end
 
