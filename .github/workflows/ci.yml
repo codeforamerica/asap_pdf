@@ -32,7 +32,12 @@ jobs:
           bundler-cache: true
 
       - name: Compile CSS and JS
-        run: npm install -g yarn@1.22.22 tailwindcss@3.4.1
+        run: |
+          npm install -g yarn@1.22.22 tailwindcss@3.4.1
+          cp package.json yarn.lock
+          yarn install --frozen-lockfile
+          yarn build
+          yarn build:css
 
       - name: Run security scan
         run: bundle exec brakeman -q -w2
