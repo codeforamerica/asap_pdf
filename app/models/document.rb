@@ -170,7 +170,7 @@ class Document < ApplicationRecord
       endpoint_url = "http://localhost:9001/2015-03-31/functions/function/invocations"
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
-        documents: [{ "id": id, "title": file_name, "url": url, "purpose": document_category }],
+        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
         page_limit: 7
       }.to_json
       begin
@@ -179,7 +179,7 @@ class Document < ApplicationRecord
         if response_json["statusCode"] >= 300
           raise StandardError, response_json["body"]
         end
-      rescue StandardError => e
+      rescue => e
         puts "Upstream error: #{e.message}"
       rescue RestClient::ExceptionWithResponse => e
         puts "Error: #{e.response.code} #{e.response.body}"

@@ -90,9 +90,8 @@ class DocumentsController < AuthenticatedController
       @document.inference_recommendation
       @document.reload
     end
-    render json: { html: render_to_string(partial: 'documents/recommendation_list', formats: [:html], locals: {document: @document}) }
+    render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
   end
-
 
   private
 
