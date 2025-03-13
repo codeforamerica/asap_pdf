@@ -6,31 +6,33 @@
       </div>
       <p class="text-sm text-base-content/70 mb-6">Website PDF Accessibility Checker</p>
     </div>
-    <%= form_with url: session_path, :html => {:id => "login-form"} do |form| %>
+    <%= form_with url: session_path, :html => { :id => "login-form" } do |form| %>
       <div class="form-control w-full">
-        <label class="label">
+        <label class="label" for="email_address">
           <span class="label-text">Email Address</span>
         </label>
         <%= form.email_field :email_address,
-            required: true,
-            autofocus: true,
-            autocomplete: "username",
-            placeholder: "you@example.com",
-            value: params[:email_address],
-            class: "input input-bordered w-full",
-            "aria-required": true %>
+                             id: "email_address",
+                             required: true,
+                             autofocus: true,
+                             autocomplete: "username",
+                             placeholder: "you@example.com",
+                             value: params[:email_address],
+                             class: "input input-bordered w-full",
+                             "aria-required": true %>
       </div>
       <div class="form-control w-full mt-4">
-        <label class="label">
+        <label class="label" for="password">
           <span class="label-text">Password</span>
         </label>
         <%= form.password_field :password,
-            required: true,
-            autocomplete: "current-password",
-            placeholder: "Enter your password",
-            maxlength: 72,
-            class: "input input-bordered w-full",
-            "aria-required": true %>
+                                id: "password",
+                                required: true,
+                                autocomplete: "current-password",
+                                placeholder: "Enter your password",
+                                maxlength: 72,
+                                class: "input input-bordered w-full",
+                                "aria-required": true %>
       </div>
       <div class="form-control mt-6">
         <%= form.button type: "submit", class: "btn btn-primary" do %>
