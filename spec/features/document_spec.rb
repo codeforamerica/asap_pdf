@@ -84,4 +84,41 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_css("tbody tr", count: 3)
     end
   end
+
+  it "documents have some tabs" do
+    # Create our test setup
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org", user_id: @current_user.id)
+    Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: "Unknown", site_id: site.id)
+    visit "/"
+    click_link("City of Denver")
+    within("#document-list") do
+      find("tbody td:nth-child(1) button").click
+    end
+    within('#document-list .modal') do
+      expect(page).to have_content "example.pdf"
+      expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
+      expect(page).to have_content "Summarize Document"
+      expect(page).to have_css("iframe[src='http://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      click_button "PDF Details"
+      expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
+      expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
+      expect(page).to have_no_css("iframe[src='http://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_content "File Name\nexample.pdf"
+      expect(page).to have_content "Type\nAgenda"
+      expect(page).to have_content "Decision\nUnknown"
+      notes = find("[data-controller='modal-notes'] textarea")
+      notes.send_keys("Fee fi fo fum")
+      click_button "Update Notes"
+    end
+    visit "/"
+    click_link("City of Denver")
+    within("#document-list") do
+      find("tbody td:nth-child(1) button").click
+    end
+    within('#document-list .modal') do
+      click_button "History"
+      expect(page).to have_content("Notes: blank → Fee fi fo fum")
+      expect(page).to have_content("Document category: Other → Agenda")
+    end
+  end
 end
