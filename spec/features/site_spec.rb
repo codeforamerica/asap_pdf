@@ -1,19 +1,9 @@
 require "rails_helper"
 
-describe "sites function as expected", type: :feature do
-  def login(user)
-    visit "/login"
-    within("#login-form") do
-      fill_in "Email Address", with: user.email_address
-      fill_in "Password", with: user.password
-    end
-    click_button "Login"
-    expect(page).to have_content "My Sites"
-  end
-
+describe "sites function as expected", js: true, type: :feature do
   before :each do
     @current_user = User.create(email_address: "user@example.com", password: "password")
-    login(@current_user)
+    login_user(@current_user)
   end
 
   it "can create a site" do

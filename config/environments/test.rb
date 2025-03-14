@@ -8,7 +8,7 @@ Rails.application.configure do
   config.cache_store = :null_store
 
   config.action_dispatch.show_exceptions = :rescuable
-  config.action_controller.allow_forgery_protection = false
+  # config.action_controller.allow_forgery_protection = false
 
   config.active_storage.service = :test
   config.action_mailer.delivery_method = :test
