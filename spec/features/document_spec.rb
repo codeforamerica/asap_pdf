@@ -94,7 +94,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    within('#document-list .modal') do
+    within("#document-list .modal") do
       expect(page).to have_content "example.pdf"
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_content "Summarize Document"
@@ -115,7 +115,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    within('#document-list .modal') do
+    within("#document-list .modal") do
       click_button "History"
       expect(page).to have_content("Notes: blank → Fee fi fo fum")
       expect(page).to have_content("Document category: Other → Agenda")
