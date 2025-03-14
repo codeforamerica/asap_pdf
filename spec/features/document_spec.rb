@@ -91,14 +91,17 @@ describe "documents function as expected", js: true, type: :feature do
     Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: "Unknown", site_id: site.id)
     visit "/"
     click_link("City of Denver")
+    # Test out the modal and tabs.
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
     within("#document-list .modal") do
+      # Assess default tab.
       expect(page).to have_content "example.pdf"
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_content "Summarize Document"
       expect(page).to have_css("iframe[src='http://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      # Check out "PDF Details" tab.
       click_button "PDF Details"
       expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
@@ -106,10 +109,12 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "File Name\nexample.pdf"
       expect(page).to have_content "Type\nAgenda"
       expect(page).to have_content "Decision\nUnknown"
+      # Add a note.
       notes = find("[data-controller='modal-notes'] textarea")
       notes.send_keys("Fee fi fo fum")
       click_button "Update Notes"
     end
+    # Check out "History" tab and look for notes.
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
