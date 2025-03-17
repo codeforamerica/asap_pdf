@@ -26,7 +26,6 @@ $BASE_COMMAND black .
 echo "\n"
 
 # Run flake8 to check for style guide enforcement and lint errors
-# The --max-line-length=100 sets the maximum allowed line length to 100 characters
 echo "Output from flake8 utility..."
-$BASE_COMMAND flake8 --max-line-length=100 .
+$BASE_COMMAND flake8 --ignore=E501 .
 echo "\n"

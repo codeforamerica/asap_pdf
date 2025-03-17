@@ -1,17 +1,17 @@
-import urllib.robotparser
-import urllib.parse
-import pandas as pd
-import tldextract
-import requests
 import argparse
-import warnings
-import pypdf
-import json
-import time
-import re
 import io
+import json
+import re
+import time
+import urllib.parse
+import urllib.robotparser
+import warnings
+from collections import defaultdict, deque
 
-from collections import deque, defaultdict
+import pandas as pd
+import pypdf
+import requests
+import tldextract
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
@@ -34,15 +34,15 @@ def parse_robots_txt(url, manual_crawl_delay):
     if rp.site_maps():
         sitemap = rp.site_maps()[0]
 
-    if rp.crawl_delay('*'):
-        manual_crawl_delay += int(rp.crawl_delay('*'))
+    if rp.crawl_delay("*"):
+        manual_crawl_delay += int(rp.crawl_delay("*"))
     return sitemap, manual_crawl_delay
 
 
 def parse_sitemap(sitemap):
     r = requests.get(sitemap)
     soup = BeautifulSoup(r.text, "xml")
-    more_site_maps = [site.text for site in soup.find_all('loc')]
+    more_site_maps = [site.text for site in soup.find_all("loc")]
 
     all_pages = set()
     for site in more_site_maps:
@@ -51,7 +51,7 @@ def parse_sitemap(sitemap):
 
         r = requests.get(site)
         soup = BeautifulSoup(r.text, "xml")
-        all_pages.update([x.find('loc').text for x in soup.find_all('url')])
+        all_pages.update([x.find("loc").text for x in soup.find_all("url")])
 
     return all_pages
 
@@ -60,7 +60,7 @@ def remove_trailing_slash(url_string):
     parsed_url = urllib.parse.urlparse(url_string)
     path = parsed_url.path
 
-    if path.endswith('/'):
+    if path.endswith("/"):
         path = path[:-1]
 
     updated_url = parsed_url._replace(path=path)
@@ -76,15 +76,15 @@ def get_links(url, timeout=90):
 
         # Parse HTML and retrieve all links
         html_content = response.content
-        soup = BeautifulSoup(html_content, 'html.parser')
-        atags = soup.find_all('a')
+        soup = BeautifulSoup(html_content, "html.parser")
+        atags = soup.find_all("a")
 
         links, link_texts = [], []
         for atag in atags:
-            if atag.get('href'):
-                href = atag.get('href')
+            if atag.get("href"):
+                href = atag.get("href")
                 link_texts.append(atag.get_text().strip())
-                if href.startswith('http'):
+                if href.startswith("http"):
                     links.append(remove_trailing_slash(href))
                 else:
                     new_href = urllib.parse.urljoin(url, href)
@@ -103,9 +103,9 @@ def get_all_pages(all_pages):
             time.sleep(manual_crawl_delay)
         links, link_texts = get_links(page)
         for link, text in zip(links, link_texts):
-            if (link.endswith(".pdf") or re.search(r'\.cfm\?id=', link)):
+            if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link):
                 # Save the source and PDF location
-                pdfs[link].append({'source': page, 'text': text})
+                pdfs[link].append({"source": page, "text": text})
     return pdfs
 
 
@@ -118,11 +118,11 @@ def bfs_search_pdfs(url, delay=0, max_depth=7, allowable_sites=[], timeout=90):
         allowable_sites = [url]
     pdfs = defaultdict(list)
 
-    pbar = tqdm(unit=' pages')
+    pbar = tqdm(unit=" pages")
     while queue:
         node, depth = queue.popleft()  # Get the next node from the queue
         pbar.update(1)
-        if (node not in visited):
+        if node not in visited:
             time.sleep(delay)
             visited.add(node)  # Mark the node as visited
             links, link_texts = get_links(node, timeout=timeout)
@@ -131,12 +131,11 @@ def bfs_search_pdfs(url, delay=0, max_depth=7, allowable_sites=[], timeout=90):
             # domain
             for link, text in zip(links, link_texts):
                 new_domain = tldextract.extract(link).registered_domain
-                allowable = any([(new_domain == domain)
-                                 for domain in allowable_sites])
-                new_depth = (depth - 1)
-                if link.endswith(".pdf") or re.search(r'\.cfm\?id=', link):
+                allowable = any([(new_domain == domain) for domain in allowable_sites])
+                new_depth = depth - 1
+                if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link):
                     # Save pdfs
-                    pdfs[link].append({'source': node, 'text': text})
+                    pdfs[link].append({"source": node, "text": text})
                 elif (link not in visited) and allowable and (new_depth > 0):
                     queue.append((link, new_depth))
 
@@ -156,8 +155,8 @@ def convert_bytes(file_size):
 def get_pdf_metadata(pdfs):
     rows = []
     for pdf_url in tqdm(pdfs.keys(), ncols=100):
-        source = list(set([dat['source'] for dat in pdfs[pdf_url]]))
-        texts = list(set([dat['text'] for dat in pdfs[pdf_url]]))
+        source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
+        texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
 
         url_parsed = urllib.parse.urlparse(pdf_url)
         default_file_name = url_parsed.path.split("/")[-1]
@@ -178,20 +177,20 @@ def get_pdf_metadata(pdfs):
                         file_bytes = mem_obj.getbuffer().nbytes
 
                         row = {
-                            'file_name': file_name,
-                            'url': pdf_url,
-                            'file_size': convert_bytes(file_bytes),
-                            'file_size_kilobytes': file_bytes / 1024,
-                            'last_modified_date': pdf_file.metadata.modification_date,  # noqa: E501
-                            'author': pdf_file.metadata.author,
-                            'subject': pdf_file.metadata.subject,
-                            'keywords': pdf_file.metadata.keywords,
-                            'creation_date': pdf_file.metadata.creation_date,
-                            'producer': pdf_file.metadata.producer,
-                            'number_of_pages': pdf_file.get_num_pages(),
-                            'version': pdf_file.pdf_header,
-                            'source': source,
-                            'text_around_link': texts
+                            "file_name": file_name,
+                            "url": pdf_url,
+                            "file_size": convert_bytes(file_bytes),
+                            "file_size_kilobytes": file_bytes / 1024,
+                            "last_modified_date": pdf_file.metadata.modification_date,  # noqa: E501
+                            "author": pdf_file.metadata.author,
+                            "subject": pdf_file.metadata.subject,
+                            "keywords": pdf_file.metadata.keywords,
+                            "creation_date": pdf_file.metadata.creation_date,
+                            "producer": pdf_file.metadata.producer,
+                            "number_of_pages": pdf_file.get_num_pages(),
+                            "version": pdf_file.pdf_header,
+                            "source": source,
+                            "text_around_link": texts,
                         }
                         rows.append(row)
                     except:  # noqa:
@@ -205,45 +204,44 @@ def get_pdf_metadata(pdfs):
 
 
 config = get_config()
-allow_list = config['allow_list']
+allow_list = config["allow_list"]
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Starts crawl from provided URL"
-    )
+    parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
     parser.add_argument("url", help="Starting URL", choices=allow_list.keys())
     parser.add_argument("--depth", type=int, default=5, help="Crawl depth")
+    parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
     parser.add_argument(
-        "--delay", type=float, default=0, help="Delay between requests"
-    )
-    parser.add_argument(
-        "--use_sitemap", default=False,
+        "--use_sitemap",
+        default=False,
         action=argparse.BooleanOptionalAction,
-        help="Use sitemap (versus crawl recursively)"
+        help="Use sitemap (versus crawl recursively)",
     )
     parser.add_argument(
-        "output_path",
-        help="Path where a CSV with PDF information will be saved"
+        "output_path", help="Path where a CSV with PDF information will be saved"
     )
     args = parser.parse_args()
 
-    allowable_domains = [tldextract.extract(link).registered_domain
-                         for link in allow_list[args.url]]
+    allowable_domains = [
+        tldextract.extract(link).registered_domain for link in allow_list[args.url]
+    ]
     sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
     if args.use_sitemap:
         all_pages = parse_sitemap(sitemap)
-        print(f'Pages found from sitemap: {len(all_pages)}')
+        print(f"Pages found from sitemap: {len(all_pages)}")
 
         pdfs = get_all_pages(all_pages)
         print("Visited all pages on the sitemap.")
     else:
         print("Doing recursive search instead.")
-        pdfs, visited = bfs_search_pdfs(args.url, delay=manual_crawl_delay,
-                                        max_depth=args.depth,
-                                        allowable_sites=allowable_domains)
+        pdfs, visited = bfs_search_pdfs(
+            args.url,
+            delay=manual_crawl_delay,
+            max_depth=args.depth,
+            allowable_sites=allowable_domains,
+        )
 
     print(f"PDFs found: {len(pdfs)}")
     pdf_metadata = get_pdf_metadata(pdfs)
     pdf_metadata.to_csv(args.output_path, index=False)
-

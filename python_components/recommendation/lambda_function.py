@@ -7,8 +7,8 @@ import boto3
 import llm
 import pdf2image
 import pypdf
-from pydantic import BaseModel, Field
 import requests
+from pydantic import BaseModel, Field
 
 # Create and provide a very simple logger implementation.
 logger = logging.getLogger("experiment_utility")
@@ -82,30 +82,41 @@ def validate_event(event):
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
             )
-    documents = event['documents']
+    documents = event["documents"]
     if type(documents) is dict:
         documents = [documents]
     if type(documents) is not list:
-        raise ValueError("Provided key documents must be a list of dictionaries or a single dictionary. It was not.")
+        raise ValueError(
+            "Provided key documents must be a list of dictionaries or a single dictionary. It was not."
+        )
     for i, document in enumerate(documents):
         for key in document.keys():
             for required_document_key in ("id", "title", "purpose", "url"):
                 if required_document_key not in document.keys():
-                    raise ValueError(f"Document with index {i} is missing required key, {key}")
+                    raise ValueError(
+                        f"Document with index {i} is missing required key, {key}"
+                    )
 
 
 class DocumentEligibility(BaseModel):
-    is_archival: bool = Field(description="Whether the document meets exception 1: Archived Web Content Exception")
+    is_archival: bool = Field(
+        description="Whether the document meets exception 1: Archived Web Content Exception"
+    )
     why_archival: str = Field(
-        description="An explanation of why the document meets or does not meet exception 1: Archived Web Content Exception")
+        description="An explanation of why the document meets or does not meet exception 1: Archived Web Content Exception"
+    )
     is_application: bool = Field(
-        description="Whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception")
+        description="Whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception"
+    )
     why_application: str = Field(
-        description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception")
+        description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
+    )
     is_third_party: bool = Field(
-        description="Whether the document meets exception 3: Content Posted by Third Parties Exception")
+        description="Whether the document meets exception 3: Content Posted by Third Parties Exception"
+    )
     why_third_party: str = Field(
-        description="An explanation of why the document meets or does not meet exception 3: Content Posted by Third Parties Exception")
+        description="An explanation of why the document meets or does not meet exception 3: Content Posted by Third Parties Exception"
+    )
 
 
 def post_document(url: str, document_id: int, json_result: dict):
@@ -113,7 +124,12 @@ def post_document(url: str, document_id: int, json_result: dict):
         "documents": [],
     }
     # TODO make rails accept and deal with DocumentEligibility.
-    bool_fields = ("is_individualized", "is_archival", "is_application", "is_third_party")
+    bool_fields = (
+        "is_individualized",
+        "is_archival",
+        "is_application",
+        "is_third_party",
+    )
     for field in bool_fields:
         if field in json_result.keys():
             record = {
@@ -131,7 +147,9 @@ def post_document(url: str, document_id: int, json_result: dict):
 
     # Check the response status code
     if response.status_code > 300:
-        raise RuntimeError(f"API Request to update document inferences failed: {response.text}")
+        raise RuntimeError(
+            f"API Request to update document inferences failed: {response.text}"
+        )
 
 
 PROMPT = """
@@ -188,11 +206,17 @@ def handler(event, context):
             api_key = supported_models[event["model_name"]]["key"]
             config = get_config()
             page_limit = (
-                config["page_limit"] if event["page_limit"] == 0 else event["page_limit"]
+                config["page_limit"]
+                if event["page_limit"] == 0
+                else event["page_limit"]
             )
         else:
-            api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
-            page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+            api_key = get_secret(
+                supported_models[event["model_name"]]["key"], local_mode
+            )
+            page_limit = (
+                "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+            )
 
         logger.info(f"Page limit set to {page_limit}.")
 
@@ -208,7 +232,9 @@ def handler(event, context):
             if not pypdf.PdfReader(local_path).is_encrypted:
                 # Convert to images.
                 logger.info("Converting to images!")
-                attachments = pdf_to_attachments(local_path, "./data", event["page_limit"])
+                attachments = pdf_to_attachments(
+                    local_path, "./data", event["page_limit"]
+                )
                 num_attachments = len(attachments)
                 logger.info(f"Document has {num_attachments} pages.")
                 populated_prompt = PROMPT.format(**document)
@@ -220,12 +246,13 @@ def handler(event, context):
                 response_json = json.loads(response.text())
                 DocumentEligibility.model_validate(response_json)
                 response_json["is_individualized"] = False
-                response_json[
-                    "why_individualized"] = 'Document was not encrypted and is likely not included in the "Individualized Content" exception.'
+                response_json["why_individualized"] = (
+                    'Document was not encrypted and is likely not included in the "Individualized Content" exception.'
+                )
             else:
                 response_json = {
                     "is_individualized": True,
-                    "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.'
+                    "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
                 }
             logging.info("Writing LLM results to Rails API...")
             # TODO figure out how to contextualize this.
@@ -237,7 +264,4 @@ def handler(event, context):
             "body": "Successfully made document recommendation.",
         }
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": str(e)
-        }
+        return {"statusCode": 500, "body": str(e)}
