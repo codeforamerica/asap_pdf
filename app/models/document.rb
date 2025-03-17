@@ -5,7 +5,7 @@ class Document < ApplicationRecord
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
 
-  has_paper_trail versions: { scope: -> { order(created_at: :desc) } }
+  has_paper_trail versions: {scope: -> { order(created_at: :desc) }}
 
   url_decoded_attribute :file_name
   url_decoded_attribute :url
@@ -51,13 +51,13 @@ class Document < ApplicationRecord
   LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
 
   DECISION_TYPES = [DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION,
-                    REMEDIATE_ACCESSIBILITY_RECOMMENDATION, "Convert", "Remove"].freeze
+    REMEDIATE_ACCESSIBILITY_RECOMMENDATION, "Convert", "Remove"].freeze
 
   validates :file_name, presence: true
-  validates :url, presence: true, format: { with: URI::DEFAULT_PARSER.make_regexp }
-  validates :document_status, presence: true, inclusion: { in: %w[discovered downloaded] }
-  validates :document_category, inclusion: { in: CONTENT_TYPES }, allow_nil: true
-  validates :accessibility_recommendation, inclusion: { in: DECISION_TYPES }, allow_nil: true
+  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
+  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
+  validates :document_category, inclusion: {in: CONTENT_TYPES}, allow_nil: true
+  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES}, allow_nil: true
 
   before_validation :set_defaults
 
@@ -152,7 +152,7 @@ class Document < ApplicationRecord
         page_limit: 7
       }.to_json
       begin
-        response = RestClient.post(endpoint_url, payload, { content_type: :json, accept: :json })
+        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
         json_body = JSON.parse(response.body)
         if json_body["statusCode"] == 200
           self.summary = '"' + json_body["body"] + '"'
@@ -169,11 +169,11 @@ class Document < ApplicationRecord
       endpoint_url = "http://localhost:9001/2015-03-31/functions/function/invocations"
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
-        documents: [{ id: id, title: file_name, url: url, purpose: document_category }],
+        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
         page_limit: 7
       }.to_json
       begin
-        response = RestClient.post(endpoint_url, payload, { content_type: :json, accept: :json })
+        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
         response_json = JSON.parse(response.body)
         if response_json["statusCode"] != 200
           raise StandardError, response_json["body"]
@@ -197,16 +197,16 @@ class Document < ApplicationRecord
     # If value is already a JSON string, store as-is
     # Otherwise convert to JSON
     json_value = if value.is_a?(String)
-                   begin
-                     # Try parsing to validate it's proper JSON
-                     JSON.parse(value)
-                     value # If parsing succeeds, use original string
-                   rescue JSON::ParserError
-                     value.to_json # Not JSON, so convert it
-                   end
-                 else
-                   value.to_json
-                 end
+      begin
+        # Try parsing to validate it's proper JSON
+        JSON.parse(value)
+        value # If parsing succeeds, use original string
+      rescue JSON::ParserError
+        value.to_json # Not JSON, so convert it
+      end
+    else
+      value.to_json
+    end
     write_attribute(:source, json_value)
   end
 
@@ -221,10 +221,10 @@ class Document < ApplicationRecord
 
   def storage_config
     @storage_config ||= begin
-                          config = Rails.application.config.active_storage.service_configurations[Rails.env.to_s]
-                          raise "S3 storage configuration not found for #{Rails.env}" unless config
-                          config.symbolize_keys
-                        end
+      config = Rails.application.config.active_storage.service_configurations[Rails.env.to_s]
+      raise "S3 storage configuration not found for #{Rails.env}" unless config
+      config.symbolize_keys
+    end
   end
 
   def set_defaults
