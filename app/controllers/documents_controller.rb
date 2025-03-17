@@ -77,7 +77,7 @@ class DocumentsController < AuthenticatedController
   def update_summary_inference
     if @document.summary.nil?
       @document.update(
-        summary: @document.inference_summary
+        summary: @document.inference_summary!
       )
     end
     render json: {

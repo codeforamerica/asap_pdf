@@ -31,6 +31,13 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Compile CSS and JS
+        run: |
+          npm install -g yarn@1.22.22 tailwindcss@3.4.1
+          yarn install
+          yarn build
+          yarn build:css
+
       - name: Run security scan
         run: bundle exec brakeman -q -w2
 
@@ -50,3 +57,11 @@ jobs:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
         run: bundle exec rspec
+
+      - name: Keep screenshots from failed system tests
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: ${{ github.workspace }}/tmp/capybara
+          if-no-files-found: ignore

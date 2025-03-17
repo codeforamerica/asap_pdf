@@ -143,7 +143,7 @@ class Document < ApplicationRecord
     }
   end
 
-  def inference_summary
+  def inference_summary!
     if summary.nil?
       endpoint_url = "http://localhost:9000/2015-03-31/functions/function/invocations"
       payload = {
@@ -153,16 +153,15 @@ class Document < ApplicationRecord
       }.to_json
       begin
         response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
-        self.summary = response.body
-      rescue RestClient::ExceptionWithResponse => e
-        puts "Error: #{e.response.code} #{e.response.body}"
-      rescue RestClient::Exception => e
-        puts "A RestClient exception occurred: #{e.message}"
-      rescue JSON::ParserError => e
-        puts "The server returned a malformed JSON response: #{e.message}"
+        json_body = JSON.parse(response.body)
+        if json_body["statusCode"] == 200
+          self.summary = '"' + json_body["body"] + '"'
+        else
+          raise StandardError.new("Inference failed: #{json_body["body"]}")
+        end
+        summary
       end
     end
-    summary
   end
 
   def inference_recommendation
