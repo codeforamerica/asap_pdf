@@ -87,7 +87,7 @@ class DocumentsController < AuthenticatedController
 
   def update_recommendation_inference
     if @document.document_inferences.none?
-      @document.inference_recommendation
+      @document.inference_recommendation!
       @document.reload
     end
     render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
