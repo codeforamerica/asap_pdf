@@ -153,7 +153,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content("AI Accessibility Recommendation\nLeave")
       expect(page).to have_content("Preexisting documents: Yes\nThis is not used as an application or means of participation in government services.")
       expect(page).to have_content("Third party content: No\nThis is not third party.")
-      find('.close').click
+      find(".close").click
     end
     # Test user override.
     decision = find("[data-dropdown-edit-field-value='accessibility_recommendation']")
