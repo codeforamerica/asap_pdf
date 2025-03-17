@@ -18,7 +18,7 @@
             <% end %>
           </div>
         </div>
-        <button onclick="pdf_modal_<%= document.id %>.close()" class="btn btn-sm btn-circle">✕</button>
+        <button onclick="pdf_modal_<%= document.id %>.close()" class="btn btn-sm btn-circle close">✕</button>
       </div>
       <%= turbo_frame_tag "modal_content_#{document.id}", src: modal_content_site_document_path(@site, document), loading: "lazy" do %>
         <div class="flex items-center justify-center p-8">
