@@ -21,11 +21,7 @@ def get_models():
 def get_supported_models(local_mode):
     if local_mode:
         config = get_config()
-        return {
-            config["active_model"]: {
-                "key": config["key"]
-            }
-        }
+        return {config["active_model"]: {"key": config["key"]}}
     else:
         return get_models()
 
@@ -109,11 +105,17 @@ def handler(event, context):
             api_key = supported_models[event["model_name"]]["key"]
             config = get_config()
             page_limit = (
-                config["page_limit"] if event["page_limit"] == 0 else event["page_limit"]
+                config["page_limit"]
+                if event["page_limit"] == 0
+                else event["page_limit"]
             )
         else:
-            api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
-            page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+            api_key = get_secret(
+                supported_models[event["model_name"]]["key"], local_mode
+            )
+            page_limit = (
+                "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+            )
 
         logger.info(f"Page limit set to {page_limit}.")
         logger.info(f"Attempting to fetch document: {event['document_url']}")

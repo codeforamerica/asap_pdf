@@ -105,17 +105,26 @@ class DocumentEligibility(BaseModel):
     why_archival: str = Field(
         description="An explanation of why the document meets or does not meet exception 1: Archived Web Content Exception"
     )
+    is_archival_confidence: float = Field(
+        description="Percentage representing how confident you are about whether the document meets exception 1: Archived Web Content Exception"
+    )
     is_application: bool = Field(
         description="Whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception"
     )
     why_application: str = Field(
         description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
     )
+    is_application_confidence: float = Field(
+        description="Percentage representing how confident you are about whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception"
+    )
     is_third_party: bool = Field(
         description="Whether the document meets exception 3: Content Posted by Third Parties Exception"
     )
     why_third_party: str = Field(
         description="An explanation of why the document meets or does not meet exception 3: Content Posted by Third Parties Exception"
+    )
+    is_third_party_confidence: float = Field(
+        description="Percentage representing how confident you are about whether the document meets exception 3: Content Posted by Third Parties Exception"
     )
 
 
@@ -137,14 +146,13 @@ def post_document(url: str, document_id: int, json_result: dict):
                 "type": f"exception:{field}",
                 "value": json_result[field],
                 "reason": json_result[field.replace("is", "why")],
+                "confidence": json_result[f"{field}_confidence"],
             }
             data["documents"].append(record)
     # Headers (optional, but often needed for specifying content type)
     headers = {"Content-type": "application/json"}
-
     # Send the POST request
     response = requests.post(url, data=json.dumps(data), headers=headers)
-
     # Check the response status code
     if response.status_code > 300:
         raise RuntimeError(
@@ -246,12 +254,14 @@ def handler(event, context):
                 response_json = json.loads(response.text())
                 DocumentEligibility.model_validate(response_json)
                 response_json["is_individualized"] = False
+                response_json["is_individualized_confidence"] = 100
                 response_json["why_individualized"] = (
                     'Document was not encrypted and is likely not included in the "Individualized Content" exception.'
                 )
             else:
                 response_json = {
                     "is_individualized": True,
+                    "is_individualized_confidence": 100,
                     "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
                 }
             logging.info("Writing LLM results to Rails API...")
