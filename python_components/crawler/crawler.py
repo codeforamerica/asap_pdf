@@ -18,9 +18,14 @@ from tqdm import tqdm
 warnings.filterwarnings("ignore")
 
 
-def get_config():
+def get_config(url):
     with open("config.json", "r") as f:
-        return json.load(f)
+        config = json.load(f)
+
+    try:
+        return config[url]
+    except KeyError:
+        raise Exception('URL provided not in config.json')
 
 
 def parse_robots_txt(url, manual_crawl_delay):
@@ -96,11 +101,10 @@ def get_links(url, timeout=90):
     return links, link_texts
 
 
-def get_all_pages(all_pages):
+def get_all_pages(all_pages, delay=0):
     pdfs = defaultdict(list)
     for page in tqdm(all_pages, ncols=100):
-        if manual_crawl_delay:
-            time.sleep(manual_crawl_delay)
+        time.sleep(delay)
         links, link_texts = get_links(page)
         for link, text in zip(links, link_texts):
             if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link):
@@ -203,42 +207,38 @@ def get_pdf_metadata(pdfs):
     return pd.DataFrame(rows)
 
 
-config = get_config()
-allow_list = config["allow_list"]
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
-    parser.add_argument("url", help="Starting URL", choices=allow_list.keys())
-    parser.add_argument("--depth", type=int, default=5, help="Crawl depth")
-    parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
+    parser.add_argument("url", help="Starting URL")
     parser.add_argument(
-        "--use_sitemap",
-        default=False,
-        action=argparse.BooleanOptionalAction,
-        help="Use sitemap (versus crawl recursively)",
-    )
+        "--delay", type=float, default=0, help="Delay between requests")
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
     )
     args = parser.parse_args()
 
+    config = get_config(args.url)
+    allow_list = config["allow_list"]
+    use_sitemap = config["use_sitemap"]
+    depth = config["depth"]
+
     allowable_domains = [
-        tldextract.extract(link).registered_domain for link in allow_list[args.url]
+        tldextract.extract(link).registered_domain for link in allow_list
     ]
     sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
-    if args.use_sitemap:
+    if use_sitemap:
         all_pages = parse_sitemap(sitemap)
         print(f"Pages found from sitemap: {len(all_pages)}")
 
-        pdfs = get_all_pages(all_pages)
+        pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
         print("Visited all pages on the sitemap.")
     else:
         print("Doing recursive search instead.")
         pdfs, visited = bfs_search_pdfs(
             args.url,
             delay=manual_crawl_delay,
-            max_depth=args.depth,
+            max_depth=depth,
             allowable_sites=allowable_domains,
         )
 
