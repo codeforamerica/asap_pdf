@@ -42,3 +42,8 @@ output "alb_dns_name" {
   description = "The DNS name of the ALB"
   value       = aws_lb.main.dns_name
 }
+
+output "domain_name" {
+  description = "The production domain name."
+  value       = aws_acm_certificate.main.domain_name
+}
