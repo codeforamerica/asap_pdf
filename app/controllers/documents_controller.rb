@@ -81,7 +81,7 @@ class DocumentsController < AuthenticatedController
       )
     end
     render json: {
-      display_text: @document.summary&.undump
+      display_text: @document.summary
     }
   end
 

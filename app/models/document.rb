@@ -155,7 +155,7 @@ class Document < ApplicationRecord
         response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
         json_body = JSON.parse(response.body)
         if json_body["statusCode"] == 200
-          self.summary = '"' + json_body["body"] + '"'
+          self.summary = json_body["body"]
         else
           raise StandardError.new("Inference failed: #{json_body["body"]}")
         end
