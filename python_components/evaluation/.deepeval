@@ -1,0 +1,1 @@
+{"LOCAL_MODEL_NAME": "gemma3", "LOCAL_MODEL_BASE_URL": "http://localhost:11434", "USE_LOCAL_MODEL": "YES", "USE_AZURE_OPENAI": "NO", "LOCAL_MODEL_API_KEY": "ollama"}

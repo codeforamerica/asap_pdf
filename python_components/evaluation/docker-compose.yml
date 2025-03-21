@@ -1,0 +1,9 @@
+services:
+  ollama:
+    image: ollama/ollama
+  evaluation_workspace:
+    container_name: evaluation_workspace
+    build: .
+    command: tail -f /dev/null
+    volumes:
+      - ./:/workspace
