@@ -20,7 +20,7 @@ gem "thruster", require: false
 gem "redis", "~> 5.4.0"
 gem "sidekiq", "~> 8.0"
 
-gem "view_component", "~> 3.21"
+gem "view_component", "~> 3.22"
 gem "kaminari", "~> 1.2"
 
 group :development, :test do
