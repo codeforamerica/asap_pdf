@@ -62,7 +62,7 @@ def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list
 
 
 def validate_event(event):
-    for required_key in ("model_name", "documents", "page_limit"):
+    for required_key in ("model_name", "documents", "page_limit", "asap_endpoint"):
         if required_key not in event:
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
@@ -239,8 +239,7 @@ def handler(event, context):
                 }
             logging.info("Writing LLM results to Rails API...")
             # TODO figure out how to contextualize this.
-            url = "http://host.docker.internal:3000/api/documents/inference"
-            post_document(url, document_id, response_json)
+            post_document(event["asap_endpoint"], document_id, response_json)
 
         return {
             "statusCode": 200,
