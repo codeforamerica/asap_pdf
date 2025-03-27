@@ -171,7 +171,7 @@ class Document < ApplicationRecord
         model_name: "gemini-2.0-pro-exp-02-05",
         documents: [{id: id, title: file_name, url: url, purpose: document_category}],
         page_limit: 7,
-        asap_endpoint: "http://host.docker.internal:3000/api/documents/inference",
+        asap_endpoint: "http://host.docker.internal:3000/api/documents/inference"
       }.to_json
       begin
         response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})

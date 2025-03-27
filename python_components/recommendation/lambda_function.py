@@ -238,7 +238,6 @@ def handler(event, context):
                     "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
                 }
             logging.info("Writing LLM results to Rails API...")
-            # TODO figure out how to contextualize this.
             post_document(event["asap_endpoint"], document_id, response_json)
 
         return {
