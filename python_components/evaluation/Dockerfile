@@ -1,6 +1,6 @@
 FROM python:latest
-#COPY requirements.txt .
+COPY requirements.txt .
 ENV PYTHONPATH=\/workspace
-RUN curl -fsSL https://ollama.com/install.sh | sh
-#RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
+RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
+#RUN deepeval set-ollama gemma3 --base-url="http://evaluation_ollama:11434"
 WORKDIR /workspace

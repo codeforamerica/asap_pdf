@@ -1,0 +1,13 @@
+services:
+  ollama:
+    container_name: evaluation_ollama
+    image: ollama/ollama
+  evaluation_workspace:
+    container_name: evaluation_workspace
+    build:
+      context: ./python_components/evaluation
+    command: tail -f /dev/null
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./python_components/evaluation/:/workspace
