@@ -11,8 +11,8 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org", user_id: @current_user.id)
     Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: "Unknown", site_id: site.id)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov", user_id: @current_user.id)
-    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", accessibility_recommendation: "Unknown", site_id: site.id)
-    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", accessibility_recommendation: "Unknown", site_id: site.id)
+    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: "Unknown", site_id: site.id)
+    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: "Unknown", site_id: site.id)
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: "Unknown", site_id: site.id, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
@@ -79,9 +79,63 @@ describe "documents function as expected", js: true, type: :feature do
     within("#sidebar") do
       click_button "Filter Results"
       click_link "Clear"
+      sleep(1)
     end
     within("#document-list") do
       expect(page).to have_css("tbody tr", count: 3)
+      # Test decision filter.
+      decision = find("tr:nth-child(1) [data-dropdown-edit-field-value='accessibility_recommendation']")
+      decision.click
+      select = decision.find("select")
+      select.find("[value='Convert']").click
+    end
+    within("#sidebar") do
+      click_button "Filter Results"
+      find("#accessibility_recommendation").find("[value='Remediate']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_content "No documents found"
+      expect(page).to have_no_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      click_button "Filter Results"
+      find("#accessibility_recommendation").find("[value='Convert']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_no_content "No documents found"
+      expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    # Test sorting
+    within("#sidebar") do
+      click_button "Filter Results"
+      click_link "Clear"
+    end
+    within("#document-list thead") do
+      click_link "Type"
+    end
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "teahouse_rules.pdf"
+    end
+    within("#document-list tbody tr:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+    end
+    within("#document-list tbody tr:nth-child(3)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#document-list thead") do
+      click_link "Type"
+    end
+    within("#document-list tbody tr:nth-child(3)") do
+      expect(page).to have_content "teahouse_rules.pdf"
+    end
+    within("#document-list tbody tr:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+    end
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
     end
   end
 
