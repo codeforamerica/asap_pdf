@@ -17,7 +17,6 @@ class DocumentsController < AuthenticatedController
       .by_date_range(params[:start_date], params[:end_date])
       .order(sort_column => sort_direction)
       .page(params[:page])
-
     @document_categories = Document::CONTENT_TYPES
     @total_documents = @documents.total_count
   end
@@ -110,7 +109,11 @@ class DocumentsController < AuthenticatedController
   end
 
   def sort_column
-    %w[file_name modification_date].include?(params[:sort]) ? params[:sort] : "file_name"
+    if params[:sort] == "document_category"
+      "document_category_confidence"
+    else
+      %w[file_name modification_date accessibility_recommendation].include?(params[:sort]) ? params[:sort] : "file_name"
+    end
   end
 
   def sort_direction
