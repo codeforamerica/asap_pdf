@@ -50,14 +50,19 @@ class Document < ApplicationRecord
 
   LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
 
-  DECISION_TYPES = [DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION,
-    REMEDIATE_ACCESSIBILITY_RECOMMENDATION, "Convert", "Remove"].freeze
+  DECISION_TYPES = {
+    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => 'Unknown',
+    LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => 'Leave PDF as-is',
+    REMEDIATE_ACCESSIBILITY_RECOMMENDATION.to_s => 'Remediate PDF',
+    "Convert" =>  "Convert PDF to web content",
+    "Remove" => "Remove PDF from website"
+  }.freeze
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}, allow_nil: true
-  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES}, allow_nil: true
+  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
 
   before_validation :set_defaults
 
