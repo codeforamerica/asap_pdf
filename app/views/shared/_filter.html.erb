@@ -26,7 +26,7 @@
         </div>
         <div>
           <label class="label">
-            <span class="label-text">Document Category</span>
+            <span class="label-text">Document Type</span>
           </label>
           <%= select_tag :category,
                   options_for_select([['All Categories', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
