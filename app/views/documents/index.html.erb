@@ -37,9 +37,6 @@
 ">
           <div class="flex justify-between items-center">
             <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
-            <span class="text-primary"><%= params[:status].present? ? params[:status].titleize.gsub('_', ' ') : "Backlog" %>
-              <i class="fas fa-chevron-down text-xs ml-2"></i>
-            </span>
           </div>
         </div>
         <div class="bg-white shadow-sm rounded-b-lg overflow-visible">
