@@ -1,3 +1,5 @@
+require "zip"
+
 namespace :documents do
   desc "Bootstrap"
   task bootstrap: :environment do
@@ -38,21 +40,25 @@ namespace :documents do
     )
     puts "Created site: #{ga.name}"
 
-    # Process Georgia documents
-    puts "\nProcessing Georgia documents..."
-    ga.process_csv_documents(Rails.root.join("db", "seeds", "georgia.csv"))
+    csv_manifest = {
+      "georgia.csv" => ga,
+      "austin.csv" => austin,
+      "san_rafael.csv" => san_rafael,
+      "salt_lake_city.csv" => slc
+    }
 
-    # Process Austin documents
-    puts "\nProcessing Austin documents..."
-    austin.process_csv_documents(Rails.root.join("db", "seeds", "austin.csv"))
-
-    # Process San Rafael documents
-    puts "\nProcessing San Rafael documents..."
-    san_rafael.process_csv_documents(Rails.root.join("db", "seeds", "san_rafael.csv"))
-
-    # Process Salt Lake City documents
-    puts "\nProcessing Salt Lake City documents..."
-    slc.process_csv_documents(Rails.root.join("db", "seeds", "salt_lake_city.csv"))
+    Zip::File.open(Rails.root.join("db", "seeds", "site_documents.zip")) do |zipfile|
+      zipfile.each do |entry|
+        if entry.file?
+          file_name = entry.name.delete_prefix("site_documents/")
+          if csv_manifest.has_key?(file_name)
+            site = csv_manifest[file_name]
+            puts "\nProcessing #{site.name} documents..."
+            site.process_csv_documents(entry.get_input_stream.read)
+          end
+        end
+      end
+    end
   end
 
   desc "Show percentage of null values for each column in the documents table"

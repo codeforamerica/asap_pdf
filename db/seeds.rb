@@ -1,4 +1,5 @@
 require "csv"
+require "zip"
 require "rake"
 Rails.application.load_tasks
 

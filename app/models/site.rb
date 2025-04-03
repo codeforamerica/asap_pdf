@@ -38,7 +38,10 @@ class Site < ApplicationRecord
 
   def discover_documents!(document_data)
     created_or_updated = []
+    total_length = document_data.length
+    row_count = 1
     document_data.each do |data|
+      print "\rProcessing document #{row_count}/#{total_length}\r"
       url = data[:url]
       modification_date = data[:modification_date]
 
@@ -60,21 +63,21 @@ class Site < ApplicationRecord
             created_or_updated << new_doc
           end
         rescue ActiveRecord::RecordInvalid => e
-          puts "Skipping Error: #{e.message}"
+          puts "Skipping file #{document.url}, Error: #{e.message}"
         end
       end
+      row_count += 1
     end
-
+    # Clear inline message.
+    puts
     created_or_updated
   end
 
-  def process_csv_documents(csv_path)
-    return unless File.exist?(csv_path)
-
+  def process_csv_documents(csv_content)
     documents = []
     skipped = 0
-
-    CSV.foreach(csv_path, headers: true) do |row|
+    csv = CSV.new(StringIO.new(csv_content), headers: true)
+    csv.each do |row|
       # Encode URL while preserving basic URL structure
       encoded_url = URI.encode_www_form_component(row["url"])
         .gsub("%3A", ":")  # Restore colons
@@ -89,7 +92,6 @@ class Site < ApplicationRecord
         urls = row["source"].scan(/'([^']+)'/).flatten
         urls.empty? ? nil : urls
       end
-
       documents << {
         url: encoded_url,
         file_name: row["file_name"],
