@@ -33,3 +33,20 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
   - Document purpose: {purpose}
   - Document URL: {url}
 """
+
+
+SUMMARY = """
+# PDF Analyzer
+
+You are an AI assistant specializing in PDF analysis. Your task is to investigate the provided images and provide succinct information.
+
+## Your Task
+
+Provide a short two to three sentence summary of the provided document.
+
+## Document Information
+
+  - Document title: {title}
+  - Document purpose: {purpose}
+  - Document URL: {url}
+"""
