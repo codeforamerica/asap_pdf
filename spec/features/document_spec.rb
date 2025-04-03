@@ -171,8 +171,7 @@ describe "documents function as expected", js: true, type: :feature do
     end
     # Prep the doc so we can assess the summary space.
     # Note the extra quotes necessary for our string escaping.
-    doc.summary = '"A lovely example of accessible PDF practices."'
-    doc.save!
+    DocumentInference.new(document_id: doc.id, inference_type: "summary", inference_value: '"A lovely example of accessible PDF practices."').save
     # Check out "History" tab and look for notes.
     visit "/"
     click_link("City of Denver")
