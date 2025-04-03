@@ -17,7 +17,15 @@ class AwsLambdaManager
     request_body = payload.to_json
     # Parse the URL
     uri = URI.parse(@function_url)
-    credentials_provider = Aws::CredentialProviderChain.new.resolve
+    if Rails.env == "production"
+      credentials_provider = Aws::CredentialProviderChain.new.resolve
+    else
+      credentials_provider = Aws::Credentials.new(
+        "None",
+        "None",
+        "None"
+      )
+    end
     # Create a signing request
     signer = Aws::Sigv4::Signer.new(
       service: "lambda",
