@@ -26,11 +26,6 @@ if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   echo "Running database migrations..."
   ./bin/rails db:prepare
   echo "Database migrations complete"
-
-  # Ensure Solid Queue tables are ready
-  echo "Preparing job queue..."
-  ./bin/rails solid_queue:create
-  echo "Job queue ready"
 fi
 
 echo "Starting command: ${@}"

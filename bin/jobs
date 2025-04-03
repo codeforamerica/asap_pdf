@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require_relative "../config/environment"
-require "solid_queue/cli"
+require "sidekiq/cli"
 
-SolidQueue::Cli.start(ARGV)
+cli = Sidekiq::CLI.instance
+cli.parse
+cli.run

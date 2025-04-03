@@ -12,7 +12,6 @@ terraform {
 
 provider "aws" {
   region  = "us-east-1"
-  profile = "cfa-ai-studio"
 
   default_tags {
     tags = {

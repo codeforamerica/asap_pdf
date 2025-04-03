@@ -88,3 +88,13 @@ output "redis_url" {
     module.cache.redis_port
   )
 }
+
+output "ecr_repository_name" {
+  description = "The name of the ECR repository"
+  value       = module.deployment.ecr_repository_name
+}
+
+output "github_actions_role_arn" {
+  description = "The ARN of the IAM role for GitHub Actions"
+  value       = module.deployment.github_actions_role_arn
+}

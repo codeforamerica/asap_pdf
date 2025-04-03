@@ -27,13 +27,3 @@ output "cloudwatch_log_group_name" {
   description = "Name of the CloudWatch log group"
   value       = aws_cloudwatch_log_group.app.name
 }
-
-output "autoscaling_group_name" {
-  description = "Name of the Auto Scaling Group"
-  value       = aws_autoscaling_group.ecs.name
-}
-
-output "capacity_provider_name" {
-  description = "Name of the ECS capacity provider"
-  value       = aws_ecs_capacity_provider.main.name
-}

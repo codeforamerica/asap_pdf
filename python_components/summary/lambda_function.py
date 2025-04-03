@@ -8,22 +8,9 @@ import llm
 import pdf2image
 
 
-def get_config():
-    with open("config.json", "r") as f:
-        return json.load(f)
-
-
 def get_models():
     with open("models.json", "r") as f:
         return json.load(f)
-
-
-def get_supported_models(local_mode):
-    if local_mode:
-        config = get_config()
-        return {config["active_model"]: {"key": config["key"]}}
-    else:
-        return get_models()
 
 
 # Create and provide a very simple logger implementation.
@@ -86,52 +73,60 @@ def get_summary(model_name: str, api_key: str, attachments: list) -> str:
 
 def handler(event, context):
     try:
+        event_type = type(event)
+        logger.info(f"Received event: {event_type}")
+        if type(event) is str:
+            event = json.loads(event)
+        if "body" in event:
+            logger.info("Here it is:")
+            logger.info(type(event["body"]))
+            logger.info(event["body"])
+            event = json.loads(event["body"])
+        event_type = type(event)
+        logger.info(f"Final event: {event_type}")
+        logger.info("Checking payload for required keys.")
         for required_key in ("model_name", "document_url", "page_limit"):
             if required_key not in event:
                 raise ValueError(
                     f"Function called without required parameter, {required_key}."
                 )
-
+        logger.info("Required keys are present.")
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
-        supported_models = get_supported_models(local_mode)
-
+        logger.info(f"Local mode: {local_mode}")
+        logger.info("Checking payload for supported model.")
+        supported_models = get_models()
+        logger.info(event["model_name"])
+        logger.info(supported_models.keys())
         if event["model_name"] not in supported_models.keys():
             supported_model_list = ",".join(supported_models.keys())
             raise ValueError(
                 f"Unsupported model: {event['model_name']}. Options are: {supported_model_list}"
             )
-
-        if local_mode:
-            api_key = supported_models[event["model_name"]]["key"]
-            config = get_config()
-            page_limit = (
-                config["page_limit"]
-                if event["page_limit"] == 0
-                else event["page_limit"]
-            )
-        else:
-            api_key = get_secret(
-                supported_models[event["model_name"]]["key"], local_mode
-            )
-            page_limit = (
-                "unlimited" if event["page_limit"] == 0 else event["page_limit"]
-            )
-
+        logger.info("Model is ok.")
+        api_key = get_secret(
+            supported_models[event["model_name"]]["key"], local_mode
+        )
+        event["page_limit"] = int(event["page_limit"])
+        page_limit = (
+            "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+        )
         logger.info(f"Page limit set to {page_limit}.")
         logger.info(f"Attempting to fetch document: {event['document_url']}")
-
+        # Create our data directory.
+        if not os.path.exists("/tmp/data"):
+            os.makedirs("/tmp/data")
         # Download file locally.
-        local_path = get_file(event["document_url"], "./data")
-
+        local_path = get_file(event["document_url"], "/tmp/data")
         # Convert to images.
         logger.info("Converting to images!")
-        attachments = pdf_to_attachments(local_path, "./data", event["page_limit"])
+        attachments = pdf_to_attachments(local_path, "/tmp/data", event["page_limit"])
         num_attachments = len(attachments)
         logger.info(f"Document has {num_attachments} pages.")
 
         # Send images off to our friend.
         logger.info(f"Summarizing with {event['model_name']}...")
         summary = get_summary(event["model_name"], api_key, attachments)
+        logger.info("Summarization complete!")
     except Exception as e:
         return {
             "statusCode": 500,

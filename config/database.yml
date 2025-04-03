@@ -16,8 +16,12 @@ test:
 
 production:
   <<: *default
-  url: <%= ENV['DATABASE_URL'] %>
-  connect_timeout: 2
-  checkout_timeout: 5
+  host: <%= ENV['DB_HOST'] %>
+  port: 5432
+  database: <%= ENV['DB_NAME'] %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  connect_timeout: 5
+  checkout_timeout: 10
   variables:
     statement_timeout: 10000 # 10 seconds

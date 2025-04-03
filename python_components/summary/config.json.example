@@ -1,6 +1,0 @@
-{
-  "active_model": "gemini-1.5-pro-latest",
-  "key": "YOUR_SECRET_KEY",
-  "page_limit": 7,
-  "prompt": "The following images show a local government document. Could you summarize the contents in two or three sentences?"
-}

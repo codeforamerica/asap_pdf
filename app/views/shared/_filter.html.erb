@@ -26,11 +26,19 @@
         </div>
         <div>
           <label class="label">
-            <span class="label-text">Document Category</span>
+            <span class="label-text">Document Type</span>
           </label>
           <%= select_tag :category,
-                  options_for_select([['All Categories', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
+                  options_for_select([['All Types', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
                   class: "select-custom w-full" %>
+        </div>
+        <div>
+          <label class="label">
+            <span class="label-text">Decision</span>
+          </label>
+          <%= select_tag :accessibility_recommendation,
+                         options_for_select([['All Decisions', '']] + document_decisions.map { |c| [c.to_s.titleize, c] }, params[:accessibility_recommendation]),
+                         class: "select-custom w-full" %>
         </div>
       </div>
       <div class="flex justify-end pt-4">

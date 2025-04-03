@@ -13,6 +13,12 @@ Rails.application.configure do
   config.assume_ssl = true
   config.force_ssl = true
 
+  config.action_dispatch.default_headers = {
+    "X-Forwarded-Proto" => "https"
+  }
+
+  config.ssl_options = {redirect: {exclude: ->(request) { request.path == "/up" }}}
+
   config.log_tags = [:request_id]
   config.logger = ActiveSupport::TaggedLogging.logger($stdout)
 
@@ -20,10 +26,6 @@ Rails.application.configure do
   config.silence_healthcheck_path = "/up"
 
   config.active_support.report_deprecations = false
-  config.cache_store = :solid_cache_store
-
-  config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = {database: {writing: :queue}}
 
   config.action_mailer.default_url_options = {host: "example.com"}
 

@@ -9,33 +9,13 @@ variable "environment" {
 }
 
 variable "subnet_ids" {
-  description = "List of subnet IDs for the ECS tasks"
+  description = "List of subnet IDs for the Fargate tasks"
   type        = list(string)
 }
 
 variable "security_group_id" {
-  description = "Security group ID for the ECS tasks"
+  description = "Security group ID for the Fargate tasks"
   type        = string
-}
-
-variable "ami_id" {
-  description = "AMI ID for ECS instances"
-  type        = string
-}
-
-variable "instance_type" {
-  description = "Instance type for ECS instances"
-  type        = string
-}
-
-variable "min_size" {
-  description = "Minimum size of the Auto Scaling Group"
-  type        = number
-}
-
-variable "max_size" {
-  description = "Maximum size of the Auto Scaling Group"
-  type        = number
 }
 
 variable "container_image" {
@@ -49,17 +29,37 @@ variable "container_port" {
 }
 
 variable "container_cpu" {
-  description = "CPU units for the container"
+  description = "CPU units for the Fargate task (256 = 0.25 vCPU, 512 = 0.5 vCPU, 1024 = 1 vCPU)"
   type        = number
 }
 
 variable "container_memory" {
-  description = "Memory for the container in MiB"
+  description = "Memory for the Fargate task in MiB (512, 1024, 2048, etc.)"
   type        = number
 }
 
-variable "database_url_secret_arn" {
-  description = "ARN of the database URL secret in Secrets Manager"
+variable "db_host_secret_arn" {
+  description = "ARN of the database host secret in Secrets Manager"
+  type        = string
+}
+
+variable "db_name_secret_arn" {
+  description = "ARN of the database name secret in Secrets Manager"
+  type        = string
+}
+
+variable "db_username_secret_arn" {
+  description = "ARN of the database username secret in Secrets Manager"
+  type        = string
+}
+
+variable "db_password_secret_arn" {
+  description = "ARN of the database password secret in Secrets Manager"
+  type        = string
+}
+
+variable "secret_key_base_secret_arn" {
+  description = "ARN of the Rails secret key base secret in Secrets Manager"
   type        = string
 }
 
@@ -68,7 +68,12 @@ variable "rails_master_key_secret_arn" {
   type        = string
 }
 
-variable "redis_url" {
-  description = "Redis URL for the application"
+variable "redis_url_secret_arn" {
+  description = "ARN of the Redis URL secret in Secrets Manager"
+  type        = string
+}
+
+variable "target_group_arn" {
+  description = "ARN of the ALB target group"
   type        = string
 }

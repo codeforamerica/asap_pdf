@@ -4,6 +4,8 @@ The components in this directory cover various document handling processes. They
 
 For local development, Lambda compatible components should be setup automatically by running `docker compose up` in the project root. Lambda functions should return JSON responses with `statusCode` and `body` keys.
 
+To set API keys for AI services, visit the application configuration page. API keys are saved to the localstack version of AWS Secretes Manager.
+
 ## Codestyle
 
 The Python components should be PEP8 compliant. They are currently linted with isort, black and flake8 with discrete budgets via Github Actions. To reproduce the CI output directly, from the python_components directory build the CI image locally `docker build -t asap_pdf:ci .` and run `docker run --rm -v ./:/workspace asap_pdf:ci scripts/ci_run_linting.sh "**/*.py"`.
@@ -20,3 +22,4 @@ The Summarizer Python component requires a configuration json file that may be c
 * Include unit tests when it makes sense.
 * Pull down documents from S3, rather than http request to gov website.
 * Build remaining components.
+* Add prototype of LLM evaluation

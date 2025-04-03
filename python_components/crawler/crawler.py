@@ -5,22 +5,25 @@ import re
 import time
 import urllib.parse
 import urllib.robotparser
-import warnings
 from collections import defaultdict, deque
+from datetime import datetime
 
 import pandas as pd
-import pypdf
+import pymupdf
 import requests
 import tldextract
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-warnings.filterwarnings("ignore")
 
-
-def get_config():
+def get_config(url):
     with open("config.json", "r") as f:
-        return json.load(f)
+        config = json.load(f)
+
+    try:
+        return config[url]
+    except KeyError:
+        raise Exception("URL provided not in config.json")
 
 
 def parse_robots_txt(url, manual_crawl_delay):
@@ -96,11 +99,10 @@ def get_links(url, timeout=90):
     return links, link_texts
 
 
-def get_all_pages(all_pages):
+def get_all_pages(all_pages, delay=0):
     pdfs = defaultdict(list)
     for page in tqdm(all_pages, ncols=100):
-        if manual_crawl_delay:
-            time.sleep(manual_crawl_delay)
+        time.sleep(delay)
         links, link_texts = get_links(page)
         for link, text in zip(links, link_texts):
             if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link):
@@ -152,6 +154,24 @@ def convert_bytes(file_size):
     return f"{file_size:.1f}YB"
 
 
+def get_images_and_tables(pages, min_width=100, min_height=100):
+    number_of_images, number_of_tables = 0, 0
+    for page in pages:
+        number_of_tables += len(page.find_tables().tables)
+        for image_info in page.get_image_info():
+            width, height = image_info["width"], image_info["height"]
+            if (width > min_width) and (height > min_height):
+                number_of_images += 1
+    return (number_of_images, number_of_tables)
+
+
+def parse_pdf_date(date_string):
+    # Removes the timeszone information from the date string
+    if len(date_string) == 0:
+        return None
+    return datetime.strptime(date_string[2:14], "%Y%m%d%H%M%S")
+
+
 def get_pdf_metadata(pdfs):
     rows = []
     for pdf_url in tqdm(pdfs.keys(), ncols=100):
@@ -168,27 +188,34 @@ def get_pdf_metadata(pdfs):
             if response.status_code < 400:
                 with io.BytesIO(response.content) as mem_obj:
                     try:
-                        pdf_file = pypdf.PdfReader(mem_obj, strict=True)
+                        pdf_file = pymupdf.Document(stream=mem_obj)
 
                         file_name = default_file_name
-                        pdf_title = pdf_file.metadata.title
+                        pdf_title = pdf_file.metadata.get("title")
                         if pdf_title and (len(pdf_title.strip()) > 0):
                             file_name = pdf_title
                         file_bytes = mem_obj.getbuffer().nbytes
+                        n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                        modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
+                        created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
 
                         row = {
                             "file_name": file_name,
                             "url": pdf_url,
                             "file_size": convert_bytes(file_bytes),
                             "file_size_kilobytes": file_bytes / 1024,
-                            "last_modified_date": pdf_file.metadata.modification_date,  # noqa: E501
-                            "author": pdf_file.metadata.author,
-                            "subject": pdf_file.metadata.subject,
-                            "keywords": pdf_file.metadata.keywords,
-                            "creation_date": pdf_file.metadata.creation_date,
-                            "producer": pdf_file.metadata.producer,
-                            "number_of_pages": pdf_file.get_num_pages(),
-                            "version": pdf_file.pdf_header,
+                            "last_modified_date": modified,
+                            "author": pdf_file.metadata.get("author"),
+                            "subject": pdf_file.metadata.get("subject"),
+                            "keywords": pdf_file.metadata.get("keywords"),
+                            "creation_date": created,
+                            "producer": pdf_file.metadata.get("producer"),
+                            "number_of_pages": pdf_file.page_count,
+                            "number_of_tables": n_tables,
+                            "number_of_images": n_images,
+                            # TODO: This is consistent with current behavior, but
+                            # pdf_file.version_count might be more appropriate
+                            "version": pdf_file.metadata.get("format"),
                             "source": source,
                             "text_around_link": texts,
                         }
@@ -203,42 +230,37 @@ def get_pdf_metadata(pdfs):
     return pd.DataFrame(rows)
 
 
-config = get_config()
-allow_list = config["allow_list"]
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
-    parser.add_argument("url", help="Starting URL", choices=allow_list.keys())
-    parser.add_argument("--depth", type=int, default=5, help="Crawl depth")
+    parser.add_argument("url", help="Starting URL")
     parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
-    parser.add_argument(
-        "--use_sitemap",
-        default=False,
-        action=argparse.BooleanOptionalAction,
-        help="Use sitemap (versus crawl recursively)",
-    )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
     )
     args = parser.parse_args()
 
+    config = get_config(args.url)
+    allow_list = config["allow_list"]
+    use_sitemap = config["use_sitemap"]
+    depth = config["depth"]
+
     allowable_domains = [
-        tldextract.extract(link).registered_domain for link in allow_list[args.url]
+        tldextract.extract(link).registered_domain for link in allow_list
     ]
     sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
-    if args.use_sitemap:
+    if use_sitemap:
         all_pages = parse_sitemap(sitemap)
         print(f"Pages found from sitemap: {len(all_pages)}")
 
-        pdfs = get_all_pages(all_pages)
+        pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
         print("Visited all pages on the sitemap.")
     else:
         print("Doing recursive search instead.")
         pdfs, visited = bfs_search_pdfs(
             args.url,
             delay=manual_crawl_delay,
-            max_depth=args.depth,
+            max_depth=depth,
             allowable_sites=allowable_domains,
         )
 

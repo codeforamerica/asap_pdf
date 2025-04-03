@@ -33,6 +33,11 @@ class Document < ApplicationRecord
     where(document_category: category)
   }
 
+  scope :by_decision_type, ->(decision_type) {
+    return all if decision_type.blank?
+    where(accessibility_recommendation: decision_type)
+  }
+
   scope :by_date_range, ->(start_date, end_date) {
     scope = all
     scope = scope.where("modification_date >= ?", start_date) if start_date.present?
@@ -50,14 +55,19 @@ class Document < ApplicationRecord
 
   LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
 
-  DECISION_TYPES = [DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION,
-    REMEDIATE_ACCESSIBILITY_RECOMMENDATION, "Convert", "Remove"].freeze
+  DECISION_TYPES = {
+    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Unknown",
+    LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => "Leave PDF as-is",
+    REMEDIATE_ACCESSIBILITY_RECOMMENDATION.to_s => "Remediate PDF",
+    "Convert" => "Convert PDF to web content",
+    "Remove" => "Remove PDF from website"
+  }.freeze
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}, allow_nil: true
-  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES}, allow_nil: true
+  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
 
   before_validation :set_defaults
 
@@ -145,19 +155,30 @@ class Document < ApplicationRecord
 
   def inference_summary!
     if summary.nil?
-      endpoint_url = "http://localhost:9000/2015-03-31/functions/function/invocations"
+      lambda_manager = if Rails.env.to_s != "production"
+        AwsLambdaManager.new(function_url: "http://localhost:9000/2015-03-31/functions/function/invocations")
+      else
+        AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+      end
       payload = {
         model_name: "gemini-1.5-pro-latest",
         document_url: url,
         page_limit: 7
-      }.to_json
+      }
       begin
-        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
-        json_body = JSON.parse(response.body)
-        if json_body["statusCode"] == 200
-          self.summary = json_body["body"]
+        response = lambda_manager.invoke_lambda!(payload)
+        begin
+          json_body = JSON.parse(response.body)
+          body = json_body["body"]
+          status = json_body["statusCode"]
+        rescue JSON::ParserError
+          body = response.body
+          status = response.code
+        end
+        if Integer(status) == 200
+          self.summary = '"' + body + '"'
         else
-          raise StandardError.new("Inference failed: #{json_body["body"]}")
+          raise StandardError.new("Inference failed: #{body}")
         end
         summary
       end
@@ -170,7 +191,8 @@ class Document < ApplicationRecord
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
         documents: [{id: id, title: file_name, url: url, purpose: document_category}],
-        page_limit: 7
+        page_limit: 7,
+        asap_endpoint: "http://host.docker.internal:3000/api/documents/inference"
       }.to_json
       begin
         response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})

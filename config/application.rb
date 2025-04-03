@@ -24,6 +24,7 @@ module AsapPdf
     config.view_component.preview_paths << "#{Rails.root}/spec/components/previews" if Rails.env.development?
     config.active_record.yaml_column_permitted_classes = [Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]
 
+    config.action_controller.per_form_csrf_tokens = false
     config.generators.system_tests = nil
   end
 end

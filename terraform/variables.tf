@@ -66,25 +66,6 @@ variable "redis_port" {
   default     = 6379
 }
 
-# ECS Configuration
-variable "ecs_instance_type" {
-  description = "EC2 instance type for ECS cluster"
-  type        = string
-  default     = "t3.medium" # Increased for better resource availability
-}
-
-variable "ecs_min_size" {
-  description = "Minimum size of the Auto Scaling Group"
-  type        = number
-  default     = 1
-}
-
-variable "ecs_max_size" {
-  description = "Maximum size of the Auto Scaling Group"
-  type        = number
-  default     = 2
-}
-
 # Container Configuration
 variable "container_port" {
   description = "Port the container listens on"
@@ -93,15 +74,15 @@ variable "container_port" {
 }
 
 variable "container_cpu" {
-  description = "CPU units for the container (1024 = 1 vCPU)"
+  description = "CPU units for Fargate task (256 = 0.25 vCPU, 512 = 0.5 vCPU, 1024 = 1 vCPU)"
   type        = number
-  default     = 512 # Increased for better performance
+  default     = 1024 # 1 vCPU
 }
 
 variable "container_memory" {
-  description = "Memory for the container in MiB"
+  description = "Memory for Fargate task in MiB (Valid values: 512, 1024, 2048, 3072, 4096, etc.)"
   type        = number
-  default     = 1024 # Increased for Rails + Redis connections
+  default     = 2048 # 2GB memory
 }
 
 # GitHub Configuration
@@ -126,4 +107,22 @@ variable "aws_region" {
   description = "AWS Region"
   type        = string
   default     = "us-east-1"
+}
+
+variable "secret_key_base" {
+  description = "Rails secret key base for production"
+  type        = string
+  sensitive   = true
+}
+
+variable "google_ai_key" {
+  description = "Google/Gemini API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "anthropic_key" {
+  description = "Anthropic API Key"
+  type        = string
+  sensitive   = true
 }

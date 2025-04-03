@@ -30,16 +30,13 @@
             <% end %>
           </nav>
         </div>
-        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, total_documents: @total_documents } %>
+        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, document_decisions: @document_decisions, total_documents: @total_documents } %>
       </div>
       <div id="document-list" class="px-4 sm:px-0 space-y-0">
         <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b
 ">
           <div class="flex justify-between items-center">
             <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
-            <span class="text-primary"><%= params[:status].present? ? params[:status].titleize.gsub('_', ' ') : "Backlog" %>
-              <i class="fas fa-chevron-down text-xs ml-2"></i>
-            </span>
           </div>
         </div>
         <div class="bg-white shadow-sm rounded-b-lg overflow-visible">
@@ -67,8 +64,26 @@
                     <% end %>
                   <% end %>
                 </th>
-                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Type</th>
-                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Decision</th>
+                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                  <%= link_to site_documents_path(@site, sort: 'document_category', direction: (params[:sort] == 'document_category' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
+                    Type
+                    <% if params[:sort] == 'document_category' %>
+                      <i class="fas fa-<%= params[:direction] == 'desc' ? 'sort-down' : 'sort-up' %> ml-1 text-primary-500"></i>
+                    <% else %>
+                      <i class="fas fa-sort ml-1 text-gray-400 group-hover:text-gray-500"></i>
+                    <% end %>
+                  <% end %>
+                </th>
+                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                  <%= link_to site_documents_path(@site, sort: 'accessibility_recommendation', direction: (params[:sort] == 'accessibility_recommendation' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
+                    Decision
+                    <% if params[:sort] == 'accessibility_recommendation' %>
+                      <i class="fas fa-<%= params[:direction] == 'desc' ? 'sort-down' : 'sort-up' %> ml-1 text-primary-500"></i>
+                    <% else %>
+                      <i class="fas fa-sort ml-1 text-gray-400 group-hover:text-gray-500"></i>
+                    <% end %>
+                  <% end %>
+                </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Move</th>
               </tr>
@@ -128,10 +143,16 @@
                     <td class="px-3 py-4 text-sm text-gray-500 w-32" data-controller="dropdown-edit" data-dropdown-edit-document-id-value="<%= document.id %>" data-dropdown-edit-field-value="accessibility_recommendation">
                       <div data-action="click->dropdown-edit#showSelect" data-dropdown-edit-target="display" class="cursor-pointer hover:underline">
                         <%= document.accessibility_recommendation.present? ? document.accessibility_recommendation : "Unknown" %>
+                        <% rec_from_inferences = document.accessibility_recommendation_from_inferences %>
+                        <% rec_from_db = document.accessibility_recommendation %>
+                        <% if rec_from_db != Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s && rec_from_db == rec_from_inferences %>
+                          <br>
+                          (AI suggestion)
+                        <% end %>
                       </div>
                       <select data-dropdown-edit-target="select" data-action="change->dropdown-edit#updateValue blur->dropdown-edit#hideSelect" class="hidden w-[125%] bg-white border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2">
-                        <% Document::DECISION_TYPES.each do |key| %>
-                          <option value="<%= key %>" <%= document.accessibility_recommendation == key ? 'selected' : '' %>><%= key %></option>
+                        <% Document::DECISION_TYPES.each do |key, label| %>
+                          <option value="<%= key %>" <%= document.accessibility_recommendation == key ? 'selected' : '' %>><%= label %></option>
                           <% end %>
                         </select>
                       </td>

@@ -11,10 +11,11 @@ The infrastructure consists of:
 - Redis cluster for Sidekiq in private subnet
 - ECS cluster with EC2 instances in public subnet
 - S3 bucket for PDF storage with versioning enabled
+- Lambda for running Python components
 
 ## Prerequisites
 
-1. AWS CLI configured with appropriate credentials
+1. AWS CLI configured with appropriate credentials. Example: `aws configure --profile cfa-ai-studio`
 2. OpenTofu installed (v1.0.0 or later)
 3. Docker image built and pushed to a container registry
 
@@ -42,7 +43,10 @@ environment  = "production"
 db_instance_class = "db.t3.small"
 redis_node_type   = "cache.t3.micro"
 container_image   = "your-registry/asap-pdf:latest"
+aws_account_id    = "Your AWS Account #"
 ```
+
+NB: If adding `aws_account_id` to prevent OpenTofu prompting for account, make sure to wrap in quotes to include all characters.
 
 3. Review the execution plan:
 ```bash
