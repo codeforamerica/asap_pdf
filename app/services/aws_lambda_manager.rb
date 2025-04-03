@@ -17,10 +17,10 @@ class AwsLambdaManager
     request_body = payload.to_json
     # Parse the URL
     uri = URI.parse(@function_url)
-    if Rails.env == "production"
-      credentials_provider = Aws::CredentialProviderChain.new.resolve
+    credentials_provider = if Rails.env == "production"
+      Aws::CredentialProviderChain.new.resolve
     else
-      credentials_provider = Aws::Credentials.new(
+      Aws::Credentials.new(
         "None",
         "None",
         "None"

@@ -192,10 +192,10 @@ class Document < ApplicationRecord
   def inference_recommendation!
     if exceptions.none?
       lambda_manager = if Rails.env.to_s != "production"
-                         AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
-                       else
-                         AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-                       end
+        AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+      else
+        AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+      end
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
         documents: [{id: id, title: file_name, url: url, purpose: document_category}],
