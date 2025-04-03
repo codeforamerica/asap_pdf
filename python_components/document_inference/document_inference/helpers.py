@@ -9,8 +9,8 @@ import llm
 import pdf2image
 import pypdf
 
-from schemas import DocumentRecommendation, DocumentSummarySchema
-from prompts import RECOMMENDATION, SUMMARY
+from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
+from document_inference.prompts import RECOMMENDATION, SUMMARY
 
 # Create and provide a very simple logger implementation.
 logger = logging.getLogger("experiment_utility")
@@ -23,13 +23,8 @@ logger.addHandler(ch)
 
 _document_collection = {}
 
-def get_config():
-    with open("config.json", "r") as f:
-        return json.load(f)
-
-
-def get_models():
-    with open("models.json", "r") as f:
+def get_models(model_file: str):
+    with open(model_file, "r") as f:
         return json.load(f)
 
 
@@ -73,7 +68,7 @@ def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list
 
 def validate_event(event):
     for required_key in ("inference_type", "model_name", "documents", "page_limit"):
-        if required_key not in event:
+        if required_key not in event.keys():
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
             )
@@ -105,27 +100,13 @@ def validate_model(all_models: dict, model_name: str):
             f"Unsupported model: {model_name}. Options are: {supported_model_list}"
         )
 
-def post_document(url: str, document_id: int, json_result: dict):
+def post_document(url: str, inference_type: str, json_result: dict):
     data = {
-        "documents": [],
+        "inference_type": inference_type,
+        "result": json_result,
     }
-    # TODO make rails accept and deal with DocumentEligibility.
-    bool_fields = (
-        "is_individualized",
-        "is_archival",
-        "is_application",
-        "is_third_party",
-    )
-    for field in bool_fields:
-        if field in json_result.keys():
-            record = {
-                "document_id": document_id,
-                "type": f"exception:{field}",
-                "value": json_result[field],
-                "reason": json_result[field.replace("is", "why")],
-                "confidence": json_result[f"{field}_confidence"],
-            }
-            data["documents"].append(record)
+    logger.info('Here is what we are sending.')
+    logger.info(data)
     # Headers (optional, but often needed for specifying content type)
     headers = {"Content-type": "application/json"}
     # Send the POST request

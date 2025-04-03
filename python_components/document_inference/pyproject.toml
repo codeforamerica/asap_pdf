@@ -1,0 +1,10 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "document_inference"
+description = "ASAP PDF Python document inference utilities."
+requires-python = ">=3.12"
+dynamic = ["version"]
+

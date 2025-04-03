@@ -1,91 +1,77 @@
+import argparse
 import json
-import logging
 import os
-import urllib
 
-import boto3
 import llm
-import pdf2image
-import pypdf
-import requests
 
-import helpers
-
-
+from document_inference import helpers
 
 
 def handler(event, context):
     try:
+        if type(event) is str:
+            event = json.loads(event)
+        if "body" in event:
+            event = json.loads(event["body"])
+        helpers.logger.info(event)
+        if not isinstance(event, dict):
+            raise RuntimeError("Event is not a dictionary, please investigate.")
+        helpers.logger.info("Validating event")
         helpers.validate_event(event)
+        helpers.logger.info("Event is valid")
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
-        supported_models = helpers.get_supported_models(local_mode)
-        if event["model_name"] not in helpers.supported_models.keys():
-            supported_model_list = ",".join(supported_models.keys())
-            raise ValueError(
-                f"Unsupported model: {event["model_name"]}. Options are: {supported_model_list}"
-            )
-
-        if local_mode:
-            api_key = supported_models[event["model_name"]]["key"]
-            config = helpers.get_config()
-            page_limit = (
-                config["page_limit"]
-                if event["page_limit"] == 0
-                else event["page_limit"]
-            )
-        else:
-            api_key = helpers.get_secret(
-                supported_models[event["model_name"]]["key"], local_mode
-            )
-            page_limit = (
-                "unlimited" if event["page_limit"] == 0 else event["page_limit"]
-            )
-
-        helpers.logger.info(f"Page limit set to {page_limit}.")
+        helpers.logger.info("Validating model")
+        all_models = helpers.get_models("models.json")
+        helpers.validate_model(all_models, event["model_name"])
+        helpers.logger.info("Model is valid")
+        api_key = helpers.get_secret(
+            all_models[event["model_name"]]["key"], local_mode
+        )
+        page_limit_label = (
+            "unlimited" if event["page_limit"] == 0 else event["page_limit"]
+        )
+        helpers.logger.info(f"Page limit set to {page_limit_label}.")
         model = llm.get_model(event["model_name"])
         model.key = api_key
+        if not os.path.exists("/tmp/data"):
+            os.makedirs("/tmp/data")
         # Send images off to our friend.
         helpers.logger.info(f"Summarizing with {event["model_name"]}...")
         for document in event["documents"]:
             helpers.logger.info(f"Attempting to fetch document: {document["url"]}")
             # Download file locally.
-            local_path = helpers.get_file(document["url"], "./data")
-            document_id = document.pop("id")
-            if not pypdf.PdfReader(local_path).is_encrypted:
-                # Convert to images.
-                helpers.logger.info("Converting to images!")
-                attachments = helpers.pdf_to_attachments(
-                    local_path, "./data", event["page_limit"]
-                )
-                num_attachments = len(attachments)
-                helpers.logger.info(f"Document has {num_attachments} pages.")
-                populated_prompt = PROMPT.format(**document)
-                response = model.prompt(
-                    populated_prompt,
-                    attachments=attachments,
-                    schema=DocumentEligibility,
-                )
-                response_json = json.loads(response.text())
-                DocumentEligibility.model_validate(response_json)
-                response_json["is_individualized"] = False
-                response_json["is_individualized_confidence"] = 100
-                response_json["why_individualized"] = (
-                    'Document was not encrypted and is likely not included in the "Individualized Content" exception.'
-                )
+            local_path = helpers.get_file(document["url"], "/tmp/data")
+            helpers.logger.info(f"Performing inference with {event['model_name']}...")
+            if event["inference_type"] == 'exception':
+                response = helpers.document_inference_recommendation(model, document, local_path, event["page_limit"])
+            elif event["inference_type"] == 'summary':
+                response = helpers.document_inference_summary(model, document, local_path, event["page_limit"])
             else:
-                response_json = {
-                    "is_individualized": True,
-                    "is_individualized_confidence": 100,
-                    "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
-                }
-            logging.info("Writing LLM results to Rails API...")
-            # TODO figure out how to contextualize this.
-            url = "http://host.docker.internal:3000/api/documents/inference"
-            post_document(url, document_id, response_json)
-
-        return {
-            "statusCode": 200,
-            "body": "Successfully made document recommendation.",
-        }
+                raise RuntimeError(f"Unknown inference type: {event['inference_type']}")
+            if "asap_endpoint" in event.keys():
+                helpers.logger.info("Writing LLM results to Rails API")
+                helpers.post_document(event["asap_endpoint"], event["inference_type"], response)
+            else:
+                helpers.logger.info("Dumping results into Lambda return")
+                helpers.collect_document(document["id"], response)
+        if "asap_endpoint" in event.keys():
+            return {
+                "statusCode": 200,
+                "body": "Successfully made document recommendation.",
+            }
+        else:
+            return {
+                "statusCode": 200,
+                "body": helpers.json_dump_collection()
+            }
     except Exception as e:
         return {"statusCode": 500, "body": str(e)}
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
+    parser.add_argument("event_payload", help="Event Payload")
+    args = parser.parse_args()
+    provided_event = {"body": args.event_payload}
+    result = handler(provided_event, None)
+    print(result)
