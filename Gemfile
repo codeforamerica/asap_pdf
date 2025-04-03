@@ -10,6 +10,7 @@ gem "stimulus-rails"
 gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
 gem "rest-client"
+gem "rubyzip"
 
 gem "tzinfo-data", platforms: %i[windows jruby]
 
