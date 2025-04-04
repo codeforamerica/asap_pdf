@@ -63,7 +63,7 @@ class Site < ApplicationRecord
             created_or_updated << new_doc
           end
         rescue ActiveRecord::RecordInvalid => e
-          puts "Skipping file #{document.url}, Error: #{e.message}"
+          puts "Skipping error: #{e.message}"
         end
       end
       row_count += 1
