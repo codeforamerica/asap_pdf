@@ -67,12 +67,3 @@ def handler(event, context):
             return {"statusCode": 200, "body": helpers.json_dump_collection()}
     except Exception as e:
         return {"statusCode": 500, "body": str(e)}
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
-    parser.add_argument("event_payload", help="Event Payload")
-    args = parser.parse_args()
-    provided_event = {"body": args.event_payload}
-    result = handler(provided_event, None)
-    print(result)
