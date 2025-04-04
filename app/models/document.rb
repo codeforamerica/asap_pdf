@@ -191,17 +191,19 @@ class Document < ApplicationRecord
 
   def inference_recommendation!
     if exceptions.none?
-      lambda_manager = if Rails.env.to_s != "production"
-        AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+      if Rails.env.to_s != "production"
+        lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+        api_host = "http://host.docker.internal:3000"
       else
-        AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        api_host = "http://demo.codeforamerica.org"
       end
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
         documents: [{id: id, title: file_name, url: url, purpose: document_category}],
         page_limit: 7,
         inference_type: "exception",
-        asap_endpoint: "http://host.docker.internal:3000/api/documents/#{id}/inference"
+        asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
       }
       begin
         response = lambda_manager.invoke_lambda!(payload)
