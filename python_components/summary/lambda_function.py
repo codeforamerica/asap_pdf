@@ -103,13 +103,9 @@ def handler(event, context):
                 f"Unsupported model: {event['model_name']}. Options are: {supported_model_list}"
             )
         logger.info("Model is ok.")
-        api_key = get_secret(
-            supported_models[event["model_name"]]["key"], local_mode
-        )
+        api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
         event["page_limit"] = int(event["page_limit"])
-        page_limit = (
-            "unlimited" if event["page_limit"] == 0 else event["page_limit"]
-        )
+        page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         logger.info(f"Page limit set to {page_limit}.")
         logger.info(f"Attempting to fetch document: {event['document_url']}")
         # Create our data directory.

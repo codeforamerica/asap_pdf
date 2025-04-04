@@ -77,17 +77,16 @@ class DocumentsController < AuthenticatedController
 
   def update_summary_inference
     if @document.summary.nil?
-      @document.update(
-        summary: @document.inference_summary!
-      )
+      @document.inference_summary!
+      @document.reload
     end
     render json: {
-      display_text: @document.summary&.undump
+      display_text: @document.summary
     }
   end
 
   def update_recommendation_inference
-    if @document.document_inferences.none?
+    if @document.exceptions(false).none?
       @document.inference_recommendation!
       @document.reload
     end

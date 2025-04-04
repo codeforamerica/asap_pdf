@@ -30,21 +30,13 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-  lambda_summary:
+  lambda_document_inference:
     build:
-      context: ./python_components/summary
-    container_name: lambda_summary
-    ports:
-      - "9000:8080"
-    environment:
-      - ASAP_LOCAL_MODE=True
-  lambda_recommendation:
-    build:
-      context: ./python_components/recommendation
-    container_name: lambda_recommendation
+      context: ./python_components/document_inference
+    container_name: lambda_document_inference
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "9001:8080"
+      - "9002:8080"
     environment:
       - ASAP_LOCAL_MODE=True

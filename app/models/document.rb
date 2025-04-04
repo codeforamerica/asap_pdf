@@ -71,6 +71,11 @@ class Document < ApplicationRecord
 
   before_validation :set_defaults
 
+  def summary
+    summary = document_inferences.find_by(inference_type: "summary")
+    summary.present? ? summary.inference_value : nil
+  end
+
   def accessibility_recommendation
     # Find versions that changed the accessibility_recommendation field
     accessibility_versions = versions.where("object_changes LIKE ?", "%accessibility_recommendation%")
@@ -155,15 +160,19 @@ class Document < ApplicationRecord
 
   def inference_summary!
     if summary.nil?
-      lambda_manager = if Rails.env.to_s != "production"
-        AwsLambdaManager.new(function_url: "http://localhost:9000/2015-03-31/functions/function/invocations")
+      if Rails.env.to_s != "production"
+        lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+        api_host = "http://host.docker.internal:3000"
       else
-        AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        api_host = "http://demo.codeforamerica.org"
       end
       payload = {
         model_name: "gemini-1.5-pro-latest",
-        document_url: url,
-        page_limit: 7
+        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
+        page_limit: 7,
+        inference_type: "summary",
+        asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
       }
       begin
         response = lambda_manager.invoke_lambda!(payload)
@@ -175,30 +184,41 @@ class Document < ApplicationRecord
           body = response.body
           status = response.code
         end
-        if Integer(status) == 200
-          self.summary = '"' + body + '"'
-        else
-          raise StandardError.new("Inference failed: #{body}")
+        if Integer(status) != 200
+          raise StandardError, "Inference failed: #{body}"
         end
-        summary
       end
     end
   end
 
   def inference_recommendation!
     if exceptions.none?
-      endpoint_url = "http://localhost:9001/2015-03-31/functions/function/invocations"
+      if Rails.env.to_s != "production"
+        lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+        api_host = "http://host.docker.internal:3000"
+      else
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        api_host = "http://demo.codeforamerica.org"
+      end
       payload = {
         model_name: "gemini-2.0-pro-exp-02-05",
         documents: [{id: id, title: file_name, url: url, purpose: document_category}],
         page_limit: 7,
-        asap_endpoint: "http://host.docker.internal:3000/api/documents/inference"
-      }.to_json
+        inference_type: "exception",
+        asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
+      }
       begin
-        response = RestClient.post(endpoint_url, payload, {content_type: :json, accept: :json})
-        response_json = JSON.parse(response.body)
-        if response_json["statusCode"] != 200
-          raise StandardError, response_json["body"]
+        response = lambda_manager.invoke_lambda!(payload)
+        begin
+          json_body = JSON.parse(response.body)
+          body = json_body["body"]
+          status = json_body["statusCode"]
+        rescue JSON::ParserError
+          body = response.body
+          status = response.code
+        end
+        if Integer(status) != 200
+          raise StandardError, "Inference failed: #{body}"
         end
       end
     end
