@@ -24,9 +24,7 @@ def handler(event, context):
         all_models = helpers.get_models("models.json")
         helpers.validate_model(all_models, event["model_name"])
         helpers.logger.info("Model is valid")
-        api_key = helpers.get_secret(
-            all_models[event["model_name"]]["key"], local_mode
-        )
+        api_key = helpers.get_secret(all_models[event["model_name"]]["key"], local_mode)
         page_limit_label = (
             "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         )
@@ -42,15 +40,21 @@ def handler(event, context):
             # Download file locally.
             local_path = helpers.get_file(document["url"], "/tmp/data")
             helpers.logger.info(f"Performing inference with {event['model_name']}...")
-            if event["inference_type"] == 'exception':
-                response = helpers.document_inference_recommendation(model, document, local_path, event["page_limit"])
-            elif event["inference_type"] == 'summary':
-                response = helpers.document_inference_summary(model, document, local_path, event["page_limit"])
+            if event["inference_type"] == "exception":
+                response = helpers.document_inference_recommendation(
+                    model, document, local_path, event["page_limit"]
+                )
+            elif event["inference_type"] == "summary":
+                response = helpers.document_inference_summary(
+                    model, document, local_path, event["page_limit"]
+                )
             else:
                 raise RuntimeError(f"Unknown inference type: {event['inference_type']}")
             if "asap_endpoint" in event.keys():
                 helpers.logger.info("Writing LLM results to Rails API")
-                helpers.post_document(event["asap_endpoint"], event["inference_type"], response)
+                helpers.post_document(
+                    event["asap_endpoint"], event["inference_type"], response
+                )
             else:
                 helpers.logger.info("Dumping results into Lambda return")
                 helpers.collect_document(document["id"], response)
@@ -60,10 +64,7 @@ def handler(event, context):
                 "body": "Successfully made document recommendation.",
             }
         else:
-            return {
-                "statusCode": 200,
-                "body": helpers.json_dump_collection()
-            }
+            return {"statusCode": 200, "body": helpers.json_dump_collection()}
     except Exception as e:
         return {"statusCode": 500, "body": str(e)}
 

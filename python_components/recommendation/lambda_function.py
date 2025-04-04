@@ -19,9 +19,11 @@ ch.setLevel(logging.DEBUG)
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
+
 def get_models():
     with open("models.json", "r") as f:
         return json.load(f)
+
 
 def get_secret(secret_name: str, local_mode: bool) -> str:
     if local_mode:
@@ -194,12 +196,8 @@ def handler(event, context):
             raise ValueError(
                 f"Unsupported model: {event["model_name"]}. Options are: {supported_model_list}"
             )
-        api_key = get_secret(
-            supported_models[event["model_name"]]["key"], local_mode
-        )
-        page_limit = (
-            "unlimited" if event["page_limit"] == 0 else event["page_limit"]
-        )
+        api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
+        page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         logger.info(f"Page limit set to {page_limit}.")
         model = llm.get_model(event["model_name"])
         model.key = api_key

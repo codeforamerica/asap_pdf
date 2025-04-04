@@ -1,16 +1,16 @@
 import json
 import logging
 import os
-import requests
 import urllib
 
 import boto3
 import llm
 import pdf2image
 import pypdf
+import requests
 
-from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
 from document_inference.prompts import RECOMMENDATION, SUMMARY
+from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
 
 # Create and provide a very simple logger implementation.
 logger = logging.getLogger("experiment_utility")
@@ -22,6 +22,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 _document_collection = {}
+
 
 def get_models(model_file: str):
     with open(model_file, "r") as f:
@@ -93,6 +94,7 @@ def validate_event(event):
                         f"Document with index {i} is missing required key, {key}"
                     )
 
+
 def validate_model(all_models: dict, model_name: str):
     if model_name not in all_models.keys():
         supported_model_list = ",".join(all_models.keys())
@@ -100,12 +102,13 @@ def validate_model(all_models: dict, model_name: str):
             f"Unsupported model: {model_name}. Options are: {supported_model_list}"
         )
 
+
 def post_document(url: str, inference_type: str, json_result: dict):
     data = {
         "inference_type": inference_type,
         "result": json_result,
     }
-    logger.info('Here is what we are sending.')
+    logger.info("Here is what we are sending.")
     logger.info(data)
     # Headers (optional, but often needed for specifying content type)
     headers = {"Content-type": "application/json"}
@@ -117,17 +120,20 @@ def post_document(url: str, inference_type: str, json_result: dict):
             f"API Request to update document inferences failed: {response.text}"
         )
 
+
 def collect_document(document_id: int, response: dict):
     _document_collection[document_id] = response
+
 
 def json_dump_collection() -> str:
     return json.dumps(_document_collection)
 
-def document_inference_summary(model, document: dict, local_path: str, page_limit: int) -> dict:
+
+def document_inference_summary(
+    model, document: dict, local_path: str, page_limit: int
+) -> dict:
     logger.info(f"Beginning summarization process.")
-    attachments = pdf_to_attachments(
-        local_path, "/tmp/data", page_limit
-    )
+    attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
     num_attachments = len(attachments)
     logger.info(f"Created {num_attachments} images.")
     populated_prompt = SUMMARY.format(**document)
@@ -143,15 +149,14 @@ def document_inference_summary(model, document: dict, local_path: str, page_limi
     return response_json
 
 
-def document_inference_recommendation(model, document: dict, local_path: str, page_limit: int) -> dict:
+def document_inference_recommendation(
+    model, document: dict, local_path: str, page_limit: int
+) -> dict:
     logger.info(f"Beginning recommendation process.")
-    #document_id = document.pop("id")
     if not pypdf.PdfReader(local_path).is_encrypted:
         # Convert to images.
         logger.info("Converting to images!")
-        attachments = pdf_to_attachments(
-            local_path, "/tmp/data", page_limit
-        )
+        attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
         num_attachments = len(attachments)
         logger.info(f"Created {num_attachments} images.")
         populated_prompt = RECOMMENDATION.format(**document)

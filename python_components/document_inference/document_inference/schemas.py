@@ -1,10 +1,14 @@
 from typing import Optional
 
-from pydantic.json_schema import SkipJsonSchema
 from pydantic import BaseModel, Field, model_serializer
+from pydantic.json_schema import SkipJsonSchema
+
 
 class DocumentSummarySchema(BaseModel):
-    summary: str = Field(description="A two to three sentence summary of the provided document.")
+    summary: str = Field(
+        description="A two to three sentence summary of the provided document."
+    )
+
 
 class DocumentRecommendation(BaseModel):
     is_individualized: SkipJsonSchema[bool] = None
