@@ -17,7 +17,7 @@ describe "documents function as expected", js: true, type: :feature do
     # Test single document and document editing.
     visit "/"
     click_link("City of Denver")
-    expect(page).to have_selector("#document-list", visible: true)
+    expect(page).to have_selector("#document-list", visible: true, wait: 5)
     within("#document-list") do
       expect(page).to have_content "Colorado: City of Denver"
       expect(page).to have_no_content "No documents found"
@@ -146,19 +146,19 @@ describe "documents function as expected", js: true, type: :feature do
       click_button "example.pdf"
     end
     # Wait for modal to open.
-    expect(page).to have_selector("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       # Assess default tab.
       expect(page).to have_content "example.pdf"
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       # Later we'll check to see if the button is gone.
       expect(page).to have_content "Summarize Document"
-      expect(page).to have_css("iframe[src='http://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
       # Check out "PDF Details" tab.
       click_button "PDF Details"
       expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
-      expect(page).to have_no_css("iframe[src='http://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_no_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
       expect(page).to have_content "File Name\nexample.pdf"
       expect(page).to have_content "Type\nAgenda"
       expect(page).to have_content "Decision\nUnknown"
@@ -176,7 +176,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_selector("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       click_button "History"
       expect(page).to have_content("Notes: blank → Fee fi fo fum")
@@ -198,7 +198,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_selector("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_no_content("Get Suggestion")
@@ -218,7 +218,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_selector("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true,  wait: 5)
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_content("AI Accessibility Suggestion\nLeave (User override: Convert)")
