@@ -58,7 +58,7 @@ module AsapPdf
     end
     post "/sites/:id/documents" do
       site = Site.find(params[:id])
-      documents = site.discover_documents!(params[:documents])
+      documents = site.discover_documents!(params[:documents], true)
 
       status 201
       {documents: documents.map { |doc|

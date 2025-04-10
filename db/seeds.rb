@@ -1,6 +1,6 @@
 require "csv"
+require "zip"
 require "rake"
-Rails.application.load_tasks
 
 # Create a test user for development
 if Rails.env.development?

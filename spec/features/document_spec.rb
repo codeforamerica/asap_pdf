@@ -17,6 +17,7 @@ describe "documents function as expected", js: true, type: :feature do
     # Test single document and document editing.
     visit "/"
     click_link("City of Denver")
+    sleep(1)
     within("#document-list") do
       expect(page).to have_content "Colorado: City of Denver"
       expect(page).to have_no_content "No documents found"
@@ -149,6 +150,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
+    sleep(1)
     within("#document-list .modal") do
       # Assess default tab.
       expect(page).to have_content "example.pdf"
