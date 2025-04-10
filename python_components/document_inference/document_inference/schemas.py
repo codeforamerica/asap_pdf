@@ -21,7 +21,9 @@ class DocumentRecommendation(BaseModel):
         description="An explanation of why the document meets or does not meet exception 1: Archived Web Content Exception"
     )
     is_archival_confidence: float = Field(
-        description="Percentage representing how confident you are about whether the document meets exception 1: Archived Web Content Exception"
+        description="Percentage representing how confident you are about whether the document meets exception 1: Archived Web Content Exception",
+        ge=0,
+        le=1
     )
     is_application: bool = Field(
         description="Whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception"
@@ -30,7 +32,9 @@ class DocumentRecommendation(BaseModel):
         description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
     )
     is_application_confidence: float = Field(
-        description="Percentage representing how confident you are about whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception"
+        description="Percentage representing how confident you are about whether the document meets exception 2: Preexisting Conventional Electronic Documents Exception",
+        ge=0,
+        le=1
     )
     is_third_party: bool = Field(
         description="Whether the document meets exception 3: Content Posted by Third Parties Exception"
@@ -39,5 +43,7 @@ class DocumentRecommendation(BaseModel):
         description="An explanation of why the document meets or does not meet exception 3: Content Posted by Third Parties Exception"
     )
     is_third_party_confidence: float = Field(
-        description="Percentage representing how confident you are about whether the document meets exception 3: Content Posted by Third Parties Exception"
+        description="Percentage representing how confident you are about whether the document meets exception 3: Content Posted by Third Parties Exception",
+        ge=0,
+        le=1
     )
