@@ -113,11 +113,11 @@ class DocumentsController < AuthenticatedController
     if params[:sort] == "document_category"
       "document_category_confidence"
     else
-      %w[file_name modification_date accessibility_recommendation].include?(params[:sort]) ? params[:sort] : "file_name"
+      %w[file_name modification_date accessibility_recommendation].include?(params[:sort]) ? params[:sort] : "document_category_confidence"
     end
   end
 
   def sort_direction
-    %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
   end
 end
