@@ -143,7 +143,7 @@ describe "documents function as expected", js: true, type: :feature do
     click_link("City of Denver")
     # Test out the modal and tabs.
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      click_button "example.pdf"
     end
     # Wait for modal to open.
     expect(page).to have_selector("#document-list .modal", visible: true)
