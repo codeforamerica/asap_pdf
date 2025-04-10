@@ -17,7 +17,7 @@ describe "documents function as expected", js: true, type: :feature do
     # Test single document and document editing.
     visit "/"
     click_link("City of Denver")
-    expect(page).to have_css("#document-list", visible: true)
+    expect(page).to have_selector("#document-list", visible: true)
     within("#document-list") do
       expect(page).to have_content "Colorado: City of Denver"
       expect(page).to have_no_content "No documents found"
@@ -65,7 +65,6 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_css("tbody tr", count: 3)
     end
     within("#sidebar") do
-      click_button "Filter Results"
       fill_in id: "start_date", with: "10/01/2024"
       fill_in id: "end_date", with: "10/31/2024"
       fill_in id: "filename", with: "farmers_market_2023.pdf"
@@ -78,7 +77,6 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_no_content "rtd_contract.pdf"
     end
     within("#sidebar") do
-      click_button "Filter Results"
       click_link "Clear"
       sleep(1)
     end
@@ -91,7 +89,6 @@ describe "documents function as expected", js: true, type: :feature do
       select.find("[value='Convert']").click
     end
     within("#sidebar") do
-      click_button "Filter Results"
       find("#accessibility_recommendation").find("[value='Remediate']").click
       click_button "Apply Filters"
     end
@@ -100,7 +97,6 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_no_content "farmers_market_2023.pdf"
     end
     within("#sidebar") do
-      click_button "Filter Results"
       find("#accessibility_recommendation").find("[value='Convert']").click
       click_button "Apply Filters"
     end
@@ -111,7 +107,7 @@ describe "documents function as expected", js: true, type: :feature do
     end
     # Test sorting
     within("#sidebar") do
-      click_button "Filter Results"
+
       click_link "Clear"
     end
     within("#document-list thead") do
@@ -151,7 +147,7 @@ describe "documents function as expected", js: true, type: :feature do
       find("tbody td:nth-child(1) button").click
     end
     # Wait for modal to open.
-    expect(page).to have_css("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true)
     within("#document-list .modal") do
       # Assess default tab.
       expect(page).to have_content "example.pdf"
@@ -181,7 +177,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_css("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true)
     within("#document-list .modal") do
       click_button "History"
       expect(page).to have_content("Notes: blank → Fee fi fo fum")
@@ -203,7 +199,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_css("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true)
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_no_content("Get Suggestion")
@@ -223,7 +219,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       find("tbody td:nth-child(1) button").click
     end
-    expect(page).to have_css("#document-list .modal", visible: true)
+    expect(page).to have_selector("#document-list .modal", visible: true)
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_content("AI Accessibility Suggestion\nLeave (User override: Convert)")
