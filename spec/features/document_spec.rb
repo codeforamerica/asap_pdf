@@ -107,7 +107,6 @@ describe "documents function as expected", js: true, type: :feature do
     end
     # Test sorting
     within("#sidebar") do
-
       click_link "Clear"
     end
     within("#document-list thead") do
