@@ -21,6 +21,10 @@ RSpec.describe Document, type: :model do
       document.url = "https://www.austintexas.gov/growgreen/%25C3%2581fidos_GrowGreen_web.pdf"
       expect(document.url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
     end
+    it "converts insecure urls to https" do
+      document.url = "http://www.austintexas.gov/growgreen/%25C3%2581fidos_GrowGreen_web.pdf"
+      expect(document.url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
+    end
   end
 
   it { should validate_inclusion_of(:document_status).in_array(%w[discovered downloaded]) }

@@ -119,6 +119,11 @@ class Document < ApplicationRecord
     end
   end
 
+  alias_method :decoded_url, :url
+  def url
+    decoded_url&.sub("http://", "https://")
+  end
+
   def s3_path
     "#{site.s3_endpoint_prefix}/#{id}/document.pdf"
   end
