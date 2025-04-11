@@ -45,7 +45,7 @@ class Document < ApplicationRecord
     scope
   }
 
-  DEFAULT_DOCUMENT_CATEGORY, DEFAULT_ACCESSIBILITY_RECOMMENDATION = %w[Other Unknown].freeze
+  DEFAULT_DOCUMENT_CATEGORY, DEFAULT_ACCESSIBILITY_RECOMMENDATION = %w[Other Needs\ Decision].freeze
 
   CONTENT_TYPES = [
     DEFAULT_DOCUMENT_CATEGORY, "Agreement", "Agenda", "Brochure", "Diagram", "Flyer", "Form", "Form Instructions",
@@ -56,7 +56,7 @@ class Document < ApplicationRecord
   LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
 
   DECISION_TYPES = {
-    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Unknown",
+    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
     LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => "Leave PDF as-is",
     REMEDIATE_ACCESSIBILITY_RECOMMENDATION.to_s => "Remediate PDF",
     "Convert" => "Convert PDF to web content",
