@@ -4,7 +4,7 @@ RSpec.describe Document, type: :model do
   it { should belong_to(:site) }
 
   describe "#file_name" do
-    let(:document) { Document.new }
+    let(:document) { Document.new(document_category: "Brochure") }
     it { should validate_presence_of(:file_name) }
     it "handles file names with special characters" do
       document.file_name = "%C3%81fidos_GrowGreen_web.pdf"
@@ -13,7 +13,7 @@ RSpec.describe Document, type: :model do
   end
 
   describe "#url" do
-    let(:document) { Document.new }
+    let(:document) { Document.new(document_category: "Brochure") }
     it { should validate_presence_of(:url) }
     it { should allow_value("http://example.com").for(:url) }
     it { should_not allow_value("invalid-url").for(:url) }
@@ -33,7 +33,7 @@ RSpec.describe Document, type: :model do
   end
 
   describe "#primary_source" do
-    let(:document) { Document.new }
+    let(:document) { Document.new(document_category: "Brochure") }
 
     it "returns nil when source is nil" do
       document.source = nil
@@ -53,7 +53,7 @@ RSpec.describe Document, type: :model do
 
   describe "S3 storage" do
     let(:site) { create(:site, primary_url: "https://www.city.org") }
-    let(:document) { create(:document, site: site) }
+    let(:document) { Document.new(document_category: "Brochure", site: site) }
 
     describe "#s3_path" do
       it "generates correct path using site prefix and document id" do
