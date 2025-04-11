@@ -127,7 +127,7 @@
                       <div class="hover:underline">
                         <%= document.document_category %>
                       </div>
-                      <% if document.document_category.present? && document.document_category_confidence.present? %>
+                      <% if document.document_category.present? && document.document_category_confidence.present? && !document.last_changed_by_human?("document_category") %>
                         <div class="text-xs text-gray-500 flex items-center gap-1">
                           <i class="fas fa-wand-magic-sparkles"></i>
                           <%= number_to_percentage(document.document_category_confidence * 100, precision: 0) %>
