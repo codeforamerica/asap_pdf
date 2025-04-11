@@ -142,7 +142,7 @@
                     </td>
                     <td class="px-3 py-4 text-sm text-gray-500 w-32" data-controller="dropdown-edit" data-dropdown-edit-document-id-value="<%= document.id %>" data-dropdown-edit-field-value="accessibility_recommendation">
                       <div data-action="click->dropdown-edit#showSelect" data-dropdown-edit-target="display" class="cursor-pointer hover:underline">
-                        <%= document.accessibility_recommendation.present? ? document.accessibility_recommendation : "Unknown" %>
+                        <%= document.accessibility_recommendation.present? ? document.accessibility_recommendation : Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s %>
                         <% rec_from_inferences = document.accessibility_recommendation_from_inferences %>
                         <% rec_from_db = document.accessibility_recommendation %>
                         <% if rec_from_db != Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s && rec_from_db == rec_from_inferences %>
