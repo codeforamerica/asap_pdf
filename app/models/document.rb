@@ -45,11 +45,9 @@ class Document < ApplicationRecord
     scope
   }
 
-  DEFAULT_ACCESSIBILITY_RECOMMENDATION = "Needs Decision".freeze
-
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
-  LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
+  DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
 
   DECISION_TYPES = {
     DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
@@ -62,7 +60,7 @@ class Document < ApplicationRecord
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
-  validates :document_category, inclusion: {in: CONTENT_TYPES}, allow_nil: true
+  validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
 
   before_validation :set_defaults
@@ -72,14 +70,15 @@ class Document < ApplicationRecord
     summary.present? ? summary.inference_value : nil
   end
 
-  def accessibility_recommendation
-    # Find versions that changed the accessibility_recommendation field
-    accessibility_versions = versions.where("object_changes LIKE ?", "%accessibility_recommendation%")
-    # Get the most recent version that changed this field
-    last_change = accessibility_versions.order(created_at: :desc).first
+  def last_changed_by_human?(field)
+    versions.where("object_changes LIKE ?", "%#{field}%")
+    last_change = versions.order(created_at: :desc).first
+    last_change.present? && last_change.whodunnit.present?
+  end
 
+  def accessibility_recommendation
     # Check if there was a change and if the user was non-nil
-    return self[:accessibility_recommendation] if last_change.present? && last_change.whodunnit.present?
+    return self[:accessibility_recommendation] if last_changed_by_human? "accessibility_recommendation"
     accessibility_recommendation_from_inferences
   end
 
@@ -116,6 +115,7 @@ class Document < ApplicationRecord
   end
 
   alias_method :decoded_url, :url
+
   def url
     decoded_url&.sub("http://", "https://")
   end

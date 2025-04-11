@@ -82,10 +82,7 @@ export default class extends Controller {
         const icon = this.displayTarget.querySelector('i')
         this.displayTarget.innerHTML = ''
         if (icon) {
-          const span = document.createElement('span')
-          span.className = 'text-xs font-normal'
-          span.appendChild(icon)
-          this.displayTarget.appendChild(span)
+          icon.remove()
         }
         this.displayTarget.appendChild(document.createTextNode(' ' + data.display_text))
         this.hideSelect()
