@@ -30,7 +30,7 @@ FROM base AS build
 
 # Install packages needed to build gems and node modules
 RUN apt-get update -qq && \
-  apt-get install --no-install-recommends -y build-essential git node-gyp pkg-config python-is-python3 libpq-dev && \
+  apt-get install --no-install-recommends -y build-essential git node-gyp pkg-config python-is-python3 libpq-dev postgresql-client && \
   rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Install JavaScript dependencies
