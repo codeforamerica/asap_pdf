@@ -5,7 +5,7 @@ export default class extends Controller {
 
   connect() {
     // Always start with filter hidden
-    this.toggleVisibility(false)
+    this.toggleVisibility(true)
   }
 
   toggle() {

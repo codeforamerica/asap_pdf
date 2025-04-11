@@ -13,9 +13,6 @@ application.register("dropdown-edit", DropdownEditController)
 import FilterController from "./filter_controller"
 application.register("filter", FilterController)
 
-import HelloController from "./hello_controller"
-application.register("hello", HelloController)
-
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
 

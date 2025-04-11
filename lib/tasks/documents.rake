@@ -95,4 +95,12 @@ namespace :documents do
 
     puts "\n"
   end
+
+  desc "Update default decision type."
+  task update_decision_type: :environment do
+    Document.where(accessibility_recommendation: "Unknown").each do |document|
+      document.accessibility_recommendation = Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION
+      document.save
+    end
+  end
 end
