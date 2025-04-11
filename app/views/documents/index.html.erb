@@ -123,11 +123,11 @@
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500"><%= document.modification_date&.strftime("%b %d, %Y") %></td>
                   <td class="px-3 py-4 text-sm w-32" data-controller="dropdown-edit" data-dropdown-edit-document-id-value="<%= document.id %>" data-dropdown-edit-field-value="document_category">
-                    <div data-action="click->dropdown-edit#showSelect" data-dropdown-edit-target="display" class="cursor-pointer <%= document.document_category.present? && document.document_category != Document::DEFAULT_DOCUMENT_CATEGORY ? 'text-primary' : 'text-gray-500' %> flex flex-col gap-1">
+                    <div data-action="click->dropdown-edit#showSelect" data-dropdown-edit-target="display" class="cursor-pointer <%= document.document_category.present? ? 'text-primary' : 'text-gray-500' %> flex flex-col gap-1">
                       <div class="hover:underline">
-                        <%= document.document_category.present? ? document.document_category : Document::DEFAULT_DOCUMENT_CATEGORY %>
+                        <%= document.document_category %>
                       </div>
-                      <% if document.document_category.present? && document.document_category != Document::DEFAULT_DOCUMENT_CATEGORY && document.document_category_confidence.present? %>
+                      <% if document.document_category.present? && document.document_category_confidence.present? %>
                         <div class="text-xs text-gray-500 flex items-center gap-1">
                           <i class="fas fa-wand-magic-sparkles"></i>
                           <%= number_to_percentage(document.document_category_confidence * 100, precision: 0) %>

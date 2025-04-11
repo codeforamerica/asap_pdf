@@ -24,7 +24,7 @@ class DocumentsController < AuthenticatedController
   end
 
   def update_document_category
-    value = params[:value].presence || Document::DEFAULT_DOCUMENT_CATEGORY
+    value = params[:value].presence
     if @document.update(document_category: value)
       render json: {
         display_text: value
@@ -62,7 +62,7 @@ class DocumentsController < AuthenticatedController
 
     # Set Unknown as default for empty values
     existing_recommendation = @document.accessibility_recommendation || Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION
-    existing_category = @document.document_category || Document::DEFAULT_DOCUMENT_CATEGORY
+    existing_category = @document.document_category
 
     if @document.update(
       status: params[:status],

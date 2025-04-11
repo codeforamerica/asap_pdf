@@ -45,13 +45,9 @@ class Document < ApplicationRecord
     scope
   }
 
-  DEFAULT_DOCUMENT_CATEGORY, DEFAULT_ACCESSIBILITY_RECOMMENDATION = %w[Other Needs\ Decision].freeze
+  DEFAULT_ACCESSIBILITY_RECOMMENDATION = "Needs Decision".freeze
 
-  CONTENT_TYPES = [
-    DEFAULT_DOCUMENT_CATEGORY, "Agreement", "Agenda", "Brochure", "Diagram", "Flyer", "Form", "Form Instructions",
-    "Job", "Letter", "Map", "Memo", "Policy", "Slides",
-    "Press", "Procurement", "Notice", "Report", "Spreadsheet", "Unknown"
-  ].freeze
+  CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
   LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Leave Remediate].freeze
 
