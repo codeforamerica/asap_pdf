@@ -180,7 +180,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list .modal") do
       click_button "History"
       expect(page).to have_content("Notes: blank → Fee fi fo fum")
-      expect(page).to have_content("Document category: Other → Agenda")
+      expect(page).to have_content("Document category: blank → Agenda")
       # Check for the summary we updated above.
       click_button "Summary"
       expect(page).to have_content("A lovely example of accessible PDF practices.")
