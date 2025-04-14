@@ -1,8 +1,8 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
-  has_many :sites, dependent: :destroy
-  has_many :documents, through: :sites
+  has_many :documents, through: :site
+  belongs_to :site
 
   normalizes :email_address, with: ->(e) { e.strip.downcase }
 

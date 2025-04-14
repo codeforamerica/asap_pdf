@@ -1,12 +1,12 @@
 class Site < ApplicationRecord
-  belongs_to :user
   has_many :documents, dependent: :destroy
+  has_many :users
 
   validates :name, presence: true
   validates :location, presence: true
   validates :primary_url, presence: true
-  validates :primary_url, uniqueness: {scope: :user_id}
-  validates :name, uniqueness: {scope: [:location, :user_id]}
+  # validates :primary_url, uniqueness: {scope: :user_id}
+  # validates :name, uniqueness: {scope: [:location, :user_id]}
   validate :ensure_safe_url
 
   def website
@@ -32,7 +32,7 @@ class Site < ApplicationRecord
   end
 
   def as_json(options = {})
-    super.except("user_id", "created_at", "updated_at")
+    super.except("created_at", "updated_at")
       .merge("s3_endpoint" => s3_endpoint)
   end
 

@@ -3,14 +3,13 @@ require "zip"
 namespace :documents do
   desc "Bootstrap"
   task :bootstrap, [:file_name] => :environment do |t, args|
-    admin = User.first
+    User.first
 
     # Create Salt Lake City site
     slc = Site.find_or_create_by!(
       name: "SLC.gov",
       location: "Salt Lake City, UT",
-      primary_url: "https://www.slc.gov/",
-      user: admin
+      primary_url: "https://www.slc.gov/"
     )
     puts "Created site: #{slc.name}"
 
@@ -18,8 +17,7 @@ namespace :documents do
     san_rafael = Site.find_or_create_by!(
       name: "The City with a Mission",
       location: "San Rafael, CA",
-      primary_url: "https://www.cityofsanrafael.org/",
-      user: admin
+      primary_url: "https://www.cityofsanrafael.org/"
     )
     puts "Created site: #{san_rafael.name}"
 
@@ -27,16 +25,14 @@ namespace :documents do
     austin = Site.find_or_create_by!(
       name: "The Official Website of The City of Austin",
       location: "Austin, TX",
-      primary_url: "https://www.austintexas.gov/",
-      user: admin
+      primary_url: "https://www.austintexas.gov/"
     )
     puts "Created site: #{austin.name}"
 
     ga = Site.find_or_create_by!(
       name: "georgia.gov",
       location: "Georgia",
-      primary_url: "https://georgia.gov/",
-      user: admin
+      primary_url: "https://georgia.gov/"
     )
     puts "Created site: #{ga.name}"
 
