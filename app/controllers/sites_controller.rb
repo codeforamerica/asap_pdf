@@ -1,6 +1,7 @@
 class SitesController < AuthenticatedController
+  include Access
   before_action :find_site, only: [:show, :edit, :update, :destroy]
-  before_action :ensure_user_owns_site, only: [:show, :edit, :update, :destroy]
+  before_action :ensure_user_site_access, only: [:show, :edit, :update, :destroy]
 
   def index
     @sites = if Current.user.is_admin?
@@ -52,11 +53,5 @@ class SitesController < AuthenticatedController
 
   def find_site
     @site = Site.find(params[:id])
-  end
-
-  def ensure_user_owns_site
-    unless @site.id == Current.site.id
-      redirect_to sites_path, alert: "You don't have permission to access that site."
-    end
   end
 end
