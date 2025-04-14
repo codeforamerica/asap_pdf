@@ -71,8 +71,8 @@ class Document < ApplicationRecord
   end
 
   def last_changed_by_human?(field)
-    versions.where("object_changes LIKE ?", "%#{field}%")
-    last_change = versions.order(created_at: :desc).first
+    field_versions = versions.where("object_changes LIKE ?", "%#{field}%")
+    last_change = field_versions.order(created_at: :desc).first
     last_change.present? && last_change.whodunnit.present?
   end
 
