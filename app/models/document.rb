@@ -76,23 +76,16 @@ class Document < ApplicationRecord
     last_change.present? && last_change.whodunnit.present?
   end
 
-  def accessibility_recommendation
-    # Check if there was a change and if the user was non-nil
-    return self[:accessibility_recommendation] if last_changed_by_human? "accessibility_recommendation"
-    accessibility_recommendation_from_inferences
-  end
-
   def accessibility_recommendation_from_inferences
     # Otherwise calculate based on inferences
     if document_inferences.any?
       exceptions = self.exceptions
       if exceptions.any?
-        return LEAVE_ACCESSIBILITY_RECOMMENDATION
+        LEAVE_ACCESSIBILITY_RECOMMENDATION
       else
-        return REMEDIATE_ACCESSIBILITY_RECOMMENDATION
+        REMEDIATE_ACCESSIBILITY_RECOMMENDATION
       end
     end
-    DEFAULT_ACCESSIBILITY_RECOMMENDATION
   end
 
   def exceptions(include_value_check = true)

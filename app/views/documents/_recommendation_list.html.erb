@@ -6,7 +6,7 @@
       <dt class="text-sm/6 font-bold text-gray-900 text-left">AI Accessibility Suggestion</dt>
       <% rec_from_inferences = document.accessibility_recommendation_from_inferences %>
       <% rec_from_db = document.accessibility_recommendation %>
-      <% if rec_from_inferences == rec_from_db %>
+      <% if rec_from_inferences.present? && (rec_from_db == Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION || rec_from_inferences == rec_from_db) %>
         <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 text-left"><%= document.accessibility_recommendation_from_inferences %></dd>
       <% else %>
         <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 text-left"><%= rec_from_inferences %> (User
