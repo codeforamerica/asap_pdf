@@ -2,18 +2,21 @@ require "rails_helper"
 
 describe "documents function as expected", js: true, type: :feature do
   before :each do
-    @current_user = User.create(email_address: "user@example.com", password: "password")
+    @current_user = User.create(email_address: "user@example.com", password: "password1231231232wordpass")
     login_user(@current_user)
   end
 
   it "documents belong to a site and may be manipulated" do
     # Create our test setup
-    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org", user_id: @current_user.id)
-    Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
-    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov", user_id: @current_user.id)
-    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
-    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
-    Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id, modification_date: "2024-10-01")
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
     click_link("City of Denver")
@@ -56,6 +59,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "In Review\n0"
       expect(page).to have_content "Done\n1"
     end
+    Session.last.destroy
+    login_user(boulder_user)
     # Test multiple documents and filtration.
     visit "/"
     click_link("City of Boulder")
@@ -137,7 +142,9 @@ describe "documents function as expected", js: true, type: :feature do
 
   it "documents have some tabs" do
     # Create our test setup
-    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org", user_id: @current_user.id)
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
     doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
     visit "/"
     click_link("City of Denver")

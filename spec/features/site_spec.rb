@@ -16,6 +16,11 @@ describe "sites function as expected", type: :feature do
       fill_in "URL", with: "https://www.denvergov.org"
       click_button "Add Site"
     end
+    # @todo remove after adding site UI to user.
+    @current_user.site = Site.last
+    @current_user.save!
+    visit "/"
+    # end todo.
     within("#sites-grid") do
       expect(page).to have_content "City of Denver"
       expect(page).to have_content "Colorado"
@@ -29,9 +34,10 @@ describe "sites function as expected", type: :feature do
   end
 
   it "cannot see someone else's site" do
-    user = User.create(email_address: "somebodyelse@example.com", password: "password")
-    site = Site.create(name: "Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov", user_id: user.id)
+    site = Site.create(name: "Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    User.create(email_address: "somebodyelse@example.com", password: "password", site: site)
     visit "/sites/#{site.id}/documents"
-    expect(page).to have_content "ActiveRecord::RecordNotFound in DocumentsController#index"
+    expect(current_path).to eq("/sites")
+    expect(page).to have_content("You don't have permission to access that site.")
   end
 end
