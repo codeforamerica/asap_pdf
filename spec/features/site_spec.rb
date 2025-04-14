@@ -6,7 +6,11 @@ describe "sites function as expected", type: :feature do
     login_user(@current_user)
   end
 
-  it "can create a site" do
+  it "admins can create and see sites" do
+    visit "/"
+    expect(page).to have_no_content("Add New Site")
+    @current_user.is_admin = true
+    @current_user.save
     visit "/"
     click_button "Add Site", id: "add-site-modal"
     within("#add_site_modal") do
@@ -16,11 +20,6 @@ describe "sites function as expected", type: :feature do
       fill_in "URL", with: "https://www.denvergov.org"
       click_button "Add Site"
     end
-    # @todo remove after adding site UI to user.
-    @current_user.site = Site.last
-    @current_user.save!
-    visit "/"
-    # end todo.
     within("#sites-grid") do
       expect(page).to have_content "City of Denver"
       expect(page).to have_content "Colorado"
@@ -30,6 +29,55 @@ describe "sites function as expected", type: :feature do
     within("#document-list") do
       expect(page).to have_content "Colorado: City of Denver"
       expect(page).to have_content "No documents found"
+    end
+  end
+
+  it "non-admins can see only their sites" do
+    site = Site.create(name: "City of Denver", primary_url: "https://www.denvergov.org", location: "Colorado")
+    @current_user.site=site
+    @current_user.save
+    Site.create(name: "City of Boulder", primary_url: "https://www.bouldercolorado.org", location: "Colorado")
+    visit "/"
+    within("#sites-grid") do
+      expect(page).to have_content "City of Denver"
+      expect(page).to have_no_content "City of Boulder"
+      click_link "City of Denver"
+    end
+    within("#document-list") do
+      expect(page).to have_content "Colorado: City of Denver"
+      expect(page).to have_content "No documents found"
+      expect(current_path).to eq("/sites/#{site.id}/documents")
+    end
+  end
+
+  it "multiple users can access the same site" do
+    site = Site.create(name: "City of Denver", primary_url: "https://www.denvergov.org", location: "Colorado")
+    @current_user.site=site
+    @current_user.save
+    other_user =  User.create(email_address: "example_2@example.com", password: "password", site: site)
+    visit "/"
+    within("#sites-grid") do
+      expect(page).to have_content "City of Denver"
+      expect(page).to have_no_content "City of Boulder"
+      click_link "City of Denver"
+    end
+    within("#document-list") do
+      expect(page).to have_content "Colorado: City of Denver"
+      expect(page).to have_content "No documents found"
+      expect(current_path).to eq("/sites/#{site.id}/documents")
+    end
+    Session.last.destroy
+    login_user(other_user)
+    visit "/"
+    within("#sites-grid") do
+      expect(page).to have_content "City of Denver"
+      expect(page).to have_no_content "City of Boulder"
+      click_link "City of Denver"
+    end
+    within("#document-list") do
+      expect(page).to have_content "Colorado: City of Denver"
+      expect(page).to have_content "No documents found"
+      expect(current_path).to eq("/sites/#{site.id}/documents")
     end
   end
 

@@ -44,30 +44,32 @@
     </div>
   </div>
 </div>
-<!-- Add Site Modal -->
-<dialog id="add_site_modal" class="modal" data-controller="modal">
-  <div class="modal-box">
-    <h3 class="font-bold text-lg mb-4">Add New Site</h3>
-    <%= form_with(model: Site.new, class: "space-y-4", data: { turbo: true }) do |f| %>
-      <div class="form-control">
-        <%= f.label :name, class: "label" %>
-        <%= f.text_field :name, class: "input input-bordered", placeholder: "Enter site name", required: true %>
-      </div>
-      <div class="form-control">
-        <%= f.label :location, class: "label" %>
-        <%= f.text_field :location, class: "input input-bordered", placeholder: "Enter location", required: true %>
-      </div>
-      <div class="form-control">
-        <%= f.label :primary_url, "URL", class: "label" %>
-        <%= f.url_field :primary_url, class: "input input-bordered", placeholder: "https://example.com", required: true %>
-      </div>
-      <div class="modal-action">
-        <button type="button" class="btn btn-ghost mr-2" onclick="add_site_modal.close()">Cancel</button>
-        <%= f.submit "Add Site", class: "btn btn-neutral", data: { action: "click->modal#submitAndClose" } %>
-      </div>
-    <% end %>
-  </div>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+<% if Current.user.is_admin? %>
+  <!-- Add Site Modal -->
+  <dialog id="add_site_modal" class="modal" data-controller="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4">Add New Site</h3>
+      <%= form_with(model: Site.new, class: "space-y-4", data: { turbo: true }) do |f| %>
+        <div class="form-control">
+          <%= f.label :name, class: "label" %>
+          <%= f.text_field :name, class: "input input-bordered", placeholder: "Enter site name", required: true %>
+        </div>
+        <div class="form-control">
+          <%= f.label :location, class: "label" %>
+          <%= f.text_field :location, class: "input input-bordered", placeholder: "Enter location", required: true %>
+        </div>
+        <div class="form-control">
+          <%= f.label :primary_url, "URL", class: "label" %>
+          <%= f.url_field :primary_url, class: "input input-bordered", placeholder: "https://example.com", required: true %>
+        </div>
+        <div class="modal-action">
+          <button type="button" class="btn btn-ghost mr-2" onclick="add_site_modal.close()">Cancel</button>
+          <%= f.submit "Add Site", class: "btn btn-neutral", data: { action: "click->modal#submitAndClose" } %>
+        </div>
+      <% end %>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+<% end %>
