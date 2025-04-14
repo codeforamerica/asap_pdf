@@ -1,79 +1,81 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title><%= content_for(:title) || "PDF Audit Tool - Code for America" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <%= csrf_meta_tags %>
-    <%= csp_meta_tag %>
-    <%= yield :head %>
-    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-    <%= favicon_link_tag asset_path('favicon.png') %>
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-  </head>
-  <body data-theme="autumn" class="min-h-screen bg-base-200">
-    <!-- Navigation -->
-    <nav class="bg-white shadow-md">
-      <div class="px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-20">
-          <!-- Logo -->
-          <div class="flex-shrink-0 flex items-center">
-            <%= image_tag "logo.png", class: "h-12", alt: "Code for America Logo" %>
-          </div>
-          <div class="relative" data-controller="dropdown">
-            <button data-action="click->dropdown#toggle" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 focus:outline-none">
-              <i class="fas fa-user-circle text-xl"></i>
-              <i class="fas fa-chevron-down text-sm"></i>
-            </button>
-            <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-              <div class="py-1">
-                <%= link_to sites_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-                  <i class="fas fa-globe mr-2"></i>My Sites
-                <% end %>
-                <%= link_to edit_configuration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-                  <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
-                <% end %>
-                <%= button_to session_path, method: :delete, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
-                  <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                <% end %>
-              </div>
-            </div>
+<head>
+  <title><%= content_for(:title) || "PDF Audit Tool - Code for America" %></title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <%= yield :head %>
+  <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" rel="stylesheet">
+  <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+  <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+  <%= favicon_link_tag asset_path('favicon.png') %>
+  <%# Includes all stylesheet files in app/assets/stylesheets %>
+  <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+  <%= javascript_include_tag "application", "data-turbo-track": "reload", type: "module" %>
+  <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+</head>
+<body data-theme="autumn" class="min-h-screen bg-base-200">
+<!-- Navigation -->
+<nav class="bg-white shadow-md">
+  <div class="px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <!-- Logo -->
+      <div class="flex-shrink-0 flex items-center">
+        <%= image_tag "logo.png", class: "h-12", alt: "Code for America Logo" %>
+      </div>
+      <div class="relative" data-controller="dropdown">
+        <button data-action="click->dropdown#toggle" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 focus:outline-none">
+          <i class="fas fa-user-circle text-xl"></i>
+          <i class="fas fa-chevron-down text-sm"></i>
+        </button>
+        <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
+          <div class="py-1">
+            <%= link_to sites_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+              <i class="fas fa-globe mr-2"></i>My Sites
+            <% end %>
+            <% if Current.user.is_admin? %>
+              <%= link_to edit_configuration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
+              <% end %>
+            <% end %>
+            <%= button_to session_path, method: :delete, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+              <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            <% end %>
           </div>
         </div>
       </div>
-    </nav>
-    <!-- Toast Messages -->
-    <div class="fixed top-4 right-4 z-50">
-      <% if flash[:notice] %>
-        <div data-controller="toast" class="transition-all duration-500 ease-in-out">
-          <div data-toast-target="container" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg">
-            <p class="font-medium">
-              <i class="fas fa-check-circle mr-2"></i>
-              <%= flash[:notice] %>
-            </p>
-          </div>
-        </div>
-      <% end %>
-      <% if flash[:alert] %>
-        <div data-controller="toast" class="transition-all duration-500 ease-in-out">
-          <div data-toast-target="container" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg">
-            <p class="font-medium">
-              <i class="fas fa-exclamation-circle mr-2"></i>
-              <%= flash[:alert] %>
-            </p>
-          </div>
-        </div>
-      <% end %>
     </div>
-    <!-- Main Content -->
-    <main class="mt-6">
-      <%= yield %>
-    </main>
-  </body>
+  </div>
+</nav>
+<!-- Toast Messages -->
+<div class="fixed top-4 right-4 z-50">
+  <% if flash[:notice] %>
+    <div data-controller="toast" class="transition-all duration-500 ease-in-out">
+      <div data-toast-target="container" class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-lg">
+        <p class="font-medium">
+          <i class="fas fa-check-circle mr-2"></i>
+          <%= flash[:notice] %>
+        </p>
+      </div>
+    </div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div data-controller="toast" class="transition-all duration-500 ease-in-out">
+      <div data-toast-target="container" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg">
+        <p class="font-medium">
+          <i class="fas fa-exclamation-circle mr-2"></i>
+          <%= flash[:alert] %>
+        </p>
+      </div>
+    </div>
+  <% end %>
+</div>
+<!-- Main Content -->
+<main class="mt-6">
+  <%= yield %>
+</main>
+</body>
 </html>
