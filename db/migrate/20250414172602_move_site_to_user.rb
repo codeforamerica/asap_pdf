@@ -3,7 +3,7 @@ class MoveSiteToUser < ActiveRecord::Migration[8.0]
     # Remove user reference on site.
     remove_reference :sites, :user
     # Add site reference to user instead.
-    add_reference :users, :site, foreign_key: true
+    add_reference :users, :site, null: true, foreign_key: true
   end
 
   def down
