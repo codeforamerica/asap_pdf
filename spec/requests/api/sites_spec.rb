@@ -60,7 +60,7 @@ RSpec.describe AsapPdf::API do
     let(:valid_documents) do
       [
         {url: "https://example.com/doc1.pdf", modification_date: timestamp, document_category: "Brochure"},
-        {url: "https://example.com/doc2.pdf", modification_date: timestamp, document_category: "Brochure"},
+        {url: "https://example.com/doc2.pdf", modification_date: timestamp, document_category: "Brochure"}
       ]
     end
 

@@ -146,8 +146,8 @@ class Site < ApplicationRecord
 
   def attributes_from(data)
     {
-      document_category: (data[:predicted_category] || data[:document_category]),
-      document_category_confidence: (data[:predicted_category_confidence] || data[:document_category_confidence]),
+      document_category: data[:predicted_category] || data[:document_category],
+      document_category_confidence: data[:predicted_category_confidence] || data[:document_category_confidence],
       url: data[:url],
       modification_date: data[:modification_date],
       file_size: data[:file_size],
