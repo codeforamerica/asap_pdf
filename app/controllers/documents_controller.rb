@@ -4,8 +4,6 @@ class DocumentsController < AuthenticatedController
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
   before_action :set_site, only: [:index, :modal_content]
-  # before_action :set_site, except: [:update_document_category, :update_accessibility_recommendation, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  # before_action :set_document_for_update, only: [:update_document_category, :update_accessibility_recommendation, :update_notes, :update_summary_inference, :update_recommendation_inference, :update_status]
   before_action :set_document, except: [:index]
   before_action :ensure_user_site_access, only: [:index, :modal_content]
   before_action :ensure_document_access, except: [:index, :modal_content]

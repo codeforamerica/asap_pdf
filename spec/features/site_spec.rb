@@ -34,7 +34,7 @@ describe "sites function as expected", type: :feature do
 
   it "non-admins can see only their sites" do
     site = Site.create(name: "City of Denver", primary_url: "https://www.denvergov.org", location: "Colorado")
-    @current_user.site=site
+    @current_user.site = site
     @current_user.save
     Site.create(name: "City of Boulder", primary_url: "https://www.bouldercolorado.org", location: "Colorado")
     visit "/"
@@ -52,9 +52,9 @@ describe "sites function as expected", type: :feature do
 
   it "multiple users can access the same site" do
     site = Site.create(name: "City of Denver", primary_url: "https://www.denvergov.org", location: "Colorado")
-    @current_user.site=site
+    @current_user.site = site
     @current_user.save
-    other_user =  User.create(email_address: "example_2@example.com", password: "password", site: site)
+    other_user = User.create(email_address: "example_2@example.com", password: "password", site: site)
     visit "/"
     within("#sites-grid") do
       expect(page).to have_content "City of Denver"
