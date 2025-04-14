@@ -2,11 +2,9 @@ class Site < ApplicationRecord
   has_many :documents, dependent: :destroy
   has_many :users
 
-  validates :name, presence: true
+  validates :name, presence: true, uniqueness: true
   validates :location, presence: true
-  validates :primary_url, presence: true
-  # validates :primary_url, uniqueness: {scope: :user_id}
-  # validates :name, uniqueness: {scope: [:location, :user_id]}
+  validates :primary_url, presence: true, uniqueness: true
   validate :ensure_safe_url
 
   def website

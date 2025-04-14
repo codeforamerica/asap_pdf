@@ -2,7 +2,6 @@ require "rails_helper"
 
 RSpec.describe Site, type: :model do
   subject { build(:site) }
-  let(:user) { create(:user, site: user) }
 
   it { is_expected.to have_many(:users) }
   it { is_expected.to have_many(:documents) }
@@ -12,6 +11,9 @@ RSpec.describe Site, type: :model do
   it { is_expected.to validate_presence_of(:primary_url) }
   it { is_expected.to allow_value("http://example.com").for(:primary_url) }
   it { is_expected.not_to allow_value("invalid_url").for(:primary_url) }
+
+  it { is_expected.to validate_uniqueness_of(:primary_url) }
+  it { is_expected.to validate_uniqueness_of(:name) }
 
   describe "S3 functionality" do
     describe "#s3_endpoint_prefix" do
