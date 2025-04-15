@@ -6,7 +6,7 @@ class DocumentsController < AuthenticatedController
   before_action :set_site, only: [:index, :modal_content]
   before_action :set_document, except: [:index]
   before_action :ensure_user_site_access, only: [:index, :modal_content]
-  before_action :ensure_document_access, except: [:index, :modal_content]
+  before_action :ensure_user_document_access, except: [:index, :modal_content]
 
   def modal_content
     render partial: "modal_content", locals: {document: @document}

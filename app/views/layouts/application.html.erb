@@ -19,7 +19,7 @@
 </head>
 <body data-theme="autumn" class="min-h-screen bg-base-200">
 <!-- Navigation -->
-<nav class="bg-white shadow-md">
+<nav id="header" class="bg-white shadow-md">
   <div class="px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-20">
       <!-- Logo -->
@@ -36,7 +36,7 @@
             <%= link_to sites_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <i class="fas fa-globe mr-2"></i>My Sites
             <% end %>
-            <% if Current.user.is_admin? %>
+            <% if Current.user.present? && Current.user.is_admin? %>
               <%= link_to edit_configuration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
                 <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
               <% end %>

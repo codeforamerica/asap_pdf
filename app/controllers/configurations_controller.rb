@@ -1,4 +1,8 @@
-class ConfigurationsController < ApplicationController
+class ConfigurationsController < AuthenticatedController
+  include Access
+
+  before_action :ensure_user_admin
+
   GOOGLE_API_SECRET_NAME = "asap-pdf/production/GOOGLE_AI_KEY"
   ANTHROPIC_API_SECRET_NAME = "asap-pdf/production/ANTHROPIC_KEY"
 
