@@ -13,9 +13,9 @@ The Python components should be PEP8 compliant. They are currently linted with i
 Or the `scripts/local_fix_linting.sh` was included to help fix codestyle issues locally.
 
 
-## Summarizer
+## Document Inference
 
-The Summarizer Python component requires a configuration json file that may be created by visiting the '/configuration/edit' page of the Rails app. Alternatively it may be created manually by copying the example.config.json file in the summary directory.
+The document inference python component handles a variety of document-related AI inquiries including summarization and exception suggestion. Additional inference types may be added by adding prompts and models the included library. Responses are transmitted to the ASAP API document_inferences endpoint.
 
 ## TODO
 
