@@ -4,8 +4,8 @@ import os
 import urllib
 
 import boto3
+import fitz
 import llm
-import pdf2image
 import pypdf
 import requests
 
@@ -54,15 +54,19 @@ def get_file(url: str, output_path: str) -> str:
     return local_path
 
 
-def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list:
-    images = pdf2image.convert_from_path(pdf_path, fmt="jpg")
+def pdf_to_attachments(
+    pdf_path: str, output_path: str, page_limit: int, dpi=100
+) -> list:
+    doc = fitz.open(pdf_path)
     attachments = []
     file_name = os.path.splitext(os.path.basename(pdf_path))[0]
-    for page, image in enumerate(images):
-        if 0 < page_limit - 1 < page:
+    for page_num in range(len(doc)):
+        if page_num >= page_limit:
             break
-        page_path = f"{output_path}/{file_name}-{page}.jpg"
-        image.save(page_path)
+        page = doc.load_page(page_num)
+        page_path = f"{output_path}/{file_name}-{page_num}.jpg"
+        pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
+        pix.save(page_path)
         attachments.append(llm.Attachment(path=page_path, type="image/jpeg"))
     return attachments
 
@@ -132,7 +136,7 @@ def json_dump_collection() -> str:
 def document_inference_summary(
     model, document: dict, local_path: str, page_limit: int
 ) -> dict:
-    logger.info(f"Beginning summarization process.")
+    logger.info("Beginning summarization process.")
     attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
     num_attachments = len(attachments)
     logger.info(f"Created {num_attachments} images.")
@@ -143,16 +147,16 @@ def document_inference_summary(
         schema=DocumentSummarySchema.model_json_schema(),
     )
     response_json = json.loads(response.text())
-    logger.info(f"Inference complete. Validating response.")
+    logger.info("Inference complete. Validating response.")
     DocumentSummarySchema.model_validate(response_json)
-    logger.info(f"Validation complete.")
+    logger.info("Validation complete.")
     return response_json
 
 
 def document_inference_recommendation(
     model, document: dict, local_path: str, page_limit: int
 ) -> dict:
-    logger.info(f"Beginning recommendation process.")
+    logger.info("Beginning recommendation process.")
     if not pypdf.PdfReader(local_path).is_encrypted:
         # Convert to images.
         logger.info("Converting to images!")
@@ -166,9 +170,9 @@ def document_inference_recommendation(
             schema=DocumentRecommendation.model_json_schema(),
         )
         response_json = json.loads(response.text())
-        logger.info(f"Inference complete. Validating response.")
+        logger.info("Inference complete. Validating response.")
         DocumentRecommendation.model_validate(response_json)
-        logger.info(f"Validation complete.")
+        logger.info("Validation complete.")
         response_json["is_individualized"] = False
         response_json["is_individualized_confidence"] = 100
         response_json["why_individualized"] = (
