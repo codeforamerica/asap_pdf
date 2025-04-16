@@ -59,7 +59,8 @@ def pdf_to_attachments(
     doc = fitz.open(pdf_path)
     attachments = []
     file_name = os.path.splitext(os.path.basename(pdf_path))[0]
-    for page_num in range(len(doc)):
+    logger.info(f"Found {doc.page_count} pages total.")
+    for page_num in range(doc.page_count):
         if page_num >= page_limit:
             break
         page = doc.load_page(page_num)
