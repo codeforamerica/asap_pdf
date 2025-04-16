@@ -1,6 +1,4 @@
-from typing import Optional
-
-from pydantic import BaseModel, Field, model_serializer
+from pydantic import BaseModel, Field
 from pydantic.json_schema import SkipJsonSchema
 
 

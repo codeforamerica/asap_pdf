@@ -8,7 +8,6 @@ import fitz
 import llm
 import pypdf
 import requests
-
 from document_inference.prompts import RECOMMENDATION, SUMMARY
 from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
 
