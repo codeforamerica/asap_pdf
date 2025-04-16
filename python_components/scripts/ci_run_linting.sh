@@ -11,7 +11,7 @@ if [ -z "$1" ]; then
 fi
 
 # Run isort and capture output
-isort_output="$(isort $1 --check-only --diff)"
+isort_output="$(isort --profile black $1 --diff --check-only)"
 isort_change_count=$(echo "$isort_output" | grep '^---' | wc -l) # Count diff lines
 
 # Run black and capture any output
@@ -39,12 +39,12 @@ echo "Flake8 Output:"
 echo "$flake8_output"
 echo "\n"
 
-HELP_MESSAGE=$(echo "Try running python_components/scripts/local_fix_linting.sh for help.")
+HELP_MESSAGE="Try running python_components/scripts/local_fix_linting.sh for help."
 
 ## Check isort budget
 if [ "$isort_change_count" -gt "$ISORT_BUDGET" ]; then
   echo "isort changes exceeded budget ($ISORT_BUDGET). Found $isort_change_count changes."
-  $HELP_MESSAGE
+  echo $HELP_MESSAGE
   exit 1
 else
   echo "isort check passed. Found $isort_change_count changes (within budget)."
@@ -53,7 +53,7 @@ fi
 # Check black budget
 if [ "$black_change_count" -gt "$BLACK_BUDGET" ]; then
   echo "Black changes exceeded budget ($BLACK_BUDGET). Found $black_black_change_count changes."
-  $HELP_MESSAGE
+  echo $HELP_MESSAGE
   exit 1
 else
   echo "Black check passed. Found $black_change_count changes (within budget)."
@@ -62,7 +62,7 @@ fi
 # Check flake8 budget
 if [ "$flake8_error_count" -gt "$FLAKE8_BUDGET" ]; then
   echo "Flake8 errors exceeded budget ($FLAKE8_BUDGET). Found $flake8_error_count errors."
-  $HELP_MESSAGE
+  echo $HELP_MESSAGE
   exit 1
 else
   echo "Flake8 check passed. Found $flake8_error_count errors (within budget)."
