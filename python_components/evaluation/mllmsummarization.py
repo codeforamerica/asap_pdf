@@ -15,12 +15,12 @@ from deepeval.metrics.utils import (
     check_mllm_test_case_params,
     initialize_multimodal_model,
 )
-from deepeval.metrics.summarization.template import SummarizationTemplate
 from deepeval.metrics.indicator import metric_progress_indicator
 from deepeval.metrics.summarization.schema import *
 from deepeval.metrics.faithfulness.schema import *
 
 from mllmfailfulnesstemplate import MllMInputFaithfulnessTemplate
+from mllmsummarizationtemplate import MLLMSummarizationTemplate
 
 class MultimodalInputSummarization(BaseMetric):
 
@@ -154,7 +154,6 @@ class MultimodalInputSummarization(BaseMetric):
                     f"Score: {self.score}\nReason: {self.reason}",
                 ],
             )
-
             return self.score
 
     async def _a_generate_reason(self) -> str:
@@ -178,7 +177,7 @@ class MultimodalInputSummarization(BaseMetric):
                 ):
                     questions.append(verdict.question)
 
-        prompt: dict = SummarizationTemplate.generate_reason(
+        prompt: dict = MLLMSummarizationTemplate.generate_reason(
             contradictions=contradictions,
             redundancies=redundancies,
             questions=questions,
@@ -227,7 +226,7 @@ class MultimodalInputSummarization(BaseMetric):
                 ):
                     questions.append(verdict.question)
 
-        prompt: dict = SummarizationTemplate.generate_reason(
+        prompt: dict = MLLMSummarizationTemplate.generate_reason(
             contradictions=contradictions,
             redundancies=redundancies,
             questions=questions,
@@ -287,11 +286,10 @@ class MultimodalInputSummarization(BaseMetric):
 
         return 0 if self.strict_mode and score < self.threshold else score
 
-    async def _a_generate_answers(self, text: str | list[MLLMImage]) -> List[str]:
-        prompt = SummarizationTemplate.generate_answers(
-            questions=self.assessment_questions, text=text
+    async def _a_generate_answers(self, input: str | list[MLLMImage]) -> List[str]:
+        prompt = MLLMSummarizationTemplate.generate_answers(
+            questions=self.assessment_questions, input=input,
         )
-        print(prompt)
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Answers)
             self.evaluation_cost += cost
@@ -308,7 +306,7 @@ class MultimodalInputSummarization(BaseMetric):
                 return data["answers"]
 
     def _generate_answers(self, text: str) -> List[str]:
-        prompt = SummarizationTemplate.generate_answers(
+        prompt = MLLMSummarizationTemplate.generate_answers(
             questions=self.assessment_questions, text=text
         )
         if self.using_native_model:
@@ -324,8 +322,9 @@ class MultimodalInputSummarization(BaseMetric):
                 data = trimAndLoadJson(res, self)
                 return data["answers"]
 
-    async def _a_generate_assessment_questions(self, text: str):
-        prompt = SummarizationTemplate.generate_questions(text=text, n=self.n)
+    async def _a_generate_assessment_questions(self, images: list[MLLMImage]):
+        prompt = MLLMSummarizationTemplate.generate_questions(n=self.n)
+        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Questions)
             self.evaluation_cost += cost
@@ -341,8 +340,9 @@ class MultimodalInputSummarization(BaseMetric):
                 data = trimAndLoadJson(res, self)
                 return data["questions"]
 
-    def _generate_assessment_questions(self, text: str):
-        prompt = SummarizationTemplate.generate_questions(text=text, n=self.n)
+    def _generate_assessment_questions(self, images: list[MLLMImage]):
+        prompt = MLLMSummarizationTemplate.generate_questions(n=self.n)
+        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Questions)
             self.evaluation_cost += cost
@@ -363,29 +363,27 @@ class MultimodalInputSummarization(BaseMetric):
             self.assessment_questions = (
                 await self._a_generate_assessment_questions(test_case.input)
             )
-
         tasks = [
             self._a_generate_answers(test_case.input),
             self._a_generate_answers(test_case.actual_output),
         ]
         results = await asyncio.gather(*tasks)
-        print(results)
         original_answers = results[0]
         summary_answers = results[1]
 
         if len(original_answers) != len(summary_answers):
             raise ValueError("Number of verdicts generated does not equal.")
 
-        coverage_veridcts: List[SummarizationCoverageVerdict] = []
+        coverage_verdicts: List[SummarizationCoverageVerdict] = []
         for i in range(len(original_answers)):
-            coverage_veridcts.append(
+            coverage_verdicts.append(
                 SummarizationCoverageVerdict(
                     summary_verdict=summary_answers[i],
                     original_verdict=original_answers[i],
                     question=self.assessment_questions[i],
                 )
             )
-        return coverage_veridcts
+        return coverage_verdicts
 
     def _generate_coverage_verdicts(
         self, test_case: MLLMTestCase
@@ -420,7 +418,7 @@ class MultimodalInputSummarization(BaseMetric):
             return []
 
         verdicts: List[SummarizationAlignmentVerdict] = []
-        prompt = SummarizationTemplate.generate_alignment_verdicts(
+        prompt = MLLMSummarizationTemplate.generate_alignment_verdicts(
             summary_claims=self.claims, orignal_text="\n\n".join(self.truths)
         )
         if self.using_native_model:
@@ -451,7 +449,7 @@ class MultimodalInputSummarization(BaseMetric):
             return []
 
         verdicts: List[SummarizationAlignmentVerdict] = []
-        prompt = SummarizationTemplate.generate_alignment_verdicts(
+        prompt = MLLMSummarizationTemplate.generate_alignment_verdicts(
             summary_claims=self.claims, orignal_text="\n\n".join(self.truths)
         )
         if self.using_native_model:
@@ -478,8 +476,6 @@ class MultimodalInputSummarization(BaseMetric):
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
             extraction_limit=self.truths_extraction_limit,
         )
-        example_image = MLLMImage('./sample-document.jpg')
-        images = [example_image] + images
         prompt = [prompt] + images
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Truths)
@@ -516,8 +512,6 @@ class MultimodalInputSummarization(BaseMetric):
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
             extraction_limit=self.truths_extraction_limit,
         )
-        example_image = MLLMImage('./sample-document.jpg')
-        images = [example_image] + images
         prompt = [prompt] + images
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Truths)
@@ -561,4 +555,4 @@ class MultimodalInputSummarization(BaseMetric):
 
     @property
     def __name__(self):
-        return "Summarization"
+        return "Image Input to Text Summarization"

@@ -5,31 +5,30 @@ from pathlib import Path
 
 import pandas as pd
 import pdf2image
-from mllmollama import MultimodalOllamaModel
 from mllmsummarization import MultimodalInputSummarization
+from mllmollama import MultimodalOllamaModel
+from deepeval.models import MultimodalGeminiModel
 from deepeval.test_case import MLLMTestCase, MLLMImage
 
-model = MultimodalOllamaModel()
+model = MultimodalGeminiModel()
 
-metric = MultimodalInputSummarization(model=model,
-                                      assessment_questions=[
-                                          "Is the coverage score based on a percentage of 'yes' answers?",
-                                          "Does the score ensure the summary's accuracy with the source?",
-                                          "Does a higher score mean a more comprehensive summary?"
-                                      ])
+metric = MultimodalInputSummarization(model=model, verbose_mode=True)
 
 
 def run_evaluation(args: argparse.Namespace):
     # Build summaries with current branch.
     df = pd.read_csv(args.truthset_path)
     df['images'] = df.apply(convert_to_images, axis=1, args=(args.output_path,))
-    df = df[:1]
+    df = df[df['language'] == 'en']
+    #df = df[:1]
     df.apply(summarization_evaluation, axis=1)
 
 
 def summarization_evaluation(row):
     test_case = MLLMTestCase(input=row["images"], actual_output=row["ai_summary_baseline"])
-    metric.measure(test_case)
+    z = metric.measure(test_case)
+    print(metric.reason)
+    print(z)
 
 
 def convert_to_images(row: pd.Series, output_path: str) -> list:

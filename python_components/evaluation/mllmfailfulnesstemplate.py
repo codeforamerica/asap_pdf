@@ -46,15 +46,15 @@ JSON:
 These truths, MUST BE COHERENT. They must NOT be taken out of context.
 
 Example:
-Example Image: 
-"The first image provided is an example."
+Example Description of Image:
+"An image is provided that depicts a grocery list with an extra note at the bottom."
 
 Example JSON: 
 {{
     "truths": [
-        "The example document depicts a city ordinance creating a landlord/tenant initiative."
-        "A significant portion of the city's housing stock consists of rental dwellings."
-        "A good landlord program has been established to reduce rental fees in exchange for meeting certain requirements."
+        "The document is a grocery list.",
+        "Apples and almonds are on the list."
+        "There is a reminder to pick up Jill from the mall at 3pm."
     ]  
 }}
 ===== END OF EXAMPLE ======
