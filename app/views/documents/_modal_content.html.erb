@@ -9,7 +9,7 @@
         PDF Details
       </button>
       <button data-modal-target="recommendationButton" data-action="modal#showReccomendationView" class="tab tab-bordered">
-        Accessibility Recommendation
+        Accessibility Suggestion
       </button>
       <button data-modal-target="historyButton" data-action="modal#showHistoryView" class="tab tab-bordered">
         History
@@ -19,7 +19,7 @@
     <div data-modal-target="summaryView">
       <!-- Summary Input Area -->
       <div data-controller="summarize" data-summarize-document-id-value="<%= document.id %>" class="flex space-x-2 items-start mb-4 text-wrap">
-        <p data-summarize-target="display"><%= document.summary&.undump %></p>
+        <p data-summarize-target="display"><%= document.summary %></p>
         <% if document.summary.nil? %>
           <button data-action="click->summarize#getSummary" data-summarize-target="button" class="btn btn-primary btn-sm">
             <i class="fas fa-wand-magic-sparkles mr-1"></i>
@@ -133,18 +133,18 @@
           <div class="text-left">
             <button data-recommendation-list-target="button"  data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
               <i class="fas fa-wand-magic-sparkles mr-1"></i>
-              Get Recommendation
+              Get Suggestion
             </button>
             <button data-recommendation-list-target="preloader"  class="btn btn-primary btn-sm hidden">
               <span class="loading loading-spinner"></span>
-              Getting Recommendation...
+              Getting Suggestion...
             </button>
           </div>
         <% end %>
       </div>
     </div>
     <!-- History View -->
-    <div data-modal-target="historyView" class="hidden h-[calc(90vh-12rem)] overflow-y-auto">
+    <div data-modal-target="historyView" class="hidden h-[calc(90vh-12rem)] overflow-y-auto text-wrap">
       <div class="space-y-4 p-4">
         <div class="space-y-4">
           <% document.versions.each do |version| %>

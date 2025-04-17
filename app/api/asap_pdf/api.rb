@@ -58,7 +58,7 @@ module AsapPdf
     end
     post "/sites/:id/documents" do
       site = Site.find(params[:id])
-      documents = site.discover_documents!(params[:documents])
+      documents = site.discover_documents!(params[:documents], true)
 
       status 201
       {documents: documents.map { |doc|
@@ -84,20 +84,26 @@ module AsapPdf
       ]
     end
     params do
-      requires :documents, type: Array do
-        requires :document_id, type: Integer, desc: "Document ID"
-        requires :type, type: String, desc: "Document inference type"
-        requires :value, type: String, desc: "Value of document inference"
-      end
+      requires :id, type: Integer, desc: "Document ID"
+      requires :inference_type, type: String, desc: "Document inference type", values: ["summary", "exception"]
+      requires :result, type: Hash, desc: "Value of document inference"
     end
-    post "/documents/inference" do
+    post "/documents/:id/inference" do
       status 201
-      params[:documents].map do |doc|
-        inference = DocumentInference.create_or_find_by(document_id: doc[:document_id], inference_type: doc[:type])
-        inference.inference_value = doc[:value]
-        inference.inference_confidence = doc[:confidence] if doc[:confidence].present?
-        inference.inference_reason = doc[:reason] if doc[:reason].present?
+      if params[:inference_type] == "summary"
+        inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "summary")
+        inference.inference_value = params[:result]["summary"]
         inference.save!
+      end
+      if params[:inference_type] == "exception"
+        ["individualized", "archival", "application", "third_party"].each do |type|
+          result_boolean = "is_#{type}"
+          inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "exception:#{result_boolean}")
+          inference.inference_value = params[:result][result_boolean] ? "True" : "False"
+          inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
+          inference.inference_reason = params[:result]["why_#{type}"]
+          inference.save!
+        end
       end
     end
 

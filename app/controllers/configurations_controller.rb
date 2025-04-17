@@ -1,20 +1,27 @@
 class ConfigurationsController < ApplicationController
+  GOOGLE_API_SECRET_NAME = "asap-pdf/production/GOOGLE_AI_KEY"
+  ANTHROPIC_API_SECRET_NAME = "asap-pdf/production/ANTHROPIC_KEY"
+
+  def initialize
+    super
+    @secret_manager = AwsLocalSecretManager.new
+  end
+
   def edit
-    @config = JSON.parse(File.read(Rails.root.join("python_components", "summary", "config.json")))
-    models_data = JSON.parse(File.read(Rails.root.join("python_components", "summary", "models.json")))
-    @models = models_data.keys
+    @config = {
+      localstack_not_reachable: false
+    }
+    response = @secret_manager.get_secret!(GOOGLE_API_SECRET_NAME)
+    @config["google_ai_api_key"] = response.secret_string if response.present?
+    response = @secret_manager.get_secret!(ANTHROPIC_API_SECRET_NAME)
+    @config["anthropic_api_key"] = response.secret_string if response.present?
+  rescue Seahorse::Client::NetworkingError
+    @config["localstack_not_reachable"] = true
   end
 
   def update
-    config_path = Rails.root.join("python_components", "summary", "config.json")
-    config = JSON.parse(File.read(config_path))
-
-    config["active_model"] = params[:config][:active_model]
-    config["key"] = params[:config][:key]
-    config["page_limit"] = params[:config][:page_limit].to_i
-    config["prompt"] = params[:config][:prompt]
-
-    File.write(config_path, JSON.pretty_generate(config))
+    @secret_manager.set_secret!(GOOGLE_API_SECRET_NAME, params[:config][:google_ai_api_key])
+    @secret_manager.set_secret!(ANTHROPIC_API_SECRET_NAME, params[:config][:anthropic_api_key])
     redirect_to edit_configuration_path, notice: "Configuration updated successfully"
   rescue => e
     redirect_to edit_configuration_path, alert: "Error updating configuration: #{e.message}"

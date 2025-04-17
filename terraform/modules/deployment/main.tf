@@ -1,4 +1,22 @@
-# ECR Repository
+# Main application ECR Repository
+data "aws_iam_policy_document" "lambda_ecr" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      identifiers = ["*"]
+      type = "AWS"
+    }
+
+    actions = [
+      "ecr:BatchGetImage",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:GetRepositoryPolicy",
+      "ecr:SetRepositoryPolicy",
+    ]
+  }
+}
+
 resource "aws_ecr_repository" "app" {
   name                 = "${var.project_name}-${var.environment}"
   force_delete         = true
@@ -16,6 +34,30 @@ resource "aws_ecr_repository" "app" {
     Name        = "${var.project_name}-${var.environment}"
     Environment = var.environment
   }
+}
+
+# Document inference ECR repository.
+resource "aws_ecr_repository" "document_inference" {
+  name                 = "${var.project_name}-lambda-document-inference-${var.environment}"
+  force_delete         = true
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+  tags = {
+    Name        = "${var.project_name}-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecr_repository_policy" "document_inference" {
+  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  repository = aws_ecr_repository.document_inference.name
 }
 
 # GitHub OIDC Provider
@@ -115,7 +157,17 @@ resource "aws_iam_role_policy" "github_actions" {
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = [
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-execution-role"
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-execution-role",
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-role"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:UpdateFunctionCode"
+        ]
+        Resource = [
+          var.document_inference_lambda_arn
         ]
       }
     ]
@@ -234,4 +286,33 @@ resource "aws_secretsmanager_secret" "redis_url" {
 resource "aws_secretsmanager_secret_version" "redis_url" {
   secret_id     = aws_secretsmanager_secret.redis_url.id
   secret_string = var.redis_url
+}
+
+# Google/Gemini API Keys
+resource "aws_secretsmanager_secret" "google_ai_key" {
+  name = "${var.project_name}/${var.environment}/GOOGLE_AI_KEY"
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-google-ai-key"
+    Environment = var.environment
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "google_ai_key" {
+  secret_id     = aws_secretsmanager_secret.google_ai_key.id
+  secret_string = var.google_ai_key
+}
+
+resource "aws_secretsmanager_secret" "anthropic_key" {
+  name = "${var.project_name}/${var.environment}/ANTHROPIC_KEY"
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-anthropic-key"
+    Environment = var.environment
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "anthropic_key" {
+  secret_id     = aws_secretsmanager_secret.anthropic_key.id
+  secret_string = var.anthropic_key
 }

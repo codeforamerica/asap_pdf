@@ -1,8 +1,11 @@
 FROM public.ecr.aws/lambda/python:3.12
 
+# Prevent LLM module from writing (?) to a directory Lambda doesn't like.
+ENV LLM_USER_PATH=/tmp
+
 # Copy requirements.txt & config.json
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
-COPY config.json ${LAMBDA_TASK_ROOT}
+COPY models.json ${LAMBDA_TASK_ROOT}
 
 # Install the specified packages
 RUN dnf install poppler-utils -y &&\

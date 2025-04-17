@@ -20,22 +20,9 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 
-def get_config():
-    with open("config.json", "r") as f:
-        return json.load(f)
-
-
 def get_models():
     with open("models.json", "r") as f:
         return json.load(f)
-
-
-def get_supported_models(local_mode):
-    if local_mode:
-        config = get_config()
-        return {config["active_model"]: {"key": config["key"]}}
-    else:
-        return get_models()
 
 
 def get_secret(secret_name: str, local_mode: bool) -> str:
@@ -77,7 +64,7 @@ def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list
 
 
 def validate_event(event):
-    for required_key in ("model_name", "documents", "page_limit"):
+    for required_key in ("model_name", "documents", "page_limit", "asap_endpoint"):
         if required_key not in event:
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
@@ -203,31 +190,15 @@ def handler(event, context):
         logger.info("Validating payload...")
         validate_event(event)
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
-        supported_models = get_supported_models(local_mode)
+        supported_models = get_models()
         if event["model_name"] not in supported_models.keys():
             supported_model_list = ",".join(supported_models.keys())
             raise ValueError(
                 f"Unsupported model: {event["model_name"]}. Options are: {supported_model_list}"
             )
-
-        if local_mode:
-            api_key = supported_models[event["model_name"]]["key"]
-            config = get_config()
-            page_limit = (
-                config["page_limit"]
-                if event["page_limit"] == 0
-                else event["page_limit"]
-            )
-        else:
-            api_key = get_secret(
-                supported_models[event["model_name"]]["key"], local_mode
-            )
-            page_limit = (
-                "unlimited" if event["page_limit"] == 0 else event["page_limit"]
-            )
-
+        api_key = get_secret(supported_models[event["model_name"]]["key"], local_mode)
+        page_limit = "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         logger.info(f"Page limit set to {page_limit}.")
-
         model = llm.get_model(event["model_name"])
         model.key = api_key
         # Send images off to our friend.
@@ -265,9 +236,7 @@ def handler(event, context):
                     "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
                 }
             logging.info("Writing LLM results to Rails API...")
-            # TODO figure out how to contextualize this.
-            url = "http://host.docker.internal:3000/api/documents/inference"
-            post_document(url, document_id, response_json)
+            post_document(event["asap_endpoint"], document_id, response_json)
 
         return {
             "statusCode": 200,

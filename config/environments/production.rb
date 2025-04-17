@@ -13,6 +13,12 @@ Rails.application.configure do
   config.assume_ssl = true
   config.force_ssl = true
 
+  config.action_dispatch.default_headers = {
+    "X-Forwarded-Proto" => "https"
+  }
+
+  config.ssl_options = {redirect: {exclude: ->(request) { request.path == "/up" }}}
+
   config.log_tags = [:request_id]
   config.logger = ActiveSupport::TaggedLogging.logger($stdout)
 

@@ -1,0 +1,22 @@
+{
+    "https://www.slc.gov": {
+        "allow_list": ["https://www.slc.gov", "http://slcdocs.com/"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://www.cityofsanrafael.org": {
+        "allow_list": ["https://www.cityofsanrafael.org"],
+        "use_sitemap": true,
+        "depth": -1
+    },
+    "https://www.austintexas.gov": {
+        "allow_list": ["https://www.austintexas.gov"],
+        "use_sitemap": false,
+        "depth": 5
+    },
+    "https://georgia.gov": {
+        "allow_list": ["https://georgia.gov"],
+        "use_sitemap": false,
+        "depth": 7
+    }
+}

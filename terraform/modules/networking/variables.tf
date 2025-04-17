@@ -30,3 +30,14 @@ variable "private_subnet_cidrs" {
   type        = list(string)
   default     = ["10.0.3.0/24", "10.0.4.0/24"]
 }
+
+variable "domain_name" {
+  description = "Name of the project"
+  type        = string
+  default     = "demo.codeforamerica.ai"
+}
+
+variable "logging_key_id" {
+  description = "KMS key id to encrypt logs."
+  type = string
+}

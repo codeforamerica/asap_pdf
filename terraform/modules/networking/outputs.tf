@@ -1,21 +1,26 @@
 output "vpc_id" {
   description = "ID of the VPC"
-  value       = aws_vpc.main.id
+  value       = module.vpc.vpc_id
 }
 
 output "public_subnet_ids" {
   description = "IDs of the public subnets"
-  value       = aws_subnet.public[*].id
+  value       = module.vpc.public_subnets
 }
 
 output "private_subnet_ids" {
   description = "IDs of the private subnets"
-  value       = aws_subnet.private[*].id
+  value       = module.vpc.private_subnets
 }
 
 output "ecs_security_group_id" {
   description = "ID of the ECS security group"
   value       = aws_security_group.ecs.id
+}
+
+output "lambda_security_group_id" {
+  description = "ID of the Lambda security group"
+  value       = aws_security_group.lambda.id
 }
 
 output "rds_security_group_id" {
@@ -41,4 +46,9 @@ output "alb_target_group_arn" {
 output "alb_dns_name" {
   description = "The DNS name of the ALB"
   value       = aws_lb.main.dns_name
+}
+
+output "domain_name" {
+  description = "The production domain name."
+  value       = aws_acm_certificate.main.domain_name
 }

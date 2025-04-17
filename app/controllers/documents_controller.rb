@@ -14,11 +14,12 @@ class DocumentsController < AuthenticatedController
       .by_status(params[:status])
       .by_filename(params[:filename])
       .by_category(params[:category])
+      .by_decision_type(params[:accessibility_recommendation])
       .by_date_range(params[:start_date], params[:end_date])
       .order(sort_column => sort_direction)
       .page(params[:page])
-
     @document_categories = Document::CONTENT_TYPES
+    @document_decisions = Document::DECISION_TYPES.keys
     @total_documents = @documents.total_count
   end
 
@@ -76,17 +77,16 @@ class DocumentsController < AuthenticatedController
 
   def update_summary_inference
     if @document.summary.nil?
-      @document.update(
-        summary: @document.inference_summary!
-      )
+      @document.inference_summary!
+      @document.reload
     end
     render json: {
-      display_text: @document.summary&.undump
+      display_text: @document.summary
     }
   end
 
   def update_recommendation_inference
-    if @document.document_inferences.none?
+    if @document.exceptions(false).none?
       @document.inference_recommendation!
       @document.reload
     end
@@ -110,10 +110,14 @@ class DocumentsController < AuthenticatedController
   end
 
   def sort_column
-    %w[file_name modification_date].include?(params[:sort]) ? params[:sort] : "file_name"
+    if params[:sort] == "document_category"
+      "document_category_confidence"
+    else
+      %w[file_name modification_date accessibility_recommendation].include?(params[:sort]) ? params[:sort] : "document_category_confidence"
+    end
   end
 
   def sort_direction
-    %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
+    %w[asc desc].include?(params[:direction]) ? params[:direction] : "desc"
   end
 end

@@ -8,7 +8,6 @@ Before you begin, ensure you have the following installed:
 
 * Ruby 3.2.2 (we recommend using a version manager like `rbenv` or `rvm`)
 * Node.js 18.17.0 (we recommend using `nvm` for version management)
-* Python 3.10+ (for PDF processing components)
 * Yarn (latest version)
 * Redis (for Sidekiq background jobs)
 * SQLite3 (default database)
@@ -134,6 +133,10 @@ Once the application is running:
   - Retrieves a specific site
   - Returns site details excluding user_id, created_at, updated_at
   - Includes s3_endpoint
+
+- `POST /api/v1/documents/inference`
+    - Adds or updates a document inference record.
+    - Ideally used for storing AI results for documents.
 
 ## Document Storage
 

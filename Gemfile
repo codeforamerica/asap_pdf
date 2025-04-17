@@ -10,6 +10,8 @@ gem "stimulus-rails"
 gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
 gem "rest-client"
+gem "rubyzip"
+gem "smarter_csv"
 
 gem "tzinfo-data", platforms: %i[windows jruby]
 
@@ -20,7 +22,7 @@ gem "thruster", require: false
 gem "redis", "~> 5.4.0"
 gem "sidekiq", "~> 8.0"
 
-gem "view_component", "~> 3.21"
+gem "view_component", "~> 3.22"
 gem "kaminari", "~> 1.2"
 
 group :development, :test do
@@ -52,11 +54,14 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.182"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.183"  # For S3 versioning support
+gem "aws-sdk-secretsmanager"
+gem "aws-sdk-lambda"
+gem "aws-sigv4"
 
 # API and Documentation
 gem "grape", "~> 2.3"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 16.0"
-gem "tailwindcss-ruby", "~> 4.0"
+gem "tailwindcss-ruby", "~> 4.1"

@@ -59,3 +59,21 @@ variable "secret_key_base" {
   type        = string
   sensitive   = true
 }
+
+variable "google_ai_key" {
+  description = "Google/Gemini API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "anthropic_key" {
+  description = "Anthropic API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "document_inference_lambda_arn" {
+  description = "The document inference Lambda arn."
+  type        = string
+}
+

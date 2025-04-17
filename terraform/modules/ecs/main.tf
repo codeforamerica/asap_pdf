@@ -63,14 +63,109 @@ resource "aws_iam_role_policy" "ecs_task_secrets_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "ecs_task_cli_exec" {
+  name = "${var.project_name}-${var.environment}-task-cli-exec-policy"
+  role = aws_iam_role.ecs_task_execution_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecs:ExecuteCommand"
+        ],
+        "Resource" : "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# IAM role for ECS tasks (task role)
+resource "aws_iam_role" "ecs_task_role" {
+  name = "${var.project_name}-${var.environment}-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      }
+    ]
+  })
+}
+
+# Add ECS Exec permissions to task role
+resource "aws_iam_role_policy" "ecs_task_exec_policy" {
+  name = "${var.project_name}-${var.environment}-task-exec-policy"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ecs:ExecuteCommand"
+        ],
+        "Resource" : "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ecs_task_lambda_invoke_policy" {
+  name = "${var.project_name}-${var.environment}-ecs-lambda-invoke-policy"
+  role = aws_iam_role.ecs_task_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction",
+          "lambda:InvokeFunctionUrl",
+          "lambda:GetFunctionUrlConfig",
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # Task definition
 resource "aws_ecs_task_definition" "app" {
-  family                   = "${var.project_name}-${var.environment}-app"
-  network_mode             = "awsvpc"
+  family             = "${var.project_name}-${var.environment}-app"
+  network_mode       = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = var.container_cpu
-  memory                   = var.container_memory
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  cpu                = var.container_cpu
+  memory             = var.container_memory
+  execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn      = aws_iam_role.ecs_task_role.arn
 
   container_definitions = jsonencode([
     {
@@ -91,7 +186,7 @@ resource "aws_ecs_task_definition" "app" {
           value = var.environment
         },
         {
-          name  = "PORT"
+          name = "PORT"
           value = tostring(var.container_port)
         },
         {
@@ -168,7 +263,7 @@ resource "aws_ecs_task_definition" "app" {
   }
 }
 
-# CloudWatch Log Group
+# CloudWatch Log Groups
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/ecs/${var.project_name}-${var.environment}"
   retention_in_days = 30
@@ -176,6 +271,39 @@ resource "aws_cloudwatch_log_group" "app" {
   tags = {
     Name = "${var.project_name}-${var.environment}-log-group"
   }
+}
+
+resource "aws_cloudwatch_log_group" "ecs_exec" {
+  name              = "/ecs/${var.project_name}-${var.environment}/exec-logs"
+  retention_in_days = 30
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-exec-log-group"
+  }
+}
+
+# Add CloudWatch logging permissions to task role
+resource "aws_iam_role_policy" "ecs_task_cloudwatch_policy" {
+  name = "${var.project_name}-${var.environment}-task-cloudwatch-policy"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents"
+        ]
+        Resource = [
+          "${aws_cloudwatch_log_group.ecs_exec.arn}:*"
+        ]
+      }
+    ]
+  })
 }
 
 # ECS Service
@@ -194,9 +322,13 @@ resource "aws_ecs_service" "app" {
     rollback = true
   }
 
+  enable_execute_command = true
+
   network_configuration {
-    subnets          = var.subnet_ids
-    security_groups  = [var.security_group_id]
+    subnets = var.subnet_ids
+    security_groups = [
+      var.security_group_id
+    ]
     assign_public_ip = false
   }
 
