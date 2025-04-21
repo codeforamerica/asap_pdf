@@ -127,7 +127,7 @@ class Site < ApplicationRecord
             predicted_category_confidence: row["predicted_category_confidence"],
             number_of_pages: row["number_of_pages"]&.to_i,
             number_of_tables: row["number_of_tables"]&.to_i,
-            number_of_images: row["number_of_tables"]&.to_i
+            number_of_images: row["number_of_images"]&.to_i
           }
         rescue URI::InvalidURIError => e
           puts "Skipping invalid URL: #{row["url"]}"
