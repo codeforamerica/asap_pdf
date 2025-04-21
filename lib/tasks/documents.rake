@@ -43,7 +43,9 @@ namespace :documents do
       "salt_lake_city.csv" => slc
     }
 
-    Zip::File.open(Rails.root.join("db", "seeds", "site_documents.zip")) do |zipfile|
+    archive_name = Rails.env != 'production' ? "site_documents_dev.zip" : "site_documents.zip"
+
+    Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
       zipfile.each do |entry|
         if entry.file?
           file_name = entry.name.delete_prefix("site_documents/")
