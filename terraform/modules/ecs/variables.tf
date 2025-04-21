@@ -8,35 +8,36 @@ variable "environment" {
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs for the Fargate tasks"
-  type        = list(string)
-}
+# variable "subnet_ids" {
+#   description = "List of subnet IDs for the Fargate tasks"
+#   type        = list(string)
+# }
 
-variable "security_group_id" {
-  description = "Security group ID for the Fargate tasks"
-  type        = string
-}
+# variable "security_group_id" {
+#   description = "Security group ID for the Fargate tasks"
+#   type        = string
+# }
 
-variable "container_image" {
-  description = "Docker image for the application container"
-  type        = string
-}
+# variable "container_image" {
+#   description = "Docker image for the application container"
+#   type        = string
+# }
 
 variable "container_port" {
   description = "Port the container listens on"
   type        = number
+  default     = 3000
 }
 
-variable "container_cpu" {
-  description = "CPU units for the Fargate task (256 = 0.25 vCPU, 512 = 0.5 vCPU, 1024 = 1 vCPU)"
-  type        = number
-}
-
-variable "container_memory" {
-  description = "Memory for the Fargate task in MiB (512, 1024, 2048, etc.)"
-  type        = number
-}
+# variable "container_cpu" {
+#   description = "CPU units for the Fargate task (256 = 0.25 vCPU, 512 = 0.5 vCPU, 1024 = 1 vCPU)"
+#   type        = number
+# }
+#
+# variable "container_memory" {
+#   description = "Memory for the Fargate task in MiB (512, 1024, 2048, etc.)"
+#   type        = number
+# }
 
 variable "db_host_secret_arn" {
   description = "ARN of the database host secret in Secrets Manager"
@@ -73,7 +74,41 @@ variable "redis_url_secret_arn" {
   type        = string
 }
 
-variable "target_group_arn" {
-  description = "ARN of the ALB target group"
+# variable "target_group_arn" {
+#   description = "ARN of the ALB target group"
+#   type        = string
+# }
+
+variable "vpc_id" {
+  description = "The VPC id from our network friend."
   type        = string
 }
+
+variable "private_subnets" {
+  description = "The private subnet ids."
+  type = list(string)
+}
+
+variable "public_subnets" {
+  description = "The public subnet ids."
+  type = list(string)
+}
+
+variable "logging_key_id" {
+  description = "The KMS logging key id."
+  type        = string
+}
+
+variable "domain_name" {
+  description = "The application domain name."
+  type        = string
+}
+
+variable "aws_s3_bucket_arn" {
+  description = "The S3 bucket arn."
+  type        = string
+}
+
+
+
+

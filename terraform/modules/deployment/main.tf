@@ -17,24 +17,24 @@ data "aws_iam_policy_document" "lambda_ecr" {
   }
 }
 
-resource "aws_ecr_repository" "app" {
-  name                 = "${var.project_name}-${var.environment}"
-  force_delete         = true
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}"
-    Environment = var.environment
-  }
-}
+# resource "aws_ecr_repository" "app" {
+#   name                 = "${var.project_name}-${var.environment}"
+#   force_delete         = true
+#   image_tag_mutability = "MUTABLE"
+#
+#   image_scanning_configuration {
+#     scan_on_push = true
+#   }
+#
+#   encryption_configuration {
+#     encryption_type = "AES256"
+#   }
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
 # Document inference ECR repository.
 resource "aws_ecr_repository" "document_inference" {
