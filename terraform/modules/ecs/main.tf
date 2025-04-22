@@ -1,5 +1,5 @@
 module "fargate_service" {
-  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=main"
+  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.2.0"
 
   project       = var.project_name
   project_short = var.project_name

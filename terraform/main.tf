@@ -94,7 +94,7 @@ module "ecs" {
   private_subnets = module.networking.private_subnet_ids
   public_subnets  = module.networking.public_subnet_ids
   logging_key_id  = module.logging.kms_key_arn
-  domain_name     = module.networking.domain_name
+  domain_name     = var.domain_name
   aws_s3_bucket_arn   = aws_s3_bucket.documents.arn
 }
 
