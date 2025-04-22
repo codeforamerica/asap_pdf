@@ -43,7 +43,7 @@ namespace :documents do
       "salt_lake_city.csv" => slc
     }
 
-    archive_name = Rails.env != 'production' ? "site_documents_dev.zip" : "site_documents.zip"
+    archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
     puts "Loading site data from #{archive_name}"
 
     Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
