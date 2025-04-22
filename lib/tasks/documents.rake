@@ -44,16 +44,17 @@ namespace :documents do
     }
 
     archive_name = Rails.env != 'production' ? "site_documents_dev.zip" : "site_documents.zip"
+    puts "Loading site data from #{archive_name}"
 
     Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
       zipfile.each do |entry|
         if entry.file?
-          file_name = entry.name.delete_prefix("site_documents/")
+          file_name = entry.name.delete_prefix("site_documents/").delete_prefix("site_documents_dev/")
           if csv_manifest.has_key?(file_name) && (args.file_name.nil? || (args.file_name == file_name))
             site = csv_manifest[file_name]
             puts "\nProcessing #{site.name} documents in #{entry.name}..."
             tmp_path = "/tmp/#{file_name}"
-            entry.extract(tmp_path) unless File.exist?(tmp_path)
+            entry.extract(tmp_path)
             site.process_csv_documents(tmp_path)
             File.delete(tmp_path) if File.exist? tmp_path
           end
