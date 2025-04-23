@@ -106,13 +106,13 @@ namespace :documents do
   desc "Update statuses."
   task update_statuses: :environment do
     Document.find_each do |document|
-      case document.status
-      when 'in_review'
-        document.status = Document::IN_REVIEW_STATUS
-      when 'done'
-        document.status = Document::DONE_STATUS
+      document.status = case document.status
+      when "in_review"
+        Document::IN_REVIEW_STATUS
+      when "done"
+        Document::DONE_STATUS
       else
-        document.status = Document::DEFAULT_STATUS
+        Document::DEFAULT_STATUS
       end
       document.save
     end
