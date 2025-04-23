@@ -181,7 +181,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      find("tbody td:nth-child(2) button").click
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -203,7 +203,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      find("tbody td:nth-child(2) button").click
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -223,7 +223,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      find("tbody td:nth-child(2) button").click
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
