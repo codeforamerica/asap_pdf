@@ -167,7 +167,7 @@
                     <textarea
                       data-text-edit-target="textarea"
                       data-action="blur->text-edit#updateValue keydown->text-edit#updateValue input->text-edit#adjustHeight"
-                      class="hidden w-[125%] min-h-[6em] p-2 border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                      class="hidden w-[90%] min-h-[6em] p-2 border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     ><%= document.notes %></textarea>
                   </td>
                   <td class="px-3 py-4 text-sm text-gray-500 relative text-center h-[60px]" data-controller="status" data-document-id="<%= document.id %>">
@@ -176,7 +176,7 @@
                     </button>
                     <div data-status-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[100]">
                       <div class="py-1" role="menu">
-                        <% Document::STATUSES.each do | status | %>
+                        <% Document::STATUSES.each do |status| %>
                           <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-action="status#updateStatus" data-status="<%= status %>">
                             <%= status %>
                           </a>
@@ -188,17 +188,18 @@
               <% end %>
               </tbody>
             </table>
-            <div class="w-fit fixed bottom-0 left-0 right-0 ml-auto mr-auto bg-white border border-gray-300 border-b-0 shadow-md rounded-t-lg hidden" data-bulk-edit-target="actions">
-              <div class="join py-4">
-                <div class="checked-count px-4">Selected: <span>1</span></div>
-                <div class="checked-count px-4">
-                  <label for="bulk-edit-move">Move</label><select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove">
-                  <option disabled selected>Choose Status</option>
-                  <% @status_values.each do |value| %>
-                    <option><%= value %></option>
-                  <% end %>
-                </select></div>
-                <div class="clear px-4">
+            <div class="w-fit fixed bottom-0 left-0 right-0 ml-auto mr-auto hidden" data-bulk-edit-target="actions">
+              <div class="join py-4 bg-white border border-gray-300 border-b-0 shadow-md rounded-b-none">
+                <div class="checked-count join-item px-4 border-r border-gray-300 py-1">Selected: <span>1</span></div>
+                <div class="join-item px-4 border-r border-gray-300">
+                  <select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove" class="select select-sm">
+                    <option disabled selected>Move To Status</option>
+                    <% @status_values.each do |value| %>
+                      <option><%= value %></option>
+                    <% end %>
+                  </select>
+                </div>
+                <div class="join-item clear px-4 py-1">
                   <button data-action="bulk-edit#handleCloseActions"><i class="fas fa-x"></i></button>
                 </div>
               </div>
@@ -208,8 +209,8 @@
                 <h3 class="text-lg font-bold"></h3>
                 <p class="py-4"></p>
                 <div class="modal-action">
-                  <button class="btn" data-action="bulk-edit#handleConfirm">Confirm</button>
-                  <button class="btn">Cancel</button>
+                  <button class="btn btn-primary" data-action="bulk-edit#handleConfirm"><i class="fas fa-check"></i>Confirm</button>
+                  <button class="btn" data-action="bulk-edit#handleCancel">Cancel</button>
                 </div>
               </div>
               <form method="dialog" class="modal-backdrop">

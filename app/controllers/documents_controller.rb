@@ -24,7 +24,7 @@ class DocumentsController < AuthenticatedController
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
     @total_documents = @documents.total_count
-    @status_values = Document::STATUSES.reject{|a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS)}
+    @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
   end
 
   def update_document_category

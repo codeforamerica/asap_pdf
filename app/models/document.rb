@@ -33,7 +33,7 @@ class Document < ApplicationRecord
   }
 
   scope :by_status, ->(status) {
-    if  status.present?
+    if status.present?
       where(status: status)
     else
       all

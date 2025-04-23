@@ -43,6 +43,10 @@ export default class extends Controller {
         this.handleCheckAll()
     }
 
+    handleCancel() {
+        this.modalTarget.close()
+    }
+
     handleConfirm() {
         let newState = {}
         newState[this.store.toChange.key] = this.store.toChange.value
@@ -53,13 +57,13 @@ export default class extends Controller {
         this.store.key = "status";
         this.store.toChange.value = e.target.value;
         const title = "Confirm move"
-        const message = `You are about to move ${this.store.checked} documents to "${this.store.toChange.value}"`
+        const message = `You are about to move ${this.store.checked} documents to "${this.store.toChange.value}".`
         this.updateModal(title, message)
     }
 
     resetActionBar() {
         const bulkEditMove = this.actionsTarget.querySelector('#bulk-edit-move')
-        bulkEditMove.value="Choose Status"
+        bulkEditMove.value="Move To Status"
         bulkEditMove.blur()
     }
 
