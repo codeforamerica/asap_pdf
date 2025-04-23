@@ -10,19 +10,6 @@ class Document < ApplicationRecord
   url_decoded_attribute :file_name
   url_decoded_attribute :url
 
-  scope :by_status, ->(status) {
-    case status
-    when "in_review"
-      where(status: "in_review")
-    when "done"
-      where(status: "done")
-    when "", nil
-      where("status IS NULL OR status = ?", "")
-    else
-      all
-    end
-  }
-
   scope :by_filename, ->(filename) {
     return all if filename.blank?
     where("file_name ILIKE ?", "%#{filename}%")
@@ -45,6 +32,20 @@ class Document < ApplicationRecord
     scope
   }
 
+  scope :by_status, ->(status) {
+    if  status.present?
+      where(status: status)
+    else
+      all
+    end
+  }
+
+  DEFAULT_STATUS = "Backlog".freeze
+  IN_REVIEW_STATUS = "In Review".freeze
+  DONE_STATUS = "Done".freeze
+
+  STATUSES = [DEFAULT_STATUS, IN_REVIEW_STATUS, DONE_STATUS].freeze
+
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
   DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
@@ -62,6 +63,7 @@ class Document < ApplicationRecord
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
+  validates :status, inclusion: {in: STATUSES}, presence: true
 
   before_validation :set_defaults
 
@@ -265,5 +267,6 @@ class Document < ApplicationRecord
 
   def set_defaults
     self.document_status = "discovered" unless document_status
+    self.status = DEFAULT_STATUS unless status
   end
 end

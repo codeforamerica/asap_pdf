@@ -18,9 +18,7 @@ export default class extends Controller {
 
     connect() {
         this.updateSelectAllState()
-        this.modalTarget.addEventListener('close', function() {
-          // @todo reset our toolbar values.
-        })
+        this.modalTarget.addEventListener('close', this.resetActionBar.bind(this))
     }
 
     handleCheckAll() {
@@ -57,6 +55,12 @@ export default class extends Controller {
         const title = "Confirm move"
         const message = `You are about to move ${this.store.checked} documents to "${this.store.toChange.value}"`
         this.updateModal(title, message)
+    }
+
+    resetActionBar() {
+        const bulkEditMove = this.actionsTarget.querySelector('#bulk-edit-move')
+        bulkEditMove.value="Choose Status"
+        bulkEditMove.blur()
     }
 
     updateSelectAllState() {
