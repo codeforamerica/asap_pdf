@@ -9,18 +9,18 @@ class DocumentsController < AuthenticatedController
   before_action :ensure_user_document_access, except: [:index, :modal_content, :batch_update]
 
   def modal_content
-    render partial: "modal_content", locals: { document: @document }
+    render partial: "modal_content", locals: {document: @document}
   end
 
   def index
     @documents = @site.documents
-                      .by_status(params[:status])
-                      .by_filename(params[:filename])
-                      .by_category(params[:category])
-                      .by_decision_type(params[:accessibility_recommendation])
-                      .by_date_range(params[:start_date], params[:end_date])
-                      .order(sort_column => sort_direction)
-                      .page(params[:page])
+      .by_status(params[:status])
+      .by_filename(params[:filename])
+      .by_category(params[:category])
+      .by_decision_type(params[:accessibility_recommendation])
+      .by_date_range(params[:start_date], params[:end_date])
+      .order(sort_column => sort_direction)
+      .page(params[:page])
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
     @total_documents = @documents.total_count
@@ -33,7 +33,7 @@ class DocumentsController < AuthenticatedController
         display_text: value
       }
     else
-      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
+      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
     end
   end
 
@@ -44,7 +44,7 @@ class DocumentsController < AuthenticatedController
         display_text: value
       }
     else
-      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
+      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
     end
   end
 
@@ -54,7 +54,7 @@ class DocumentsController < AuthenticatedController
         display_text: params[:document][:notes].present? ? params[:document][:notes] : "No notes"
       }
     else
-      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
+      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
     end
   end
 
@@ -68,9 +68,9 @@ class DocumentsController < AuthenticatedController
       accessibility_recommendation: existing_recommendation,
       document_category: existing_category
     )
-      render json: { success: true }
+      render json: {success: true}
     else
-      render json: { success: false, error: @document.errors.full_messages }, status: :unprocessable_entity
+      render json: {success: false, error: @document.errors.full_messages}, status: :unprocessable_entity
     end
   end
 
@@ -89,7 +89,7 @@ class DocumentsController < AuthenticatedController
       @document.inference_recommendation!
       @document.reload
     end
-    render json: { html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: { document: @document }) }
+    render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
   end
 
   def batch_update
@@ -104,9 +104,9 @@ class DocumentsController < AuthenticatedController
         end
       end
     rescue
-      return render json: { error: "Error updating documents."}, status: :unprocessable_entity
+      return render json: {error: "Error updating documents."}, status: :unprocessable_entity
     end
-    render json: { success: true }
+    render json: {success: true}
   end
 
   private
