@@ -7,7 +7,7 @@
       <div id="sidebar" class="space-y-6">
         <div class="bg-white shadow-sm rounded-lg h-fit">
           <nav class="p-4 space-y-2">
-            <%= link_to site_documents_path(@site, status: Document::DEFAULT_STATUS), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status] == Document::DEFAULT_STATUS ? 'bg-gray-100' : ''}" do %>
+            <%= link_to site_documents_path(@site, status: Document::DEFAULT_STATUS), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].nil? || params[:status] == Document::DEFAULT_STATUS ? 'bg-gray-100' : ''}" do %>
               <div class="flex items-center <%= "text-primary" if params[:status] == Document::DEFAULT_STATUS %>">
                 <i class="fas fa-inbox w-5"></i>
                 <span class="ml-2 ">Backlog</span>

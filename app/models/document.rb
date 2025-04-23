@@ -36,7 +36,7 @@ class Document < ApplicationRecord
     if status.present?
       where(status: status)
     else
-      all
+      where(status: DEFAULT_STATUS)
     end
   }
 
