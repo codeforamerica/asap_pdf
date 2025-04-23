@@ -16,6 +16,9 @@ Rails.application.routes.draw do
         patch :update_status
         get :modal_content
       end
+      collection do
+        patch :batch_update
+      end
     end
   end
 

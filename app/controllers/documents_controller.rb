@@ -3,24 +3,24 @@ class DocumentsController < AuthenticatedController
 
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  before_action :set_site, only: [:index, :modal_content]
-  before_action :set_document, except: [:index]
-  before_action :ensure_user_site_access, only: [:index, :modal_content]
-  before_action :ensure_user_document_access, except: [:index, :modal_content]
+  before_action :set_site, only: [:index, :modal_content, :batch_update]
+  before_action :set_document, except: [:index, :batch_update]
+  before_action :ensure_user_site_access, only: [:index, :modal_content, :batch_update]
+  before_action :ensure_user_document_access, except: [:index, :modal_content, :batch_update]
 
   def modal_content
-    render partial: "modal_content", locals: {document: @document}
+    render partial: "modal_content", locals: { document: @document }
   end
 
   def index
     @documents = @site.documents
-      .by_status(params[:status])
-      .by_filename(params[:filename])
-      .by_category(params[:category])
-      .by_decision_type(params[:accessibility_recommendation])
-      .by_date_range(params[:start_date], params[:end_date])
-      .order(sort_column => sort_direction)
-      .page(params[:page])
+                      .by_status(params[:status])
+                      .by_filename(params[:filename])
+                      .by_category(params[:category])
+                      .by_decision_type(params[:accessibility_recommendation])
+                      .by_date_range(params[:start_date], params[:end_date])
+                      .order(sort_column => sort_direction)
+                      .page(params[:page])
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
     @total_documents = @documents.total_count
@@ -33,7 +33,7 @@ class DocumentsController < AuthenticatedController
         display_text: value
       }
     else
-      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
+      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -44,7 +44,7 @@ class DocumentsController < AuthenticatedController
         display_text: value
       }
     else
-      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
+      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -54,7 +54,7 @@ class DocumentsController < AuthenticatedController
         display_text: params[:document][:notes].present? ? params[:document][:notes] : "No notes"
       }
     else
-      render json: {error: @document.errors.full_messages}, status: :unprocessable_entity
+      render json: { error: @document.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -68,9 +68,9 @@ class DocumentsController < AuthenticatedController
       accessibility_recommendation: existing_recommendation,
       document_category: existing_category
     )
-      render json: {success: true}
+      render json: { success: true }
     else
-      render json: {success: false, error: @document.errors.full_messages}, status: :unprocessable_entity
+      render json: { success: false, error: @document.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -89,10 +89,31 @@ class DocumentsController < AuthenticatedController
       @document.inference_recommendation!
       @document.reload
     end
-    render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
+    render json: { html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: { document: @document }) }
+  end
+
+  def batch_update
+    begin
+      documents = batch_params["documents"]
+      ActiveRecord::Base.transaction do
+        documents.each do |update|
+          document = Document.find(update["id"])
+          unless document.update(update)
+            raise ActiveRecord::Rollback
+          end
+        end
+      end
+    rescue
+      return render json: { error: "Error updating documents."}, status: :unprocessable_entity
+    end
+    render json: { success: true }
   end
 
   private
+
+  def batch_params
+    params.permit(:site_id, document: {}, documents: [:id, :status]).to_h
+  end
 
   def set_site
     @site = Site.find(params[:site_id])
