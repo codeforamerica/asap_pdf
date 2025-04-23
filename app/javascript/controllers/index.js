@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import BulkEditController from "./bulk_edit_controller"
+application.register("bulk-edit", BulkEditController)
+
 import DropdownController from "./dropdown_controller"
 application.register("dropdown", DropdownController)
 
