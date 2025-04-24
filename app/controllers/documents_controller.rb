@@ -26,6 +26,27 @@ class DocumentsController < AuthenticatedController
     @total_documents = @documents.total_count
   end
 
+  def serve_document_url
+    ze_url="https://dor.georgia.gov/document/form/2018-500-individual-income-tax-return/download"
+    begin
+      # Make the GET request to retrieve the PDF
+      response = RestClient.get(ze_url)
+
+      # Set appropriate headers to display in iframe instead of downloading
+      send_data response.body,
+                type: 'application/pdf',
+                disposition: 'inline',  # This is key for displaying in iframe
+                filename: 'document.pdf'
+
+    rescue RestClient::Exception => e
+      Rails.logger.error("PDF fetch error: #{e.message}")
+      render plain: "Failed to retrieve the PDF document: #{e.message}", status: e.http_code || 500
+    rescue StandardError => e
+      Rails.logger.error("General error: #{e.message}")
+      render plain: "An error occurred: #{e.message}", status: 500
+    end
+  end
+
   def update_document_category
     value = params[:value].presence
     if @document.update(document_category: value)

@@ -15,6 +15,7 @@ Rails.application.routes.draw do
       member do
         patch :update_status
         get :modal_content
+        get :serve_document_url
       end
     end
   end
