@@ -49,7 +49,6 @@
                     <input type="checkbox" class="bulk-edit-all checkbox" data-bulk-edit-target="selectAll" data-action="click->bulk-edit#handleCheckAll"/>
                   </label>
                 </th>
-                <th scope="col" class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-12">PDF</th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[40%]">
                   <%= link_to site_documents_path(@site, sort: 'file_name', direction: (params[:sort] == 'file_name' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
                     File Name
@@ -82,7 +81,6 @@
                 </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Decision</th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
-                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-12">Move</th>
               </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
@@ -103,16 +101,10 @@
                       <input type="checkbox" class="bulk-edit-document checkbox" data-bulk-edit-target="selectOne" data-action="click->bulk-edit#handleCheckOne" data-bulk-edit-document-id-value="<%= document.id %>"/>
                     </label>
                   </td>
-                  <td class="px-4 py-4 whitespace-nowrap text-lg text-gray-500 text-center w-12">
-                    <button onclick="pdf_modal_<%= document.id %>.showModal()" class="text-primary-600 hover:text-primary-900" title="Click to view <%= document.file_name %>">
-                      <i class="fas fa-file-pdf"></i>
-                    </button>
-                    <%= render partial: "documents/pdf_modal", locals: { document: document } %>
-                  </td>
                   <td class="px-3 py-4 text-sm w-[40%]" title="<%= document.file_name %>">
                     <div class="flex flex-col gap-1">
                       <div class="text-gray-900">
-                        <button onclick="pdf_modal_<%= document.id %>.showModal()"><%= document.file_name&.truncate(80) %></button>
+                        <button onclick="pdf_modal_<%= document.id %>.showModal()"><i class="fas fa-file-pdf text-sm"></i> <%= document.file_name&.truncate(80) %></button>
                       </div>
                       <% source = document_source(document.primary_source) %>
                       <div class="text-gray-400 flex items-center">
@@ -124,6 +116,7 @@
                         <% end %>
                       </div>
                     </div>
+                    <%= render partial: "documents/pdf_modal", locals: { document: document } %>
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500"><%= document.modification_date&.strftime("%b %d, %Y") %></td>
                   <td class="px-3 py-4 text-sm w-32" data-controller="dropdown-edit" data-dropdown-edit-document-id-value="<%= document.id %>" data-dropdown-edit-field-value="document_category">
@@ -169,20 +162,6 @@
                       data-action="blur->text-edit#updateValue keydown->text-edit#updateValue input->text-edit#adjustHeight"
                       class="hidden w-[90%] min-h-[6em] p-2 border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
                     ><%= document.notes %></textarea>
-                  </td>
-                  <td class="px-3 py-4 text-sm text-gray-500 relative text-center h-[60px]" data-controller="status" data-document-id="<%= document.id %>">
-                    <button class="text-gray-500 hover:text-gray-700 z-[50]" data-action="status#toggleMenu">
-                      <i class="fas fa-ellipsis-v"></i>
-                    </button>
-                    <div data-status-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[100]">
-                      <div class="py-1" role="menu">
-                        <% Document::STATUSES.each do |status| %>
-                          <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" data-action="status#updateStatus" data-status="<%= status %>">
-                            <%= status %>
-                          </a>
-                        <% end %>
-                      </div>
-                    </div>
                   </td>
                 </tr>
               <% end %>

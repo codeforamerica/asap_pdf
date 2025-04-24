@@ -28,9 +28,6 @@ application.register("password-toggle", PasswordToggleController)
 import RecommendationListController from "./recommendation_list_controller"
 application.register("recommendation-list", RecommendationListController)
 
-import StatusController from "./status_controller"
-application.register("status", StatusController)
-
 import SummarizeController from "./summarize_controller"
 application.register("summarize", SummarizeController)
 
