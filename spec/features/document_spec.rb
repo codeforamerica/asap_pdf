@@ -38,7 +38,7 @@ describe "documents function as expected", js: true, type: :feature do
       decision.click
       select = decision.find("select")
       select.find("[value='Convert']").click
-      denver_doc.status="Done"
+      denver_doc.status = "Done"
       denver_doc.save
     end
     visit "/"
@@ -228,6 +228,90 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_content("AI Accessibility Suggestion\nLeave (User override: Convert)")
+    end
+  end
+
+  it "updates documents in bulk" do
+    # Create our test setup
+    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
+    visit "/"
+    click_link("City of Boulder")
+    # Check for a default state.
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n3"
+      expect(page).to have_content "In Review\n0"
+      expect(page).to have_content "Done\n0"
+    end
+    within("#document-list") do
+      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
+      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
+      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
+      expect(page).to have_no_css('#bulk_edit_control', visible: true)
+      # Try checking a box.
+      find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
+    end
+    within("#bulk_edit_control") do
+      expect(page).to have_content "Selected: 1"
+      # Try clicking the "x".
+      find("[data-action='bulk-edit#handleCloseActions']").click
+      expect(page).to have_no_css('#bulk_edit_control', visible: true)
+    end
+    within('#document-list') do
+      checkbox = find("tr:nth-child(1) [data-bulk-edit-target='selectOne']")
+      expect(checkbox).not_to be_checked
+      # Try the select all.
+      find("th:nth-child(1) [data-bulk-edit-target='selectAll']").check
+    end
+    within("#bulk_edit_control") do
+      expect(page).to have_content "Selected: 3"
+      select = find("#bulk-edit-move")
+      select.find("[value='In Review']").click
+    end
+    within("#bulk_edit_modal") do
+      expect(page).to have_content "Confirm move"
+      expect(page).to have_content 'You are about to move 3 documents to "In Review".'
+      click_button "Cancel"
+    end
+    expect(page).to have_no_selector('#bulk_edit_modal', visible: true)
+    within("#bulk_edit_control") do
+      select = find("#bulk-edit-move")
+      select.find("[value='In Review']").click
+    end
+    within("#bulk_edit_modal") do
+      click_button "Confirm"
+    end
+    within('#document-list') do
+      expect(page).to have_content "No documents found"
+    end
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "In Review\n3"
+      expect(page).to have_content "Done\n0"
+      visit "/sites/#{site.id}/documents?status=In+Review"
+    end
+    within("#document-list") do
+      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
+      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
+      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
+      # Try checking a box.
+      find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
+    end
+    within("#bulk_edit_control") do
+      select = find("#bulk-edit-move")
+      select.find("[value='Done']").click
+    end
+    within("#bulk_edit_modal") do
+      click_button "Confirm"
+    end
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "In Review\n2"
+      expect(page).to have_content "Done\n1"
     end
   end
 end

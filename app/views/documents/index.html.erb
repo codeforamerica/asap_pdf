@@ -167,14 +167,14 @@
               <% end %>
               </tbody>
             </table>
-            <div class="w-fit fixed bottom-0 left-0 right-0 ml-auto mr-auto hidden" data-bulk-edit-target="actions">
+            <div id="bulk_edit_control" class="w-fit fixed bottom-0 left-0 right-0 ml-auto mr-auto hidden" data-bulk-edit-target="actions">
               <div class="join py-4 bg-white border border-gray-300 border-b-0 shadow-md rounded-b-none">
                 <div class="checked-count join-item px-4 border-r border-gray-300 py-1">Selected: <span>1</span></div>
                 <div class="join-item px-4 border-r border-gray-300">
                   <select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove" class="select select-sm">
                     <option disabled selected>Move To Status</option>
                     <% @status_values.each do |value| %>
-                      <option><%= value %></option>
+                      <option value="<%= value %>"><%= value %></option>
                     <% end %>
                   </select>
                 </div>
