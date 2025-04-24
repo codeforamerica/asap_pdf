@@ -11,7 +11,7 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
     @current_user.site = site
     @current_user.save!
-    Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    denver_doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
     Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
@@ -38,9 +38,8 @@ describe "documents function as expected", js: true, type: :feature do
       decision.click
       select = decision.find("select")
       select.find("[value='Convert']").click
-      workflow_button = find("[data-action='status#toggleMenu']")
-      workflow_button.click
-      click_link "Done"
+      denver_doc.status="Done"
+      denver_doc.save
     end
     visit "/"
     click_link("City of Denver")
@@ -181,7 +180,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(2) button").click
+      click_button "example.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -203,7 +202,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(2) button").click
+      click_button "example.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -223,7 +222,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(2) button").click
+      click_button "example.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
