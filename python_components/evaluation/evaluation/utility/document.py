@@ -1,23 +1,37 @@
 from pathlib import Path
 import os
 import urllib
+from typing import Optional
 
 from deepeval.test_case import MLLMImage
-import pandas as pd
 import pdf2image
+from pydantic import BaseModel, Field
 
+class Document(BaseModel):
+    file_name: str
+    url: str
+    category: str
+    human_summary: Optional[str] = None
+    ai_summary: Optional[str] = None
+    images: Optional[list] = None
 
-def convert_to_images(row: pd.Series, output_path: str) -> list:
-    path_obj = Path(row["url"])
+class Result(BaseModel):
+    score: float
+    reason: str
+    details: dict
+
+def add_images_to_document(document: Document, output_path: str) -> None:
+    path_obj = Path(document.url)
     file_name_stem = path_obj.stem
     if '.cfm' in path_obj.suffix:
         file_name_stem += path_obj.suffix
     output_folder = f"{output_path}/{file_name_stem}"
     os.makedirs(output_folder, exist_ok=True)
-    get_file(row["url"], output_folder)
+    get_file(document.url, output_folder)
     image_output = f"{output_folder}/images"
     os.makedirs(image_output, exist_ok=True)
-    return pdf_to_attachments(f"{output_folder}/{path_obj.name}", image_output, 7)
+    # todo parameterize page_limit
+    document.images = pdf_to_attachments(f"{output_folder}/{path_obj.name}", image_output, 7)
 
 
 def get_file(url: str, output_path: str) -> str:

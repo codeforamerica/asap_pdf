@@ -1,11 +1,13 @@
-import argparse
+import os
+import json
 
-import pandas as pd
 from deepeval.models import MultimodalGeminiModel
+from pydantic import ValidationError
 
 from evaluation import summary, utility
+from evaluation.utility.helpers import logger
 
-model = MultimodalGeminiModel(model="gemini-2.5-pro-preview-03-25")
+
 
 examples = [
     ["MINUTES%20December%202024.pdf",
@@ -32,23 +34,56 @@ examples = [
     #  "Spreadsheet"]
 ]
 
-def run_evaluation(output_path: str):
-    # Build summaries with current branch.
-    df = pd.DataFrame(examples)
-    df.transpose()
-    df.columns = ['file_name', 'url', 'category']
-    df['summary'] = df.apply(summary.get_summaries, axis=1, args=('gemini-1.5-pro-latest',))
-    df['images'] = df.apply(utility.document.convert_to_images, axis=1, args=(output_path,))
-    df[['score', 'reason', 'detail']] = df.apply(summary.evaluation, axis=1, result_type='expand', args=(model,))
-    df.to_csv(f"{output_path}/output.csv", index=False)
-
 def handler(event, context):
-    pass
+    try:
+        if type(event) is str:
+            event = json.loads(event)
+        if "body" in event:
+            event = json.loads(event["body"])
+        utility.helpers.logger.info(event)
+        if not isinstance(event, dict):
+            raise RuntimeError("Event is not a dictionary, please investigate.")
+        logger.info("Validating event")
+        # todo validate event.
+        #helpers.validate_event(event)
+        logger.info("Event is valid")
+        local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
+        logger.info("Validating LLM Judge model")
+        all_models = utility.helpers.get_models("models.json")
+        utility.helpers.validate_model(all_models, event["model_name"])
+        logger.info("LLM Judge model is valid")
+        api_key = utility.helpers.get_secret(all_models[event["model_name"]]["key"], local_mode)
+        # todo Abstract: create a utility helper for this.
+        model = MultimodalGeminiModel(model="gemini-2.5-pro-preview-03-25", api_key=api_key)
+        if not os.path.exists("/tmp/data"):
+            os.makedirs("/tmp/data")
+        output = []
+        for document_dict in event["documents"]:
+            logger.info(f'Beginning evaluation of "{document_dict["url"]}')
+            document_model = utility.document.Document.model_validate(document_dict)
+            logger.info(f'Converting document to images "{document_dict["url"]}')
+            utility.document.add_images_to_document(document_model, "/tmp/data")
+            logger.info(f'Created {len(document_model.images)}')
+            logger.info(f"Beginning summarization.")
+            # todo parameterize this.
+            summary.add_summary_to_document(document_model, "gemini-1.5-pro-latest")
+            logger.info(f"Summarization complete.")
+            result = summary.evaluation(document_model, model)
+            output.append(result)
+            logger.info(f"Evaluation complete.")
+        if "asap_endpoint" in event.keys():
+            logger.info("Writing eval results to Rails API")
+            # todo write API endpoint and put a call here.
+            return {
+                "statusCode": 200,
+                "body": "Successfully made document recommendation.",
+            }
+        else:
+            logger.info("Dumping results into Lambda return")
+            return {"statusCode": 200, "body": json.dumps(output)}
+    except ValidationError as e:
+        message = f'Invalid document supplied to event: {str(e)}'
+        return {"statusCode": 500, "body": message}
+    except Exception as e:
+        return {"statusCode": 500, "body": str(e)}
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Runs evals on one or more truthset documents.."
-    )
-    parser.add_argument("output_path", help="Path to dump evaluation results.")
-    args = parser.parse_args()
-    run_evaluation(args.output_path)
