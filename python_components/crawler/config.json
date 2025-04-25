@@ -36,5 +36,11 @@
         "allow_subdomains": ["gta-psg"],
         "use_sitemap": false,
         "depth": 7
+    },
+    "https://dfcs.georgia.gov": {
+        "allow_list": ["https://dfcs.georgia.gov"],
+        "allow_subdomains": ["dfcs"],
+        "use_sitemap": false,
+        "depth": 7
     }
 }
