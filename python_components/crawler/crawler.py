@@ -1,4 +1,5 @@
 import argparse
+import csv
 import io
 import json
 import re
@@ -8,7 +9,6 @@ import urllib.robotparser
 from collections import defaultdict, deque
 from datetime import datetime
 
-import pandas as pd
 import pymupdf
 import requests
 import tldextract
@@ -111,13 +111,13 @@ def get_all_pages(all_pages, delay=0):
     return pdfs
 
 
-def bfs_search_pdfs(url, delay=0, max_depth=7, allowable_sites=[], timeout=90):
+def bfs_search_pdfs(
+    url, allowable_domains, allowable_subdomains=None, delay=0, max_depth=7, timeout=90
+):
     # Restricts search to links sharing the same domain, capture all PDFs
     # along the way
     visited = set()  # Set to keep track of visited nodes
     queue = deque([(url, max_depth)])  # Queue to store nodes to visit
-    if len(allowable_sites) == 0:
-        allowable_sites = [url]
     pdfs = defaultdict(list)
 
     pbar = tqdm(unit=" pages")
@@ -133,9 +133,25 @@ def bfs_search_pdfs(url, delay=0, max_depth=7, allowable_sites=[], timeout=90):
             # domain
             for link, text in zip(links, link_texts):
                 new_domain = tldextract.extract(link).registered_domain
-                allowable = any([(new_domain == domain) for domain in allowable_sites])
+                allowable = any(
+                    [(new_domain == domain) for domain in allowable_domains]
+                )
+                if allowable_subdomains:
+                    new_subdomain = tldextract.extract(link).subdomain
+                    matching_subdomains = any(
+                        [
+                            (new_subdomain == subdomain)
+                            for subdomain in allowable_subdomains
+                        ]
+                    )
+                    allowable = allowable and matching_subdomains
+
                 new_depth = depth - 1
-                if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link):
+                if (
+                    link.endswith(".pdf")
+                    or re.search(r"\.cfm\?id=", link)
+                    or link.endswith("/download")
+                ):
                     # Save pdfs
                     pdfs[link].append({"source": node, "text": text})
                 elif (link not in visited) and allowable and (new_depth > 0):
@@ -172,62 +188,92 @@ def parse_pdf_date(date_string):
     return datetime.strptime(date_string[2:14], "%Y%m%d%H%M%S")
 
 
-def get_pdf_metadata(pdfs):
-    rows = []
-    for pdf_url in tqdm(pdfs.keys(), ncols=100):
-        source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
-        texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
+def get_pdf_metadata(pdfs, output_path):
+    with open(output_path, "w", newline="") as csv_file:
+        csv_writer = csv.DictWriter(
+            csv_file,
+            fieldnames=[
+                "file_name",
+                "url",
+                "file_size",
+                "file_size_kilobytes",
+                "last_modified_date",
+                "author",
+                "subject",
+                "keywords",
+                "creation_date",
+                "producer",
+                "number_of_pages",
+                "number_of_tables",
+                "number_of_images",
+                "version",
+                "source",
+                "text_around_link",
+            ],
+        )
+        csv_writer.writeheader()
+        for pdf_url in tqdm(pdfs.keys(), ncols=100):
+            source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
+            texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
 
-        url_parsed = urllib.parse.urlparse(pdf_url)
-        default_file_name = url_parsed.path.split("/")[-1]
-        if len(default_file_name) == 0:
-            default_file_name = url_parsed.netloc.split("\\")[-1]
+            url_parsed = urllib.parse.urlparse(pdf_url)
+            default_file_name = url_parsed.path.split("/")[-1]
+            if len(default_file_name) == 0:
+                default_file_name = url_parsed.netloc.split("\\")[-1]
 
-        try:
-            response = requests.get(url=pdf_url, timeout=90)
-            if response.status_code < 400:
-                with io.BytesIO(response.content) as mem_obj:
-                    try:
-                        pdf_file = pymupdf.Document(stream=mem_obj)
+            try:
+                headers = {
+                    "Content-Type": "application/pdf",
+                    "Content-Disposition": "inline",
+                }
+                response = requests.get(
+                    url=pdf_url, timeout=90, headers=headers, allow_redirects=True
+                )
+                if response.status_code < 400:
+                    with io.BytesIO(response.content) as mem_obj:
+                        try:
+                            pdf_file = pymupdf.Document(stream=mem_obj)
 
-                        file_name = default_file_name
-                        pdf_title = pdf_file.metadata.get("title")
-                        if pdf_title and (len(pdf_title.strip()) > 0):
-                            file_name = pdf_title
-                        file_bytes = mem_obj.getbuffer().nbytes
-                        n_images, n_tables = get_images_and_tables(pdf_file.pages())
-                        modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
-                        created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
+                            file_name = default_file_name
+                            pdf_title = pdf_file.metadata.get("title")
+                            if pdf_title and (len(pdf_title.strip()) > 0):
+                                file_name = pdf_title
+                            file_bytes = mem_obj.getbuffer().nbytes
+                            n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                            modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
+                            created = parse_pdf_date(
+                                pdf_file.metadata.get("creationDate")
+                            )
 
-                        row = {
-                            "file_name": file_name,
-                            "url": pdf_url,
-                            "file_size": convert_bytes(file_bytes),
-                            "file_size_kilobytes": file_bytes / 1024,
-                            "last_modified_date": modified,
-                            "author": pdf_file.metadata.get("author"),
-                            "subject": pdf_file.metadata.get("subject"),
-                            "keywords": pdf_file.metadata.get("keywords"),
-                            "creation_date": created,
-                            "producer": pdf_file.metadata.get("producer"),
-                            "number_of_pages": pdf_file.page_count,
-                            "number_of_tables": n_tables,
-                            "number_of_images": n_images,
-                            # TODO: This is consistent with current behavior, but
-                            # pdf_file.version_count might be more appropriate
-                            "version": pdf_file.metadata.get("format"),
-                            "source": source,
-                            "text_around_link": texts,
-                        }
-                        rows.append(row)
-                    except:  # noqa:
-                        # print(f'Error reading: {pdf_url}')
-                        continue
-        except:  # noqa
-            # print(f'Error reading: {pdf_url}')
-            continue
+                            row = {
+                                "file_name": file_name,
+                                "url": pdf_url,
+                                "file_size": convert_bytes(file_bytes),
+                                "file_size_kilobytes": file_bytes / 1024,
+                                "last_modified_date": modified,
+                                "author": pdf_file.metadata.get("author"),
+                                "subject": pdf_file.metadata.get("subject"),
+                                "keywords": pdf_file.metadata.get("keywords"),
+                                "creation_date": created,
+                                "producer": pdf_file.metadata.get("producer"),
+                                "number_of_pages": pdf_file.page_count,
+                                "number_of_tables": n_tables,
+                                "number_of_images": n_images,
+                                # TODO: This is consistent with current behavior, but
+                                # pdf_file.version_count might be more appropriate
+                                "version": pdf_file.metadata.get("format"),
+                                "source": source,
+                                "text_around_link": texts,
+                            }
+                            csv_writer.writerow(row)
+                        except:  # noqa:
+                            # print(f'Error reading: {pdf_url}')
+                            continue
+            except:  # noqa
+                # print(f'Error reading: {pdf_url}')
+                continue
 
-    return pd.DataFrame(rows)
+    return None
 
 
 if __name__ == "__main__":
@@ -241,6 +287,7 @@ if __name__ == "__main__":
 
     config = get_config(args.url)
     allow_list = config["allow_list"]
+    allowable_subdomains = config.get("allow_subdomains")
     use_sitemap = config["use_sitemap"]
     depth = config["depth"]
 
@@ -259,11 +306,13 @@ if __name__ == "__main__":
         print("Doing recursive search instead.")
         pdfs, visited = bfs_search_pdfs(
             args.url,
+            allowable_domains,
+            allowable_subdomains=allowable_subdomains,
             delay=manual_crawl_delay,
             max_depth=depth,
-            allowable_sites=allowable_domains,
         )
 
     print(f"PDFs found: {len(pdfs)}")
-    pdf_metadata = get_pdf_metadata(pdfs)
-    pdf_metadata.to_csv(args.output_path, index=False)
+    with open(args.output_path.replace(".csv", ".json"), "w") as f:
+        json.dump(dict(pdfs), f, indent=4)
+    get_pdf_metadata(pdfs, args.output_path)
