@@ -69,6 +69,7 @@ namespace :documents do
       "dor_georgia.csv" => ga_dor,
       "dbf_georgia.csv" => ga_dbf,
       "gta_psg_georgia.csv" => ga_psg,
+      "dfcs_georgia.csv" => ga_dfcs,
       "austin.csv" => austin,
       "san_rafael.csv" => san_rafael,
       "salt_lake_city.csv" => slc
