@@ -1,6 +1,7 @@
 backports.tarfile==1.2.0
-deepeval==2.6.4
+deepeval==2.7.6
 jaraco.collections==5.1.0
+pdf2image==1.17.0
 pip-chill==1.0.3
 tomli==2.0.1
 wheel==0.45.1

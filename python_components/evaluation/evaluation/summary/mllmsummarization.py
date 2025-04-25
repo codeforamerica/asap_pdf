@@ -1,5 +1,8 @@
 from typing import List, Optional, Union
 import asyncio
+import json
+
+import pandas as pd
 
 from deepeval.test_case import (
     MLLMTestCase,
@@ -19,8 +22,8 @@ from deepeval.metrics.indicator import metric_progress_indicator
 from deepeval.metrics.summarization.schema import *
 from deepeval.metrics.faithfulness.schema import *
 
-from mllmfailfulnesstemplate import MllMInputFaithfulnessTemplate
-from mllmsummarizationtemplate import MLLMSummarizationTemplate
+from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
+from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
 
 class MultimodalInputSummarization(BaseMetric):
 
@@ -556,3 +559,19 @@ class MultimodalInputSummarization(BaseMetric):
     @property
     def __name__(self):
         return "Image Input to Text Summarization"
+
+
+def evaluation(row, model) -> pd.Series:
+    if len(row['summary']) == 0:
+        return pd.Series()
+    metric = MultimodalInputSummarization(model=model, verbose_mode=True)
+    test_case = MLLMTestCase(input=row["images"], actual_output=row["summary"])
+    metric.measure(test_case)
+    details = {
+        'truths': prettify_list(metric.truths),
+        'claims': prettify_list(metric.claims),
+        'assessment_questions': prettify_list(metric.assessment_questions),
+        'coverage_verdicts': prettify_list(metric.coverage_verdicts),
+        'alignment_verdicts': prettify_list(metric.alignment_verdicts),
+    }
+    return pd.Series([metric.score, metric.reason, json.dumps(details)])
