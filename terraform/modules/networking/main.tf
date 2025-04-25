@@ -8,6 +8,8 @@ module "vpc" {
 
   private_subnets = var.private_subnet_cidrs
   public_subnets  = var.public_subnet_cidrs
+
+  single_nat_gateway = true
 }
 
 # VPC

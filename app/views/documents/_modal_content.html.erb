@@ -71,6 +71,14 @@
                 </span>
               </div>
             </div>
+            <div class="border-t pt-4">
+              <div class="text-sm font-medium text-gray-500 mb-1">Tables</div>
+              <div class="text-sm">
+                <span class="bg-primary-100 text-sm text-gray-900 px-2 py-1 rounded-full">
+                  <%= document.number_of_tables %>
+                </span>
+              </div>
+            </div>
           </div>
         </div>
         <!-- Document Metadata -->
@@ -97,6 +105,10 @@
             <div class="border-t pt-4">
               <div class="text-sm font-medium text-gray-500 mb-1">Version</div>
               <div class="text-sm text-gray-900"><%= format_metadata(document.pdf_version) %></div>
+            </div>
+            <div class="border-t pt-4">
+              <div class="text-sm font-medium text-gray-500 mb-1">Images</div>
+              <div class="text-sm text-gray-900"><%= document.number_of_images %></div>
             </div>
           </div>
         </div>

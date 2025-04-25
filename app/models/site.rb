@@ -125,7 +125,9 @@ class Site < ApplicationRecord
             source: source,
             predicted_category: row["predicted_category"],
             predicted_category_confidence: row["predicted_category_confidence"],
-            number_of_pages: row["number_of_pages"]&.to_i
+            number_of_pages: row["number_of_pages"]&.to_i,
+            number_of_tables: row["number_of_tables"]&.to_i,
+            number_of_images: row["number_of_images"]&.to_i
           }
         rescue URI::InvalidURIError => e
           puts "Skipping invalid URL: #{row["url"]}"
@@ -161,6 +163,8 @@ class Site < ApplicationRecord
                 data[:source].is_a?(Array) ? data[:source].to_json : [data[:source]].to_json
               end,
       number_of_pages: data[:number_of_pages],
+      number_of_tables: data[:number_of_tables],
+      number_of_images: data[:number_of_images],
       document_status: "discovered"
     }
   end
