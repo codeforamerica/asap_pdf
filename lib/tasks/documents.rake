@@ -39,28 +39,28 @@ namespace :documents do
     ga_dor = Site.find_or_create_by!(
       name: "Department of Revenue",
       location: "Georgia",
-      primary_url: "https://dor.georgia.gov",
+      primary_url: "https://dor.georgia.gov"
     )
     puts "Created site: #{ga_dor.name}"
 
     ga_dbf = Site.find_or_create_by!(
       name: "Department of Banking and Finance",
       location: "Georgia",
-      primary_url: "https://dbf.georgia.gov",
+      primary_url: "https://dbf.georgia.gov"
     )
     puts "Created site: #{ga_dbf.name}"
 
-    ga_psg= Site.find_or_create_by!(
+    ga_psg = Site.find_or_create_by!(
       name: "Enterprise Policies, Standards and Guidelines (PSGs)",
       location: "Georgia",
-      primary_url: "https://gta-psg.georgia.gov",
+      primary_url: "https://gta-psg.georgia.gov"
     )
     puts "Created site: #{ga_psg.name}"
 
-    ga_dfcs= Site.find_or_create_by!(
+    ga_dfcs = Site.find_or_create_by!(
       name: "Department of Human Services Division of Family & Children Services",
       location: "Georgia",
-      primary_url: "https://dfcs.georgia.gov",
+      primary_url: "https://dfcs.georgia.gov"
     )
     puts "Created site: #{ga_dfcs.name}"
 
