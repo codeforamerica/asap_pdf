@@ -46,7 +46,7 @@ export default class extends Controller {
   }
 
   updateButtonStyles(activeButton) {
-    [this.summaryButtonTarget, this.metadataButtonTarget, this.historyButtonTarget].forEach(button => {
+    [this.summaryButtonTarget, this.metadataButtonTarget, this.recommendationButtonTarget, this.historyButtonTarget].forEach(button => {
       button.classList.remove("tab-active")
     })
     activeButton.classList.add("tab-active")

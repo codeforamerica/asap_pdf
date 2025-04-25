@@ -27,4 +27,4 @@ jobs:
         if [ -f ./python_components/requirements.txt ]; then pip install -r ./python_components/requirements.txt; fi
     - name: Run Linting
       run: |
-        ./python_components/scripts/ci_run_linting.sh ./python_components/**/**.py
+        ./python_components/scripts/ci_run_linting.sh "./python_components/."

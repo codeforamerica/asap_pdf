@@ -7,7 +7,7 @@ class CreateDocuments < ActiveRecord::Migration[8.0]
       t.text :source
       t.string :status
       t.string :document_status, default: "discovered"
-      t.string :document_category, default: Document::DEFAULT_DOCUMENT_CATEGORY
+      t.string :document_category, default: "Unknown"
       t.float :document_category_confidence
       t.text :accessibility_recommendation, default: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION
       t.float :accessibility_confidence

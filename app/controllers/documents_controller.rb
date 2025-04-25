@@ -1,9 +1,12 @@
 class DocumentsController < AuthenticatedController
+  include Access
+
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  before_action :set_site, except: [:update_document_category, :update_accessibility_recommendation, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  before_action :set_document_for_update, only: [:update_document_category, :update_accessibility_recommendation, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  before_action :set_document, only: [:modal_content]
+  before_action :set_site, only: [:index, :modal_content]
+  before_action :set_document, except: [:index]
+  before_action :ensure_user_site_access, only: [:index, :modal_content]
+  before_action :ensure_user_document_access, except: [:index, :modal_content]
 
   def modal_content
     render partial: "modal_content", locals: {document: @document}
@@ -24,7 +27,7 @@ class DocumentsController < AuthenticatedController
   end
 
   def update_document_category
-    value = params[:value].presence || Document::DEFAULT_DOCUMENT_CATEGORY
+    value = params[:value].presence
     if @document.update(document_category: value)
       render json: {
         display_text: value
@@ -56,13 +59,9 @@ class DocumentsController < AuthenticatedController
   end
 
   def update_status
-    @document = Document.joins(:site)
-      .where(sites: {user_id: Current.user.id})
-      .find(params[:id])
-
     # Set Unknown as default for empty values
     existing_recommendation = @document.accessibility_recommendation || Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION
-    existing_category = @document.document_category || Document::DEFAULT_DOCUMENT_CATEGORY
+    existing_category = @document.document_category
 
     if @document.update(
       status: params[:status],
@@ -96,17 +95,11 @@ class DocumentsController < AuthenticatedController
   private
 
   def set_site
-    @site = Current.user.sites.find(params[:site_id])
+    @site = Site.find(params[:site_id])
   end
 
   def set_document
-    @document = @site.documents.find(params[:id])
-  end
-
-  def set_document_for_update
-    @document = Document.joins(:site)
-      .where(sites: {user_id: Current.user.id})
-      .find(params[:id])
+    @document = Document.find(params[:id])
   end
 
   def sort_column

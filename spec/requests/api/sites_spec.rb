@@ -59,8 +59,8 @@ RSpec.describe AsapPdf::API do
     let(:timestamp) { Time.current }
     let(:valid_documents) do
       [
-        {url: "https://example.com/doc1.pdf", modification_date: timestamp},
-        {url: "https://example.com/doc2.pdf", modification_date: timestamp}
+        {url: "https://example.com/doc1.pdf", modification_date: timestamp, document_category: "Brochure"},
+        {url: "https://example.com/doc2.pdf", modification_date: timestamp, document_category: "Brochure"}
       ]
     end
 
@@ -92,7 +92,8 @@ RSpec.describe AsapPdf::API do
           url: valid_documents.first[:url],
           modification_date: 1.day.ago,
           file_name: "doc1.pdf",
-          document_status: "discovered"
+          document_status: "discovered",
+          document_category: "Brochure"
         )
 
         expect {
@@ -111,7 +112,8 @@ RSpec.describe AsapPdf::API do
           url: valid_documents.first[:url],
           modification_date: timestamp,
           file_name: "doc1.pdf",
-          document_status: "discovered"
+          document_status: "discovered",
+          document_category: "Brochure"
         )
 
         expect {

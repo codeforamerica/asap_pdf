@@ -1,9 +1,14 @@
 class SitesController < AuthenticatedController
+  include Access
   before_action :find_site, only: [:show, :edit, :update, :destroy]
-  before_action :ensure_user_owns_site, only: [:show, :edit, :update, :destroy]
+  before_action :ensure_user_site_access, only: [:show, :edit, :update, :destroy]
 
   def index
-    @sites = Current.user.sites.order(name: :asc)
+    @sites = if Current.user.is_admin?
+      Site.all
+    else
+      Current.user.site.nil? ? [] : [Current.user.site]
+    end
   end
 
   def show
@@ -11,11 +16,11 @@ class SitesController < AuthenticatedController
   end
 
   def new
-    @site = Current.user.sites.build
+    @site = Site.build
   end
 
   def create
-    @site = Current.user.sites.build(site_params)
+    @site = Site.build(site_params)
 
     if @site.save
       redirect_to sites_path, notice: "Site was successfully created."
@@ -48,11 +53,5 @@ class SitesController < AuthenticatedController
 
   def find_site
     @site = Site.find(params[:id])
-  end
-
-  def ensure_user_owns_site
-    unless @site.user_id == Current.user.id
-      redirect_to sites_path, alert: "You don't have permission to access that site."
-    end
   end
 end

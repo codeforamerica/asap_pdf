@@ -3,14 +3,13 @@ require "zip"
 namespace :documents do
   desc "Bootstrap"
   task :bootstrap, [:file_name] => :environment do |t, args|
-    admin = User.first
+    User.first
 
     # Create Salt Lake City site
     slc = Site.find_or_create_by!(
       name: "SLC.gov",
       location: "Salt Lake City, UT",
-      primary_url: "https://www.slc.gov/",
-      user: admin
+      primary_url: "https://www.slc.gov/"
     )
     puts "Created site: #{slc.name}"
 
@@ -18,8 +17,7 @@ namespace :documents do
     san_rafael = Site.find_or_create_by!(
       name: "The City with a Mission",
       location: "San Rafael, CA",
-      primary_url: "https://www.cityofsanrafael.org/",
-      user: admin
+      primary_url: "https://www.cityofsanrafael.org/"
     )
     puts "Created site: #{san_rafael.name}"
 
@@ -27,16 +25,14 @@ namespace :documents do
     austin = Site.find_or_create_by!(
       name: "The Official Website of The City of Austin",
       location: "Austin, TX",
-      primary_url: "https://www.austintexas.gov/",
-      user: admin
+      primary_url: "https://www.austintexas.gov/"
     )
     puts "Created site: #{austin.name}"
 
     ga = Site.find_or_create_by!(
       name: "georgia.gov",
       location: "Georgia",
-      primary_url: "https://georgia.gov/",
-      user: admin
+      primary_url: "https://georgia.gov/"
     )
     puts "Created site: #{ga.name}"
 
@@ -47,15 +43,18 @@ namespace :documents do
       "salt_lake_city.csv" => slc
     }
 
-    Zip::File.open(Rails.root.join("db", "seeds", "site_documents.zip")) do |zipfile|
+    archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
+    puts "Loading site data from #{archive_name}"
+
+    Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
       zipfile.each do |entry|
         if entry.file?
-          file_name = entry.name.delete_prefix("site_documents/")
+          file_name = entry.name.delete_prefix("site_documents/").delete_prefix("site_documents_dev/")
           if csv_manifest.has_key?(file_name) && (args.file_name.nil? || (args.file_name == file_name))
             site = csv_manifest[file_name]
             puts "\nProcessing #{site.name} documents in #{entry.name}..."
             tmp_path = "/tmp/#{file_name}"
-            entry.extract(tmp_path) unless File.exist?(tmp_path)
+            entry.extract(tmp_path)
             site.process_csv_documents(tmp_path)
             File.delete(tmp_path) if File.exist? tmp_path
           end

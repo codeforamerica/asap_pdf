@@ -81,11 +81,8 @@ export default class extends Controller {
         // Preserve the magic wand icon when updating display text
         const icon = this.displayTarget.querySelector('i')
         this.displayTarget.innerHTML = ''
-        if (icon) {
-          const span = document.createElement('span')
-          span.className = 'text-xs font-normal'
-          span.appendChild(icon)
-          this.displayTarget.appendChild(span)
+        if (icon && !icon.classList.contains('leave-icon')) {
+          icon.remove()
         }
         this.displayTarget.appendChild(document.createTextNode(' ' + data.display_text))
         this.hideSelect()
