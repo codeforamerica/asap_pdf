@@ -50,7 +50,7 @@ def get_file(url: str, output_path: str) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
     opener = urllib.request.URLopener()
-    opener.addheader('User-Agent', 'cfa:asap-pdf')
+    opener.addheader("User-Agent", "cfa:asap-pdf")
     opener.retrieve(url, local_path)
     return local_path
 

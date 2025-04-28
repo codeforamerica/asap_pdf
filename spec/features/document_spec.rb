@@ -145,7 +145,7 @@ describe "documents function as expected", js: true, type: :feature do
     @current_user.site = site
     @current_user.save!
     doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
-    iframe_src = serve_file_content_document_path(doc.id,  doc.safe_file_name) + "?pagemode=none&toolbar=1"
+    iframe_src = serve_file_content_document_path(doc.id, doc.safe_file_name) + "?pagemode=none&toolbar=1"
     visit "/"
     click_link("City of Denver")
     # Test out the modal and tabs.

@@ -68,7 +68,7 @@ class Document < ApplicationRecord
   before_validation :set_defaults
 
   def safe_file_name
-    file_name.gsub(/[^a-zA-Z0-9_-]/, '-')
+    file_name.gsub(/[^a-zA-Z0-9_-]/, "-")
   end
 
   def summary
