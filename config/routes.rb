@@ -15,7 +15,6 @@ Rails.application.routes.draw do
       member do
         patch :update_status
         get :modal_content
-        get :serve_document_url
       end
       collection do
         patch :batch_update
@@ -30,6 +29,7 @@ Rails.application.routes.draw do
       patch :update_notes
       patch :update_summary_inference
       patch :update_recommendation_inference
+      get 'serve_content/:filename', to: 'documents#serve_document_url', as: 'serve_file_content'
     end
   end
 

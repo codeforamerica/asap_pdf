@@ -28,16 +28,15 @@ class DocumentsController < AuthenticatedController
   end
 
   def serve_document_url
-    ze_url="https://dor.georgia.gov/document/form/2018-500-individual-income-tax-return/download"
     begin
       # Make the GET request to retrieve the PDF
-      response = RestClient.get(ze_url)
+      response = RestClient.get(@document.url)
 
       # Set appropriate headers to display in iframe instead of downloading
       send_data response.body,
                 type: 'application/pdf',
-                disposition: 'inline',  # This is key for displaying in iframe
-                filename: 'document.pdf'
+                disposition: "inline; filename=\"#{@document.file_name}\"",
+                filename: @document.file_name
 
     rescue RestClient::Exception => e
       Rails.logger.error("PDF fetch error: #{e.message}")
