@@ -145,6 +145,7 @@ describe "documents function as expected", js: true, type: :feature do
     @current_user.site = site
     @current_user.save!
     doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
+    iframe_src = serve_file_content_document_path(doc.id,  doc.safe_file_name) + "?pagemode=none&toolbar=1"
     visit "/"
     click_link("City of Denver")
     # Test out the modal and tabs.
@@ -159,12 +160,12 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       # Later we'll check to see if the button is gone.
       expect(page).to have_content "Summarize Document"
-      expect(page).to have_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_css("iframe[src='#{iframe_src}']")
       # Check out "PDF Details" tab.
       click_button "PDF Details"
       expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
-      expect(page).to have_no_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_no_css("iframe[src='#{iframe_src}']")
       expect(page).to have_content "File Name\nexample.pdf"
       expect(page).to have_content "Type\nAgenda"
       expect(page).to have_content "Decision\nNeeds Decision"
