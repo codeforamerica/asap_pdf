@@ -1,11 +1,11 @@
 from pathlib import Path
 import os
 import urllib
-from typing import Optional
+from typing import Any, Optional, List
 
 from deepeval.test_case import MLLMImage
 import pdf2image
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 class Document(BaseModel):
     file_name: str
@@ -51,3 +51,7 @@ def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list
         image.save(page_path)
         attachments.append(MLLMImage(page_path, local=True))
     return attachments
+
+
+def convert_model_list(list: List[Any]) -> list:
+    return [dict(item) if isinstance(item, BaseModel) else item for item in list]

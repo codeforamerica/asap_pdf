@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Union
 import asyncio
 
 import deepeval.models
@@ -23,7 +23,8 @@ from deepeval.metrics.faithfulness.schema import *
 
 from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
 from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
-from evaluation.utility.document import Document, Result
+from evaluation.utility.document import convert_model_list, Document, Result
+from evaluation.utility.helpers import logger
 
 class MultimodalInputSummarization(BaseMetric):
 
@@ -511,7 +512,6 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        # @TODO Refactor
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
             extraction_limit=self.truths_extraction_limit,
         )
@@ -531,7 +531,6 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_claims(self, text: str) -> List[str]:
         # Borrow faithfulness template
-        # Todo Refactor
         prompt = MllMInputFaithfulnessTemplate.generate_claims(actual_output=text)
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Claims)
@@ -567,8 +566,8 @@ def evaluation(document: Document, model: deepeval.models.DeepEvalBaseMLLM) -> R
     details = {
         'truths': metric.truths,
         'claims': metric.claims,
-        'assessment_questions': metric.assessment_questions,
-        'coverage_verdicts': metric.coverage_verdicts,
-        'alignment_verdicts': metric.alignment_verdicts,
+        'assessment_questions': convert_model_list(metric.assessment_questions),
+        'coverage_verdicts': convert_model_list(metric.coverage_verdicts),
+        'alignment_verdicts': convert_model_list(metric.alignment_verdicts),
     }
-    return Result(metric.score, metric.reason, details)
+    return Result(score=metric.score, reason=metric.reason, details=details)

@@ -69,7 +69,7 @@ def handler(event, context):
             summary.add_summary_to_document(document_model, "gemini-1.5-pro-latest")
             logger.info(f"Summarization complete.")
             result = summary.evaluation(document_model, model)
-            output.append(result)
+            output.append(dict(result))
             logger.info(f"Evaluation complete.")
         if "asap_endpoint" in event.keys():
             logger.info("Writing eval results to Rails API")
