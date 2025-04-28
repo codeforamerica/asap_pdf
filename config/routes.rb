@@ -17,6 +17,9 @@ Rails.application.routes.draw do
         get :modal_content
         get :serve_document_url
       end
+      collection do
+        patch :batch_update
+      end
     end
   end
 
