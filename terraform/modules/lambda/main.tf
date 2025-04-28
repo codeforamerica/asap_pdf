@@ -13,6 +13,11 @@ resource "aws_lambda_function" "document_inference" {
   role = aws_iam_role.lambda_exec.arn
 }
 
+resource "aws_lambda_function_url" "document_inference_url" {
+  function_name      = aws_lambda_function.document_inference.function_name
+  authorization_type = "AWS_IAM"
+}
+
 resource "aws_iam_role" "lambda_exec" {
   name = "${var.project_name}-${var.environment}-lambda-execution-role"
 
@@ -30,7 +35,7 @@ resource "aws_iam_role" "lambda_exec" {
     ]
   })
 }
-#secretsmanager:GetSecretValue
+
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
