@@ -19,7 +19,7 @@ black_output="$(black --check --diff $1 2>&1)"
 black_change_count=$(echo "$black_output" | grep '^---' | wc -l) # Count diff lines
 
 # Run flake8 and capture output
-flake8_output="$(flake8 --ignore=E501 $1)"
+flake8_output="$(flake8 --ignore=E501,W503 $1)"
 trimmed_output=$(echo "$flake8_output" | tr -d '[:space:]')
 
 if [ -z "$trimmed_output" ]; then

@@ -147,7 +147,11 @@ def bfs_search_pdfs(
                     allowable = allowable and matching_subdomains
 
                 new_depth = depth - 1
-                if link.endswith(".pdf") or re.search(r"\.cfm\?id=", link) or link.endswith("/download"):  # noqa: E501
+                if (
+                    link.endswith(".pdf")
+                    or re.search(r"\.cfm\?id=", link)
+                    or link.endswith("/download")
+                ):
                     # Save pdfs
                     pdfs[link].append({"source": node, "text": text})
                 elif (link not in visited) and allowable and (new_depth > 0):
