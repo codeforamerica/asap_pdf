@@ -36,8 +36,40 @@ namespace :documents do
     )
     puts "Created site: #{ga.name}"
 
+    ga_dor = Site.find_or_create_by!(
+      name: "Department of Revenue",
+      location: "Georgia",
+      primary_url: "https://dor.georgia.gov"
+    )
+    puts "Created site: #{ga_dor.name}"
+
+    ga_dbf = Site.find_or_create_by!(
+      name: "Department of Banking and Finance",
+      location: "Georgia",
+      primary_url: "https://dbf.georgia.gov"
+    )
+    puts "Created site: #{ga_dbf.name}"
+
+    ga_psg = Site.find_or_create_by!(
+      name: "Enterprise Policies, Standards and Guidelines (PSGs)",
+      location: "Georgia",
+      primary_url: "https://gta-psg.georgia.gov"
+    )
+    puts "Created site: #{ga_psg.name}"
+
+    ga_dfcs = Site.find_or_create_by!(
+      name: "Department of Human Services Division of Family & Children Services",
+      location: "Georgia",
+      primary_url: "https://dfcs.georgia.gov"
+    )
+    puts "Created site: #{ga_dfcs.name}"
+
     csv_manifest = {
       "georgia.csv" => ga,
+      "dor_georgia.csv" => ga_dor,
+      "dbf_georgia.csv" => ga_dbf,
+      "gta_psg_georgia.csv" => ga_psg,
+      "dfcs_georgia.csv" => ga_dfcs,
       "austin.csv" => austin,
       "san_rafael.csv" => san_rafael,
       "salt_lake_city.csv" => slc
