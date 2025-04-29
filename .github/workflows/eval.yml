@@ -1,0 +1,14 @@
+name: Run the evaluation process
+
+on:
+  push:
+    branches: [ "workflow_dispatch" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hello World
+        run: |
+          echo "Hooray! $(git branch --show-current)"
