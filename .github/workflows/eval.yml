@@ -67,8 +67,7 @@ jobs:
           ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          REGISTRY_ARN=$(aws ecr describe-repositories --repository-names=$ECR_REPOSITORY --query=repositories[0].repositoryArn)
-          aws ecr untag-resource --resource-arn=$REGISTRY_ARN --tag-keys evaluation
+          aws ecr untag-resource --resource-arn=$ECR_REGISTRY --tag-keys evaluation
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:evaluation python_components/document_inference/.
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:evaluation
