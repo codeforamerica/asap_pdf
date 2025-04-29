@@ -85,7 +85,7 @@ jobs:
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Update Document Inference Evaluation Lambda
-        id: update-evaluation-lambda
+        id: update-document-inference-evaluation-lambda
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
