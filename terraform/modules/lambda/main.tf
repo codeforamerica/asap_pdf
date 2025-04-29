@@ -22,8 +22,8 @@ resource "aws_lambda_function_url" "document_inference_url" {
 
 # Dev document inference lambda.
 resource "aws_lambda_function" "document_inference_evaluation" {
-  function_name = "${var.project_name}-document-inference-dev-${var.environment}"
-  image_uri     = "${var.document_inference_ecr_repository_url}:evaluation"
+  function_name = "${var.project_name}-document-inference-evaluation-${var.environment}"
+  image_uri     = "${var.document_inference_evaluation_ecr_repository_url}:latest"
   package_type  = "Image"
   timeout = 360
   memory_size = 512
