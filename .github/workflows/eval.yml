@@ -1,8 +1,6 @@
 name: Run the evaluation process
 
-on:
-  push:
-    branches: [ "workflow_dispatch" ]
+on: workflow_dispatch
 
 jobs:
   build:
