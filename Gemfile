@@ -9,7 +9,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
-gem "rest-client"
+gem "httpparty"
 gem "rubyzip"
 gem "smarter_csv"
 
