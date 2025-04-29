@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-import urllib
+import shutil
 
 import boto3
 import fitz
@@ -49,9 +49,11 @@ def get_secret(secret_name: str, local_mode: bool) -> str:
 def get_file(url: str, output_path: str) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
-    opener = urllib.request.URLopener()
-    opener.addheader("User-Agent", "cfa:asap-pdf")
-    opener.retrieve(url, local_path)
+    headers = {"User-Agent": "cfa:asap-pdf"}
+    with requests.get(url, headers=headers, stream=True) as response:
+        response.raise_for_status()
+        with open(f"{output_path}/{file_name}", 'wb') as file:
+            shutil.copyfileobj(response.raw, file)
     return local_path
 
 
