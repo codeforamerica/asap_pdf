@@ -4,9 +4,13 @@ on: workflow_dispatch
 
 env:
   AWS_REGION: us-east-1
-  EVAL_REPOSITORY: asap-pdf-production
+  EVAL_REPOSITORY: asap-pdf-evaluation-production
   ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-lambda-document-inference-production
   AWS_ACCOUNT_ID: 073165201938
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
