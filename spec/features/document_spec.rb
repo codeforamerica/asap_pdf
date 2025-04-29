@@ -11,7 +11,7 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
     @current_user.site = site
     @current_user.save!
-    Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    denver_doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
     Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
@@ -38,9 +38,8 @@ describe "documents function as expected", js: true, type: :feature do
       decision.click
       select = decision.find("select")
       select.find("[value='Convert']").click
-      workflow_button = find("[data-action='status#toggleMenu']")
-      workflow_button.click
-      click_link "Done"
+      denver_doc.status = "Done"
+      denver_doc.save
     end
     visit "/"
     click_link("City of Denver")
@@ -145,28 +144,29 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
     @current_user.site = site
     @current_user.save!
-    doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
+    doc = Document.create(url: "http://denvergov.org/docs/ex.ample.pdf", file_name: "ex.ample.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
+    iframe_src = serve_file_content_document_path(doc.id, doc.file_name) + "?pagemode=none&toolbar=1"
     visit "/"
     click_link("City of Denver")
     # Test out the modal and tabs.
     within("#document-list") do
-      click_button "example.pdf"
+      click_button "ex.ample.pdf"
     end
     # Wait for modal to open.
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       # Assess default tab.
-      expect(page).to have_content "example.pdf"
+      expect(page).to have_content "ex.ample.pdf"
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       # Later we'll check to see if the button is gone.
       expect(page).to have_content "Summarize Document"
-      expect(page).to have_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
+      expect(page).to have_css("iframe[src='#{iframe_src}']")
       # Check out "PDF Details" tab.
       click_button "PDF Details"
       expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
-      expect(page).to have_no_css("iframe[src='https://denvergov.org/docs/example.pdf#pagemode=none&toolbar=1']")
-      expect(page).to have_content "File Name\nexample.pdf"
+      expect(page).to have_no_css("iframe[src='#{iframe_src}']")
+      expect(page).to have_content "File Name\nex.ample.pdf"
       expect(page).to have_content "Type\nAgenda"
       expect(page).to have_content "Decision\nNeeds Decision"
       # Add a note.
@@ -181,7 +181,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -203,7 +203,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -223,12 +223,96 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      find("tbody td:nth-child(1) button").click
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       click_button "Accessibility Suggestion"
       expect(page).to have_content("AI Accessibility Suggestion\nLeave (User override: Convert)")
+    end
+  end
+
+  it "updates documents in bulk" do
+    # Create our test setup
+    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
+    visit "/"
+    click_link("City of Boulder")
+    # Check for a default state.
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n3"
+      expect(page).to have_content "In Review\n0"
+      expect(page).to have_content "Done\n0"
+    end
+    within("#document-list") do
+      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
+      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
+      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
+      expect(page).to have_no_css("#bulk_edit_control", visible: true)
+      # Try checking a box.
+      find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
+    end
+    within("#bulk_edit_control") do
+      expect(page).to have_content "Selected: 1"
+      # Try clicking the "x".
+      find("[data-action='bulk-edit#handleCloseActions']").click
+      expect(page).to have_no_css("#bulk_edit_control", visible: true)
+    end
+    within("#document-list") do
+      checkbox = find("tr:nth-child(1) [data-bulk-edit-target='selectOne']")
+      expect(checkbox).not_to be_checked
+      # Try the select all.
+      find("th:nth-child(1) [data-bulk-edit-target='selectAll']").check
+    end
+    within("#bulk_edit_control") do
+      expect(page).to have_content "Selected: 3"
+      select = find("#bulk-edit-move")
+      select.find("[value='In Review']").click
+    end
+    within("#bulk_edit_modal") do
+      expect(page).to have_content "Confirm move"
+      expect(page).to have_content 'You are about to move 3 documents to "In Review".'
+      click_button "Cancel"
+    end
+    expect(page).to have_no_selector("#bulk_edit_modal", visible: true)
+    within("#bulk_edit_control") do
+      select = find("#bulk-edit-move")
+      select.find("[value='In Review']").click
+    end
+    within("#bulk_edit_modal") do
+      click_button "Confirm"
+    end
+    within("#document-list") do
+      expect(page).to have_content "No documents found"
+    end
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "In Review\n3"
+      expect(page).to have_content "Done\n0"
+      visit "/sites/#{site.id}/documents?status=In+Review"
+    end
+    within("#document-list") do
+      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
+      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
+      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
+      # Try checking a box.
+      find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
+    end
+    within("#bulk_edit_control") do
+      select = find("#bulk-edit-move")
+      select.find("[value='Done']").click
+    end
+    within("#bulk_edit_modal") do
+      click_button "Confirm"
+    end
+    within("#sidebar") do
+      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "In Review\n2"
+      expect(page).to have_content "Done\n1"
     end
   end
 end

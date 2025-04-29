@@ -3,10 +3,10 @@ class DocumentsController < AuthenticatedController
 
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
-  before_action :set_site, only: [:index, :modal_content]
-  before_action :set_document, except: [:index]
-  before_action :ensure_user_site_access, only: [:index, :modal_content]
-  before_action :ensure_user_document_access, except: [:index, :modal_content]
+  before_action :set_site, only: [:index, :modal_content, :batch_update]
+  before_action :set_document, except: [:index, :batch_update]
+  before_action :ensure_user_site_access, only: [:index, :modal_content, :batch_update]
+  before_action :ensure_user_document_access, except: [:index, :modal_content, :batch_update]
 
   def modal_content
     render partial: "modal_content", locals: {document: @document}
@@ -24,6 +24,28 @@ class DocumentsController < AuthenticatedController
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
     @total_documents = @documents.total_count
+    @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
+  end
+
+  def serve_document_url
+    response = HTTParty.get(@document.url)
+    if response.success?
+      send_data response.body,
+        type: "application/pdf",
+        disposition: "inline; filename=\"#{@document.file_name}\"",
+        filename: @document.file_name
+    else
+      # Handle unsuccessful response
+      Rails.logger.error("PDF fetch error: #{response.code} - #{response.message}")
+      render plain: "Failed to retrieve the PDF document: #{response.code} - #{response.message}",
+        status: response.code
+    end
+  rescue HTTParty::Error => e
+    Rails.logger.error("PDF fetch error: #{e.message}")
+    render plain: "Failed to retrieve the PDF document: #{e.message}", status: e.http_code || 500
+  rescue => e
+    Rails.logger.error("General error: #{e.message}")
+    render plain: "An error occurred: #{e.message}", status: 500
   end
 
   def update_document_category
@@ -92,7 +114,28 @@ class DocumentsController < AuthenticatedController
     render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
   end
 
+  def batch_update
+    begin
+      documents = batch_params["documents"]
+      ActiveRecord::Base.transaction do
+        documents.each do |update|
+          document = Document.find(update["id"])
+          unless document.update(update)
+            raise ActiveRecord::Rollback
+          end
+        end
+      end
+    rescue
+      return render json: {error: "Error updating documents."}, status: :unprocessable_entity
+    end
+    render json: {success: true}
+  end
+
   private
+
+  def batch_params
+    params.permit(:site_id, document: {}, documents: [:id, :status]).to_h
+  end
 
   def set_site
     @site = Site.find(params[:site_id])

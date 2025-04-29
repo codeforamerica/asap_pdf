@@ -27,5 +27,5 @@ echo "\n"
 
 # Run flake8 to check for style guide enforcement and lint errors
 echo "Output from flake8 utility..."
-$BASE_COMMAND flake8 --ignore=E501 python_components/.
+$BASE_COMMAND flake8 --ignore=E501,W503 python_components/.
 echo "\n"

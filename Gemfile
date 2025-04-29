@@ -9,7 +9,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
-gem "rest-client"
+gem "httpparty"
 gem "rubyzip"
 gem "smarter_csv"
 
@@ -54,7 +54,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.183"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.184"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

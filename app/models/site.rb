@@ -97,10 +97,7 @@ class Site < ApplicationRecord
         skipped = 0
         chunk.each do |row|
           row = row.stringify_keys
-          # Encode URL while preserving basic URL structure
-          encoded_url = URI.encode_www_form_component(row["url"])
-            .gsub("%3A", ":") # Restore colons
-            .gsub("%2F", "/") # Restore forward slashes
+          encoded_url = URI::DEFAULT_PARSER.escape(row["url"])
 
           # Parse file size (remove KB suffix and convert to float)
           file_size = row["file_size"]&.gsub("KB", "")&.strip&.to_f

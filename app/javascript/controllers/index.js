@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import BulkEditController from "./bulk_edit_controller"
+application.register("bulk-edit", BulkEditController)
+
 import DropdownController from "./dropdown_controller"
 application.register("dropdown", DropdownController)
 
@@ -24,9 +27,6 @@ application.register("password-toggle", PasswordToggleController)
 
 import RecommendationListController from "./recommendation_list_controller"
 application.register("recommendation-list", RecommendationListController)
-
-import StatusController from "./status_controller"
-application.register("status", StatusController)
 
 import SummarizeController from "./summarize_controller"
 application.register("summarize", SummarizeController)
