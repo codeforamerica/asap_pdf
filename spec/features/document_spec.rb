@@ -144,19 +144,19 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
     @current_user.site = site
     @current_user.save!
-    doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
-    iframe_src = serve_file_content_document_path(doc.id, doc.safe_file_name) + "?pagemode=none&toolbar=1"
+    doc = Document.create(url: "http://denvergov.org/docs/ex.ample.pdf", file_name: "ex.ample.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site_id: site.id)
+    iframe_src = serve_file_content_document_path(doc.id, doc.file_name) + "?pagemode=none&toolbar=1"
     visit "/"
     click_link("City of Denver")
     # Test out the modal and tabs.
     within("#document-list") do
-      click_button "example.pdf"
+      click_button "ex.ample.pdf"
     end
     # Wait for modal to open.
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
       # Assess default tab.
-      expect(page).to have_content "example.pdf"
+      expect(page).to have_content "ex.ample.pdf"
       expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
       # Later we'll check to see if the button is gone.
       expect(page).to have_content "Summarize Document"
@@ -166,7 +166,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_no_css("[data-action='modal#showSummaryView'].tab-active")
       expect(page).to have_css("[data-action='modal#showMetadataView'].tab-active")
       expect(page).to have_no_css("iframe[src='#{iframe_src}']")
-      expect(page).to have_content "File Name\nexample.pdf"
+      expect(page).to have_content "File Name\nex.ample.pdf"
       expect(page).to have_content "Type\nAgenda"
       expect(page).to have_content "Decision\nNeeds Decision"
       # Add a note.
@@ -181,7 +181,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      click_button "example.pdf"
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -203,7 +203,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      click_button "example.pdf"
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
@@ -223,7 +223,7 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
-      click_button "example.pdf"
+      click_button "ex.ample.pdf"
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
