@@ -52,7 +52,7 @@ def get_file(url: str, output_path: str) -> str:
     headers = {"User-Agent": "cfa:asap-pdf"}
     with requests.get(url, headers=headers, stream=True) as response:
         response.raise_for_status()
-        with open(f"{output_path}/{file_name}", 'wb') as file:
+        with open(f"{output_path}/{file_name}", "wb") as file:
             shutil.copyfileobj(response.raw, file)
     return local_path
 
