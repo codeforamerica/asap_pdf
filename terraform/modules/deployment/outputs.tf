@@ -50,3 +50,7 @@ output "document_inference_ecr_repository_url" {
   value = aws_ecr_repository.document_inference.repository_url
 }
 
+output "evaluation_ecr_repository_url" {
+  value = aws_ecr_repository.evaluation.repository_url
+}
+

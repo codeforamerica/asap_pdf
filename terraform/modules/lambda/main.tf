@@ -1,3 +1,4 @@
+#  Main document inference lambda.
 resource "aws_lambda_function" "document_inference" {
   function_name = "${var.project_name}-document-inference-${var.environment}"
   image_uri     = "${var.document_inference_ecr_repository_url}:latest"
@@ -15,6 +16,49 @@ resource "aws_lambda_function" "document_inference" {
 
 resource "aws_lambda_function_url" "document_inference_url" {
   function_name      = aws_lambda_function.document_inference.function_name
+  authorization_type = "AWS_IAM"
+}
+
+
+# Dev document inference lambda.
+resource "aws_lambda_function" "document_inference_evaluation" {
+  function_name = "${var.project_name}-document-inference-dev-${var.environment}"
+  image_uri     = "${var.document_inference_ecr_repository_url}:evaluation"
+  package_type  = "Image"
+  timeout = 360
+  memory_size = 512
+
+  vpc_config {
+    security_group_ids = [var.security_group_id]
+    subnet_ids = var.subnet_ids
+  }
+
+  role = aws_iam_role.lambda_exec.arn
+}
+
+resource "aws_lambda_function_url" "document_inference_evaluation_url" {
+  function_name      = aws_lambda_function.document_inference_evaluation.function_name
+  authorization_type = "AWS_IAM"
+}
+
+# Evaluation lambda
+resource "aws_lambda_function" "evaluation" {
+  function_name = "${var.project_name}-evaluation-${var.environment}"
+  image_uri     = "${var.evaluation_ecr_repository_url}:latest"
+  package_type  = "Image"
+  timeout = 360
+  memory_size = 512
+
+  vpc_config {
+    security_group_ids = [var.security_group_id]
+    subnet_ids = var.subnet_ids
+  }
+
+  role = aws_iam_role.lambda_exec.arn
+}
+
+resource "aws_lambda_function_url" "evaluation_url" {
+  function_name      = aws_lambda_function.evaluation.function_name
   authorization_type = "AWS_IAM"
 }
 

@@ -13,6 +13,12 @@ variable "document_inference_ecr_repository_url" {
   type        = string
 }
 
+variable "evaluation_ecr_repository_url" {
+  description = "Evaluation image repository URI"
+  type        = string
+}
+
+
 variable "subnet_ids" {
   description = "List of subnet IDs for the Fargate tasks"
   type        = list(string)
