@@ -28,14 +28,19 @@ class DocumentsController < AuthenticatedController
   end
 
   def serve_document_url
-    # Make the GET request to retrieve the PDF
-    response = RestClient.get(@document.url)
-    # Set appropriate headers to display in iframe instead of downloading
-    send_data response.body,
-      type: "application/pdf",
-      disposition: "inline; filename=\"#{@document.file_name}\"",
-      filename: @document.file_name
-  rescue RestClient::Exception => e
+    response = HTTParty.get(@document.url)
+    if response.success?
+      send_data response.body,
+        type: "application/pdf",
+        disposition: "inline; filename=\"#{@document.file_name}\"",
+        filename: @document.file_name
+    else
+      # Handle unsuccessful response
+      Rails.logger.error("PDF fetch error: #{response.code} - #{response.message}")
+      render plain: "Failed to retrieve the PDF document: #{response.code} - #{response.message}",
+        status: response.code
+    end
+  rescue HTTParty::Error => e
     Rails.logger.error("PDF fetch error: #{e.message}")
     render plain: "Failed to retrieve the PDF document: #{e.message}", status: e.http_code || 500
   rescue => e
