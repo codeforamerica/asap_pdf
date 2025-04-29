@@ -5,7 +5,7 @@ on: workflow_dispatch
 env:
   AWS_REGION: us-east-1
   ECR_EVAL_REPOSITORY: asap-pdf-evaluation-production
-  ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-lambda-document-inference-production
+  ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-document-inference-evaluation-production
   AWS_ACCOUNT_ID: 073165201938
 
 permissions:
@@ -67,8 +67,7 @@ jobs:
           ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws ecr untag-resource --resource-arn=$ECR_REGISTRY --tag-keys evaluation
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:evaluation python_components/document_inference/.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:evaluation
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
