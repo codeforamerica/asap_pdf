@@ -7,6 +7,7 @@ import requests
 from evaluation.utility.document import Document
 from evaluation.utility.helpers import logger
 
+
 def get_signature(session):
     credentials = session.get_credentials()
     sigv4auth = AWS4Auth(credentials.access_key, credentials.secret_key,
@@ -34,20 +35,20 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         url = response['FunctionUrl']
     signature = get_signature(session)
     logger.info(f'Created signature. Summary url is: {url}')
-    response = requests.request("GET", url,
-                                data=json.dumps({
-                                    "inference_type": "summary",
-                                    "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
-                                    "page_limit": 7,
-                                    "documents": [{
-                                        "title": document.file_name,
-                                        "id": "000",  # Does this matter?
-                                        "purpose": document.category,
-                                        "url": document.url
-                                    }]
-                                }), auth=signature, headers={
+    response = requests.get(url,
+                            data=json.dumps({
+                                "inference_type": "summary",
+                                "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
+                                "page_limit": 7,
+                                "documents": [{
+                                    "title": document.file_name,
+                                    "id": "000",  # Does this matter?
+                                    "purpose": document.category,
+                                    "url": document.url
+                                }]
+                            }), auth=signature, headers={
             'Content-Type': "application/x-amz-json-1.1"}).json()
-    logger.info(f'Made reqeust.')
+    logger.info(f'Made request.')
     if response['statusCode'] != 200:
         raise RuntimeError(f'Failed to get summary: {response["body"]}')
     logger.info(f'Here it is')
