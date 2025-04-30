@@ -10,7 +10,7 @@ from evaluation.utility.helpers import logger
 def get_signature(session):
     credentials = session.get_credentials()
     sigv4auth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                         session.region_name, 'lambda', session_token=credentials.token)
+                         session.region_name, "lambda", session_token=credentials.token)
     return sigv4auth
 
 
@@ -47,7 +47,6 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
                                     }]
                                 }), auth=signature, headers={
             'Content-Type': "application/x-amz-json-1.1"}).json()
-    logger.info(f'Made reqeust. Response is {response}')
     if response['statusCode'] != 200:
         raise RuntimeError(f'Failed to get summary: {response["body"]}')
     full_response = json.loads(response["body"])
