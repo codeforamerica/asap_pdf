@@ -52,7 +52,7 @@ jobs:
         id: build-evaluation-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/evaluation/.
