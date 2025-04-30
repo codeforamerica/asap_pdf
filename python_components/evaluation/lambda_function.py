@@ -23,6 +23,7 @@ def handler(event, context):
         #helpers.validate_event(event)
         logger.info("Event is valid")
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
+        logger.info(f"Local mode set to: {local_mode}")
         logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
         utility.helpers.validate_model(all_models, event["model_name"])
