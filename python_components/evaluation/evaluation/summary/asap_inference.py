@@ -10,7 +10,7 @@ from evaluation.utility.helpers import logger
 def get_signature(session):
     credentials = session.get_credentials()
     sigv4auth = AWS4Auth(credentials.access_key, credentials.secret_key,
-                         session.region_name, 'execute-api', session_token=credentials.token)
+                         session.region_name, 'lambda', session_token=credentials.token)
     return sigv4auth
 
 
