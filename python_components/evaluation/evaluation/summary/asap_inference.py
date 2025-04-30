@@ -64,14 +64,12 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         logger.error(f'Status code: {response.status_code}')
         raise RuntimeError(f'Failed to parse response from Lambda: {str(e)}')
 
-    if response_json.get('statusCode') != 200:
+    logger.info('Made request.')
+    logger.info(f"Status code: {response_json.get('statusCode')}")
+
+    if int(response_json.get('statusCode')) != 200:
         error_body = response_json.get('body', 'No error details available')
         raise RuntimeError(f'Failed to get summary: {error_body}')
-
-    logger.info(f'Made request.')
-    response = response.json()
-    if response['statusCode'] != 200:
-        raise RuntimeError(f'Failed to get summary: {response["body"]}')
 
     try:
         full_response = json.loads(response_json["body"])
