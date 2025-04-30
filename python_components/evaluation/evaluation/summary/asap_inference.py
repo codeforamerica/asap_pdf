@@ -63,7 +63,6 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         logger.error(f'Response content: {response.text}')
         logger.error(f'Status code: {response.status_code}')
         raise RuntimeError(f'Failed to parse response from Lambda: {str(e)}')
-
     if "body" in response_json.keys():
         if type(response_json["body"]) is str:
             full_response = json.loads(response_json["body"])
@@ -71,7 +70,4 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
             full_response = response_json["body"]
     else:
         full_response = response_json
-
-    logger.info('Made it past decoding.')
-
     document.ai_summary = full_response["000"]["summary"]

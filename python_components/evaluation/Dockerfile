@@ -2,6 +2,8 @@ FROM public.ecr.aws/lambda/python:3.12
 
 # Prevent LLM module from writing (?) to a directory Lambda doesn't like.
 ENV LLM_USER_PATH=/tmp
+# Prevent deep eval from writing telemetry file.
+ENV DEEPEVAL_TELEMETRY_OPT_OUT="YES"
 
 # Copy requirements.txt & config.json
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
