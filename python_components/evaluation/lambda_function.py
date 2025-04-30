@@ -1,5 +1,6 @@
 import os
 import json
+import time
 
 from deepeval.models import MultimodalGeminiModel
 from pydantic import ValidationError
@@ -7,32 +8,6 @@ from pydantic import ValidationError
 from evaluation import summary, utility
 from evaluation.utility.helpers import logger
 
-
-
-examples = [
-    ["MINUTES%20December%202024.pdf",
-     "https://agr.georgia.gov/sites/default/files/documents/pest-control/MINUTES%20December%202024.pdf", "Agenda"],
-    # ["VA S.A.V.E. Training One-Pager", "https://www.mentalhealth.va.gov/suicide_prevention/docs/VA_SAVE_Training.pdf",
-    #  "Brochure"],
-    # ["atlanta-market-map.pdf",
-    #  "https://agr.georgia.gov/sites/default/files/documents/agritourism/atlanta-market-map.pdf", "Diagram"],
-    # ["Microsoft Word - One-page reasonable accommodation form.docx",
-    #  "https://www.austintexas.gov/sites/default/files/files/HR/One-page_reasonable_accommodation_form.pdf", "Form"],
-    # ["2013.07.16_PlanningCommission.pdf", "http://www.slcdocs.com/attorney/COI/2013.07.16_PlanningCommission.pdf",
-    #  "Letter"],
-    # ["Font Size:  12", "https://services.austintexas.gov/edims/document.cfm?id=446835", "Notice"],
-    # ["08.14.15.14.pdf",
-    #  "https://nathandeal.georgia.gov/sites/nathandeal.georgia.gov/files/related_files/document/08.14.15.14.pdf",
-    #  "Policy"],
-    # ["5.b-Vacancies-on-Boards-and-Commissions.pdf",
-    #  "https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2021/07/5.b-Vacancies-on-Boards-and-Commissions.pdf",
-    #  "Report"],
-    # ["Microsoft PowerPoint - Council Workession Update on Bond Development 4-3-17 FINAL.pptx",
-    #  "https://services.austintexas.gov/edims/document.cfm?id=274486", "Slides"],
-    # ["July-2016-WCE-Salary-Schedule.pdf",
-    #  "https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2016/09/July-2016-WCE-Salary-Schedule.pdf",
-    #  "Spreadsheet"]
-]
 
 def handler(event, context):
     try:
@@ -66,7 +41,8 @@ def handler(event, context):
             logger.info(f'Created {len(document_model.images)}')
             logger.info(f"Beginning summarization.")
             # todo parameterize this.
-            summary.add_summary_to_document(document_model, "gemini-1.5-pro-latest")
+            time.sleep(10)
+            summary.add_summary_to_document(document_model, "gemini-1.5-pro-latest", local_mode)
             logger.info(f"Summarization complete.")
             result = summary.evaluation(document_model, model)
             output.append(dict(result))
