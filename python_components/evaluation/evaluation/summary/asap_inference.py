@@ -64,20 +64,14 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         logger.error(f'Status code: {response.status_code}')
         raise RuntimeError(f'Failed to parse response from Lambda: {str(e)}')
 
+    if "body" in response_json.keys():
+        if type(response_json["body"]) is str:
+            full_response = json.loads(response_json["body"])
+        else:
+            full_response = response_json["body"]
+    else:
+        full_response = response_json
 
-    logger.info(f'Here it is...')
-    logger.info(response_json)
-
-    try:
-        full_response = json.loads(response_json["body"])
-        document.ai_summary = full_response["000"]["summary"]
-    except json.JSONDecodeError as e:
-        logger.error(f'Failed to parse response body: {e}')
-        logger.error(f'Response body: {response_json["body"]}')
-        raise RuntimeError(f'Failed to parse summary response body: {str(e)}')
-    except KeyError as e:
-        logger.error(f'Missing expected key in response: {e}')
-        logger.error(f'Full response structure: {full_response}')
-        raise RuntimeError(f'Missing expected data in summary response: {str(e)}')
+    logger.info('Made it past decoding.')
 
     document.ai_summary = full_response["000"]["summary"]
