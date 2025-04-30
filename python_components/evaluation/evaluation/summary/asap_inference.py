@@ -35,20 +35,21 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         url = response['FunctionUrl']
     signature = get_signature(session)
     logger.info(f'Created signature. Summary url is: {url}')
-    response = requests.get(url,
-                            data=json.dumps({
-                                "inference_type": "summary",
-                                "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
-                                "page_limit": 7,
-                                "documents": [{
-                                    "title": document.file_name,
-                                    "id": "000",  # Does this matter?
-                                    "purpose": document.category,
-                                    "url": document.url
-                                }]
-                            }), auth=signature, headers={
-            'Content-Type': "application/x-amz-json-1.1"}).json()
+    payload = json.dumps({
+        "inference_type": "summary",
+        "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
+        "page_limit": 7,
+        "documents": [{
+            "title": document.file_name,
+            "id": "000",  # Does this matter?
+            "purpose": document.category,
+            "url": document.url
+        }]
+    })
+    logger.info(payload)
+    response = requests.get(url, data=payload, auth=signature, headers={"Content-Type": "application/x-amz-json-1.1"})
     logger.info(f'Made request.')
+    response = response.json()
     if response['statusCode'] != 200:
         raise RuntimeError(f'Failed to get summary: {response["body"]}')
     logger.info(f'Here it is')
