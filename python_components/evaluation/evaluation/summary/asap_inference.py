@@ -5,7 +5,7 @@ from requests_aws4auth import AWS4Auth
 import requests
 
 from evaluation.utility.document import Document
-
+from evaluation.utility.helpers import logger
 
 def get_signature(session):
     credentials = session.get_credentials()
@@ -15,7 +15,7 @@ def get_signature(session):
 
 
 def add_summary_to_document(document: Document, inference_model_name: str, local_mode: bool) -> None:
-    print(f'Getting summary for {document.url}...')
+    logger.info(f'Getting summary for {document.url}...')
     if local_mode:
         url = "http://host.docker.internal:9002/2015-03-31/functions/function/invocations"
         session = boto3.session.Session(
@@ -33,6 +33,7 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
             raise RuntimeError(f"Could not determine Lambda function url: {json.dumps(response)}")
         url = response['FunctionUrl']
     signature = get_signature(session)
+    logger.info(f'Created signature. Summary url is: {url}')
     response = requests.request("GET", url,
                                 data=json.dumps({
                                     "inference_type": "summary",
