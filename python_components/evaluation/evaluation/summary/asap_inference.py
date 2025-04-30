@@ -35,6 +35,10 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         url = response['FunctionUrl']
     signature = get_signature(session)
     logger.info(f'Created signature. Summary url is: {url}')
+    headers = {
+        "Content-Type": "application/json",  # Changed from application/x-amz-json-1.1
+        "Accept": "application/json"
+    }
     payload = json.dumps({
         "inference_type": "summary",
         "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
@@ -47,8 +51,9 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
         }]
     })
     logger.info(payload)
-    response = requests.get(url, data=payload, auth=signature, headers={"Content-Type": "application/x-amz-json-1.1"})
-
+    response = requests.post(url, data=payload, auth=signature, headers=headers)
+    logger.info(f"Status code: {response.status_code}")
+    logger.info(f"Response headers: {response.headers}")
     try:
         response_text = response.text
         logger.info(f'Raw response: {response_text[:200]}...')
