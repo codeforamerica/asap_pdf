@@ -47,6 +47,7 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
                                     }]
                                 }), auth=signature, headers={
             'Content-Type': "application/x-amz-json-1.1"}).json()
+    logger.info(f'Made reqeust. Response is {response}')
     if response['statusCode'] != 200:
         raise RuntimeError(f'Failed to get summary: {response["body"]}')
     full_response = json.loads(response["body"])
