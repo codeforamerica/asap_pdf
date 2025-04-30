@@ -48,11 +48,36 @@ def add_summary_to_document(document: Document, inference_model_name: str, local
     })
     logger.info(payload)
     response = requests.get(url, data=payload, auth=signature, headers={"Content-Type": "application/x-amz-json-1.1"})
+
+    try:
+        response_text = response.text
+        logger.info(f'Raw response: {response_text[:200]}...')
+        response_json = response.json()
+    except json.JSONDecodeError as e:
+        logger.error(f'Failed to parse JSON response: {e}')
+        logger.error(f'Response content: {response.text}')
+        logger.error(f'Status code: {response.status_code}')
+        raise RuntimeError(f'Failed to parse response from Lambda: {str(e)}')
+
+    if response_json.get('statusCode') != 200:
+        error_body = response_json.get('body', 'No error details available')
+        raise RuntimeError(f'Failed to get summary: {error_body}')
+
     logger.info(f'Made request.')
     response = response.json()
     if response['statusCode'] != 200:
         raise RuntimeError(f'Failed to get summary: {response["body"]}')
-    logger.info(f'Here it is')
-    logger.info(response["body"])
-    full_response = json.loads(response["body"])
+
+    try:
+        full_response = json.loads(response_json["body"])
+        document.ai_summary = full_response["000"]["summary"]
+    except json.JSONDecodeError as e:
+        logger.error(f'Failed to parse response body: {e}')
+        logger.error(f'Response body: {response_json["body"]}')
+        raise RuntimeError(f'Failed to parse summary response body: {str(e)}')
+    except KeyError as e:
+        logger.error(f'Missing expected key in response: {e}')
+        logger.error(f'Full response structure: {full_response}')
+        raise RuntimeError(f'Missing expected data in summary response: {str(e)}')
+
     document.ai_summary = full_response["000"]["summary"]
