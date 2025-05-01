@@ -3,8 +3,10 @@ import os
 import urllib
 from typing import Any, Optional, List
 
+import boto3
 from deepeval.test_case import MLLMImage
 import pdf2image
+import pandas as pd
 from pydantic import BaseModel
 
 class Document(BaseModel):
@@ -23,7 +25,7 @@ class Result(BaseModel):
 def add_images_to_document(document: Document, output_path: str) -> None:
     path_obj = Path(document.url)
     file_name_stem = path_obj.stem
-    if '.cfm' in path_obj.suffix:
+    if ".cfm" in path_obj.suffix:
         file_name_stem += path_obj.suffix
     output_folder = f"{output_path}/{file_name_stem}"
     os.makedirs(output_folder, exist_ok=True)
@@ -55,3 +57,11 @@ def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list
 
 def convert_model_list(list: List[Any]) -> list:
     return [dict(item) if isinstance(item, BaseModel) else item for item in list]
+
+
+def write_output_to_s3(bucket_name: str, report_name: str, report_content: List[dict]) -> None:
+    df = pd.DataFrame(report_content)
+    tmp_path = f"/tmp/data/{report_name}"
+    df.to_csv(tmp_path, index=False)
+    s3 = boto3.resource("s3")
+    s3.Bucket(bucket_name).upload_file(tmp_path, f"/reports/{report_name}")
