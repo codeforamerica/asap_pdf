@@ -570,4 +570,4 @@ def evaluation(document: Document, model: deepeval.models.DeepEvalBaseMLLM) -> R
         'coverage_verdicts': convert_model_list(metric.coverage_verdicts),
         'alignment_verdicts': convert_model_list(metric.alignment_verdicts),
     }
-    return Result(score=metric.score, reason=metric.reason, details=details)
+    return Result(file_name=document.file_name, metric_name='deepeval_mllm_summary', score=metric.score, reason=metric.reason, details=details)

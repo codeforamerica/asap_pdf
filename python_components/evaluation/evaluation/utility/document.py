@@ -18,6 +18,8 @@ class Document(BaseModel):
     images: Optional[list] = None
 
 class Result(BaseModel):
+    file_name: str
+    metric_name: str
     score: float
     reason: str
     details: dict
