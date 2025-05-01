@@ -3,8 +3,8 @@ resource "aws_lambda_function" "document_inference" {
   function_name = "${var.project_name}-document-inference-${var.environment}"
   image_uri     = "${var.document_inference_ecr_repository_url}:latest"
   package_type  = "Image"
-  timeout = 360
-  memory_size = 512
+  timeout       = 360
+  memory_size   = 512
 
   vpc_config {
     security_group_ids = [var.security_group_id]
@@ -25,8 +25,8 @@ resource "aws_lambda_function" "document_inference_evaluation" {
   function_name = "${var.project_name}-document-inference-evaluation-${var.environment}"
   image_uri     = "${var.document_inference_evaluation_ecr_repository_url}:latest"
   package_type  = "Image"
-  timeout = 360
-  memory_size = 512
+  timeout       = 900
+  memory_size   = 512
 
   vpc_config {
     security_group_ids = [var.security_group_id]
@@ -46,8 +46,8 @@ resource "aws_lambda_function" "evaluation" {
   function_name = "${var.project_name}-evaluation-${var.environment}"
   image_uri     = "${var.evaluation_ecr_repository_url}:latest"
   package_type  = "Image"
-  timeout = 360
-  memory_size = 512
+  timeout       = 360
+  memory_size   = 512
 
   vpc_config {
     security_group_ids = [var.security_group_id]
@@ -83,6 +83,27 @@ resource "aws_iam_role" "lambda_exec" {
 resource "aws_iam_role_policy_attachment" "lambda_policy" {
   role       = aws_iam_role.lambda_exec.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "lambda_invoke" {
+  name = "${var.project_name}-${var.environment}-lambda-invoke-policy"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "lambda:InvokeFunction",
+          "lambda:InvokeFunctionUrl",
+          "lambda:GetFunctionUrlConfig"
+        ]
+        Resource = [
+          "*"
+        ]
+      }
+    ]
+  })
 }
 
 resource "aws_iam_role_policy" "lambda_network" {
@@ -122,6 +143,29 @@ resource "aws_iam_role_policy" "lambda_secrets" {
         Resource = [
           var.secret_google_ai_key_arn,
           var.secret_anthropic_key_arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_s3" {
+  name = "${var.project_name}-${var.environment}-lambda-s3-access"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          var.s3_document_bucket_arn,
+          "${var.s3_document_bucket_arn}/*"
         ]
       }
     ]

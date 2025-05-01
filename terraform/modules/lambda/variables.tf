@@ -43,3 +43,8 @@ variable "secret_anthropic_key_arn" {
   description = "Secret arn for our Anthropic creds."
   type        = string
 }
+
+variable "s3_document_bucket_arn" {
+  description = "Secret arn for our Anthropic creds."
+  type        = string
+}

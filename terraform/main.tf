@@ -106,6 +106,7 @@ module "lambda" {
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
   secret_google_ai_key_arn                         = module.deployment.gemini_key_secret_arn
   secret_anthropic_key_arn                         = module.deployment.anthropic_key_secret_arn
+  s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
 }
 
 # S3 bucket for PDF storage

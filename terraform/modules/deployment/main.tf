@@ -211,7 +211,8 @@ resource "aws_iam_role_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = [
-          "lambda:UpdateFunctionCode"
+          "lambda:UpdateFunctionCode",
+          "lambda:InvokeFunction"
         ]
         Resource = [
           var.document_inference_lambda_arn,
