@@ -99,10 +99,10 @@ jobs:
       - name: Invoke Evaluation Lambda
         id: invoke-evaluation-lambda
         env:
-          REGION: ${{ AWS_REGION }}
+          REGION: ${{ env.AWS_REGION }}
           FUNCTION_NAME: "asap-pdf-evaluation-production"
           EVALUATION_MODEL: "gemini-2.5-pro-preview-03-25"
-          OUTPUT_BUCKET_NAME: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
           COMMIT_SHA: ${{ github.sha }}
         run: |
           aws lambda invoke
