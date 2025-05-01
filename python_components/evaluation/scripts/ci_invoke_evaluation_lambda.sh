@@ -15,7 +15,7 @@ jq -n \
    --arg bucket "$OUTPUT_BUCKET_NAME" \
    --arg branch "$BRANCH_NAME" \
    --arg commit "$COMMIT_SHA" \
-   --argjson docs '{"foo": "bar"}' \
+   --argjson docs "$DOCUMENTS_JSON"  \
    '{
      model_name: $model,
      output_s3_bucket: $bucket,
