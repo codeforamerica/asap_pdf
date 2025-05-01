@@ -95,4 +95,18 @@ jobs:
           aws lambda update-function-code \
              --function-name $FUNCTION_NAME \
              --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          
+
+      - name: Invoke Evaluation Lambda
+        id: invoke-evaluation-lambda
+        env:
+          REGION: ${{ AWS_REGION }}
+          FUNCTION_NAME: "asap-pdf-evaluation-production"
+          EVALUATION_MODEL: "gemini-2.5-pro-preview-03-25"
+          OUTPUT_BUCKET_NAME: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          aws lambda invoke
+            --invocation-type Event
+            --function-name $FUNCTION_NAME
+            --region $REGION
+            --payload '{"model_name": "$EVALUATION_MODEL", "output_s3_bucket": "'$OUTPUT_BUCKET_NAME'", "branch_name": "'$(git branch --show-current)'", "commit_sha": "'$COMMIT_SHA'", "page_limit": 7, "documents": '$(cat truthset.json)' }'
