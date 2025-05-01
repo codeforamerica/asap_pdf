@@ -1,13 +1,14 @@
-from pathlib import Path
 import os
 import urllib
-from typing import Any, Optional, List
+from pathlib import Path
+from typing import Any, List, Optional
 
 import boto3
-from deepeval.test_case import MLLMImage
-import pdf2image
 import pandas as pd
+import pdf2image
+from deepeval.test_case import MLLMImage
 from pydantic import BaseModel
+
 
 class Document(BaseModel):
     file_name: str
@@ -17,12 +18,16 @@ class Document(BaseModel):
     ai_summary: Optional[str] = None
     images: Optional[list] = None
 
+
 class Result(BaseModel):
+    branch_name: str
+    commit_sha: str
     file_name: str
     metric_name: str
     score: float
-    reason: str
-    details: dict
+    reason: Optional[str] = None
+    details: Optional[dict] = None
+
 
 def add_images_to_document(document: Document, output_path: str) -> None:
     path_obj = Path(document.url)
@@ -35,7 +40,9 @@ def add_images_to_document(document: Document, output_path: str) -> None:
     image_output = f"{output_folder}/images"
     os.makedirs(image_output, exist_ok=True)
     # todo parameterize page_limit
-    document.images = pdf_to_attachments(f"{output_folder}/{path_obj.name}", image_output, 7)
+    document.images = pdf_to_attachments(
+        f"{output_folder}/{path_obj.name}", image_output, 7
+    )
 
 
 def get_file(url: str, output_path: str) -> str:
@@ -61,7 +68,9 @@ def convert_model_list(list: List[Any]) -> list:
     return [dict(item) if isinstance(item, BaseModel) else item for item in list]
 
 
-def write_output_to_s3(bucket_name: str, report_name: str, report_content: List[dict]) -> None:
+def write_output_to_s3(
+    bucket_name: str, report_name: str, report_content: List[dict]
+) -> None:
     df = pd.DataFrame(report_content)
     tmp_path = f"/tmp/data/{report_name}"
     df.to_csv(tmp_path, index=False)

@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import List, Optional
 
 
 class MllMInputFaithfulnessTemplate:
@@ -33,9 +33,7 @@ JSON:
 """
 
     @staticmethod
-    def generate_truths(
-            extraction_limit: Optional[int] = None
-    ):
+    def generate_truths(extraction_limit: Optional[int] = None):
         if extraction_limit is None:
             limit = " FACTUAL, undisputed truths"
         elif extraction_limit == 1:

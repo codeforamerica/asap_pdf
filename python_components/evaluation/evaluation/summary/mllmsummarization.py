@@ -1,30 +1,29 @@
-from typing import Union
 import asyncio
+from typing import Union
 
 import deepeval.models
-
-from deepeval.test_case import (
-    MLLMTestCase,
-    MLLMTestCaseParams,
-    MLLMImage,
-)
 from deepeval.metrics import BaseMetric
-from deepeval.models import DeepEvalBaseMLLM
-from deepeval.utils import get_or_create_event_loop, prettify_list
-from deepeval.metrics.utils import (
-    construct_verbose_logs,
-    trimAndLoadJson,
-    check_mllm_test_case_params,
-    initialize_multimodal_model,
-)
+from deepeval.metrics.faithfulness.schema import *
 from deepeval.metrics.indicator import metric_progress_indicator
 from deepeval.metrics.summarization.schema import *
-from deepeval.metrics.faithfulness.schema import *
-
+from deepeval.metrics.utils import (
+    check_mllm_test_case_params,
+    construct_verbose_logs,
+    initialize_multimodal_model,
+    trimAndLoadJson,
+)
+from deepeval.models import DeepEvalBaseMLLM
+from deepeval.test_case import (
+    MLLMImage,
+    MLLMTestCase,
+    MLLMTestCaseParams,
+)
+from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
 from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
-from evaluation.utility.document import convert_model_list, Document, Result
+from evaluation.utility.document import Document, Result, convert_model_list
 from evaluation.utility.helpers import logger
+
 
 class MultimodalInputSummarization(BaseMetric):
 
@@ -69,9 +68,7 @@ class MultimodalInputSummarization(BaseMetric):
         test_case: MLLMTestCase,
         _show_indicator: bool = True,
     ) -> float:
-        check_mllm_test_case_params(
-            test_case, self._required_params, None, None, self
-        )
+        check_mllm_test_case_params(test_case, self._required_params, None, None, self)
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(self, _show_indicator=_show_indicator):
             if self.async_mode:
@@ -81,9 +78,7 @@ class MultimodalInputSummarization(BaseMetric):
                 )
             else:
                 self.truths: List[str] = self._generate_truths(test_case.input)
-                self.claims: List[str] = self._generate_claims(
-                    test_case.actual_output
-                )
+                self.claims: List[str] = self._generate_claims(test_case.actual_output)
                 self.coverage_verdicts: List[SummarizationCoverageVerdict] = (
                     self._generate_coverage_verdicts(test_case)
                 )
@@ -118,9 +113,7 @@ class MultimodalInputSummarization(BaseMetric):
         test_case: MLLMTestCase,
         _show_indicator: bool = True,
     ) -> float:
-        check_mllm_test_case_params(
-            test_case, self._required_params, None, None, self
-        )
+        check_mllm_test_case_params(test_case, self._required_params, None, None, self)
         self.evaluation_cost = 0 if self.using_native_model else None
         with metric_progress_indicator(
             self,
@@ -292,7 +285,8 @@ class MultimodalInputSummarization(BaseMetric):
 
     async def _a_generate_answers(self, input: str | list[MLLMImage]) -> List[str]:
         prompt = MLLMSummarizationTemplate.generate_answers(
-            questions=self.assessment_questions, input=input,
+            questions=self.assessment_questions,
+            input=input,
         )
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Answers)
@@ -300,9 +294,7 @@ class MultimodalInputSummarization(BaseMetric):
             return res.answers
         else:
             try:
-                res: Answers = await self.model.a_generate(
-                    prompt, schema=Answers
-                )
+                res: Answers = await self.model.a_generate(prompt, schema=Answers)
                 return res.answers
             except TypeError:
                 res = await self.model.a_generate(prompt)
@@ -335,9 +327,7 @@ class MultimodalInputSummarization(BaseMetric):
             return res.questions
         else:
             try:
-                res: Questions = await self.model.a_generate(
-                    prompt, schema=Questions
-                )
+                res: Questions = await self.model.a_generate(prompt, schema=Questions)
                 return res.questions
             except TypeError:
                 res = await self.model.a_generate(prompt)
@@ -364,8 +354,8 @@ class MultimodalInputSummarization(BaseMetric):
         self, test_case: MLLMTestCase
     ) -> List[SummarizationCoverageVerdict]:
         if self.assessment_questions is None:
-            self.assessment_questions = (
-                await self._a_generate_assessment_questions(test_case.input)
+            self.assessment_questions = await self._a_generate_assessment_questions(
+                test_case.input
             )
         tasks = [
             self._a_generate_answers(test_case.input),
@@ -432,17 +422,14 @@ class MultimodalInputSummarization(BaseMetric):
             return verdicts
         else:
             try:
-                res: Verdicts = await self.model.a_generate(
-                    prompt, schema=Verdicts
-                )
+                res: Verdicts = await self.model.a_generate(prompt, schema=Verdicts)
                 verdicts = [item for item in res.verdicts]
                 return verdicts
             except TypeError:
                 res = await self.model.a_generate(prompt)
                 data = trimAndLoadJson(res, self)
                 verdicts = [
-                    SummarizationAlignmentVerdict(**item)
-                    for item in data["verdicts"]
+                    SummarizationAlignmentVerdict(**item) for item in data["verdicts"]
                 ]
                 return verdicts
 
@@ -470,8 +457,7 @@ class MultimodalInputSummarization(BaseMetric):
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
                 verdicts = [
-                    SummarizationAlignmentVerdict(**item)
-                    for item in data["verdicts"]
+                    SummarizationAlignmentVerdict(**item) for item in data["verdicts"]
                 ]
                 return verdicts
 
@@ -559,15 +545,29 @@ class MultimodalInputSummarization(BaseMetric):
     def __name__(self):
         return "Image Input to Text Summarization"
 
-def evaluation(document: Document, model: deepeval.models.DeepEvalBaseMLLM) -> Result:
+
+def evaluation(
+    branch_name: str,
+    commit_sha: str,
+    document: Document,
+    model: deepeval.models.DeepEvalBaseMLLM,
+) -> Result:
     metric = MultimodalInputSummarization(model=model)
     test_case = MLLMTestCase(input=document.images, actual_output=document.ai_summary)
     metric.measure(test_case)
     details = {
-        'truths': metric.truths,
-        'claims': metric.claims,
-        'assessment_questions': convert_model_list(metric.assessment_questions),
-        'coverage_verdicts': convert_model_list(metric.coverage_verdicts),
-        'alignment_verdicts': convert_model_list(metric.alignment_verdicts),
+        "truths": metric.truths,
+        "claims": metric.claims,
+        "assessment_questions": convert_model_list(metric.assessment_questions),
+        "coverage_verdicts": convert_model_list(metric.coverage_verdicts),
+        "alignment_verdicts": convert_model_list(metric.alignment_verdicts),
     }
-    return Result(file_name=document.file_name, metric_name='deepeval_mllm_summary', score=metric.score, reason=metric.reason, details=details)
+    return Result(
+        branch_name=branch_name,
+        commit_sha=commit_sha,
+        file_name=document.file_name,
+        metric_name="deepeval_mllm_summary",
+        score=metric.score,
+        reason=metric.reason,
+        details=details,
+    )

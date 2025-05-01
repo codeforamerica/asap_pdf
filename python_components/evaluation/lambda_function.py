@@ -1,12 +1,11 @@
-import os
 import json
+import os
 import time
 
 from deepeval.models import MultimodalGeminiModel
-from pydantic import ValidationError
-
 from evaluation import summary, utility
 from evaluation.utility.helpers import logger
+from pydantic import ValidationError
 
 
 def handler(event, context):
@@ -28,9 +27,13 @@ def handler(event, context):
         all_models = utility.helpers.get_models("models.json")
         utility.helpers.validate_model(all_models, event["model_name"])
         logger.info("LLM Judge model is valid")
-        api_key = utility.helpers.get_secret(all_models[event["model_name"]]["key"], local_mode)
+        api_key = utility.helpers.get_secret(
+            all_models[event["model_name"]]["key"], local_mode
+        )
         # todo Abstract: create a utility helper for this.
-        model = MultimodalGeminiModel(model="gemini-2.5-pro-preview-03-25", api_key=api_key)
+        eval_model = MultimodalGeminiModel(
+            model=event["model_name"], api_key=api_key
+        )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
         output = []
@@ -39,13 +42,22 @@ def handler(event, context):
             document_model = utility.document.Document.model_validate(document_dict)
             logger.info(f'Converting document to images "{document_dict["url"]}')
             utility.document.add_images_to_document(document_model, "/tmp/data")
-            logger.info(f'Created {len(document_model.images)}')
+            logger.info(f"Created {len(document_model.images)}")
             logger.info(f"Beginning summarization.")
             # todo parameterize this.
             time.sleep(10)
-            summary.add_summary_to_document(document_model, "gemini-1.5-pro-latest", local_mode)
-            logger.info(f"Summarization complete.")
-            result = summary.evaluation(document_model, model)
+            # todo abstract this for other domains besides "summary"
+            summary.add_summary_to_document(
+                document_model, "gemini-1.5-pro-latest", local_mode
+            )
+            logger.info(f"Summarization complete. Performing related evaluations.")
+            result = summary.evaluation(event["branch_name"], event["commit_sha"], document_model, eval_model)
+            output.append(dict(result))
+            logger.info(f'Calculating BertScore.')
+            result = summary.calculate_bert_score(event["branch_name"], event["commit_sha"], document_model)
+            output.append(dict(result))
+            logger.info(f'Calculating Rouge score.')
+            result = summary.calculate_rouge_score(event["branch_name"], event["commit_sha"], document_model)
             output.append(dict(result))
             logger.info(f"Evaluation complete.")
         if "asap_endpoint" in event.keys():
@@ -57,9 +69,13 @@ def handler(event, context):
             }
         elif "output_s3_bucket" in event.keys():
             # todo fail here if local_mode is true.
-            logger.info(f'Writing eval results to S3 bucket, {event["output_s3_bucket"]}.')
+            logger.info(
+                f'Writing eval results to S3 bucket, {event["output_s3_bucket"]}.'
+            )
             report_name = f'{event["branch_name"]}-{event["commit_sha"][:5]}.csv'
-            utility.document.write_output_to_s3(event["output_s3_bucket"], report_name, output)
+            utility.document.write_output_to_s3(
+                event["output_s3_bucket"], report_name, output
+            )
             return {
                 "statusCode": 200,
                 "body": f'Successfully dumped report to S3 bucket, {event["output_s3_bucket"]}.',
@@ -68,7 +84,7 @@ def handler(event, context):
             logger.info("Dumping results into Lambda return")
             return {"statusCode": 200, "body": json.dumps(output)}
     except ValidationError as e:
-        message = f'Invalid document supplied to event: {str(e)}'
+        message = f"Invalid document supplied to event: {str(e)}"
         return {"statusCode": 500, "body": message}
     except Exception as e:
         return {"statusCode": 500, "body": str(e)}

@@ -82,8 +82,6 @@ Extra Information not mentioned in the original text:
             JSON:
             """
 
-
-
     @staticmethod
     def generate_questions(n):
         return f"""Based on the given images, generate {n} closed-ended questions that can be answered with either a 'yes' or 'no'. 

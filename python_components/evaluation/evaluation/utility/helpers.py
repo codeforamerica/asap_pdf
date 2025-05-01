@@ -1,5 +1,5 @@
-import logging
 import json
+import logging
 
 import boto3
 
@@ -34,6 +34,7 @@ def get_secret(secret_name: str, local_mode: bool) -> str:
 
     response = client.get_secret_value(SecretId=secret_name)
     return response["SecretString"]
+
 
 def validate_model(all_models: dict, model_name: str):
     if model_name not in all_models.keys():
