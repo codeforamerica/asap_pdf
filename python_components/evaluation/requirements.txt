@@ -1,6 +1,5 @@
 awslambdaric==3.0.2
 backports.tarfile==1.2.0
-bert-score==0.3.13
 boto3==1.38.3
 deepeval==2.7.6
 evaluate==0.4.3
