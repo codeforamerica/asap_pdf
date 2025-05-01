@@ -108,7 +108,7 @@ jobs:
           aws lambda invoke \
             --function-name $FUNCTION_NAME \
             --region $REGION \
-            --payload '{"model_name": "'$EVALUATION_MODEL'", "output_s3_bucket": "'$OUTPUT_BUCKET_NAME'", "branch_name": "'$(git branch --show-current)'", "commit_sha": "'$COMMIT_SHA'", "page_limit": 7, "documents": '$(cat python_components/evaluation/truthset.json)' }' \
+            --payload "{\"model_name\": \"$EVALUATION_MODEL\", \"output_s3_bucket\": \"$OUTPUT_BUCKET_NAME\", \"branch_name\": \"$(git branch --show-current)\", \"commit_sha\": \"$COMMIT_SHA\", \"page_limit\": 7, \"documents\": $(cat python_components/evaluation/truthset.json) }" \
             response.json
           cat response.json
           grep 'Successfully dumped report' response.json
