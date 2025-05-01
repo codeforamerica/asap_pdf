@@ -6,6 +6,7 @@ ENV LLM_USER_PATH=/tmp
 ENV DEEPEVAL_TELEMETRY_OPT_OUT="YES"
 # Try to stop transformers from writing to the RO file sytem.
 ENV TRANSFORMERS_CACHE=/tmp
+ENV HF_HOME=/tmp
 
 # Copy requirements.txt & config.json
 COPY requirements.txt ${LAMBDA_TASK_ROOT}
