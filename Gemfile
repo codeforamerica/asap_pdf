@@ -43,7 +43,7 @@ end
 
 group :test do
   gem "rspec", "~> 3.13"
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "shoulda", "~> 4.0"
   gem "shoulda-matchers", "~> 4.5"
   gem "simplecov", require: false # Optional: for code coverage
