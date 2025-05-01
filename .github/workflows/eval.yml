@@ -105,9 +105,10 @@ jobs:
           OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
           COMMIT_SHA: ${{ github.sha }}
         run: |
+          echo '{"model_name": "$EVALUATION_MODEL", "output_s3_bucket": "'$OUTPUT_BUCKET_NAME'", "branch_name": "'$(git branch --show-current)'", "commit_sha": "'$COMMIT_SHA'", "page_limit": 7, "documents": '$(cat python_components/evaluation/truthset.json)' }'
           aws lambda invoke \
             --invocation-type Event \
             --function-name $FUNCTION_NAME \
             --region $REGION \
             --payload '{"model_name": "$EVALUATION_MODEL", "output_s3_bucket": "'$OUTPUT_BUCKET_NAME'", "branch_name": "'$(git branch --show-current)'", "commit_sha": "'$COMMIT_SHA'", "page_limit": 7, "documents": '$(cat python_components/evaluation/truthset.json)' }' \
-            /dev/stdout 2>/dev/null
+            /dev/stdout
