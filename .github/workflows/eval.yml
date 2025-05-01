@@ -109,4 +109,6 @@ jobs:
             --function-name $FUNCTION_NAME \
             --region $REGION \
             --payload '{}' \
-            /dev/stdout
+            response.json
+          cat response.json
+          grep 'Successfully dumped report' response.json
