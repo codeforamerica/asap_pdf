@@ -28,6 +28,7 @@ jq -n \
 cat $TMP_PAYLOAD
 
 aws lambda invoke \
+  --cli-read-timeout 900 \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
   --payload file://$TMP_PAYLOAD \
