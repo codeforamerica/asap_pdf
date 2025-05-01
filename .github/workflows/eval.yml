@@ -106,8 +106,7 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
         run: |
           aws lambda invoke \
-            --invocation-type Event \
             --function-name $FUNCTION_NAME \
             --region $REGION \
-            -payload '{}' \
+            --payload '{}' \
             /dev/stdout
