@@ -76,21 +76,21 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.3)
     aws-eventstream (1.3.2)
-    aws-partitions (1.1093.0)
-    aws-sdk-core (3.222.3)
+    aws-partitions (1.1096.0)
+    aws-sdk-core (3.223.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       base64
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.99.0)
+    aws-sdk-kms (1.100.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
     aws-sdk-lambda (1.149.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.184.0)
+    aws-sdk-s3 (1.185.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -496,7 +496,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-lambda
-  aws-sdk-s3 (~> 1.184)
+  aws-sdk-s3 (~> 1.185)
   aws-sdk-secretsmanager
   aws-sigv4
   bcrypt (~> 3.1)
