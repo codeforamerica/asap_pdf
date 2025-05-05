@@ -8,21 +8,21 @@ ENV DEEPEVAL_TELEMETRY_OPT_OUT="YES"
 ENV TRANSFORMERS_CACHE=/tmp
 ENV HF_HOME=/tmp
 
+WORKDIR ${LAMBDA_TASK_ROOT}
+
 # Copy requirements.txt & config.json
-COPY requirements.txt ${LAMBDA_TASK_ROOT}
-COPY models.json ${LAMBDA_TASK_ROOT}
-COPY pyproject.toml ${LAMBDA_TASK_ROOT}
-COPY evaluation ${LAMBDA_TASK_ROOT}/evaluation
+COPY requirements.txt .
 
 # Install the specified packages
 RUN dnf install poppler-utils -y &&\
-  pip install -r requirements.txt &&\
-  mkdir ${LAMBDA_TASK_ROOT}/data
+  pip install -r requirements.txt
 
-RUN pip install .
+COPY models.json .
+COPY pyproject.toml .
+COPY evaluation ./evaluation
+COPY lambda_function.py .
 
-# Copy function code
-COPY lambda_function.py ${LAMBDA_TASK_ROOT}
+RUN pip install --no-cache-dir .
 
 # Set the CMD to your handler (could also be done as a parameter override outside of the Dockerfile)
 CMD [ "lambda_function.handler" ]
