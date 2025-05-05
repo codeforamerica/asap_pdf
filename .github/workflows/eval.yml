@@ -102,6 +102,7 @@ jobs:
           REGION: ${{ env.AWS_REGION }}
           FUNCTION_NAME: "asap-pdf-evaluation-production"
           EVALUATION_MODEL: "gemini-2.5-pro-preview-03-25"
+          INFERENCE_MODEL: "gemini-1.5-pro-latest"
           OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
           COMMIT_SHA: ${{ github.sha }}
         run: |

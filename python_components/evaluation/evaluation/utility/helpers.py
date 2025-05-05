@@ -42,3 +42,24 @@ def validate_model(all_models: dict, model_name: str):
         raise ValueError(
             f"Unsupported model: {model_name}. Options are: {supported_model_list}"
         )
+
+def validate_event(event):
+    for required_key in ("inference_model", "evaluation_model", "branch_name", "commit_sha", "documents", "page_limit"):
+        if required_key not in event.keys():
+            raise ValueError(
+                f"Function called without required parameter, {required_key}."
+            )
+    documents = event["documents"]
+    if type(documents) is dict:
+        documents = [documents]
+    if type(documents) is not list:
+        raise ValueError(
+            "Provided key documents must be a list of dictionaries or a single dictionary. It was not."
+        )
+    for i, document in enumerate(documents):
+        for key in document.keys():
+            for required_document_key in ("file_name", "category", "url", "human_summary"):
+                if required_document_key not in document.keys():
+                    raise ValueError(
+                        f"Document with index {i} is missing required key, {key}"
+                    )

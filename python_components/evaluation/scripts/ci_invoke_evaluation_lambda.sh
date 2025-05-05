@@ -11,13 +11,15 @@ DOCUMENTS_JSON=$(cat $SCRIPT_DIR/../truthset.json)
 TMP_PAYLOAD=$(mktemp)
 
 jq -n \
-   --arg model "$EVALUATION_MODEL" \
+   --arg eval_model "$EVALUATION_MODEL" \
+   --arg inference_model "$INFERENCE_MODEL" \
    --arg bucket "$OUTPUT_BUCKET_NAME" \
    --arg branch "$BRANCH_NAME" \
    --arg commit "$COMMIT_SHA" \
    --argjson docs "$DOCUMENTS_JSON"  \
    '{
-     model_name: $model,
+     evaluation_model: $eval_model,
+     inference_model: $inference_model,
      output_s3_bucket: $bucket,
      branch_name: $branch,
      commit_sha: $commit,

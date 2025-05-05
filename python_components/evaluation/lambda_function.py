@@ -18,21 +18,20 @@ def handler(event, context):
         if not isinstance(event, dict):
             raise RuntimeError("Event is not a dictionary, please investigate.")
         logger.info("Validating event")
-        # todo validate event.
-        # helpers.validate_event(event)
+        utility.helpers.validate_event(event)
         logger.info("Event is valid")
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
         logger.info(f"Local mode set to: {local_mode}")
         logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
-        utility.helpers.validate_model(all_models, event["model_name"])
+        utility.helpers.validate_model(all_models, event["evaluation_model"])
         logger.info("LLM Judge model is valid")
         api_key = utility.helpers.get_secret(
-            all_models[event["model_name"]]["key"], local_mode
+            all_models[event["evaluation_model"]]["key"], local_mode
         )
         # todo Abstract: create a utility helper for this.
         eval_model = MultimodalGeminiModel(
-            model=event["model_name"], api_key=api_key
+            model=event["evaluation_model"], api_key=api_key
         )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
@@ -44,11 +43,10 @@ def handler(event, context):
             utility.document.add_images_to_document(document_model, "/tmp/data")
             logger.info(f"Created {len(document_model.images)}")
             logger.info(f"Beginning summarization.")
-            # todo parameterize this.
             time.sleep(10)
             # todo abstract this for other domains besides "summary"
             summary.add_summary_to_document(
-                document_model, "gemini-1.5-pro-latest", local_mode
+                document_model, event["inference_model"], local_mode
             )
             logger.info(f"Summarization complete. Performing related evaluations.")
             result = summary.evaluation(event["branch_name"], event["commit_sha"], document_model, eval_model)
@@ -68,7 +66,8 @@ def handler(event, context):
                 "body": "Successfully made document recommendation.",
             }
         elif "output_s3_bucket" in event.keys():
-            # todo fail here if local_mode is true.
+            if local_mode:
+                raise RuntimeError("Local development is not supported S3 dumping mode. Do not include the `output_s3_bucket` event key.")
             logger.info(
                 f'Writing eval results to S3 bucket, {event["output_s3_bucket"]}.'
             )
