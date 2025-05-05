@@ -43,8 +43,16 @@ def validate_model(all_models: dict, model_name: str):
             f"Unsupported model: {model_name}. Options are: {supported_model_list}"
         )
 
+
 def validate_event(event):
-    for required_key in ("inference_model", "evaluation_model", "branch_name", "commit_sha", "documents", "page_limit"):
+    for required_key in (
+        "inference_model",
+        "evaluation_model",
+        "branch_name",
+        "commit_sha",
+        "documents",
+        "page_limit",
+    ):
         if required_key not in event.keys():
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
@@ -58,7 +66,12 @@ def validate_event(event):
         )
     for i, document in enumerate(documents):
         for key in document.keys():
-            for required_document_key in ("file_name", "category", "url", "human_summary"):
+            for required_document_key in (
+                "file_name",
+                "category",
+                "url",
+                "human_summary",
+            ):
                 if required_document_key not in document.keys():
                     raise ValueError(
                         f"Document with index {i} is missing required key, {key}"

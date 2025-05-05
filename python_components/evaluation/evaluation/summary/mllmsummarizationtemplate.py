@@ -27,7 +27,7 @@ Extra Information not mentioned in the original text:
 
     @staticmethod
     def generate_answers(questions, input):
-        if type(input) == str:
+        if type(input) is str:
             return f"""Based on the list of close-ended 'yes' or 'no' questions, generate a JSON with key 'answers', which is a list of strings that determines whether the provided text contains sufficient information to answer EACH question.
             Answers should STRICTLY be either 'yes' or 'no'.
             Answer 'no' if the provided text does not contain enough information to answer the question.

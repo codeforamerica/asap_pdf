@@ -1,15 +1,16 @@
 import evaluate
-
 from evaluation.utility.document import Document, Result
-from evaluation.utility.helpers import logger
 
 
-def calculate_rouge_score(branch_name: str,
-                             commit_sha: str,
-                             document: Document,
-                             ) -> Result:
+def calculate_rouge_score(
+    branch_name: str,
+    commit_sha: str,
+    document: Document,
+) -> Result:
     metric = evaluate.load("rouge")
-    metric_result = metric.compute(references=[document.human_summary], predictions=[document.ai_summary])
+    metric_result = metric.compute(
+        references=[document.human_summary], predictions=[document.ai_summary]
+    )
     return Result(
         branch_name=branch_name,
         commit_sha=commit_sha,

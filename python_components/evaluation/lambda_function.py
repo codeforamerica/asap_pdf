@@ -42,19 +42,23 @@ def handler(event, context):
             logger.info(f'Converting document to images "{document_dict["url"]}')
             utility.document.add_images_to_document(document_model, "/tmp/data")
             logger.info(f"Created {len(document_model.images)}")
-            logger.info(f"Beginning summarization.")
+            logger.info("Beginning summarization.")
             time.sleep(10)
             # todo abstract this for other domains besides "summary"
             summary.add_summary_to_document(
                 document_model, event["inference_model"], local_mode
             )
-            logger.info(f"Summarization complete. Performing related evaluations.")
-            result = summary.evaluation(event["branch_name"], event["commit_sha"], document_model, eval_model)
+            logger.info("Summarization complete. Performing related evaluations.")
+            result = summary.evaluation(
+                event["branch_name"], event["commit_sha"], document_model, eval_model
+            )
             output.append(dict(result))
-            logger.info(f'Calculating Rouge score.')
-            result = summary.calculate_rouge_score(event["branch_name"], event["commit_sha"], document_model)
+            logger.info("Calculating Rouge score.")
+            result = summary.calculate_rouge_score(
+                event["branch_name"], event["commit_sha"], document_model
+            )
             output.append(dict(result))
-            logger.info(f"Evaluation complete.")
+            logger.info("Evaluation complete.")
         if "asap_endpoint" in event.keys():
             logger.info("Writing eval results to Rails API")
             # todo write API endpoint and put a call here.
@@ -64,7 +68,9 @@ def handler(event, context):
             }
         elif "output_s3_bucket" in event.keys():
             if local_mode:
-                raise RuntimeError("Local development is not supported S3 dumping mode. Do not include the `output_s3_bucket` event key.")
+                raise RuntimeError(
+                    "Local development is not supported S3 dumping mode. Do not include the `output_s3_bucket` event key."
+                )
             logger.info(
                 f'Writing eval results to S3 bucket, {event["output_s3_bucket"]}.'
             )

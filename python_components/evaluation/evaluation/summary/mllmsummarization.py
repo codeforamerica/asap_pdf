@@ -1,5 +1,5 @@
 import asyncio
-from typing import Union
+from typing import List, Union
 
 import deepeval.models
 from deepeval.metrics import BaseMetric
@@ -22,7 +22,6 @@ from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
 from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
 from evaluation.utility.document import Document, Result, convert_model_list
-from evaluation.utility.helpers import logger
 
 
 class MultimodalInputSummarization(BaseMetric):
@@ -537,7 +536,7 @@ class MultimodalInputSummarization(BaseMetric):
         else:
             try:
                 self.success = self.score >= self.threshold
-            except:
+            except:  # noqa E722
                 self.success = False
         return self.success
 
