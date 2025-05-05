@@ -479,22 +479,6 @@ class MultimodalInputSummarization(BaseMetric):
                 data = trimAndLoadJson(res, self)
                 return data["truths"]
 
-    async def _a_generate_claims(self, text: str) -> List[str]:
-        # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_claims(actual_output=text)
-        if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt, schema=Claims)
-            self.evaluation_cost += cost
-            return res.claims
-        else:
-            try:
-                res: Claims = await self.model.a_generate(prompt, schema=Claims)
-                return res.claims
-            except TypeError:
-                res = await self.model.a_generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["claims"]
-
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
@@ -513,6 +497,22 @@ class MultimodalInputSummarization(BaseMetric):
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
                 return data["truths"]
+
+    async def _a_generate_claims(self, text: str) -> List[str]:
+        # Borrow faithfulness template
+        prompt = MllMInputFaithfulnessTemplate.generate_claims(actual_output=text)
+        if self.using_native_model:
+            res, cost = await self.model.a_generate(prompt, schema=Claims)
+            self.evaluation_cost += cost
+            return res.claims
+        else:
+            try:
+                res: Claims = await self.model.a_generate(prompt, schema=Claims)
+                return res.claims
+            except TypeError:
+                res = await self.model.a_generate(prompt)
+                data = trimAndLoadJson(res, self)
+                return data["claims"]
 
     def _generate_claims(self, text: str) -> List[str]:
         # Borrow faithfulness template
