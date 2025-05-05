@@ -25,8 +25,9 @@ The evaluation suite may be run locally as well. It communicates with the docume
 
 For local development (3 proceses required):
 - From the project root run `docker compose build --no-cache`
-- Run the rails app `bin/rails`
-- Run commands via curl.
+- Then run `docker compose up`
+- In a new process run the rails app `bin/rails`
+- In a final process, run commands via curl (see below).
 
 Sample curl command:
 ```shell
