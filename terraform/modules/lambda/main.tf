@@ -46,7 +46,7 @@ resource "aws_lambda_function" "evaluation" {
   function_name = "${var.project_name}-evaluation-${var.environment}"
   image_uri     = "${var.evaluation_ecr_repository_url}:latest"
   package_type  = "Image"
-  timeout       = 360
+  timeout       = 720
   memory_size   = 512
 
   vpc_config {

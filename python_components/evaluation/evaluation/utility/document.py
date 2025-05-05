@@ -7,6 +7,7 @@ import boto3
 import fitz
 import pandas as pd
 from deepeval.test_case import MLLMImage
+from evaluation.utility.helpers import logger
 from pydantic import BaseModel
 
 
@@ -43,7 +44,6 @@ def add_images_to_document(
     get_file(document.url, output_folder)
     image_output = f"{output_folder}/images"
     os.makedirs(image_output, exist_ok=True)
-    # todo parameterize page_limit
     document.images = pdf_to_attachments(
         f"{output_folder}/{path_obj.name}", image_output, page_limit
     )
@@ -62,6 +62,8 @@ def pdf_to_attachments(
     doc = fitz.open(pdf_path)
     attachments = []
     file_name = os.path.splitext(os.path.basename(pdf_path))[0]
+    logger.info(f"Found {doc.page_count} pages total.")
+    logger.info(f"Page limit set to {page_limit} with dpi {dpi}.")
     for page_num in range(doc.page_count):
         if page_num >= page_limit:
             break
