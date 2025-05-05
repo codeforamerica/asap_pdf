@@ -29,13 +29,6 @@ namespace :documents do
     )
     puts "Created site: #{austin.name}"
 
-    ga = Site.find_or_create_by!(
-      name: "georgia.gov",
-      location: "Georgia",
-      primary_url: "https://georgia.gov/"
-    )
-    puts "Created site: #{ga.name}"
-
     ga_dor = Site.find_or_create_by!(
       name: "Department of Revenue",
       location: "Georgia",
@@ -65,7 +58,6 @@ namespace :documents do
     puts "Created site: #{ga_dfcs.name}"
 
     csv_manifest = {
-      "georgia.csv" => ga,
       "dor_georgia.csv" => ga_dor,
       "dbf_georgia.csv" => ga_dbf,
       "gta_psg_georgia.csv" => ga_psg,
