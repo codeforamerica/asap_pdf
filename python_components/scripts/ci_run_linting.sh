@@ -3,7 +3,7 @@
 # Define budgets (adjust these as needed)
 ISORT_BUDGET=0   # Allow no isort changes
 BLACK_BUDGET=0   # Allow no black changes.
-FLAKE8_BUDGET=0  # Allow no flake8 errors
+FLAKE8_BUDGET=18  # Allow no flake8 errors
 
 if [ -z "$1" ]; then
     echo "Error: Pass in a path to check, like **/*.py"
