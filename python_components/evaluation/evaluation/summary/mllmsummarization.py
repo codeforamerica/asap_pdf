@@ -3,9 +3,9 @@ from typing import List, Union
 
 import deepeval.models
 from deepeval.metrics import BaseMetric
-from deepeval.metrics.faithfulness.schema import *
+from deepeval.metrics.faithfulness.schema import *  # noqa F403
 from deepeval.metrics.indicator import metric_progress_indicator
-from deepeval.metrics.summarization.schema import *
+from deepeval.metrics.summarization.schema import *  # noqa F403
 from deepeval.metrics.utils import (
     check_mllm_test_case_params,
     construct_verbose_logs,

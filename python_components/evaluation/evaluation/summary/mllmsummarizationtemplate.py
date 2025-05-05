@@ -63,7 +63,7 @@ Extra Information not mentioned in the original text:
             Example:
             Example Description of Image:
             "An image is provided that depicts a grocery list including apples and almonds"
-            
+
             Example Questions: ["Is there enough information about what groceries to buy?"]
             Example Answers:
             {{
