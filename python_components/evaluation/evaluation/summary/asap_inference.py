@@ -20,7 +20,7 @@ def get_signature(session):
 
 
 def add_summary_to_document(
-    document: Document, inference_model_name: str, local_mode: bool
+    document: Document, inference_model_name: str, local_mode: bool, page_number: int
 ) -> None:
     logger.info(f"Getting summary for {document.url}...")
     if local_mode:
@@ -53,7 +53,7 @@ def add_summary_to_document(
         {
             "inference_type": "summary",
             "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
-            "page_limit": 7,
+            "page_limit": page_number,
             "documents": [
                 {
                     "title": document.file_name,

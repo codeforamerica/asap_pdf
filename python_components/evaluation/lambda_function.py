@@ -40,23 +40,26 @@ def handler(event, context):
             logger.info(f'Beginning evaluation of "{document_dict["url"]}')
             document_model = utility.document.Document.model_validate(document_dict)
             logger.info(f'Converting document to images "{document_dict["url"]}')
-            utility.document.add_images_to_document(document_model, "/tmp/data")
+            utility.document.add_images_to_document(document_model, "/tmp/data", event["page_limit"])
             logger.info(f"Created {len(document_model.images)}")
             logger.info("Beginning summarization.")
             time.sleep(10)
             # todo abstract this for other domains besides "summary"
             summary.add_summary_to_document(
-                document_model, event["inference_model"], local_mode
+                document_model, event["inference_model"], local_mode, event["page_limit"]
             )
             logger.info("Summarization complete. Performing related evaluations.")
             result = summary.evaluation(
                 event["branch_name"], event["commit_sha"], document_model, eval_model
             )
+            result.evaluation_model = event["evaluation_model"]
+            result.inference_model = event["inference_model"]
             output.append(dict(result))
             logger.info("Calculating Rouge score.")
             result = summary.calculate_rouge_score(
                 event["branch_name"], event["commit_sha"], document_model
             )
+            result.inference_model = event["inference_model"]
             output.append(dict(result))
             logger.info("Evaluation complete.")
         if "asap_endpoint" in event.keys():

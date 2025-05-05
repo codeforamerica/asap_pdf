@@ -4,8 +4,8 @@ from pathlib import Path
 from typing import Any, List, Optional
 
 import boto3
+import fitz
 import pandas as pd
-import pdf2image
 from deepeval.test_case import MLLMImage
 from pydantic import BaseModel
 
@@ -27,9 +27,11 @@ class Result(BaseModel):
     score: float
     reason: Optional[str] = None
     details: Optional[dict] = None
+    inference_model: Optional[str] = None
+    evaluation_model: Optional[str] = None
 
 
-def add_images_to_document(document: Document, output_path: str) -> None:
+def add_images_to_document(document: Document, output_path: str, page_limit: int) -> None:
     path_obj = Path(document.url)
     file_name_stem = path_obj.stem
     if ".cfm" in path_obj.suffix:
@@ -41,7 +43,7 @@ def add_images_to_document(document: Document, output_path: str) -> None:
     os.makedirs(image_output, exist_ok=True)
     # todo parameterize page_limit
     document.images = pdf_to_attachments(
-        f"{output_folder}/{path_obj.name}", image_output, 7
+        f"{output_folder}/{path_obj.name}", image_output, page_limit
     )
 
 
@@ -52,14 +54,17 @@ def get_file(url: str, output_path: str) -> str:
     return local_path
 
 
-def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int) -> list:
-    images = pdf2image.convert_from_path(pdf_path, fmt="jpg", dpi=100)
+def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int, dpi = 100) -> list:
+    doc = fitz.open(pdf_path)
     attachments = []
-    for page, image in enumerate(images):
-        if 0 < page_limit - 1 < page:
+    file_name = os.path.splitext(os.path.basename(pdf_path))[0]
+    for page_num in range(doc.page_count):
+        if page_num >= page_limit:
             break
-        page_path = f"{output_path}/page-{page}.jpg"
-        image.save(page_path)
+        page = doc.load_page(page_num)
+        page_path = f"{output_path}/{file_name}-{page_num}.jpg"
+        pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
+        pix.save(page_path)
         attachments.append(MLLMImage(page_path, local=True))
     return attachments
 

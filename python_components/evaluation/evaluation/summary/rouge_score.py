@@ -1,5 +1,6 @@
 import evaluate
 from evaluation.utility.document import Document, Result
+import numpy as np
 
 
 def calculate_rouge_score(
@@ -11,6 +12,9 @@ def calculate_rouge_score(
     metric_result = metric.compute(
         references=[document.human_summary], predictions=[document.ai_summary]
     )
+    for key, value in metric_result.items():
+        if type(value) is np.float64:
+            metric_result[key] = float(value)
     return Result(
         branch_name=branch_name,
         commit_sha=commit_sha,
