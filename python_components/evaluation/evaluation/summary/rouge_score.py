@@ -1,6 +1,6 @@
 import evaluate
-from evaluation.utility.document import Document, Result
 import numpy as np
+from evaluation.utility.document import Document, Result
 
 
 def calculate_rouge_score(

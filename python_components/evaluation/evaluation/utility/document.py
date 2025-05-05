@@ -31,7 +31,9 @@ class Result(BaseModel):
     evaluation_model: Optional[str] = None
 
 
-def add_images_to_document(document: Document, output_path: str, page_limit: int) -> None:
+def add_images_to_document(
+    document: Document, output_path: str, page_limit: int
+) -> None:
     path_obj = Path(document.url)
     file_name_stem = path_obj.stem
     if ".cfm" in path_obj.suffix:
@@ -54,7 +56,9 @@ def get_file(url: str, output_path: str) -> str:
     return local_path
 
 
-def pdf_to_attachments(pdf_path: str, output_path: str, page_limit: int, dpi = 100) -> list:
+def pdf_to_attachments(
+    pdf_path: str, output_path: str, page_limit: int, dpi=100
+) -> list:
     doc = fitz.open(pdf_path)
     attachments = []
     file_name = os.path.splitext(os.path.basename(pdf_path))[0]
