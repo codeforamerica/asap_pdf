@@ -24,7 +24,9 @@
     <div class="flex justify-between items-center h-20">
       <!-- Logo -->
       <div class="flex-shrink-0 flex items-center">
-        <%= image_tag "logo.png", class: "h-12", alt: "Code for America Logo" %>
+        <%= link_to sites_path do %>
+          <%= image_tag "logo.png", class: "h-12", alt: "Code for America Logo" %>
+        <% end %>
       </div>
       <div class="relative" data-controller="dropdown">
         <button data-action="click->dropdown#toggle" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 focus:outline-none">
