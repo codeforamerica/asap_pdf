@@ -40,9 +40,9 @@ class Document < ApplicationRecord
     end
   }
 
-  DEFAULT_STATUS = "Backlog".freeze
+  DEFAULT_STATUS = "Audit Backlog".freeze
   IN_REVIEW_STATUS = "In Review".freeze
-  DONE_STATUS = "Done".freeze
+  DONE_STATUS = "Audit Done".freeze
 
   STATUSES = [DEFAULT_STATUS, IN_REVIEW_STATUS, DONE_STATUS].freeze
 
