@@ -52,6 +52,11 @@
   animation: success-fade 0.8s ease-out forwards;
 }
 
+.relative-bump-top {
+  position: relative;
+  top: 10px;
+}
+
 @layer base {
   h1 {
     @apply text-2xl font-medium text-gray-500 leading-tight text-base-content;
