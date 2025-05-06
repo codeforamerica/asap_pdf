@@ -24,7 +24,7 @@ class DocumentsController < AuthenticatedController
       .page(params[:page])
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
-    @document_departments = @documents.pluck(:department).uniq()
+    @document_departments = @documents.pluck(:department).uniq
     @total_documents = @documents.total_count
     @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
   end
