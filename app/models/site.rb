@@ -7,6 +7,49 @@ class Site < ApplicationRecord
   validates :primary_url, presence: true, uniqueness: true
   validate :ensure_safe_url
 
+  DEPARTMENT_MAPPING = {
+    "Information Management Services" => "https://www.slc.gov/ims/",
+    "Finance" => "https://www.slc.gov/Finance/",
+    "City Attorney's Office" => "https://www.slc.gov/attorney/",
+    "Justice Courts" => "https://www.slc.gov/courts/",
+    "Community and Neighborhoods (CAN)" => "https://www.slc.gov/can/",
+    "Building Services" => "https://www.slc.gov/Buildingservices",
+    "Transportation" => "https://www.slc.gov/transportation",
+    "Planning Division" => "https://www.slc.gov/planningdivision",
+    "Public Services" => "https://www.slc.gov/publicservice",
+    "Public Lands Department" => "https://www.slc.gov/parks/",
+    "MyStreet" => "https://www.slc.gov/mystreet/",
+    "Sustainability" => "https://www.slc.gov/sustainability/",
+    "Department of Economic Development (EconDev)" => "https://www.slc.gov/ed/",
+    "Public Utilites" => "https://www.slc.gov/utilities/",
+    "Human Resources" => "https://www.slc.gov/hr/",
+    "Engineering" => "https://www.slc.gov/engineering/",
+    "Events" => "https://www.slc.gov/events/",
+    "Council District 1" => "https://www.slc.gov/district1/",
+    "Council District 2" => "https://www.slc.gov/district2/",
+    "Council District 3" => "https://www.slc.gov/district3/",
+    "Council District 4" => "https://www.slc.gov/district4/",
+    "Council District 5" => "https://www.slc.gov/district5/",
+    "Council District 6" => "https://www.slc.gov/district6/",
+    "Council District 7" => "https://www.slc.gov/district7/",
+    "City Council Office" => "https://www.slc.gov/council/",
+    "SLC Calendar" => "https://www.slc.gov/calendar/",
+    "Boards and Commissions" => "https://www.slc.gov/boards/",
+    "SLC911" => "https://www.slc.gov/911/",
+    "Event Permits" => "https://www.slc.gov/ev",
+    "Division of Youth and Family" => "https://www.slc.gov/youthandfamily/",
+    "Emergency Management" => "https://www.slc.gov/em/",
+    "Historic Preservation" => "https://www.slc.gov/histroic-preservation/",
+    "Mayor's Office" => "https://www.slc.gov/mayor/",
+    "Ballpark NEXT" => "https://www.slc.gov/ballparknext/",
+    "Mayor's Office of Access & Belonging" => "https://www.slc.gov/access-belonging/",
+    "Housing Stability" => "https://www.slc.gov/housingstability/",
+    "Workday" => "https://www.slc.gov/workday/",
+    "Homelessness" => "https://www.slc.gov/homelessness/",
+    "Urban Forestry" => "https://www.slc.gov/urban-forestry/",
+    "External" => "https://www.slcdocs.com"
+  }
+
   def website
     return nil if primary_url.blank?
     primary_url.sub(/^https?:\/\//, "").sub(/\/$/, "")
