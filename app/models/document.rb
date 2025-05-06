@@ -25,6 +25,11 @@ class Document < ApplicationRecord
     where(accessibility_recommendation: decision_type)
   }
 
+  scope :by_department, ->(department) {
+    return all if department.blank?
+    where(department: department)
+  }
+
   scope :by_date_range, ->(start_date, end_date) {
     scope = all
     scope = scope.where("modification_date >= ?", start_date) if start_date.present?
