@@ -47,7 +47,7 @@ class Site < ApplicationRecord
     "Workday" => "https://www.slc.gov/workday/",
     "Homelessness" => "https://www.slc.gov/homelessness/",
     "Urban Forestry" => "https://www.slc.gov/urban-forestry/",
-    "External" => "https://www.slcdocs.com"
+    "External" => "https://www.slcdocs.com/"
   }
 
   def website
