@@ -38,7 +38,7 @@ describe "documents function as expected", js: true, type: :feature do
       decision.click
       select = decision.find("select")
       select.find("[value='Convert']").click
-      denver_doc.status = "Done"
+      denver_doc.status = "Audit Done"
       denver_doc.save
     end
     visit "/"
@@ -47,7 +47,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "No documents found"
     end
     within("#sidebar") do
-      click_link "Done"
+      click_link "Audit Done"
     end
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
@@ -56,7 +56,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#sidebar") do
       expect(page).to have_content "Backlog\n0"
       expect(page).to have_content "In Review\n0"
-      expect(page).to have_content "Done\n1"
+      expect(page).to have_content "Audit Done\n1"
     end
     Session.last.destroy
     login_user(boulder_user)
@@ -229,9 +229,9 @@ describe "documents function as expected", js: true, type: :feature do
     click_link("City of Boulder")
     # Check for a default state.
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n3"
+      expect(page).to have_content "Audit Backlog\n3"
       expect(page).to have_content "In Review\n0"
-      expect(page).to have_content "Done\n0"
+      expect(page).to have_content "Audit Done\n0"
     end
     within("#document-list") do
       expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
@@ -275,9 +275,9 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "No documents found"
     end
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "Audit Backlog\n0"
       expect(page).to have_content "In Review\n3"
-      expect(page).to have_content "Done\n0"
+      expect(page).to have_content "Audit Done\n0"
       visit "/sites/#{site.id}/documents?status=In+Review"
     end
     within("#document-list") do
@@ -289,15 +289,15 @@ describe "documents function as expected", js: true, type: :feature do
     end
     within("#bulk_edit_control") do
       select = find("#bulk-edit-move")
-      select.find("[value='Done']").click
+      select.find("[value='Audit Done']").click
     end
     within("#bulk_edit_modal") do
       click_button "Confirm"
     end
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "Audit Backlog\n0"
       expect(page).to have_content "In Review\n2"
-      expect(page).to have_content "Done\n1"
+      expect(page).to have_content "Audit Done\n1"
     end
   end
 end
