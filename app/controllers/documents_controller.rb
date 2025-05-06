@@ -22,7 +22,7 @@ class DocumentsController < AuthenticatedController
       .order(sort_column => sort_direction)
       .page(params[:page])
     @document_categories = Document::CONTENT_TYPES
-    @document_decisions = Document::DECISION_TYPES.keys
+    @document_decisions = {"All Decisions": ""}.merge(Document::DECISION_TYPES.invert)
     @total_documents = @documents.total_count
     @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
   end

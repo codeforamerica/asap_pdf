@@ -37,7 +37,7 @@
             <span class="label-text">Decision</span>
           </label>
           <%= select_tag :accessibility_recommendation,
-                         options_for_select([['All Decisions', '']] + document_decisions.map { |c| [c.to_s.titleize, c] }, params[:accessibility_recommendation]),
+                         options_for_select(@document_decisions, params[:accessibility_recommendation]),
                          class: "select-custom w-full" %>
         </div>
       </div>
