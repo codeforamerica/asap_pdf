@@ -71,7 +71,7 @@
   .table-zebra tbody tr:nth-child(even) {
     --tw-bg-opacity: 0.5;
     background-color: var(--fallback-b2, oklch(var(--b2) / var(--tw-bg-opacity)));
-    @apply text-2xl font-medium text-gray-500 leading-tight text-base-content;
+    @apply text-2xl text-gray-500 leading-tight text-base-content;
   }
 
   .label-text {
