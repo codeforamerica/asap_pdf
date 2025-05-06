@@ -50,6 +50,8 @@ class Document < ApplicationRecord
 
   DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
 
+  AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
+
   DECISION_TYPES = {
     DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
     LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => "Leave PDF as-is",
@@ -83,9 +85,9 @@ class Document < ApplicationRecord
     if document_inferences.any?
       exceptions = self.exceptions
       if exceptions.any?
-        LEAVE_ACCESSIBILITY_RECOMMENDATION
+        AI_SUGGESTION_EXCEPTION
       else
-        REMEDIATE_ACCESSIBILITY_RECOMMENDATION
+        AI_SUGGESTION_NO_EXCEPTION
       end
     end
   end
