@@ -9,7 +9,7 @@ class Site < ApplicationRecord
 
   DEPARTMENT_MAPPING = {
     "Information Management Services" => "ims",
-    "Finance" => "Finance",
+    "Finance" => "finance",
     "City Attorney's Office" => "attorney",
     "Justice Courts" => "courts",
     "Community and Neighborhoods (CAN)" => "can",
