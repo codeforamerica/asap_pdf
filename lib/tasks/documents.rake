@@ -143,4 +143,18 @@ namespace :documents do
       end
     end
   end
+
+  desc "Update departments."
+  task :update_department, [:site_id] => :environment do |t, args|
+    Document.where(site_id: args.site_id).each do |document|
+      Site::DEPARTMENT_MAPPING.each do |department, urls|
+        urls.each { |url|
+          if document.url.downcase.start_with?(url)
+            document.department = department
+            document.save
+          end
+        }
+      end
+    end
+  end
 end

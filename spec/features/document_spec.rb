@@ -14,8 +14,8 @@ describe "documents function as expected", js: true, type: :feature do
     denver_doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
-    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
-    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
@@ -107,6 +107,38 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
       expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    # Test department filter.
+    within("#sidebar") do
+      expect(page).to have_no_content "Department"
+      expect(page).to have_no_selector "#department"
+    end
+    rtd_contract_doc.department = "Department of Public Transportation"
+    rtd_contract_doc.save!
+    teahouse_doc.department = "Office of Rose-laden Beverages"
+    teahouse_doc.save!
+    visit "/"
+    click_link("City of Boulder")
+    within("#sidebar") do
+      expect(page).to have_selector "#department"
+      expect(page).to have_selector "#department option[value='None']"
+      expect(page).to have_selector "#department option[value='Office of Rose-laden Beverages']"
+      find("#department option[value='None']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_no_content "teahouse_rules.pdf"
+      expect(page).to have_no_content "rtd_contract.pdf"
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      find("#department option[value='']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_content "teahouse_rules.pdf"
+      expect(page).to have_content "rtd_contract.pdf"
       expect(page).to have_content "farmers_market_2023.pdf"
     end
     # Test sorting
