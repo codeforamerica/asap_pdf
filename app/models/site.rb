@@ -49,7 +49,9 @@ class Site < ApplicationRecord
     "Urban Forestry" => ["https://www.slc.gov/urban-forestry/"],
     "External" => ["https://www.slcdocs.com"],
     "Community Reinvestment Agency" => ["https://cra.slc.gov"],
-    "Police" => ["https://police.slc.gov"]
+    "Police" => ["https://police.slc.gov"],
+    "Fire" => ["https://fire.slc.gov", "https://www.slc.gov/fire/"],
+    "Census" => ["https://www.slc.gov/census"]
   }
 
   def website
