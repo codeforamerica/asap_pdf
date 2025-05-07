@@ -27,6 +27,7 @@ class Document < ApplicationRecord
 
   scope :by_department, ->(department) {
     return all if department.blank?
+    department = department == "None" ?  [nil, ''] : department
     where(department: department)
   }
 

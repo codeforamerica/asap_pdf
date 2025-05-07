@@ -24,7 +24,8 @@ class DocumentsController < AuthenticatedController
       .page(params[:page])
     @document_categories = Document::CONTENT_TYPES
     @document_decisions = Document::DECISION_TYPES.keys
-    @document_departments = @documents.pluck(:department).uniq
+    @document_departments = @site.documents.pluck(:department).uniq.sort { |a,b| a && b ? a <=> b : a ? 1 : -1 }.to_h { |a| [a.nil? ? "None" : a, a.nil? ? "None" : a] }
+    @show_departments_filter =  @site.documents.where.not(department: [nil, '']).any?
     @total_documents = @documents.total_count
     @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
   end
