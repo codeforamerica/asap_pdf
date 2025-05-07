@@ -8,46 +8,46 @@ class Site < ApplicationRecord
   validate :ensure_safe_url
 
   DEPARTMENT_MAPPING = {
-    "Information Management Services" => "https://www.slc.gov/ims/",
-    "Finance" => "https://www.slc.gov/Finance/",
-    "City Attorney's Office" => "https://www.slc.gov/attorney/",
-    "Justice Courts" => "https://www.slc.gov/courts/",
-    "Community and Neighborhoods (CAN)" => "https://www.slc.gov/can/",
-    "Building Services" => "https://www.slc.gov/Buildingservices",
-    "Transportation" => "https://www.slc.gov/transportation",
-    "Planning Division" => "https://www.slc.gov/planningdivision",
-    "Public Services" => "https://www.slc.gov/publicservice",
-    "Public Lands Department" => "https://www.slc.gov/parks/",
-    "MyStreet" => "https://www.slc.gov/mystreet/",
-    "Sustainability" => "https://www.slc.gov/sustainability/",
-    "Department of Economic Development (EconDev)" => "https://www.slc.gov/ed/",
-    "Public Utilites" => "https://www.slc.gov/utilities/",
-    "Human Resources" => "https://www.slc.gov/hr/",
-    "Engineering" => "https://www.slc.gov/engineering/",
-    "Events" => "https://www.slc.gov/events/",
-    "Council District 1" => "https://www.slc.gov/district1/",
-    "Council District 2" => "https://www.slc.gov/district2/",
-    "Council District 3" => "https://www.slc.gov/district3/",
-    "Council District 4" => "https://www.slc.gov/district4/",
-    "Council District 5" => "https://www.slc.gov/district5/",
-    "Council District 6" => "https://www.slc.gov/district6/",
-    "Council District 7" => "https://www.slc.gov/district7/",
-    "City Council Office" => "https://www.slc.gov/council/",
-    "SLC Calendar" => "https://www.slc.gov/calendar/",
-    "Boards and Commissions" => "https://www.slc.gov/boards/",
-    "SLC911" => "https://www.slc.gov/911/",
-    "Event Permits" => "https://www.slc.gov/ev",
-    "Division of Youth and Family" => "https://www.slc.gov/youthandfamily/",
-    "Emergency Management" => "https://www.slc.gov/em/",
-    "Historic Preservation" => "https://www.slc.gov/histroic-preservation/",
-    "Mayor's Office" => "https://www.slc.gov/mayor/",
-    "Ballpark NEXT" => "https://www.slc.gov/ballparknext/",
-    "Mayor's Office of Access & Belonging" => "https://www.slc.gov/access-belonging/",
-    "Housing Stability" => "https://www.slc.gov/housingstability/",
-    "Workday" => "https://www.slc.gov/workday/",
-    "Homelessness" => "https://www.slc.gov/homelessness/",
-    "Urban Forestry" => "https://www.slc.gov/urban-forestry/",
-    "External" => "https://www.slcdocs.com/"
+    "Information Management Services" => "ims",
+    "Finance" => "Finance",
+    "City Attorney's Office" => "attorney",
+    "Justice Courts" => "courts",
+    "Community and Neighborhoods (CAN)" => "can",
+    "Building Services" => "buildingservices",
+    "Transportation" => "transportation",
+    "Planning Division" => "planningdivision",
+    "Public Services" => "publicservice",
+    "Public Lands Department" => "parks",
+    "MyStreet" => "mystreet",
+    "Sustainability" => "sustainability",
+    "Department of Economic Development (EconDev)" => "ed",
+    "Public Utilites" => "utilities",
+    "Human Resources" => "hr",
+    "Engineering" => "engineering",
+    "Events" => "events",
+    "Council District 1" => "district1",
+    "Council District 2" => "district2",
+    "Council District 3" => "district3",
+    "Council District 4" => "district4",
+    "Council District 5" => "district5",
+    "Council District 6" => "district6",
+    "Council District 7" => "district7",
+    "City Council Office" => "council",
+    "SLC Calendar" => "calendar",
+    "Boards and Commissions" => "boards",
+    "SLC911" => "911",
+    "Event Permits" => "ev",
+    "Division of Youth and Family" => "youthandfamily",
+    "Emergency Management" => "em",
+    "Historic Preservation" => "histroic-preservation",
+    "Mayor's Office" => "mayor",
+    "Ballpark NEXT" => "ballparknext",
+    "Mayor's Office of Access & Belonging" => "access-belonging",
+    "Housing Stability" => "housingstability",
+    "Workday" => "workday",
+    "Homelessness" => "homelessness",
+    "Urban Forestry" => "urban-forestry",
+    "External" => "slcdocs.com"
   }
 
   def website
@@ -74,7 +74,7 @@ class Site < ApplicationRecord
 
   def as_json(options = {})
     super.except("created_at", "updated_at")
-      .merge("s3_endpoint" => s3_endpoint)
+         .merge("s3_endpoint" => s3_endpoint)
   end
 
   def discover_documents!(document_data, collect = false)
@@ -135,7 +135,7 @@ class Site < ApplicationRecord
 
   def process_csv_documents(csv_path)
     File.open(csv_path, "r") do |file|
-      SmarterCSV.process(file, {chunk_size: 100}) do |chunk|
+      SmarterCSV.process(file, { chunk_size: 100 }) do |chunk|
         documents = []
         skipped = 0
         chunk.each do |row|
@@ -147,10 +147,10 @@ class Site < ApplicationRecord
 
           # Parse source from CSV - handle the ['url'] format
           source = if row["source"]
-            # Extract URLs from the string
-            urls = row["source"].scan(/'([^']+)'/).flatten
-            urls.empty? ? nil : urls
-          end
+                     # Extract URLs from the string
+                     urls = row["source"].scan(/'([^']+)'/).flatten
+                     urls.empty? ? nil : urls
+                   end
           documents << {
             url: encoded_url,
             file_name: row["file_name"],

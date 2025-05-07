@@ -153,12 +153,16 @@ namespace :documents do
   desc "Update departments."
   task :update_department, [:site_id] => :environment do |t, args|
     Document.where(site_id: args.site_id).each do |document|
-      Site::DEPARTMENT_MAPPING.each do |department, url|
-        if document.url.start_with?(url)
+      search_url = document.url.downcase.gsub("/[^0-9a-z ]/", "")
+      Site::DEPARTMENT_MAPPING.each do |department, search_string|
+        if search_url.include? search_string
+          p "Match found: #{search_url} matches #{search_string}"
           document.department = department
+          document.save
+          break
         end
-        document.save
       end
+      p "No match found for: #{search_url}"
     end
   end
 end
