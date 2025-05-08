@@ -155,6 +155,10 @@ class Site < ApplicationRecord
             urls = row["source"].scan(/'([^']+)'/).flatten
             urls.empty? ? nil : urls
           end
+
+          complexity = if ((row["predicted_category"] != "Form") &&
+            (row["number_of_tables"]&.to_i == 0) &&
+            (row["number_of_images"]&.to_i == 0)) ? "Simple" : "Complex"
           documents << {
             url: encoded_url,
             file_name: row["file_name"],
@@ -171,7 +175,8 @@ class Site < ApplicationRecord
             predicted_category_confidence: row["predicted_category_confidence"],
             number_of_pages: row["number_of_pages"]&.to_i,
             number_of_tables: row["number_of_tables"]&.to_i,
-            number_of_images: row["number_of_images"]&.to_i
+            number_of_images: row["number_of_images"]&.to_i,
+            complexity: complexity
           }
         rescue URI::InvalidURIError => e
           puts "Skipping invalid URL: #{row["url"]}"
