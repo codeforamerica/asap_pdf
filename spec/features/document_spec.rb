@@ -14,8 +14,8 @@ describe "documents function as expected", js: true, type: :feature do
     denver_doc = Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
-    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
-    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
@@ -38,7 +38,7 @@ describe "documents function as expected", js: true, type: :feature do
       decision.click
       select = decision.find("select")
       select.find("[value='Convert']").click
-      denver_doc.status = "Done"
+      denver_doc.status = "Audit Done"
       denver_doc.save
     end
     visit "/"
@@ -47,7 +47,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "No documents found"
     end
     within("#sidebar") do
-      click_link "Done"
+      click_link "Audit Done"
     end
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
@@ -56,7 +56,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#sidebar") do
       expect(page).to have_content "Backlog\n0"
       expect(page).to have_content "In Review\n0"
-      expect(page).to have_content "Done\n1"
+      expect(page).to have_content "Audit Done\n1"
     end
     Session.last.destroy
     login_user(boulder_user)
@@ -107,6 +107,38 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
       expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    # Test department filter.
+    within("#sidebar") do
+      expect(page).to have_no_content "Department"
+      expect(page).to have_no_selector "#department"
+    end
+    rtd_contract_doc.department = "Department of Public Transportation"
+    rtd_contract_doc.save!
+    teahouse_doc.department = "Office of Rose-laden Beverages"
+    teahouse_doc.save!
+    visit "/"
+    click_link("City of Boulder")
+    within("#sidebar") do
+      expect(page).to have_selector "#department"
+      expect(page).to have_selector "#department option[value='None']"
+      expect(page).to have_selector "#department option[value='Office of Rose-laden Beverages']"
+      find("#department option[value='None']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_no_content "teahouse_rules.pdf"
+      expect(page).to have_no_content "rtd_contract.pdf"
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      find("#department option[value='']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_content "teahouse_rules.pdf"
+      expect(page).to have_content "rtd_contract.pdf"
       expect(page).to have_content "farmers_market_2023.pdf"
     end
     # Test sorting
@@ -193,8 +225,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content("A lovely example of accessible PDF practices.")
       expect(page).to have_no_content "Summarize Document"
       # Test for the recommendation tab.
-      click_button "Accessibility Suggestion"
-      expect(page).to have_content("Get Suggestion")
+      click_button "AI Exception Check"
+      expect(page).to have_content("Get AI Exception Check")
       expect(page).to have_no_content "This suggestion was generated by a Large Language Model and while highly reliable, should still be subjected to careful verification."
     end
     # Add some inferences.
@@ -207,28 +239,13 @@ describe "documents function as expected", js: true, type: :feature do
     end
     expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
     within("#document-list .modal") do
-      click_button "Accessibility Suggestion"
-      expect(page).to have_no_content("Get Suggestion")
+      click_button "AI Exception Check"
+      expect(page).to have_no_content("Get AI Exception Check")
       expect(page).to have_content("This suggestion was generated by a Large Language Model and while highly reliable, should still be subjected to careful verification.")
-      expect(page).to have_content("AI Accessibility Suggestion\nLeave")
+      expect(page).to have_content("AI Exception Check\nMight be exception")
       expect(page).to have_content("Preexisting documents: Yes\nThis is not used as an application or means of participation in government services.")
       expect(page).to have_content("Third party content: No\nThis is not third party.")
       find(".close").click
-    end
-    # Test user override.
-    decision = find("[data-dropdown-edit-field-value='accessibility_recommendation']")
-    decision.click
-    select = decision.find("select")
-    select.find("[value='Convert']").click
-    visit "/"
-    click_link("City of Denver")
-    within("#document-list") do
-      click_button "ex.ample.pdf"
-    end
-    expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
-    within("#document-list .modal") do
-      click_button "Accessibility Suggestion"
-      expect(page).to have_content("AI Accessibility Suggestion\nLeave (User override: Convert)")
     end
   end
 
@@ -244,9 +261,9 @@ describe "documents function as expected", js: true, type: :feature do
     click_link("City of Boulder")
     # Check for a default state.
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n3"
+      expect(page).to have_content "Audit Backlog\n3"
       expect(page).to have_content "In Review\n0"
-      expect(page).to have_content "Done\n0"
+      expect(page).to have_content "Audit Done\n0"
     end
     within("#document-list") do
       expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
@@ -290,9 +307,9 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "No documents found"
     end
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "Audit Backlog\n0"
       expect(page).to have_content "In Review\n3"
-      expect(page).to have_content "Done\n0"
+      expect(page).to have_content "Audit Done\n0"
       visit "/sites/#{site.id}/documents?status=In+Review"
     end
     within("#document-list") do
@@ -304,15 +321,15 @@ describe "documents function as expected", js: true, type: :feature do
     end
     within("#bulk_edit_control") do
       select = find("#bulk-edit-move")
-      select.find("[value='Done']").click
+      select.find("[value='Audit Done']").click
     end
     within("#bulk_edit_modal") do
       click_button "Confirm"
     end
     within("#sidebar") do
-      expect(page).to have_content "Backlog\n0"
+      expect(page).to have_content "Audit Backlog\n0"
       expect(page).to have_content "In Review\n2"
-      expect(page).to have_content "Done\n1"
+      expect(page).to have_content "Audit Done\n1"
     end
   end
 end

@@ -29,13 +29,6 @@ namespace :documents do
     )
     puts "Created site: #{austin.name}"
 
-    ga = Site.find_or_create_by!(
-      name: "georgia.gov",
-      location: "Georgia",
-      primary_url: "https://georgia.gov/"
-    )
-    puts "Created site: #{ga.name}"
-
     ga_dor = Site.find_or_create_by!(
       name: "Department of Revenue",
       location: "Georgia",
@@ -65,7 +58,6 @@ namespace :documents do
     puts "Created site: #{ga_dfcs.name}"
 
     csv_manifest = {
-      "georgia.csv" => ga,
       "dor_georgia.csv" => ga_dor,
       "dbf_georgia.csv" => ga_dbf,
       "gta_psg_georgia.csv" => ga_psg,
@@ -137,16 +129,32 @@ namespace :documents do
 
   desc "Update statuses."
   task update_statuses: :environment do
-    Document.find_each do |document|
-      document.status = case document.status
-      when "in_review"
-        Document::IN_REVIEW_STATUS
-      when "done"
-        Document::DONE_STATUS
-      else
-        Document::DEFAULT_STATUS
+    PaperTrail.request(enabled: false) do
+      Document.find_each do |document|
+        document.status = case document.status
+        when "In Review"
+          Document::IN_REVIEW_STATUS
+        when "Audit Done"
+          Document::DONE_STATUS
+        else
+          Document::DEFAULT_STATUS
+        end
+        document.save
       end
-      document.save
+    end
+  end
+
+  desc "Update departments."
+  task :update_department, [:site_id] => :environment do |t, args|
+    Document.where(site_id: args.site_id).each do |document|
+      Site::DEPARTMENT_MAPPING.each do |department, urls|
+        urls.each { |url|
+          if document.url.downcase.start_with?(url)
+            document.department = department
+            document.save
+          end
+        }
+      end
     end
   end
 end

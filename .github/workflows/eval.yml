@@ -1,12 +1,109 @@
-name: Run the evaluation process
+name: AI Evaluation Suite
 
 on: workflow_dispatch
+
+env:
+  AWS_REGION: us-east-1
+  ECR_EVAL_REPOSITORY: asap-pdf-evaluation-production
+  ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-document-inference-evaluation-production
+  AWS_ACCOUNT_ID: 073165201938
+
+permissions:
+  contents: read
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Hello World
+      - name: Debug OIDC claims
         run: |
-          echo "Hooray! $(git branch --show-current)"
+          echo "GitHub repository: ${{ github.repository }}"
+          echo "GitHub ref: ${{ github.ref }}"
+          echo "GitHub SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow ref: ${{ github.workflow_ref }}"
+          echo "Environment: ${{ github.environment }}"
+          echo "Job: ${{ github.job }}"
+
+      - name: Debug AWS role
+        run: |
+          echo "Attempting to assume role with:"
+          echo "Repository: repo:${{ github.repository }}:*"
+          echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          audience: "sts.amazonaws.com"
+          role-session-name: "GitHubActions-${{ github.run_id }}"
+          mask-aws-account-id: false
+          role-duration-seconds: 900 # 15 minutes
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push Evaluation Lambda image to ECR
+        id: build-evaluation-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/evaluation/.
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update Evaluation Lambda
+        id: update-evaluation-lambda
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+          FUNCTION_NAME: "asap-pdf-evaluation-production"
+        run: |
+          aws lambda update-function-code \
+             --function-name  $FUNCTION_NAME \
+             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Build, tag, and push Document Inference Evaluation Lambda image to ECR
+        id: build-document-inference-evaluation-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Update Document Inference Evaluation Lambda
+        id: update-document-inference-evaluation-lambda
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+          FUNCTION_NAME: "asap-pdf-document-inference-evaluation-production"
+        run: |
+          aws lambda update-function-code \
+             --function-name $FUNCTION_NAME \
+             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Invoke Evaluation Lambda
+        id: invoke-evaluation-lambda
+        env:
+          REGION: ${{ env.AWS_REGION }}
+          FUNCTION_NAME: "asap-pdf-evaluation-production"
+          EVALUATION_MODEL: "gemini-2.5-pro-preview-03-25"
+          INFERENCE_MODEL: "gemini-1.5-pro-latest"
+          OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh

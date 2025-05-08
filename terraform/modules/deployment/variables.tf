@@ -73,7 +73,17 @@ variable "anthropic_key" {
 }
 
 variable "document_inference_lambda_arn" {
-  description = "The document inference Lambda arn."
+  description = "ARN of the production document_inference lambda."
+  type        = string
+}
+
+variable "document_inference_evaluation_lambda_arn" {
+  description = "ARN of the dev document_inference lambda."
+  type        = string
+}
+
+variable "evaluation_lambda_arn" {
+  description = "ARN of the evaluation lambda."
   type        = string
 }
 

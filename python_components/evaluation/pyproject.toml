@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "evaluation_utilities"
+description = "Helpers for evaluating ASAP LLM responses."
+requires-python = ">=3.12"
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["evaluation"]
