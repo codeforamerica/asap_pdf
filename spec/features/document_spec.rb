@@ -141,6 +141,39 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "rtd_contract.pdf"
       expect(page).to have_content "farmers_market_2023.pdf"
     end
+    # Test complexity filter.
+    within("#sidebar") do
+      expect(page).to have_no_content "Complexity"
+      expect(page).to have_no_content "#complexity"
+    end
+    rtd_contract_doc.complexity = Document::SIMPLE_STATUS
+    rtd_contract_doc.save!
+    teahouse_doc.complexity = Document::COMPLEX_STATUS
+    teahouse_doc.save!
+    visit "/"
+    click_link("City of Boulder")
+    within("#sidebar") do
+      # sleep(120)
+      expect(page).to have_selector "#complexity"
+      expect(page).to have_selector "#complexity option[value='Simple']"
+      expect(page).to have_selector "#complexity option[value='Complex']"
+      find("#complexity option[value='']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_content "teahouse_rules.pdf"
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      find("#complexity option[value='Simple']").click
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_no_content "teahouse_rules.pdf"
+      expect(page).to have_no_content "farmers_market_2023.pdf"
+      expect(page).to have_content "rtd_contract.pdf"
+    end
     # Test sorting
     within("#sidebar") do
       click_link "Clear"
