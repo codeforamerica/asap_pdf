@@ -153,7 +153,6 @@ describe "documents function as expected", js: true, type: :feature do
     visit "/"
     click_link("City of Boulder")
     within("#sidebar") do
-      # sleep(120)
       expect(page).to have_selector "#complexity"
       expect(page).to have_selector "#complexity option[value='Simple']"
       expect(page).to have_selector "#complexity option[value='Complex']"
