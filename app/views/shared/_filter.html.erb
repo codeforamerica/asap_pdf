@@ -50,6 +50,16 @@
                            class: "select-custom w-full" %>
           </div>
         <% end %>
+        <% if show_complexities_filter %>
+          <div>
+            <label class="label">
+              <span class="label-text">Complexity</span>
+            </label>
+            <%= select_tag :complexity,
+                           options_for_select([['All Documents', '']] + document_complexities.map { |c| [c.to_s.titleize, c] }, params[:complexity]),
+                           class: "select-custom w-full" %>
+          </div>
+        <% end %>
       </div>
       <div class="flex justify-end pt-4">
         <div>

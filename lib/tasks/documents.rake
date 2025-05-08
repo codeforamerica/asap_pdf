@@ -157,4 +157,17 @@ namespace :documents do
       end
     end
   end
+
+  desc "Add PDF complexity."
+  task add_pdf_complexity: :environment do
+    Document.find_each do |document|
+      unless document.number_of_tables.nil? || document.number_of_images.nil?
+        complexity = ((document.document_category != "Form") &&
+          (document.number_of_tables == 0) &&
+          (document.number_of_images == 0)) ? Document::SIMPLE_STATUS : Document::COMPLEX_STATUS
+        document.complexity = complexity
+        document.save
+      end
+    end
+  end
 end
