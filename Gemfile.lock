@@ -415,7 +415,7 @@ GEM
       simplecov_json_formatter (~> 0.1)
     simplecov-html (0.13.1)
     simplecov_json_formatter (0.1.4)
-    smarter_csv (1.14.2)
+    smarter_csv (1.14.3)
     solid_cache (1.0.7)
       activejob (>= 7.2)
       activerecord (>= 7.2)
