@@ -11,6 +11,9 @@ Rails.application.routes.draw do
   end
 
   resources :sites do
+    member do
+      get :insights
+    end
     resources :documents do
       member do
         patch :update_status

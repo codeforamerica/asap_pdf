@@ -1,0 +1,21 @@
+<div class="bg-white shadow-sm rounded-lg h-fit">
+  <nav class="p-4 space-y-2">
+    <% Document::STATUSES.each do |status_val| %>
+      <%= link_to site_documents_path(site, status: status_val), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].nil? || params[:status] == status_val ? 'bg-gray-100' : ''}" do %>
+        <div class="flex items-center <%= "text-primary" if params[:status] == status_val %>">
+          <% if status_val == Document::DEFAULT_STATUS %>
+            <i class="fas fa-inbox w-5"></i>
+          <% end %>
+          <% if status_val == Document::IN_REVIEW_STATUS %>
+            <i class="fas fa-clock w-5"></i>
+          <% end %>
+          <% if status_val == Document::DONE_STATUS %>
+            <i class="fas fa-check w-5"></i>
+          <% end %>
+          <span class="ml-2 "><%= status_val %></span>
+        </div>
+        <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(status_val).count %></span>
+      <% end %>
+    <% end %>
+  </nav>
+</div>

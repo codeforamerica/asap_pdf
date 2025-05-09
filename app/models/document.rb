@@ -83,8 +83,17 @@ class Document < ApplicationRecord
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
   validates :status, inclusion: {in: STATUSES}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
 
   before_validation :set_defaults
+
+  def creation_year
+    if creation_date.present?
+      creation_date.strftime("%Y")
+    else
+      "Unknown"
+    end
+  end
 
   def summary
     summary = document_inferences.find_by(inference_type: "summary")

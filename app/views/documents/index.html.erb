@@ -5,34 +5,21 @@
   <div class="mx-auto sm:px-6 lg:px-8">
     <div class="grid grid-cols-[250px_1fr] gap-6">
       <div id="sidebar" class="space-y-6">
-        <div class="bg-white shadow-sm rounded-lg h-fit">
-          <nav class="p-4 space-y-2">
-            <% Document::STATUSES.each do |status_val| %>
-              <%= link_to site_documents_path(@site, status: status_val), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].nil? || params[:status] == status_val ? 'bg-gray-100' : ''}" do %>
-                <div class="flex items-center <%= "text-primary" if params[:status] == status_val %>">
-                  <% if status_val == Document::DEFAULT_STATUS %>
-                    <i class="fas fa-inbox w-5"></i>
-                  <% end %>
-                  <% if status_val == Document::IN_REVIEW_STATUS %>
-                    <i class="fas fa-clock w-5"></i>
-                  <% end %>
-                  <% if status_val == Document::DONE_STATUS %>
-                    <i class="fas fa-check w-5"></i>
-                  <% end %>
-                  <span class="ml-2 "><%= status_val %></span>
-                </div>
-                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number @site.documents.by_status(status_val).count %></span>
-              <% end %>
-            <% end %>
-          </nav>
-        </div>
-        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, document_decisions: @document_decisions, document_departments: @document_departments, show_departments_filter: @show_departments_filter, document_complexities: @document_complexities, show_complexities_filter: @show_complexities_filter, total_documents: @total_documents } %>
+        <%= render partial: "shared/site_navigation", locals: { site: @site } %>
+        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, document_decisions: @document_decisions, total_documents: @total_documents, show_complexities_filter: @show_complexities_filter, document_complexities: @document_complexities } %>
       </div>
       <div id="document-list" class="px-4 sm:px-0 space-y-0">
-        <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b
-">
+        <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
           <div class="flex justify-between items-center">
             <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
+            <div role="tablist" id="document-tabs" class="tabs tabs-boxed">
+              <%= link_to site_documents_path(@site), role: "tab", class: "tab tab-active" do %>
+                Documents
+              <% end %>
+              <%= link_to insights_site_path(@site), role: "tab", class: "tab" do %>
+                Insights
+              <% end %>
+            </div>
           </div>
         </div>
         <div class="bg-white shadow-sm rounded-b-lg overflow-visible">
