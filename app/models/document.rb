@@ -1,14 +1,10 @@
 class Document < ApplicationRecord
-  extend UrlDecodedAttributeHelper
 
   belongs_to :site
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
 
   has_paper_trail versions: {scope: -> { order(created_at: :desc) }}
-
-  url_decoded_attribute :file_name
-  url_decoded_attribute :url
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
@@ -128,10 +124,14 @@ class Document < ApplicationRecord
     end
   end
 
-  alias_method :decoded_url, :url
+  def file_name
+    unescaped_file_name = URI::DEFAULT_PARSER.unescape(self[:file_name])
+    unescaped_file_name.gsub('?', '')
+                       .gsub('/', '')
+  end
 
   def url
-    decoded_url&.sub("http://", "https://")
+    self[:url]&.sub("http://", "https://")
   end
 
   def s3_path

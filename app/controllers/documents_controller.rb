@@ -40,7 +40,9 @@ class DocumentsController < AuthenticatedController
   end
 
   def serve_document_url
-    response = HTTParty.get(@document.url)
+    # Stash document's raw url.
+    document_url = normalize_url(@document.url)
+    response = HTTParty.get(document_url)
     if response.success?
       send_data response.body,
         type: "application/pdf",
@@ -144,6 +146,20 @@ class DocumentsController < AuthenticatedController
   end
 
   private
+
+  def normalize_url(url)
+    decoded_url = self.recursive_decode(url)
+    decoded_url = decoded_url.gsub('\\', '/')
+    URI::DEFAULT_PARSER.escape(decoded_url)
+  end
+
+  def recursive_decode(url)
+    decoded_url = URI::DEFAULT_PARSER.unescape(url)
+    if url != decoded_url
+      decoded_url = self.recursive_decode(decoded_url)
+    end
+    decoded_url
+  end
 
   def batch_params
     params.permit(:site_id, document: {}, documents: [:id, :status]).to_h
