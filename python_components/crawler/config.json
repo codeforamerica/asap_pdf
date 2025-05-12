@@ -42,5 +42,131 @@
         "allow_subdomains": ["dfcs"],
         "use_sitemap": false,
         "depth": 7
+    },
+    "https://dol.georgia.gov": {
+        "allow_list": ["https://dol.georgia.gov"],
+        "allow_subdomains": ["dol"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://djj.georgia.gov": {
+        "allow_list": ["https://djj.georgia.gov"],
+        "allow_subdomains": ["djj"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://oca.georgia.gov": {
+        "allow_list": ["https://oca.georgia.gov"],
+        "allow_subdomains": ["oca"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://cacj.georgia.gov": {
+        "allow_list": ["https://cacj.georgia.gov"],
+        "allow_subdomains": ["cacj"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://sitf.georgia.gov": {
+        "allow_list": ["https://sitf.georgia.gov"],
+        "allow_subdomains": ["sitf"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://dofs-gbi.georgia.gov": {
+        "allow_list": ["https://dofs-gbi.georgia.gov"],
+        "allow_subdomains": ["dofs-gbi"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://riversalive.georgia.gov": {
+        "allow_list": ["https://riversalive.georgia.gov"],
+        "allow_subdomains": ["riversalive"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://waterplanning.georgia.gov": {
+        "allow_list": ["https://waterplanning.georgia.gov"],
+        "allow_subdomains": ["waterplanning"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://cjcc.georgia.gov": {
+        "allow_list": ["https://cjcc.georgia.gov"],
+        "allow_subdomains": ["cjcc"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://adoptastream.georgia.gov": {
+        "allow_list": ["https://adoptastream.georgia.gov"],
+        "allow_subdomains": ["adoptastream"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://jpc.georgia.gov": {
+        "allow_list": ["https://jpc.georgia.gov"],
+        "allow_subdomains": ["jpc"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://medicaid.georgia.gov": {
+        "allow_list": ["https://medicaid.georgia.gov"],
+        "allow_subdomains": ["medicaid"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://gdac.georgia.gov": {
+        "allow_list": ["https://gdac.georgia.gov"],
+        "allow_subdomains": ["gdac"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://ada.georgia.gov": {
+        "allow_list": ["https://ada.georgia.gov"],
+        "allow_subdomains": ["ada"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://trauma.georgia.gov": {
+        "allow_list": ["https://trauma.georgia.gov"],
+        "allow_subdomains": ["trauma"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://apcd.georgia.gov": {
+        "allow_list": ["https://apcd.georgia.gov"],
+        "allow_subdomains": ["apcd"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://sao.georgia.gov": {
+        "allow_list": ["https://sao.georgia.gov"],
+        "allow_subdomains": ["sao"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://oig.georgia.gov": {
+        "allow_list": ["https://oig.georgia.gov"],
+        "allow_subdomains": ["oig"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://gaa.georgia.gov": {
+        "allow_list": ["https://gaa.georgia.gov"],
+        "allow_subdomains": ["gaa"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://gspc.georgia.gov": {
+        "allow_list": ["https://gspc.georgia.gov"],
+        "allow_subdomains": ["gspc"],
+        "use_sitemap": false,
+        "depth": 7
+    },
+    "https://holocaust.georgia.gov": {
+        "allow_list": ["https://holocaust.georgia.gov"],
+        "allow_subdomains": ["holocaust"],
+        "use_sitemap": false,
+        "depth": 7
     }
 }
