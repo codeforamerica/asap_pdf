@@ -16,6 +16,9 @@ Rails.application.routes.draw do
         patch :update_status
         get :modal_content
       end
+      collection do
+        patch :batch_update
+      end
     end
   end
 
@@ -26,6 +29,7 @@ Rails.application.routes.draw do
       patch :update_notes
       patch :update_summary_inference
       patch :update_recommendation_inference
+      get "serve_content/:filename", to: "documents#serve_document_url", as: "serve_file_content", constraints: {filename: /[^\/]+/}
     end
   end
 

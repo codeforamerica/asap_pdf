@@ -71,6 +71,7 @@ resource "aws_db_instance" "main" {
 
   storage_encrypted = true
   multi_az          = false
+  apply_immediately = true
 
   auto_minor_version_upgrade  = true
   allow_major_version_upgrade = false

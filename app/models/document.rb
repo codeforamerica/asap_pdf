@@ -10,19 +10,6 @@ class Document < ApplicationRecord
   url_decoded_attribute :file_name
   url_decoded_attribute :url
 
-  scope :by_status, ->(status) {
-    case status
-    when "in_review"
-      where(status: "in_review")
-    when "done"
-      where(status: "done")
-    when "", nil
-      where("status IS NULL OR status = ?", "")
-    else
-      all
-    end
-  }
-
   scope :by_filename, ->(filename) {
     return all if filename.blank?
     where("file_name ILIKE ?", "%#{filename}%")
@@ -38,6 +25,18 @@ class Document < ApplicationRecord
     where(accessibility_recommendation: decision_type)
   }
 
+  scope :by_department, ->(department) {
+    return all if department.blank?
+    department = (department == "None") ? [nil, ""] : department
+    where(department: department)
+  }
+
+  scope :by_complexity, ->(complexity) {
+    return all if complexity.blank?
+    complexity = (complexity == "None") ? [nil, ""] : complexity
+    where(complexity: complexity)
+  }
+
   scope :by_date_range, ->(start_date, end_date) {
     scope = all
     scope = scope.where("modification_date >= ?", start_date) if start_date.present?
@@ -45,9 +44,25 @@ class Document < ApplicationRecord
     scope
   }
 
+  scope :by_status, ->(status) {
+    if status.present?
+      where(status: status)
+    else
+      where(status: DEFAULT_STATUS)
+    end
+  }
+
+  DEFAULT_STATUS = "Audit Backlog".freeze
+  IN_REVIEW_STATUS = "In Review".freeze
+  DONE_STATUS = "Audit Done".freeze
+
+  STATUSES = [DEFAULT_STATUS, IN_REVIEW_STATUS, DONE_STATUS].freeze
+
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
   DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
+
+  AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
 
   DECISION_TYPES = {
     DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
@@ -57,11 +72,17 @@ class Document < ApplicationRecord
     "Remove" => "Remove PDF from website"
   }.freeze
 
+  SIMPLE_STATUS = "Simple".freeze
+  COMPLEX_STATUS = "Complex".freeze
+
+  COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
+
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
+  validates :status, inclusion: {in: STATUSES}, presence: true
 
   before_validation :set_defaults
 
@@ -81,9 +102,9 @@ class Document < ApplicationRecord
     if document_inferences.any?
       exceptions = self.exceptions
       if exceptions.any?
-        LEAVE_ACCESSIBILITY_RECOMMENDATION
+        AI_SUGGESTION_EXCEPTION
       else
-        REMEDIATE_ACCESSIBILITY_RECOMMENDATION
+        AI_SUGGESTION_NO_EXCEPTION
       end
     end
   end
@@ -265,5 +286,6 @@ class Document < ApplicationRecord
 
   def set_defaults
     self.document_status = "discovered" unless document_status
+    self.status = DEFAULT_STATUS unless status
   end
 end

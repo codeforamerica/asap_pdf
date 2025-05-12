@@ -29,17 +29,37 @@
             <span class="label-text">Document Type</span>
           </label>
           <%= select_tag :category,
-                  options_for_select([['All Types', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
-                  class: "select-custom w-full" %>
+                         options_for_select([['All Types', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
+                         class: "select-custom w-full" %>
         </div>
         <div>
           <label class="label">
             <span class="label-text">Decision</span>
           </label>
           <%= select_tag :accessibility_recommendation,
-                         options_for_select([['All Decisions', '']] + document_decisions.map { |c| [c.to_s.titleize, c] }, params[:accessibility_recommendation]),
+                         options_for_select(@document_decisions, params[:accessibility_recommendation]),
                          class: "select-custom w-full" %>
         </div>
+        <% if show_departments_filter %>
+          <div>
+            <label class="label">
+              <span class="label-text">Department</span>
+            </label>
+            <%= select_tag :department,
+                           options_for_select({'All Departments': ''}.merge(document_departments), params[:department]),
+                           class: "select-custom w-full" %>
+          </div>
+        <% end %>
+        <% if show_complexities_filter %>
+          <div>
+            <label class="label">
+              <span class="label-text">Complexity</span>
+            </label>
+            <%= select_tag :complexity,
+                           options_for_select([['All Documents', '']] + document_complexities.map { |c| [c.to_s.titleize, c] }, params[:complexity]),
+                           class: "select-custom w-full" %>
+          </div>
+        <% end %>
       </div>
       <div class="flex justify-end pt-4">
         <div>

@@ -40,3 +40,13 @@ services:
       - "9002:8080"
     environment:
       - ASAP_LOCAL_MODE=True
+  lambda_evaluation:
+    container_name: lambda_evaluation
+    build:
+      context: ./python_components/evaluation
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "9003:8080"
+    environment:
+      - ASAP_LOCAL_MODE=True

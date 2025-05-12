@@ -60,6 +60,53 @@ resource "aws_ecr_repository_policy" "document_inference" {
   repository = aws_ecr_repository.document_inference.name
 }
 
+resource "aws_ecr_repository" "evaluation" {
+  name                 = "${var.project_name}-evaluation-${var.environment}"
+  force_delete         = true
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+  tags = {
+    Name        = "${var.project_name}-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecr_repository_policy" "evaluation" {
+  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  repository = aws_ecr_repository.evaluation.name
+}
+
+resource "aws_ecr_repository" "document_inference_evaluation" {
+  name                 = "${var.project_name}-document-inference-evaluation-${var.environment}"
+  force_delete         = true
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+  tags = {
+    Name        = "${var.project_name}-${var.environment}"
+    Environment = var.environment
+  }
+}
+
+resource "aws_ecr_repository_policy" "document_inference_evaluation" {
+  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  repository = aws_ecr_repository.document_inference_evaluation.name
+}
+
+
 # GitHub OIDC Provider
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
@@ -164,10 +211,13 @@ resource "aws_iam_role_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = [
-          "lambda:UpdateFunctionCode"
+          "lambda:UpdateFunctionCode",
+          "lambda:InvokeFunction"
         ]
         Resource = [
-          var.document_inference_lambda_arn
+          var.document_inference_lambda_arn,
+          var.document_inference_evaluation_lambda_arn,
+          var.evaluation_lambda_arn
         ]
       }
     ]

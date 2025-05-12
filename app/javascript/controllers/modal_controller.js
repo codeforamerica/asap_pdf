@@ -1,7 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["summaryView", "metadataView", "recommendationView", "historyView", "recommendationButton", "summaryButton", "metadataButton", "historyButton"]
+  static targets = ["wrapper", "summaryView", "metadataView", "recommendationView", "historyView", "recommendationButton", "summaryButton", "metadataButton", "historyButton"]
+
+  connect() {
+    super.connect();
+    this.wrapperTarget.addEventListener('close', this.onModalClose.bind(this))
+  }
 
   submitAndClose(event) {
     // Let the form submit normally
@@ -12,6 +17,15 @@ export default class extends Controller {
         modal.close()
       }, { once: true })
     }
+  }
+
+  openModal() {
+    this.wrapperTarget.classList.remove("hidden")
+    this.wrapperTarget.showModal()
+  }
+
+  onModalClose() {
+    this.wrapperTarget.classList.add("hidden")
   }
 
   showSummaryView() {

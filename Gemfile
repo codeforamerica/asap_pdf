@@ -9,7 +9,7 @@ gem "turbo-rails"
 gem "stimulus-rails"
 gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
-gem "rest-client"
+gem "httpparty"
 gem "rubyzip"
 gem "smarter_csv"
 
@@ -43,7 +43,7 @@ end
 
 group :test do
   gem "rspec", "~> 3.13"
-  gem "rspec-rails", "~> 7.1"
+  gem "rspec-rails", "~> 8.0"
   gem "shoulda", "~> 4.0"
   gem "shoulda-matchers", "~> 4.5"
   gem "simplecov", require: false # Optional: for code coverage
@@ -54,7 +54,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.183"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.185"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

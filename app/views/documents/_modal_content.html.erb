@@ -3,15 +3,19 @@
     <!-- Tab Navigation -->
     <div class="tabs tabs-bordered">
       <button data-modal-target="summaryButton" data-action="modal#showSummaryView" class="tab tab-bordered tab-active">
+        <i class="fas fa-file-pdf mr-1"></i>
         Summary
       </button>
       <button data-modal-target="metadataButton" data-action="modal#showMetadataView" class="tab tab-bordered">
+        <i class="fas fa-info-circle mr-1"></i>
         PDF Details
       </button>
       <button data-modal-target="recommendationButton" data-action="modal#showReccomendationView" class="tab tab-bordered">
-        Accessibility Suggestion
+        <i class="fas fa-wand-sparkles mr-1"></i>
+        AI Exception Check
       </button>
       <button data-modal-target="historyButton" data-action="modal#showHistoryView" class="tab tab-bordered">
+        <i class="fas fa-history mr-1"></i>
         History
       </button>
     </div>
@@ -31,7 +35,7 @@
           </button>
         <% end %>
       </div>
-      <iframe src="<%= document.url %>#pagemode=none&toolbar=1" class="w-full h-[calc(90vh-8rem)]" type="application/pdf"></iframe>
+      <iframe src="<%= serve_file_content_document_path(@document.id,  @document.file_name) %>?pagemode=none&toolbar=1" class="w-full h-[calc(90vh-8rem)]" type="application/pdf"></iframe>
     </div>
     <!-- PDF Details View -->
     <div data-modal-target="metadataView" class="hidden h-[calc(90vh-12rem)] overflow-y-auto bg-white rounded-md">
@@ -145,11 +149,11 @@
           <div class="text-left">
             <button data-recommendation-list-target="button"  data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
               <i class="fas fa-wand-magic-sparkles mr-1"></i>
-              Get Suggestion
+              Get AI Exception Check
             </button>
             <button data-recommendation-list-target="preloader"  class="btn btn-primary btn-sm hidden">
               <span class="loading loading-spinner"></span>
-              Getting Suggestion...
+              Getting AI Exception Check...
             </button>
           </div>
         <% end %>

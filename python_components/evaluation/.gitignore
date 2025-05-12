@@ -1,0 +1,8 @@
+build
+data
+deepeval
+.deepeval
+.deepeval_telemetry.txt
+evaluation_utilities.egg-info
+__pycache__
+**/__pycache__
