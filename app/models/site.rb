@@ -162,7 +162,6 @@ class Site < ApplicationRecord
         skipped = 0
         chunk.each do |row|
           row = row.stringify_keys
-          encoded_url = URI::DEFAULT_PARSER.escape(row["url"])
 
           # Parse file size (remove KB suffix and convert to float)
           file_size = row["file_size"]&.gsub("KB", "")&.strip&.to_f
@@ -175,7 +174,7 @@ class Site < ApplicationRecord
           end
 
           documents << {
-            url: encoded_url,
+            url: row["url"],
             file_name: row["file_name"],
             file_size: file_size,
             author: row["author"],
