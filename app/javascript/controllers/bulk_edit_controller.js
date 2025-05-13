@@ -80,11 +80,9 @@ export default class extends Controller {
 
     updateActionBar() {
         if (this.store.checked > 0) {
-            // this.actionsTarget.classList.remove("hidden");
             this.actionsTarget.classList.remove("off-screen-bottom");
         } else {
             this.actionsTarget.classList.add("off-screen-bottom")
-            // this.actionsTarget.classList.add("hidden")
         }
         const counter = this.actionsTarget.querySelector('.checked-count span')
         counter.innerHTML = this.store.checked
