@@ -14,50 +14,50 @@
             <span class="label-text">Time Frame</span>
           </label>
           <div class="space-y-2">
-            <%= date_field_tag :start_date, params[:start_date], class: "input input-bordered w-full", placeholder: "From" %>
-            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full", placeholder: "To" %>
+            <%= date_field_tag :start_date, params[:start_date], class: "input input-bordered w-full" + (params[:start_date].present? ? " active-highlight" : ""), placeholder: "From"%>
+            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full"+ (params[:end_date].present? ? " active-highlight" : ""), placeholder: "To" %>
           </div>
         </div>
         <div>
           <label class="label">
             <span class="label-text">File Name</span>
           </label>
-          <%= text_field_tag :filename, params[:filename], class: "input input-bordered w-full", placeholder: "Search by file or web page..." %>
+          <%= text_field_tag :filename, params[:filename], class: "input input-bordered w-full" + (params[:filename].present? ? " active-highlight" : ""), placeholder: "Search by file or web page..." %>
         </div>
         <div>
           <label class="label">
             <span class="label-text">Document Type</span>
           </label>
           <%= select_tag :category,
-                         options_for_select([['All Types', '']] + document_categories.map { |c| [c.to_s.titleize, c] }, params[:category]),
-                         class: "select-custom w-full" %>
+                         options_for_select([['All Types', '']] + Document::get_content_type_options, params[:category]),
+                         class: "select-custom w-full" + (params[:category].present? ? " active-highlight" : "") %>
         </div>
         <div>
           <label class="label">
             <span class="label-text">Decision</span>
           </label>
           <%= select_tag :accessibility_recommendation,
-                         options_for_select(@document_decisions, params[:accessibility_recommendation]),
-                         class: "select-custom w-full" %>
+                         options_for_select({"All Decisions": ""}.merge(Document::DECISION_TYPES.invert), params[:accessibility_recommendation]),
+                         class: "select-custom w-full" + (params[:accessibility_recommendation].present? ? " active-highlight" : "") %>
         </div>
-        <% if show_departments_filter %>
+        <% if site.has_departments? %>
           <div>
             <label class="label">
               <span class="label-text">Department</span>
             </label>
             <%= select_tag :department,
-                           options_for_select({'All Departments': ''}.merge(document_departments), params[:department]),
-                           class: "select-custom w-full" %>
+                           options_for_select({'All Departments': ''}.merge(site.get_departments), params[:department]),
+                           class: "select-custom w-full" + (params[:department].present? ? " active-highlight" : "") %>
           </div>
         <% end %>
-        <% if show_complexities_filter %>
+        <% if site.has_complexities? %>
           <div>
             <label class="label">
               <span class="label-text">Complexity</span>
             </label>
             <%= select_tag :complexity,
-                           options_for_select([['All Documents', '']] + document_complexities.map { |c| [c.to_s.titleize, c] }, params[:complexity]),
-                           class: "select-custom w-full" %>
+                           options_for_select([['All Documents', '']] + Document::get_complexity_options, params[:complexity]),
+                           class: "select-custom w-full" + (params[:complexity].present? ? " active-highlight" : "") %>
           </div>
         <% end %>
       </div>

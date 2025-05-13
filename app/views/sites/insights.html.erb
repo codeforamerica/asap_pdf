@@ -1,0 +1,144 @@
+<% content_for :head do %>
+  <%= tag.meta name: "site-id", content: @site.id %>
+<% end %>
+<div class="py-6">
+  <div class="mx-auto sm:px-6 lg:px-8">
+    <div class="grid grid-cols-[250px_1fr] gap-6">
+      <div id="sidebar" class="space-y-6">
+        <%= render partial: "shared/site_navigation", locals: { site: @site } %>
+        <div class="bg-white shadow-sm rounded-lg h-fit">
+          <div class="border-b">
+            <h2 class="text-gray-600 font-semibold text-sm w-full flex justify-between items-center px-4 py-4">Filter
+              View</h2>
+          </div>
+          <%= form_tag insights_site_path(@site), method: :get, class: "px-4 py-4", data: { action: "submit->filter#submitForm" } do %>
+            <div>
+              <label class="label">
+                <span class="label-text">Document Type</span>
+              </label>
+              <%= select_tag :category,
+                             options_for_select([['All Types', '']] + Document::get_content_type_options, params[:category]),
+                             class: "select-custom w-full" + (params[:category].present? ? " active-highlight" : "") %>
+            </div>
+            <% if @site.has_departments? %>
+              <div>
+                <label class="label">
+                  <span class="label-text">Department</span>
+                </label>
+                <%= select_tag :department,
+                               options_for_select({ 'All Departments': '' }.merge(@site.get_departments), params[:department]),
+                               class: "select-custom w-full" + (params[:department].present? ? " active-highlight" : "") %>
+              </div>
+            <% end %>
+            <div>
+              <label class="label">
+                <span class="label-text">Audit Status</span>
+              </label>
+              <%= select_tag :status,
+                             options_for_select({ 'All Statuses': '' }.merge(Document::get_status_options), params[:status]),
+                             class: "select-custom w-full" + (params[:status].present? ? " active-highlight" : "")  %>
+            </div>
+            <div class="flex justify-end pt-4">
+              <div>
+                <%= link_to 'Clear', insights_site_path(@site), class: "btn btn-sm btn-ghost", data: { action: "filter#clearFilters" } %>
+                <%= submit_tag 'Apply Filters', class: "btn btn-sm btn-primary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      <div id="insights" class="px-4 sm:px-0 space-y-0">
+        <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
+          <div class="flex justify-between items-center">
+            <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
+            <div role="tablist" id="document-tabs" class="tabs tabs-boxed">
+              <%= link_to site_documents_path(@site), role: "tab", class: "tab" do %>
+                Documents
+              <% end %>
+              <%= link_to insights_site_path(@site), role: "tab", class: "tab tab-active" do %>
+                Insights
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white shadow-sm border-b overflow-visible">
+          <div class="grid grid-cols-3 gap-6 py-4">
+            <div id="chart-complexity" class="px-4 border-r-4 border-base-200">
+              <h2 class="pb-4">Document Complexity</h2>
+              <%= pie_chart @documents.group(:complexity).count, colors: ["#ea3c48", "#f5a6ac"] %>
+              <div class="dropdown dropdown-start pt-6">
+                <div tabindex="0" role="button" class="btn btn-sm "><i class="fas fa-link w-5"></i>View Documents</div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm">
+                  <% @document_links[:complexity].each do | item | %>
+                    <li>
+                      <%= link_to site_documents_path(@site, **item[:params]) do %>
+                        <%= item[:title] %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+            <div id="chart-modification-year" class="px-4">
+              <h2 class="pb-4">Document Last Modified Year</h2>
+              <%= bar_chart @document_years, library: { scales: { y: { ticks: { autoSkip: false } } } }, colors: ["#ea3c48"] %>
+              <div class="dropdown dropdown-start pt-6">
+                <div tabindex="0" role="button" class="btn btn-sm "><i class="fas fa-link w-5"></i>View Documents</div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-96 p-2 shadow-sm max-h-40">
+                  <% @document_links[:years].each do | item | %>
+                    <li>
+                      <%= link_to site_documents_path(@site, **item[:params]) do %>
+                        <%= item[:title] %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+            <div id="chart-decision" class="px-4 border-l-4 border-base-200">
+              <h2 class="pb-4">Decision</h2>
+              <%= column_chart @documents.group(:accessibility_recommendation).count, colors: ["#ea3c48", "#f5a6ac"] %>
+              <div class="dropdown dropdown-start pt-6">
+                <div tabindex="0" role="button" class="btn btn-sm "><i class="fas fa-link w-5"></i>View Documents</div>
+                <ul tabindex="0" class="dropdown-content menu bg-base-100 rounded-box z-1 w-96 p-2 shadow-sm max-h-40">
+                  <% @document_links[:decision].each do | item | %>
+                    <li>
+                      <%= link_to site_documents_path(@site, **item[:params]) do %>
+                        <%= item[:title] %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white shadow-sm rounded-b-lg overflow-visible px-6 py-4">
+          <h2 class="pb-4">Documents by Type</h2>
+          <table class="min-w-full divide-y divide-gray-200 table-zebra">
+            <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th scope="col" class="px-3 py-3 text-center  text-xs font-medium text-gray-500 uppercase tracking-wider"><%=Document::DEFAULT_STATUS %></th>
+              <th scope="col" class="px-3 py-3 text-center  text-xs font-medium text-gray-500 uppercase tracking-wider"><%= Document::IN_REVIEW_STATUS %></th>
+              <th scope="col" class="px-3 py-3 text-center  text-xs font-medium text-gray-500 uppercase tracking-wider"><%= Document::DONE_STATUS %></th>
+              <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+            </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+            <% @category_groups.each do |category, counts| %>
+            <tr>
+              <td class="px-3 py-3 text-base font-medium text-gray-500"><%= category %></td>
+              <td class="px-3 py-3 text-base text-center  font-medium text-gray-500"><%= counts["Audit Backlog"] %></td>
+              <td class="px-3 py-3 text-base text-center font-medium text-gray-500"><%= counts["In Review"] %></td>
+              <td class="px-3 py-3 text-base text-center font-medium text-gray-500"><%= counts["Audit Done"] %></td>
+              <td class="px-3 py-3 text-base text-center font-medium text-gray-500"><%= counts["Total"] %></td>
+            </tr>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

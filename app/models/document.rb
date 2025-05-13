@@ -79,8 +79,29 @@ class Document < ApplicationRecord
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
   validates :status, inclusion: {in: STATUSES}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
 
   before_validation :set_defaults
+
+  def self.get_content_type_options
+    Document::CONTENT_TYPES.map { |c| [c.to_s.titleize, c] }
+  end
+
+  def self.get_complexity_options
+    Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
+  end
+
+  def self.get_status_options
+    Document::STATUSES.map { |item| [item, item] }.to_h
+  end
+
+  def modification_year
+    if modification_date.present?
+      modification_date.strftime("%Y")
+    else
+      "Unknown"
+    end
+  end
 
   def summary
     summary = document_inferences.find_by(inference_type: "summary")
