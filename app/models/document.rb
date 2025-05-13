@@ -146,13 +146,23 @@ class Document < ApplicationRecord
   end
 
   def file_name
+    return nil if self[:file_name].nil?
+    # If we have a value make unescape before displaying.
     unescaped_file_name = URI::DEFAULT_PARSER.unescape(self[:file_name])
+    # Filenames, cannot have characters with special url-meaning.
     unescaped_file_name.gsub('?', '')
                        .gsub('/', '')
   end
 
   def url
     self[:url]&.sub("http://", "https://")
+  end
+
+  def normalized_url()
+    decoded_url = self.recursive_decode(self.url)
+    # Add any additional oddities here.
+    decoded_url = decoded_url.gsub('\\', '/')
+    URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
   def s3_path
@@ -296,6 +306,14 @@ class Document < ApplicationRecord
   end
 
   private
+
+  def recursive_decode(url)
+    decoded_url = URI::DEFAULT_PARSER.unescape(url)
+    if url != decoded_url
+      decoded_url = self.recursive_decode(decoded_url)
+    end
+    decoded_url
+  end
 
   def storage_config
     @storage_config ||= begin
