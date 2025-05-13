@@ -67,6 +67,10 @@
   bottom: -400px;
 }
 
+.active-highlight {
+  background-color: #ffe4bc;
+}
+
 @layer base {
   h1 {
     @apply text-2xl font-medium text-gray-500 leading-tight text-base-content;

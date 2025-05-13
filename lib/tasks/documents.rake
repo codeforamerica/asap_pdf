@@ -78,6 +78,7 @@ namespace :documents do
             site = csv_manifest[file_name]
             puts "\nProcessing #{site.name} documents in #{entry.name}..."
             tmp_path = "/tmp/#{file_name}"
+            File.delete(tmp_path) if File.exist? tmp_path
             entry.extract(tmp_path)
             site.process_csv_documents(tmp_path)
             File.delete(tmp_path) if File.exist? tmp_path

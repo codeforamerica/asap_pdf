@@ -2,36 +2,24 @@
   <%= tag.meta name: "site-id", content: @site.id %>
 <% end %>
 <div class="py-6">
-  <div class="mx-auto px-6 lg:px-8">
+  <div class="mx-auto sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-[250px_1fr] lg:gap-6">
       <div id="sidebar" class="space-y-6 mb-6">
-        <div class="bg-white shadow-sm rounded-lg h-fit">
-          <nav class="p-4 space-y-2">
-            <% Document::STATUSES.each do |status_val| %>
-              <%= link_to site_documents_path(@site, status: status_val), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].nil? || params[:status] == status_val ? 'bg-gray-100' : ''}" do %>
-                <div class="flex items-center <%= "text-primary" if params[:status] == status_val %>">
-                  <% if status_val == Document::DEFAULT_STATUS %>
-                    <i class="fas fa-inbox w-5"></i>
-                  <% end %>
-                  <% if status_val == Document::IN_REVIEW_STATUS %>
-                    <i class="fas fa-clock w-5"></i>
-                  <% end %>
-                  <% if status_val == Document::DONE_STATUS %>
-                    <i class="fas fa-check w-5"></i>
-                  <% end %>
-                  <span class="ml-2 "><%= status_val %></span>
-                </div>
-                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number @site.documents.by_status(status_val).count %></span>
-              <% end %>
-            <% end %>
-          </nav>
-        </div>
-        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, document_categories: @document_categories, document_decisions: @document_decisions, document_departments: @document_departments, show_departments_filter: @show_departments_filter, document_complexities: @document_complexities, show_complexities_filter: @show_complexities_filter, total_documents: @total_documents } %>
+        <%= render partial: "shared/site_navigation", locals: { site: @site } %>
+        <%= render partial: "shared/filter", locals: { site: @site, documents: @documents, total_documents: @total_documents } %>
       </div>
       <div id="document-list" class="px-0 space-y-0 md:overflow-x-scroll">
         <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
           <div class="flex justify-between items-center">
             <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
+            <div role="tablist" id="document-tabs" class="tabs tabs-boxed">
+              <%= link_to site_documents_path(@site), role: "tab", class: "tab tab-active" do %>
+                Documents
+              <% end %>
+              <%= link_to insights_site_path(@site), role: "tab", class: "tab" do %>
+                Insights
+              <% end %>
+            </div>
           </div>
         </div>
         <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll">
@@ -99,20 +87,20 @@
                     </label>
                   </td>
                   <td class="px-3 py-4 text-sm" title="<%= document.file_name %>" data-controller="modal">
-                      <div class="text-gray-900">
-                        <button data-action="click->modal#openModal" class="text-left">
-                          <i class="fas fa-file-pdf text-sm"></i> <%= document.file_name&.truncate(80) %>
-                        </button>
-                      </div>
-                      <% source = document_source(document.primary_source) %>
-                      <div class="text-gray-400">
-                        <%= source[:text] %>
-                        <% if source[:url].present? %>
-                          <a href="<%= source[:url] %>" target="_blank" rel="noopener noreferrer" class="ml-1 text-primary-600 hover:text-primary-900" title="Open source in new tab">
-                            <i class="fas fa-external-link-alt text-sm"></i>
-                          </a>
-                        <% end %>
-                      </div>
+                    <div class="text-gray-900">
+                      <button data-action="click->modal#openModal" class="text-left">
+                        <i class="fas fa-file-pdf text-sm"></i> <%= document.file_name&.truncate(80) %>
+                      </button>
+                    </div>
+                    <% source = document_source(document.primary_source) %>
+                    <div class="text-gray-400">
+                      <%= source[:text] %>
+                      <% if source[:url].present? %>
+                        <a href="<%= source[:url] %>" target="_blank" rel="noopener noreferrer" class="ml-1 text-primary-600 hover:text-primary-900" title="Open source in new tab">
+                          <i class="fas fa-external-link-alt text-sm"></i>
+                        </a>
+                      <% end %>
+                    </div>
                     <%= render partial: "documents/pdf_modal", locals: { document: document } %>
                   </td>
                   <td class="px-3 py-4 text-sm whitespace-nowrap text-gray-500"><%= document.modification_date&.strftime("%b %d, %Y") %></td>

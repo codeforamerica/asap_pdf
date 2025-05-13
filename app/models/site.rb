@@ -54,6 +54,24 @@ class Site < ApplicationRecord
     "Census" => ["https://www.slc.gov/census"]
   }
 
+  def has_departments?
+    documents.where.not(department: [nil, ""]).any?
+  end
+
+  def get_departments
+    documents.pluck(:department).uniq.sort { |a, b|
+      if a && b
+        a <=> b
+      else
+        a ? 1 : -1
+      end
+    }.to_h { |a| [a.nil? ? "None" : a, a.nil? ? "None" : a] }
+  end
+
+  def has_complexities?
+    documents.where.not(complexity: [nil, ""]).any?
+  end
+
   def website
     return nil if primary_url.blank?
     primary_url.sub(/^https?:\/\//, "").sub(/\/$/, "")
