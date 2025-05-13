@@ -1,5 +1,4 @@
 class Document < ApplicationRecord
-
   belongs_to :site
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
@@ -150,18 +149,18 @@ class Document < ApplicationRecord
     # If we have a value make unescape before displaying.
     unescaped_file_name = URI::DEFAULT_PARSER.unescape(self[:file_name])
     # Filenames, cannot have characters with special url-meaning.
-    unescaped_file_name.gsub('?', '')
-                       .gsub('/', '')
+    unescaped_file_name.delete("?")
+      .delete("/")
   end
 
   def url
     self[:url]&.sub("http://", "https://")
   end
 
-  def normalized_url()
-    decoded_url = self.recursive_decode(self.url)
+  def normalized_url
+    decoded_url = recursive_decode(url)
     # Add any additional oddities here.
-    decoded_url = decoded_url.gsub('\\', '/')
+    decoded_url = decoded_url.tr("\\", "/")
     URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
@@ -310,7 +309,7 @@ class Document < ApplicationRecord
   def recursive_decode(url)
     decoded_url = URI::DEFAULT_PARSER.unescape(url)
     if url != decoded_url
-      decoded_url = self.recursive_decode(decoded_url)
+      decoded_url = recursive_decode(decoded_url)
     end
     decoded_url
   end
