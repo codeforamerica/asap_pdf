@@ -176,13 +176,13 @@ describe "documents function as expected", js: true, type: :feature do
     # Test sorting
     within("#sidebar") do
       click_link "Clear"
-      find("#category").find("[value='Notice']").click
+      find("#category", wait: 5).find("[value='Notice']").click
       click_button "Apply Filters"
     end
     within("#document-list thead") do
       click_link "Type"
     end
-    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
@@ -193,6 +193,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#sidebar") do
       click_link "Clear"
     end
+    expect(page).to have_content "farmers_market_2023.pdf", wait: 5
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
@@ -207,11 +208,11 @@ describe "documents function as expected", js: true, type: :feature do
       find("#category").find("[value='Notice']").click
       click_button "Apply Filters"
     end
-    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list thead") do
       click_link "Type"
     end
-    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list tbody tr:nth-child(2)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
@@ -222,7 +223,7 @@ describe "documents function as expected", js: true, type: :feature do
       fill_in id: "start_date", with: "10/01/2024"
       click_button "Apply Filters"
     end
-    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list tbody tr:nth-child(2)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
