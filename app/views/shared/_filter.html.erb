@@ -8,6 +8,8 @@
   <div class="p-6 pt-0 transition-opacity border-t border-base-200 duration-150 ease-in-out hidden" data-filter-target="content">
     <%= form_tag site_documents_path(site), method: :get, class: "space-y-4 search", data: { action: "submit->filter#submitForm" } do %>
       <%= hidden_field_tag :status, params[:status] %>
+      <%= hidden_field_tag :sort, params[:sort] %>
+      <%= hidden_field_tag :direction, params[:direction] %>
       <div class="grid grid-cols-1 gap-4">
         <div>
           <label class="label">
