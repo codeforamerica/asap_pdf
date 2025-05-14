@@ -15,7 +15,7 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
     rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
-    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
@@ -176,9 +176,22 @@ describe "documents function as expected", js: true, type: :feature do
     # Test sorting
     within("#sidebar") do
       click_link "Clear"
+      find("#category").find("[value='Notice']").click
+      click_button "Apply Filters"
     end
     within("#document-list thead") do
       click_link "Type"
+    end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "teahouse_rules.pdf"
+    end
+    within("#document-list tbody tr:nth-child(2)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    # Make sure sorting doesn't get cleared.
+    within("#sidebar") do
+      click_link "Clear"
     end
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "teahouse_rules.pdf"
@@ -189,14 +202,29 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list tbody tr:nth-child(3)") do
       expect(page).to have_content "farmers_market_2023.pdf"
     end
+    # Test sort and filter interplay.
+    within("#sidebar") do
+      find("#category").find("[value='Notice']").click
+      click_button "Apply Filters"
+    end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
     within("#document-list thead") do
       click_link "Type"
     end
-    within("#document-list tbody tr:nth-child(3)") do
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
+    within("#document-list tbody tr:nth-child(2)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      fill_in id: "start_date", with: "10/01/2024"
+      click_button "Apply Filters"
+    end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 2
     within("#document-list tbody tr:nth-child(2)") do
-      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_content "teahouse_rules.pdf"
     end
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "farmers_market_2023.pdf"
