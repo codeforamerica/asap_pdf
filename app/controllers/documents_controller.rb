@@ -1,5 +1,6 @@
 class DocumentsController < AuthenticatedController
   include Access
+  include ParamsHelper
 
   protect_from_forgery with: :exception
   skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
@@ -25,6 +26,7 @@ class DocumentsController < AuthenticatedController
       .page(params[:page])
     @total_documents = @documents.total_count
     @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
+    @filters_for_sorts = query_params [:sort, :direction, :page]
   end
 
   def serve_document_url

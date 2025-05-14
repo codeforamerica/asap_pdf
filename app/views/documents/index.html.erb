@@ -35,7 +35,7 @@
                   </label>
                 </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <%= link_to site_documents_path(@site, sort: 'file_name', direction: (params[:sort] == 'file_name' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
+                  <%= link_to site_documents_path(@site, sort: 'file_name', direction: (params[:sort] == 'file_name' && params[:direction] != 'desc') ? 'desc' : 'asc', **@filters_for_sorts), class: "group inline-flex items-center" do %>
                     File Name
                     <% if params[:sort] == 'file_name' %>
                       <i class="fas fa-<%= params[:direction] == 'desc' ? 'sort-down' : 'sort-up' %> ml-1 text-primary-500"></i>
@@ -45,7 +45,7 @@
                   <% end %>
                 </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <%= link_to site_documents_path(@site, sort: 'modification_date', direction: (params[:sort] == 'modification_date' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
+                  <%= link_to site_documents_path(@site, sort: 'modification_date', direction: (params[:sort] == 'modification_date' && params[:direction] != 'desc') ? 'desc' : 'asc', **@filters_for_sorts), class: "group inline-flex items-center" do %>
                     Last Modified
                     <% if params[:sort] == 'modification_date' %>
                       <i class="fas fa-<%= params[:direction] == 'desc' ? 'sort-down' : 'sort-up' %> ml-1 text-primary-500"></i>
@@ -55,7 +55,7 @@
                   <% end %>
                 </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <%= link_to site_documents_path(@site, sort: 'document_category', direction: (params[:sort] == 'document_category' && params[:direction] != 'desc') ? 'desc' : 'asc', filename: params[:filename], category: params[:category], start_date: params[:start_date], end_date: params[:end_date], status: params[:status]), class: "group inline-flex items-center" do %>
+                  <%= link_to site_documents_path(@site, sort: 'document_category', direction: (params[:sort] == 'document_category' && params[:direction] != 'desc') ? 'desc' : 'asc', **@filters_for_sorts), class: "group inline-flex items-center" do %>
                     Type
                     <% if params[:sort] == 'document_category' %>
                       <i class="fas fa-<%= params[:direction] == 'desc' ? 'sort-down' : 'sort-up' %> ml-1 text-primary-500"></i>

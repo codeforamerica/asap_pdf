@@ -1,5 +1,7 @@
 class SitesController < AuthenticatedController
   include Access
+  include ParamsHelper
+
   before_action :find_site, only: [:insights, :show, :edit, :update, :destroy]
   before_action :ensure_user_site_access, only: [:insights, :show, :edit, :update, :destroy]
 
@@ -136,10 +138,6 @@ class SitesController < AuthenticatedController
 
   def site_params
     params.require(:site).permit(:name, :location, :primary_url)
-  end
-
-  def query_params
-    params.to_unsafe_h.except(:controller, :action, :site_id, :id, :format)
   end
 
   def find_site
