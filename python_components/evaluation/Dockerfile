@@ -21,6 +21,8 @@ COPY models.json .
 COPY pyproject.toml .
 COPY evaluation ./evaluation
 COPY lambda_function.py .
+COPY scripts/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN pip install --no-cache-dir .
 

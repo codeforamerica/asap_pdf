@@ -50,3 +50,7 @@ services:
       - "9003:8080"
     environment:
       - ASAP_LOCAL_MODE=True
+    command: [ "lambda_function.handler" ]
+    entrypoint: ["/bin/bash", "/usr/local/bin/entrypoint.sh"]
+    volumes:
+      - ./python_components/evaluation:/var/task
