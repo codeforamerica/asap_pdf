@@ -7,17 +7,33 @@ RSpec.describe AsapPdf::API do
     AsapPdf::API
   end
 
+  def headers(user)
+    { HTTP_AUTHORIZATION: ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, user.password) }
+  end
+  def auth_get(user, route, params = {})
+    get route, params: params, headers: headers(user)
+  end
+
   describe "GET /sites" do
     let!(:sites) { create_list(:site, 3) }
+    let!(:user) { create(:user, :admin) }
+
+    it "blocks access to anonymous users" do
+      get "/sites"
+      expect(last_response.status).to eq(401)
+    end
 
     it "returns all sites" do
-      get "/sites"
+      user = User.last
+      p credentials_header_for(user)
+      auth_get user, "/sites"
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body).length).to eq(3)
     end
 
     it "returns sites with correct structure" do
-      get "/sites"
+      user = User.last
+      auth_get user, "/sites"
       json_response = JSON.parse(last_response.body)
       first_site = json_response.first
 
