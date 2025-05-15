@@ -214,7 +214,7 @@ class Document < ApplicationRecord
       end
       payload = {
         model_name: "gemini-1.5-pro-latest",
-        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
+        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "summary",
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
@@ -246,8 +246,8 @@ class Document < ApplicationRecord
         api_host = "https://demo.codeforamerica.ai"
       end
       payload = {
-        model_name: "gemini-2.0-pro-exp-02-05",
-        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
+        model_name: "gemini-2.5-pro-preview-03-25",
+        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "exception",
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
