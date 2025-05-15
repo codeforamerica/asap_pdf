@@ -7,33 +7,30 @@ RSpec.describe AsapPdf::API do
     AsapPdf::API
   end
 
-  def headers(user)
-    { HTTP_AUTHORIZATION: ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, user.password) }
+  def auth_headers
+    user = User.last
+    encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, "password")
+    { "HTTP_AUTHORIZATION" => encoded_credentials }
   end
-  def auth_get(user, route, params = {})
-    get route, params: params, headers: headers(user)
-  end
+
+  let!(:user) { create(:user, :admin) }
 
   describe "GET /sites" do
     let!(:sites) { create_list(:site, 3) }
-    let!(:user) { create(:user, :admin) }
-
     it "blocks access to anonymous users" do
       get "/sites"
       expect(last_response.status).to eq(401)
     end
 
     it "returns all sites" do
-      user = User.last
-      p credentials_header_for(user)
-      auth_get user, "/sites"
+      get "/sites", {}, auth_headers
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body).length).to eq(3)
     end
 
     it "returns sites with correct structure" do
-      user = User.last
-      auth_get user, "/sites"
+
+      get "/sites", {}, auth_headers
       json_response = JSON.parse(last_response.body)
       first_site = json_response.first
 
@@ -48,10 +45,9 @@ RSpec.describe AsapPdf::API do
 
   describe "GET /sites/:id" do
     let!(:site) { create(:site) }
-
     context "when the site exists" do
       it "returns the requested site" do
-        get "/sites/#{site.id}"
+        get "/sites/#{site.id}", {}, auth_headers
         expect(last_response.status).to eq(200)
 
         json_response = JSON.parse(last_response.body)
@@ -64,7 +60,7 @@ RSpec.describe AsapPdf::API do
 
     context "when the site does not exist" do
       it "returns 404 not found" do
-        get "/sites/0"
+        get "/sites/0", {}, auth_headers
         expect(last_response.status).to eq(404)
       end
     end
@@ -83,7 +79,7 @@ RSpec.describe AsapPdf::API do
     context "when the site exists" do
       it "creates new documents for new URLs" do
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(2)
 
         expect(last_response.status).to eq(201)
@@ -113,7 +109,7 @@ RSpec.describe AsapPdf::API do
         )
 
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(1) # Only creates one new document
 
         expect(last_response.status).to eq(201)
@@ -133,7 +129,7 @@ RSpec.describe AsapPdf::API do
         )
 
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(1) # Only creates one new document
 
         expect(last_response.status).to eq(201)
@@ -145,24 +141,24 @@ RSpec.describe AsapPdf::API do
 
     context "when the site does not exist" do
       it "returns 404 not found" do
-        post "/sites/0/documents", {documents: valid_documents}
+        post "/sites/0/documents", {documents: valid_documents}, auth_headers
         expect(last_response.status).to eq(404)
       end
     end
 
     context "with invalid parameters" do
       it "returns 400 bad request when documents is missing" do
-        post "/sites/#{site.id}/documents"
+        post "/sites/#{site.id}/documents", {}, auth_headers
         expect(last_response.status).to eq(400)
       end
 
       it "returns 400 bad request when documents is not an array" do
-        post "/sites/#{site.id}/documents", {documents: "not_an_array"}
+        post "/sites/#{site.id}/documents", {documents: "not_an_array"}, auth_headers
         expect(last_response.status).to eq(400)
       end
 
       it "returns 400 bad request when document is missing required fields" do
-        post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}
+        post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}, auth_headers
         expect(last_response.status).to eq(400)
       end
     end
