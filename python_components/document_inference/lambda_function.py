@@ -23,6 +23,8 @@ def handler(event, context):
         helpers.validate_model(all_models, event["model_name"])
         helpers.logger.info("Model is valid")
         api_key = helpers.get_secret(all_models[event["model_name"]]["key"], local_mode)
+        asap_creds_user = helpers.get_secret("asap-pdf/production/ASAP_API_USER", local_mode)
+        asap_creds_password = helpers.get_secret("asap-pdf/production/ASAP_API_PASSWORD", local_mode)
         page_limit_label = (
             "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         )
@@ -51,7 +53,7 @@ def handler(event, context):
             if "asap_endpoint" in event.keys():
                 helpers.logger.info("Writing LLM results to Rails API")
                 helpers.post_document(
-                    event["asap_endpoint"], event["inference_type"], response
+                    event["asap_endpoint"], event["inference_type"], response, (asap_creds_user, asap_creds_password)
                 )
             else:
                 helpers.logger.info("Dumping results into Lambda return")

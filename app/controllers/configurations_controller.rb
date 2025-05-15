@@ -5,6 +5,8 @@ class ConfigurationsController < AuthenticatedController
 
   GOOGLE_API_SECRET_NAME = "asap-pdf/production/GOOGLE_AI_KEY"
   ANTHROPIC_API_SECRET_NAME = "asap-pdf/production/ANTHROPIC_KEY"
+  ASAP_API_USER = "asap-pdf/production/ASAP_API_USER"
+  ASAP_API_PASSWORD = "asap-pdf/production/ASAP_API_PASSWORD"
 
   def initialize
     super
@@ -26,7 +28,9 @@ class ConfigurationsController < AuthenticatedController
   def update
     @secret_manager.set_secret!(GOOGLE_API_SECRET_NAME, params[:config][:google_ai_api_key])
     @secret_manager.set_secret!(ANTHROPIC_API_SECRET_NAME, params[:config][:anthropic_api_key])
-    redirect_to edit_configuration_path, notice: "Configuration updated successfully"
+    @secret_manager.set_secret!(ASAP_API_USER, Rails.application.credentials.config[:api_user])
+    @secret_manager.set_secret!(ASAP_API_PASSWORD, Rails.application.credentials.config[:api_password])
+    redirect_to edit_configuration_path, notice: "Configuration updated successfully. API user set to root user."
   rescue => e
     redirect_to edit_configuration_path, alert: "Error updating configuration: #{e.message}"
   end
