@@ -30,7 +30,9 @@ class DocumentsController < AuthenticatedController
   end
 
   def serve_document_url
-    response = HTTParty.get(@document.url)
+    # Stash document's raw url.
+    document_url = @document.normalized_url
+    response = HTTParty.get(document_url)
     if response.success?
       send_data response.body,
         type: "application/pdf",

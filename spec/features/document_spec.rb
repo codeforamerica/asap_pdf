@@ -330,7 +330,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
       expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
       expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
-      expect(page).to have_no_css("#bulk_edit_control", visible: true)
+      expect(page).to have_css("#bulk_edit_control.off-screen-bottom", visible: false)
       # Try checking a box.
       find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
     end
@@ -338,8 +338,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Selected: 1"
       # Try clicking the "x".
       find("[data-action='bulk-edit#handleCloseActions']").click
-      expect(page).to have_no_css("#bulk_edit_control", visible: true)
     end
+    expect(page).to have_css("#bulk_edit_control.off-screen-bottom", visible: false)
     within("#document-list") do
       checkbox = find("tr:nth-child(1) [data-bulk-edit-target='selectOne']")
       expect(checkbox).not_to be_checked
@@ -356,7 +356,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content 'You are about to move 3 documents to "In Review".'
       click_button "Cancel"
     end
-    expect(page).to have_no_selector("#bulk_edit_modal", visible: true)
+    expect(page).to have_no_selector("#bulk_edit_modal.off-screen-bottom")
     within("#bulk_edit_control") do
       select = find("#bulk-edit-move")
       select.find("[value='In Review']").click
