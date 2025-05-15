@@ -366,3 +366,21 @@ resource "aws_secretsmanager_secret_version" "anthropic_key" {
   secret_id     = aws_secretsmanager_secret.anthropic_key.id
   secret_string = var.anthropic_key
 }
+
+resource "aws_secretsmanager_secret" "asap_api_user" {
+  name = "${var.project_name}/${var.environment}/ASAP_API_USER"
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-asap-api-user"
+    Environment = var.environment
+  }
+}
+
+resource "aws_secretsmanager_secret" "asap_api_password" {
+  name = "${var.project_name}/${var.environment}/ASAP_API_PASSWORD"
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-asap-api-password"
+    Environment = var.environment
+  }
+}
