@@ -70,6 +70,41 @@ module "deployment" {
   evaluation_lambda_arn                    = module.lambda.evaluation_lambda_arn
 }
 
+module "secrets" {
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.0.0"
+
+  project     = var.project_name
+  environment = var.environment
+
+  secrets = {
+    database = {
+      description = "Credentials for our Database."
+      name = "/asap-pdf/production/database"
+      start_value = jsonencode({
+        host = ""
+        name = ""
+        username = ""
+        password = ""
+      })
+    }
+    redis = {
+      description = "The Redis/Elasticache url."
+      name = "/asap-pdf/production/redis"
+      start_value = jsonencode({
+        url = ""
+      })
+    }
+    rails = {
+      description = "The Rails master key."
+      name = "/asap-pdf/production/rails"
+      start_value = jsonencode({
+        master_key = ""
+        secret_key = ""
+      })
+    }
+  }
+}
+
 # ECS
 module "ecs" {
   source = "./modules/ecs"
@@ -83,13 +118,13 @@ module "ecs" {
   # container_cpu     = var.container_cpu
   # container_memory  = var.container_memory
 
-  db_host_secret_arn          = module.deployment.db_host_secret_arn
-  db_name_secret_arn          = module.deployment.db_name_secret_arn
-  db_username_secret_arn      = module.deployment.db_username_secret_arn
-  db_password_secret_arn      = module.deployment.db_password_secret_arn
-  secret_key_base_secret_arn  = module.deployment.secret_key_base_secret_arn
-  rails_master_key_secret_arn = module.deployment.rails_master_key_secret_arn
-  redis_url_secret_arn        = module.deployment.redis_url_secret_arn
+  db_host_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:host"
+  db_name_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:name"
+  db_username_secret_arn      = "${module.secrets.secrets["database"].secret_arn}:username"
+  db_password_secret_arn      = "${module.secrets.secrets["database"].secret_arn}:password"
+  secret_key_base_secret_arn  = "${module.secrets.secrets["rails"].secret_arn}:secret_key"
+  rails_master_key_secret_arn = "${module.secrets.secrets["rails"].secret_arn}:master_key"
+  redis_url_secret_arn        = "${module.secrets.secrets["redis"].secret_arn}:url"
   #target_group_arn            = module.networking.alb_target_group_arn
 
   vpc_id          = module.networking.vpc_id
