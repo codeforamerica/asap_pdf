@@ -1,21 +1,40 @@
 <div class="bg-white shadow-sm rounded-lg h-fit">
-  <nav class="p-4 space-y-2">
-    <% Document::STATUSES.each do |status_val| %>
-      <%= link_to site_documents_path(site, status: status_val), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status].nil? || params[:status] == status_val ? 'bg-gray-100' : ''}" do %>
-        <div class="flex items-center <%= "text-primary" if params[:status] == status_val %>">
-          <% if status_val == Document::DEFAULT_STATUS %>
-            <i class="fas fa-inbox w-5"></i>
+  <ul class="menu p-4 space-y-2">
+    <% Document::STATUSES.each do |key, item| %>
+      <li>
+        <% if item["children"].nil? %>
+          <%= link_to site_documents_path(site, status: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{(params[:status].nil? && key == Document::DEFAULT_STATUS) || params[:status] == key ? 'bg-gray-100' : ''}" do %>
+            <div class="flex items-center <%= "text-primary" if params[:status] == key %>">
+              <% if key == Document::DEFAULT_STATUS %>
+                <i class="fas fa-inbox w-5"></i>
+              <% end %>
+              <% if key == Document::IN_REVIEW_STATUS %>
+                <i class="fas fa-clock w-5"></i>
+              <% end %>
+              <span class="ml-2 "><%= item["label"] %></span>
+            </div>
+            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(key).count %></span>
           <% end %>
-          <% if status_val == Document::IN_REVIEW_STATUS %>
-            <i class="fas fa-clock w-5"></i>
+        <% else %>
+          <%= link_to site_documents_path(site, status: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status] == key ? 'bg-gray-100' : ''}" do %>
+            <div class="flex items-center <%= "text-primary" if params[:status] == key %>">
+              <i class="fas fa-check w-5"></i>
+              <span class="ml-2 "><%= item["label"] %></span>
+            </div>
+            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(key).count %></span>
           <% end %>
-          <% if status_val == Document::DONE_STATUS %>
-            <i class="fas fa-check w-5"></i>
-          <% end %>
-          <span class="ml-2 "><%= status_val %></span>
-        </div>
-        <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(status_val).count %></span>
-      <% end %>
+          <ul>
+            <% item["children"].each do |child_key, child_item| %>
+              <%= link_to site_documents_path(site, status: child_key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status] == child_key ? 'bg-gray-100' : ''}" do %>
+                <div class="flex items-center <%= "text-primary" if params[:status] == child_key %>">
+                  <span class="ml-2 "><%= child_key %></span>
+                </div>
+                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(child_key).count %></span>
+              <% end %>
+            <% end %>
+          </ul>
+        <% end %>
+      </li>
     <% end %>
-  </nav>
+  </ul>
 </div>

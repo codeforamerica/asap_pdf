@@ -25,7 +25,8 @@ class DocumentsController < AuthenticatedController
       .order(sort_column => sort_direction)
       .page(params[:page])
     @total_documents = @documents.total_count
-    @status_values = Document::STATUSES.reject { |a| a == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }
+    @status_values = Document::get_status_options.reject { |k, v| k == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }.to_h
+
     @filters_for_sorts = query_params [:sort, :direction, :page]
   end
 

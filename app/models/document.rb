@@ -1,5 +1,6 @@
 class Document < ApplicationRecord
   belongs_to :site
+  # Do we still need this?
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
 
@@ -7,7 +8,8 @@ class Document < ApplicationRecord
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
-    where("file_name ILIKE ?", "%#{filename}%")
+    filename = "%#{filename.gsub(/[\s_-]+/, '%')}%"
+    where("url ILIKE ? OR file_name ILIKE ?", "%#{filename}%", "%#{filename}%")
   }
 
   scope :by_category, ->(category) {
@@ -50,8 +52,26 @@ class Document < ApplicationRecord
   DEFAULT_STATUS = "Audit Backlog".freeze
   IN_REVIEW_STATUS = "In Review".freeze
   DONE_STATUS = "Audit Done".freeze
+  ARCHIVE_STATUS = "Archive".freeze
+  REMOVE_STATUS = "Remove".freeze
+  CONVERT_STATUS = "Convert".freeze
+  REMEDIATE_STATUS = "Remediate".freeze
+  LEAVE_STATUS = "Leave".freeze
 
-  STATUSES = [DEFAULT_STATUS, IN_REVIEW_STATUS, DONE_STATUS].freeze
+  STATUSES = {
+    DEFAULT_STATUS => {"label" => "Needs Decision"},
+    IN_REVIEW_STATUS => {"label" => "PDF is in review"},
+    DONE_STATUS => {
+      "label" => "Done",
+      "children" => {
+        ARCHIVE_STATUS => {"label" => "Place PDF in archive section"},
+        REMOVE_STATUS => {"label" => "Remove PDF from website"},
+        CONVERT_STATUS => {"label" => "Convert PDF to HTML"},
+        REMEDIATE_STATUS => {"label" => "Remediate PDF"},
+        LEAVE_STATUS => {"label" => "Leave PDF as-is"},
+      }
+    },
+  }
 
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
@@ -76,7 +96,7 @@ class Document < ApplicationRecord
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
-  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
+  #validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
   validates :status, inclusion: {in: STATUSES}, presence: true
   validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
 
@@ -91,7 +111,17 @@ class Document < ApplicationRecord
   end
 
   def self.get_status_options
-    Document::STATUSES.map { |item| [item, item] }.to_h
+    options = {}
+    Document::STATUSES.each do |key, item|
+      if item["children"].present?
+        item["children"].each do |child_key, child|
+          options[child_key] =  child["label"]
+        end
+      else
+        options[key] = item["label"]
+      end
+    end
+    return options
   end
 
   def modification_year
@@ -151,6 +181,11 @@ class Document < ApplicationRecord
     # Filenames, cannot have characters with special url-meaning.
     unescaped_file_name.delete("?")
       .delete("/")
+  end
+
+  def file_name_from_url
+    uri = URI.parse(normalized_url)
+    File.basename(uri.path)
   end
 
   def url
