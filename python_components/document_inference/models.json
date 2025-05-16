@@ -5,7 +5,7 @@
   "gemini-1.5-pro-latest": {
     "key": "asap-pdf/production/GOOGLE_AI_KEY"
   },
-  "gemini-2.0-pro-exp-02-05": {
+  "gemini-2.5-pro-preview-03-25": {
     "key": "asap-pdf/production/GOOGLE_AI_KEY"
   }
 }

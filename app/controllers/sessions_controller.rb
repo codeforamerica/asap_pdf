@@ -11,7 +11,9 @@ class SessionsController < AuthenticatedController
       start_new_session_for user
       redirect_to after_authentication_url, notice: "Welcome back!"
     else
-      render :new, status: :unprocessable_entity, alert: "Try another email address or password."
+      @session ||= Session.new
+      @session.errors.add(:base, "Try another email address or password.")
+      render :new, status: :unprocessable_entity
     end
   end
 

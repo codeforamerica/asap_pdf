@@ -15,7 +15,7 @@ describe "documents function as expected", js: true, type: :feature do
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
     rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
-    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site)
+    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION, site: site, modification_date: "2024-10-01")
     # Test single document and document editing.
     visit "/"
@@ -176,10 +176,24 @@ describe "documents function as expected", js: true, type: :feature do
     # Test sorting
     within("#sidebar") do
       click_link "Clear"
+      find("#category", wait: 5).find("[value='Notice']").click
+      click_button "Apply Filters"
     end
     within("#document-list thead") do
       click_link "Type"
     end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "teahouse_rules.pdf"
+    end
+    within("#document-list tbody tr:nth-child(2)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    # Make sure sorting doesn't get cleared.
+    within("#sidebar") do
+      click_link "Clear"
+    end
+    expect(page).to have_content "farmers_market_2023.pdf", wait: 5
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
@@ -189,14 +203,29 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list tbody tr:nth-child(3)") do
       expect(page).to have_content "farmers_market_2023.pdf"
     end
+    # Test sort and filter interplay.
+    within("#sidebar") do
+      find("#category").find("[value='Notice']").click
+      click_button "Apply Filters"
+    end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list thead") do
       click_link "Type"
     end
-    within("#document-list tbody tr:nth-child(3)") do
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
+    within("#document-list tbody tr:nth-child(2)") do
       expect(page).to have_content "teahouse_rules.pdf"
     end
+    within("#document-list tbody tr:nth-child(1)") do
+      expect(page).to have_content "farmers_market_2023.pdf"
+    end
+    within("#sidebar") do
+      fill_in id: "start_date", with: "10/01/2024"
+      click_button "Apply Filters"
+    end
+    expect(page).to have_no_content "rtd_contract.pdf", wait: 5
     within("#document-list tbody tr:nth-child(2)") do
-      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_content "teahouse_rules.pdf"
     end
     within("#document-list tbody tr:nth-child(1)") do
       expect(page).to have_content "farmers_market_2023.pdf"
@@ -301,7 +330,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
       expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
       expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
-      expect(page).to have_no_css("#bulk_edit_control", visible: true)
+      expect(page).to have_css("#bulk_edit_control.off-screen-bottom", visible: false)
       # Try checking a box.
       find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
     end
@@ -309,8 +338,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Selected: 1"
       # Try clicking the "x".
       find("[data-action='bulk-edit#handleCloseActions']").click
-      expect(page).to have_no_css("#bulk_edit_control", visible: true)
     end
+    expect(page).to have_css("#bulk_edit_control.off-screen-bottom", visible: false)
     within("#document-list") do
       checkbox = find("tr:nth-child(1) [data-bulk-edit-target='selectOne']")
       expect(checkbox).not_to be_checked
@@ -327,7 +356,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content 'You are about to move 3 documents to "In Review".'
       click_button "Cancel"
     end
-    expect(page).to have_no_selector("#bulk_edit_modal", visible: true)
+    expect(page).to have_no_selector("#bulk_edit_modal.off-screen-bottom")
     within("#bulk_edit_control") do
       select = find("#bulk-edit-move")
       select.find("[value='In Review']").click
@@ -363,5 +392,92 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "In Review\n2"
       expect(page).to have_content "Audit Done\n1"
     end
+  end
+  it "insights may be had" do
+    # Create our test setup
+    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf",
+      file_name: "rtd_contract.pdf",
+      document_category: "Agreement",
+      document_category_confidence: 0.73,
+      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+      department: "Public Transportation",
+      complexity: "Simple",
+      site: site,
+      creation_date: "2022-10-01",
+      modification_date:  "2022-10-01")
+    Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf",
+      file_name: "teahouse_rules.pdf",
+      document_category: "Notice",
+      document_category_confidence: 0.71,
+      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+      department: "The Earl Gray Team",
+      complexity: "Complex",
+      site: site,
+      creation_date: "2022-10-01",
+      modification_date:  "2023-10-01")
+    Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf",
+      file_name: "farmers_market_2023.pdf",
+      document_category: "Notice",
+      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+      department: "Parks and Recreation",
+      complexity: "Complex",
+      site: site,
+      creation_date: "2022-10-01",
+      modification_date: "2024-10-01")
+    visit "/"
+    click_link "City of Boulder"
+    within("#document-list #document-tabs") do
+      click_link "Insights"
+      sleep(1)
+    end
+    # Look for general content.
+    within("#insights") do
+      expect(page).to have_content "Colorado: City of Boulder"
+      expect(page).to have_content "Document Complexity"
+      expect(page).to have_content "Document Last Modified Year"
+      expect(page).to have_content "Decision"
+      expect(page).to have_content "\nTYPE AUDIT BACKLOG IN REVIEW AUDIT DONE TOTAL\nAgreement 1 0 0 1\nNotice 2 0 0 2"
+    end
+    # Test filters.
+    within("#sidebar") do
+      expect(page).to have_content "Audit Backlog\n3"
+      expect(page).to have_content "In Review\n0"
+      expect(page).to have_content "Audit Done\n0"
+      find("#category option[value='Agreement']").click
+      find("#department option[value='Public Transportation']").click
+      find("#status option[value='Audit Backlog']").click
+      click_button "Apply Filters"
+    end
+    sleep(1)
+    assert_match "sites/#{site.id}/insights?category=Agreement&department=Public+Transportation&status=Audit+Backlog", current_url
+    # Look for general content.
+    within("#insights") do
+      expect(page).to have_content "\nTYPE AUDIT BACKLOG IN REVIEW AUDIT DONE TOTAL\nAgreement 1 0 0 1"
+      expect(page).to have_no_content "\nNotice 2 0 0 2"
+    end
+    # Test following document links.
+    within("#insights #chart-complexity") do
+      find(".dropdown .btn").click
+      click_link "Complex"
+    end
+    sleep(1)
+    assert_match "sites/#{site.id}/documents?category=Agreement&commit=Apply+Filters&complexity=Complex&department=Public+Transportation&status=Audit+Backlog", current_url
+    visit "/sites/#{site.id}/insights?category=Agreement&department=Public+Transportation&status=Audit+Backlog"
+    within("#insights #chart-modification-year") do
+      find(".dropdown .btn").click
+      click_link "2018-2023"
+    end
+    sleep(1)
+    assert_match "sites/#{site.id}/documents?category=Agreement&department=Public+Transportation&end_date=2023-12-31&start_date=2018-01-01&status=Audit+Backlog", current_url
+    visit "/sites/#{site.id}/insights?category=Agreement&department=Public+Transportation&status=Audit+Backlog"
+    within("#insights #chart-decision") do
+      find(".dropdown .btn").click
+      click_link "Needs Decision"
+    end
+    sleep(1)
+    assert_match "sites/#{site.id}/documents?accessibility_recommendation=Needs+Decision&category=Agreement&department=Public+Transportation&status=Audit+Backlog", current_url
   end
 end

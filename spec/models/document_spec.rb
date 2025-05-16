@@ -19,11 +19,21 @@ RSpec.describe Document, type: :model do
     it { should_not allow_value("invalid-url").for(:url) }
     it "handles urls with special characters" do
       document.url = "https://www.austintexas.gov/growgreen/%25C3%2581fidos_GrowGreen_web.pdf"
-      expect(document.url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
+      expect(document.normalized_url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
+      document.url = "https://www.slcdocs.com/Planning/Online Open Houses/2023/07_2023/PLNPCM2023-00223/2023.06.30 HH General Plan amendment narrative updated.pdf"
+      expect(document.normalized_url).to eq("https://www.slcdocs.com/Planning/Online%20Open%20Houses/2023/07_2023/PLNPCM2023-00223/2023.06.30%20HH%20General%20Plan%20amendment%20narrative%20updated.pdf")
+      document.url = "https://www.slcdocs.com/building/January%20Report%202025.pdf"
+      expect(document.normalized_url).to eq("https://www.slcdocs.com/building/January%20Report%202025.pdf")
+      document.url = "https://www.slcdocs.com%5Crecorder%5CEO_Disclosures%5CD4_Eva_Lopez_Chavez_2025Dislosure.pdf"
+      expect(document.normalized_url).to eq("https://www.slcdocs.com/recorder/EO_Disclosures/D4_Eva_Lopez_Chavez_2025Dislosure.pdf")
     end
     it "converts insecure urls to https" do
       document.url = "http://www.austintexas.gov/growgreen/%25C3%2581fidos_GrowGreen_web.pdf"
-      expect(document.url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
+      expect(document.normalized_url).to eq("https://www.austintexas.gov/growgreen/%C3%81fidos_GrowGreen_web.pdf")
+    end
+    it "handles file names with special characters" do
+      document.file_name = "view.email.slc.gov/?qs=2bca265e4e7cdcffef943d1a6e4f925c2716f253f48efdb9187c729aead8a3241d8ae450e7eed856670cbc8c1c34f9a20ee722d3622dc04e3063fbdd469cad49e8c0711ec6141dc715a0a5605ffcf561"
+      expect(document.file_name).to eq("view.email.slc.govqs=2bca265e4e7cdcffef943d1a6e4f925c2716f253f48efdb9187c729aead8a3241d8ae450e7eed856670cbc8c1c34f9a20ee722d3622dc04e3063fbdd469cad49e8c0711ec6141dc715a0a5605ffcf561")
     end
   end
 
@@ -60,90 +70,5 @@ RSpec.describe Document, type: :model do
         expect(document.s3_path).to eq("www-city-org/#{document.id}/document.pdf")
       end
     end
-
-    # describe "versioning", :aws do
-    #   let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
-    #   let(:s3_resource) { Aws::S3::Resource.new(client: s3_client) }
-
-    #   before do
-    #     allow(Aws::S3::Resource).to receive(:new).and_return(s3_resource)
-    #   end
-
-    #   before do
-    #     allow(Rails.application.config.active_storage).to receive(:service_configurations)
-    #       .and_return({
-    #         Rails.env.to_s => {
-    #           "service" => "S3",
-    #           "access_key_id" => "test",
-    #           "secret_access_key" => "test",
-    #           "region" => "us-east-1",
-    #           "bucket" => "test-bucket",
-    #           "endpoint" => "http://localhost:4566",
-    #           "force_path_style" => true
-    #         }
-    #       })
-    #   end
-
-    #   describe "#file_versions" do
-    #     it "returns list of versions" do
-    #       versions = [
-    #         double("version1", version_id: "v1", modification_date: Time.current, size: 1000, etag: "abc"),
-    #         double("version2", version_id: "v2", modification_date: 1.day.ago, size: 900, etag: "def")
-    #       ]
-
-    #       allow_any_instance_of(Aws::S3::Bucket).to receive(:object_versions)
-    #         .with(prefix: document.s3_path)
-    #         .and_return(versions)
-
-    #       expect(document.file_versions.count).to eq(2)
-    #     end
-    #   end
-
-    #   describe "#latest_file" do
-    #     it "returns the most recent version" do
-    #       latest = double("latest_version", version_id: "v1", modification_date: Time.current)
-    #       older = double("older_version", version_id: "v2", modification_date: 1.day.ago)
-
-    #       allow_any_instance_of(Aws::S3::Bucket).to receive(:object_versions)
-    #         .with(prefix: document.s3_path)
-    #         .and_return([latest, older])
-
-    #       expect(document.latest_file).to eq(latest)
-    #     end
-    #   end
-
-    #   describe "#file_version" do
-    #     it "gets specific version by id" do
-    #       version = double("version")
-    #       allow_any_instance_of(Aws::S3::Object).to receive(:get)
-    #         .with(version_id: "v1")
-    #         .and_return(version)
-
-    #       expect(document.file_version("v1")).to eq(version)
-    #     end
-    #   end
-
-    #   describe "#version_metadata" do
-    #     it "returns formatted version metadata" do
-    #       time = Time.current
-    #       version = double(
-    #         "version",
-    #         version_id: "v1",
-    #         modification_date: time,
-    #         size: 1000,
-    #         etag: "abc123"
-    #       )
-
-    #       metadata = document.version_metadata(version)
-
-    #       expect(metadata).to include(
-    #         version_id: "v1",
-    #         modification_date: time,
-    #         size: 1000,
-    #         etag: "abc123"
-    #       )
-    #     end
-    #   end
-    # end
   end
 end

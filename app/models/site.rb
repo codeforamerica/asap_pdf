@@ -54,6 +54,24 @@ class Site < ApplicationRecord
     "Census" => ["https://www.slc.gov/census"]
   }
 
+  def has_departments?
+    documents.where.not(department: [nil, ""]).any?
+  end
+
+  def get_departments
+    documents.pluck(:department).uniq.sort { |a, b|
+      if a && b
+        a <=> b
+      else
+        a ? 1 : -1
+      end
+    }.to_h { |a| [a.nil? ? "None" : a, a.nil? ? "None" : a] }
+  end
+
+  def has_complexities?
+    documents.where.not(complexity: [nil, ""]).any?
+  end
+
   def website
     return nil if primary_url.blank?
     primary_url.sub(/^https?:\/\//, "").sub(/\/$/, "")
@@ -144,7 +162,6 @@ class Site < ApplicationRecord
         skipped = 0
         chunk.each do |row|
           row = row.stringify_keys
-          encoded_url = URI::DEFAULT_PARSER.escape(row["url"])
 
           # Parse file size (remove KB suffix and convert to float)
           file_size = row["file_size"]&.gsub("KB", "")&.strip&.to_f
@@ -157,7 +174,7 @@ class Site < ApplicationRecord
           end
 
           documents << {
-            url: encoded_url,
+            url: row["url"],
             file_name: row["file_name"],
             file_size: file_size,
             author: row["author"],

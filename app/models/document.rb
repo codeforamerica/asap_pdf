@@ -1,14 +1,9 @@
 class Document < ApplicationRecord
-  extend UrlDecodedAttributeHelper
-
   belongs_to :site
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
 
   has_paper_trail versions: {scope: -> { order(created_at: :desc) }}
-
-  url_decoded_attribute :file_name
-  url_decoded_attribute :url
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
@@ -83,8 +78,29 @@ class Document < ApplicationRecord
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
   validates :status, inclusion: {in: STATUSES}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
 
   before_validation :set_defaults
+
+  def self.get_content_type_options
+    Document::CONTENT_TYPES.map { |c| [c.to_s.titleize, c] }
+  end
+
+  def self.get_complexity_options
+    Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
+  end
+
+  def self.get_status_options
+    Document::STATUSES.map { |item| [item, item] }.to_h
+  end
+
+  def modification_year
+    if modification_date.present?
+      modification_date.strftime("%Y")
+    else
+      "Unknown"
+    end
+  end
 
   def summary
     summary = document_inferences.find_by(inference_type: "summary")
@@ -128,10 +144,24 @@ class Document < ApplicationRecord
     end
   end
 
-  alias_method :decoded_url, :url
+  def file_name
+    return nil if self[:file_name].nil?
+    # If we have a value make unescape before displaying.
+    unescaped_file_name = URI::DEFAULT_PARSER.unescape(self[:file_name])
+    # Filenames, cannot have characters with special url-meaning.
+    unescaped_file_name.delete("?")
+      .delete("/")
+  end
 
   def url
-    decoded_url&.sub("http://", "https://")
+    self[:url]&.sub("http://", "https://")
+  end
+
+  def normalized_url
+    decoded_url = recursive_decode(url)
+    # Add any additional oddities here.
+    decoded_url = decoded_url.tr("\\", "/")
+    URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
   def s3_path
@@ -184,7 +214,7 @@ class Document < ApplicationRecord
       end
       payload = {
         model_name: "gemini-1.5-pro-latest",
-        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
+        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "summary",
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
@@ -216,8 +246,8 @@ class Document < ApplicationRecord
         api_host = "https://demo.codeforamerica.ai"
       end
       payload = {
-        model_name: "gemini-2.0-pro-exp-02-05",
-        documents: [{id: id, title: file_name, url: url, purpose: document_category}],
+        model_name: "gemini-2.5-pro-preview-03-25",
+        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "exception",
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
@@ -275,6 +305,14 @@ class Document < ApplicationRecord
   end
 
   private
+
+  def recursive_decode(url)
+    decoded_url = URI::DEFAULT_PARSER.unescape(url)
+    if url != decoded_url
+      decoded_url = recursive_decode(decoded_url)
+    end
+    decoded_url
+  end
 
   def storage_config
     @storage_config ||= begin

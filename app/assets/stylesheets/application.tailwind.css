@@ -57,6 +57,20 @@
   top: 10px;
 }
 
+.animate-up {
+  transition: bottom;
+  transition-duration: 0.25s;
+  bottom: 0px;
+}
+
+.off-screen-bottom {
+  bottom: -400px;
+}
+
+.active-highlight {
+  background-color: #ffe4bc;
+}
+
 @layer base {
   h1 {
     @apply text-2xl font-medium text-gray-500 leading-tight text-base-content;
