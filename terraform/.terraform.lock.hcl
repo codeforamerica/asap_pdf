@@ -2,20 +2,20 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/aws" {
-  version     = "5.95.0"
-  constraints = ">= 3.29.0, >= 3.74.0, >= 4.15.1, >= 4.37.0, >= 5.0.0, ~> 5.0, >= 5.44.0, >= 5.79.0, >= 5.83.0, >= 5.93.0"
+  version     = "5.98.0"
+  constraints = ">= 3.29.0, >= 3.74.0, >= 4.15.1, >= 4.37.0, >= 5.0.0, ~> 5.0, >= 5.44.0, >= 5.79.0, >= 5.81.0, >= 5.83.0, >= 5.93.0"
   hashes = [
-    "h1:WpZegCzcHIuFgMewEEgSObM+GUBQfASsHg+TTIup4h0=",
-    "zh:0df3b32ee89d8eded1548bf2866aee5d40aab2e23930bf9411e7e03bfd982045",
-    "zh:1995729fff2eb9ae68e37ad6bdb7eee041a71008d2b30fa187b2347131878926",
-    "zh:1e2f89a09f8ea80097bc692ffe4b80a74d1ff7852cd14233ca2826897f0834f7",
-    "zh:7ad851d4ef77963bd97ae0b2dc4ea24d76f520883285f8d0a96476ed3015b014",
-    "zh:85ad403fdc1950a066156cde836d130593efa714b9b8b836540f465eb3cc9b09",
-    "zh:9cf5b52172dd6f8bc8eab3d83353de3419faed71d4e8b5def9042e82d2fea5f8",
-    "zh:b0ef2c4f8dcfd0d2d9996b8560f32b48938fcd4178ab279b545531f8e0e2a9e8",
-    "zh:d0a14a77b75f9949205df22364974f37d2c3d34698e92fe3ddc454364ef3e339",
-    "zh:e3a28054088c05edd5f867c7e3bd9d4d01908600f862993f6c8bcae4ab2156ef",
-    "zh:fe058932d4fb479f691f015d672f1e6e29d9f507c874fabc3a6e8362e7d2b03b",
+    "h1:l0YRNODVmQ0KrZRiD9oOjAI+6cZCG2AQE5J9Qvf6u7I=",
+    "zh:1c8e4073151bc3f4e201a89ea5934733b7fe8a88399cf476bb53417e52e5a2d6",
+    "zh:433b575d313742cfffc808907cfdabf6f16ad4b2b4b722b33624c2c45ab28003",
+    "zh:4f10af33ac39df606a4ff2c685940349745b00f88f72717c6a35bf3aad8400a2",
+    "zh:63d442570d5fc8bef9139ef6e242b903b728282a4949721cfe6071ed5c05532a",
+    "zh:722e840d59c1126d2ed85cba09ff3d2d3597d6c3fa3d9a6f7d01c6d78772882e",
+    "zh:8270018389d9d095c20fe270b89e9be2ec444a5b447e1153436ff018b9e84710",
+    "zh:8cebf189600873a041c829cabb92096a5f8c9cd8ebec6997abcfb1a4981209a4",
+    "zh:a878695fc563f758fb29399ed10a44a3e96563062917fa8534766cd76f1b490e",
+    "zh:b9ea7fb2418462586642d1831775ea1872c3eda4180391459918de2f734d98c2",
+    "zh:ecc4ea0f659dab585e8328698d0bb343b80721e093b95af13769a4616c082fab",
   ]
 }
 

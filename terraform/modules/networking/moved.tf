@@ -47,25 +47,3 @@ moved {
   from = aws_subnet.public
   to   = module.vpc.module.vpc.aws_subnet.public
 }
-
-# Migration to fargate module.
-
-moved {
-  from = aws_security_group.ecs
-  to   = module.ecs.module.fargate_service.module.task_security_group.aws_security_group.this_name_prefix[0]
-}
-
-moved {
-  from = aws_security_group.alb
-  to   = module.ecs.module.fargate_service.module.endpoint_security_group.aws_security_group.this_name_prefix[0]
-}
-
-moved {
-  from = aws_lb.main
-  to   = module.ecs.module.fargate_service.module.alb["this"].aws_lb.this[0]
-}
-
-moved {
-  from = aws_acm_certificate.main
-  to   = module.ecs.module.fargate_service.aws_acm_certificate.endpoint["this"]
-}

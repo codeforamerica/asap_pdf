@@ -9,16 +9,21 @@ moved {
 }
 
 moved {
+  from = aws_cloudwatch_log_group.app
+  to   = module.fargate_service.aws_cloudwatch_log_group.service
+}
+
+moved {
   from = aws_ecs_cluster.main
-  to   = module.ecs.module.fargate_service.module.ecs.aws_ecs_cluster.main
+  to   = module.fargate_service.module.ecs.aws_ecs_cluster.main
 }
 
 moved {
   from = aws_ecs_service.app
-  to   = module.ecs.module.fargate_service.module.ecs_service.module.fargate.aws_ecs_service.main[0]
+  to   = module.fargate_service.module.ecs_service.module.fargate.aws_ecs_service.main[0]
 }
 
 moved {
   from = aws_ecs_task_definition.app
-  to   = module.ecs.module.fargate_service.module.ecs_service.module.fargate.module.task.aws_ecs_task_definition.main[0]
+  to   = module.fargate_service.module.ecs_service.module.fargate.module.task.aws_ecs_task_definition.main[0]
 }

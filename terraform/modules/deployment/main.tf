@@ -198,14 +198,14 @@ resource "aws_iam_role_policy" "github_actions" {
         Action = [
           "logs:GetLogEvents"
         ]
-        Resource = "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/ecs/${var.project_name}-${var.environment}:*"
+        Resource = "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/ecs/${var.project_name}/${var.environment}/app:*"
       },
       {
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = [
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-execution-role",
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-role"
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-execution",
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-task"
         ]
       },
       {
