@@ -56,7 +56,7 @@ export default class extends Controller {
     handleMove(e) {
         this.store.key = "accessibility_recommendation";
         this.store.toChange.value = e.target.value;
-        const title = "Confirm move"
+        const title = "Confirm decision"
         const message = `You are about to move ${this.store.checked} documents to "${this.store.toChange.value}".`
         this.updateModal(title, message)
     }

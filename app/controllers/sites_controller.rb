@@ -59,8 +59,8 @@ class SitesController < AuthenticatedController
     @documents.group([:document_category, :accessibility_recommendation]).count.each do |groups, group_count|
       @category_groups[groups[0]] = default_group.clone if @category_groups[groups[0]].nil?
       if Document::DECISION_TYPES.keys.exclude? groups[1]
-        parent = Document::DECISION_TYPES.keys.find  do |key|
-          if Document::DECISION_TYPES[key]["children"].present? and Document::DECISION_TYPES[key]["children"].keys.include? groups[1]
+        parent = Document::DECISION_TYPES.keys.find do |key|
+          if Document::DECISION_TYPES[key]["children"].present? && Document::DECISION_TYPES[key]["children"].key?(groups[1])
             key
           end
         end

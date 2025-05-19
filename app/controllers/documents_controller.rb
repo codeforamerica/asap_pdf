@@ -24,7 +24,7 @@ class DocumentsController < AuthenticatedController
       .order(sort_column => sort_direction)
       .page(params[:page])
     @total_documents = @documents.total_count
-    @decision_values = Document::get_decision_types.reject { |k, v| k == (params[:accessibility_recommendation].present? ? params[:accessibility_recommendation] : Document::DEFAULT_DECISION) }.to_h
+    @decision_values = Document.get_decision_types.reject { |k, v| k == (params[:accessibility_recommendation].present? ? params[:accessibility_recommendation] : Document::DEFAULT_DECISION) }.to_h
 
     @filters_for_sorts = query_params [:sort, :direction, :page]
   end
