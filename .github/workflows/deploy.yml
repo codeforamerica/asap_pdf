@@ -8,10 +8,10 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_APP_REPOSITORY: asap-pdf-production
+  ECR_APP_REPOSITORY: asap-pdf-production-app
   ECR_DOCUMENT_INFERENCE_REPOSITORY: asap-pdf-lambda-document-inference-production
-  ECS_CLUSTER: asap-pdf-production
-  ECS_SERVICE: asap-pdf-production-service
+  ECS_CLUSTER: asap-pdf-production-app
+  ECS_SERVICE: asap-pdf-production-app
   ECS_TASK_DEFINITION: .aws/task-definition.json
   AWS_ACCOUNT_ID: 073165201938
 
@@ -95,24 +95,28 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
-          container-name: app
-          image: ${{ steps.build-image.outputs.image }}
+      - name: Update SSM Version Parameter
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "tag:$IMAGE_TAG"
+          aws ssm put-parameter \
+            --name /asap-pdf/production/app/version \
+            --value "$IMAGE_TAG" \
+            --overwrite
 
-      - name: Deploy Amazon ECS task definition
-        id: deploy
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        timeout-minutes: 5
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-          wait-for-minutes: 5
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Initialize OpenTofu
+        working-directory: ./terraform
+        run: tofu init
+
+      - name: Apply changes
+        env:
+          TF_LOG: "INFO"
+        working-directory: ./terraform
+        run: tofu apply --auto-approve
 
       - name: Debug deployment failure
         if: failure() && steps.deploy.outcome == 'failure'
