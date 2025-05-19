@@ -126,8 +126,8 @@
                     <div data-action="click->dropdown-edit#showSelect" data-dropdown-edit-target="display" class="cursor-pointer text-primary flex flex-col gap-1">
                       <%= document.accessibility_recommendation.present? ? document.accessibility_recommendation : Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s %>
                     </div>
-                    <select data-dropdown-edit-target="select" data-action="change->dropdown-edit#updateValue blur->dropdown-edit#hideSelect" class="hidden w-[80%] bg-white border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2">
-                      <% Document::get_status_options.each do |key, label| %>
+                    <select data-dropdown-edit-target="select" data-action="change->dropdown-edit#updateValue blur->dropdown-edit#hideSelect" class="hidden w-[40%] bg-white border border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 p-2">
+                      <% Document::get_decision_types.each do |key, label| %>
                         <option value="<%= key %>" <%= document.accessibility_recommendation == key ? 'selected' : '' %>><%= label %></option>
                       <% end %>
                     </select>
@@ -158,7 +158,7 @@
                 <div class="join-item px-4 border-r border-gray-300">
                   <select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove" class="select select-sm">
                     <option disabled selected>Make Decision</option>
-                    <% @status_values.each do |key, value| %>
+                    <% @decision_values.each do |key, value| %>
                       <option value="<%= key %>"><%= value %></option>
                     <% end %>
                   </select>

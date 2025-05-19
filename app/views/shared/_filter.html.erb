@@ -7,7 +7,7 @@
   </div>
   <div class="p-6 pt-0 transition-opacity border-t border-base-200 duration-150 ease-in-out hidden" data-filter-target="content">
     <%= form_tag site_documents_path(site), method: :get, class: "space-y-4 search", data: { action: "submit->filter#submitForm" } do %>
-      <%= hidden_field_tag :status, params[:status] %>
+      <%= hidden_field_tag :accessibility_recommendation, params[:accessibility_recommendation] %>
       <%= hidden_field_tag :sort, params[:sort] %>
       <%= hidden_field_tag :direction, params[:direction] %>
       <div class="grid grid-cols-1 gap-4">
@@ -33,14 +33,6 @@
           <%= select_tag :category,
                          options_for_select([['All Types', '']] + Document::get_content_type_options, params[:category]),
                          class: "select-custom w-full" + (params[:category].present? ? " active-highlight" : "") %>
-        </div>
-        <div>
-          <label class="label">
-            <span class="label-text">Decision</span>
-          </label>
-          <%= select_tag :accessibility_recommendation,
-                         options_for_select({"All Decisions": ""}.merge(Document::DECISION_TYPES.invert), params[:accessibility_recommendation]),
-                         class: "select-custom w-full" + (params[:accessibility_recommendation].present? ? " active-highlight" : "") %>
         </div>
         <% if site.has_departments? %>
           <div>

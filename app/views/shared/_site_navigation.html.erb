@@ -1,35 +1,35 @@
 <div class="bg-white shadow-sm rounded-lg h-fit">
   <ul class="menu p-4 space-y-2">
-    <% Document::STATUSES.each do |key, item| %>
+    <% Document::DECISION_TYPES.each do |key, item| %>
       <li>
         <% if item["children"].nil? %>
-          <%= link_to site_documents_path(site, status: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{(params[:status].nil? && key == Document::DEFAULT_STATUS) || params[:status] == key ? 'bg-gray-100' : ''}" do %>
-            <div class="flex items-center <%= "text-primary" if params[:status] == key %>">
-              <% if key == Document::DEFAULT_STATUS %>
+          <%= link_to site_documents_path(site, accessibility_recommendation: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{(params[:accessibility_recommendation].nil? && key == Document::DEFAULT_DECISION) || params[:accessibility_recommendation] == key ? 'bg-gray-100' : ''}" do %>
+            <div class="flex items-center <%= "text-primary" if params[:accessibility_recommendation] == key %>">
+              <% if key == Document::DEFAULT_DECISION %>
                 <i class="fas fa-inbox w-5"></i>
               <% end %>
-              <% if key == Document::IN_REVIEW_STATUS %>
+              <% if key == Document::IN_REVIEW_DECISION %>
                 <i class="fas fa-clock w-5"></i>
               <% end %>
               <span class="ml-2 "><%= item["label"] %></span>
             </div>
-            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(key).count %></span>
+            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(key).count %></span>
           <% end %>
         <% else %>
-          <%= link_to site_documents_path(site, status: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status] == key ? 'bg-gray-100' : ''}" do %>
-            <div class="flex items-center <%= "text-primary" if params[:status] == key %>">
+          <%= link_to site_documents_path(site, accessibility_recommendation: key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:accessibility_recommendation] == key ? 'bg-gray-100' : ''}" do %>
+            <div class="flex items-center <%= "text-primary" if params[:accessibility_recommendation] == key %>">
               <i class="fas fa-check w-5"></i>
               <span class="ml-2 "><%= item["label"] %></span>
             </div>
-            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(item["children"].keys).count %></span>
+            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(item["children"].keys).count %></span>
           <% end %>
           <ul>
             <% item["children"].each do |child_key, child_item| %>
-              <%= link_to site_documents_path(site, status: child_key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:status] == child_key ? 'bg-gray-100' : ''}" do %>
-                <div class="flex items-center <%= "text-primary" if params[:status] == child_key %>">
+              <%= link_to site_documents_path(site, accessibility_recommendation: child_key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:accessibility_recommendation] == child_key ? 'bg-gray-100' : ''}" do %>
+                <div class="flex items-center <%= "text-primary" if params[:accessibility_recommendation] == child_key %>">
                   <span class="ml-2 "><%= child_key %></span>
                 </div>
-                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(child_key).count %></span>
+                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(child_key).count %></span>
               <% end %>
             <% end %>
           </ul>

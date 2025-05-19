@@ -18,9 +18,6 @@ class SitesController < AuthenticatedController
     @documents = @site.documents
       .by_category(params[:category])
       .by_department(params[:department])
-    if params[:status].present?
-      @documents.by_status(params[:status])
-    end
     # Create binned date data for visualization.
     # First, gather all documents by year
     year_groups = @documents.group_by(&:modification_year).map { |label, year_documents| [label, year_documents.size] }
@@ -57,11 +54,21 @@ class SitesController < AuthenticatedController
     binned_data << unknown_group if unknown_group
     @document_years = binned_data
     # Create table data.
-    default_group = Document::STATUSES.map { |status| [status, 0] }.to_h
+    default_group = Document::DECISION_TYPES.keys.map { |status| [status, 0] }.to_h
     @category_groups = {}
-    @documents.group([:document_category, :status]).count.each do |groups, group_count|
+    @documents.group([:document_category, :accessibility_recommendation]).count.each do |groups, group_count|
       @category_groups[groups[0]] = default_group.clone if @category_groups[groups[0]].nil?
-      @category_groups[groups[0]][groups[1]] = group_count
+      if Document::DECISION_TYPES.keys.exclude? groups[1]
+        parent = Document::DECISION_TYPES.keys.find  do |key|
+          if Document::DECISION_TYPES[key]["children"].present? and Document::DECISION_TYPES[key]["children"].keys.include? groups[1]
+            key
+          end
+        end
+        if parent.present?
+          groups[1] = parent
+        end
+      end
+      @category_groups[groups[0]][groups[1]] += group_count
     end
     @category_groups.each do |key, child_hash|
       sum = child_hash.values.sum
