@@ -1,4 +1,5 @@
 backports.tarfile==1.2.0
+beautifulsoup4==4.13.3
 black==25.1.0
 flake8==7.1.2
 importlib-metadata==8.0.0
@@ -9,6 +10,7 @@ pip-chill==1.0.3
 PyMuPDF==1.25.5
 pytest==8.3.5
 setuptools==75.8.2
+scikit-learn==1.6.1
 tldextract==5.1.3
 tomli==2.0.1
 tqdm==4.67.1
