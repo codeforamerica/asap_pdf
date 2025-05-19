@@ -150,9 +150,6 @@ def get_predictions(feature_matrix, model_path):
     return prediction_labels, confidences
 
 
-labels = get_labels()
-label_mapping = {ind: label for label, ind in labels.items()}
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Uses paths to a CSV of PDFs and a model for document classification"
@@ -162,6 +159,9 @@ if __name__ == "__main__":
         "output_path", help="Path where a CSV with predictions will be saved"
     )
     args = parser.parse_args()
+
+    labels = get_labels()
+    label_mapping = {ind: label for label, ind in labels.items()}
 
     pdf_features = get_features(args.pdfs_path)
     pdf_feature_matrix = get_feature_matrix(pdf_features)
