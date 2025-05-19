@@ -21,7 +21,7 @@
               <i class="fas fa-check w-5"></i>
               <span class="ml-2 "><%= item["label"] %></span>
             </div>
-            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(key).count %></span>
+            <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_status(item["children"].keys).count %></span>
           <% end %>
           <ul>
             <% item["children"].each do |child_key, child_item| %>
