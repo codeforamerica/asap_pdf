@@ -12,6 +12,13 @@ The Python components should be PEP8 compliant. They are currently linted with i
 
 Or the `scripts/local_fix_linting.sh` was included to help fix codestyle issues locally.
 
+## Crawling and Classification
+
+Two python components run as needed, usually when we're onboarding a new partner. The crawling component can be run by initializing the docker container with `docker run --rm -it -v "$(pwd):/workspace" asap_pdf:crawler bash`, adding any new sites to `crawler/config.json`, and running the script with `python crawler.py <site_url> <output_path>`. There is an optional delay argument to add time between requests.
+
+The classification python component can be run by initializing the docker container (`docker run --rm -it -v "$(pwd):/workspace" asap_pdf:classifier bash`), and then running the script with `python crawler.py <input_path> <labeled_output_path>`. The script expects the input CSV to have the same format as the output of the crawling script.
+
+After running these scripts, the output from the classification component can be used to update the production data at `site_documents.zip`. Use the `split_for_dev.py` script to randomly sample among the production data, and update `site_documents_dev.zip` with those sampled datasets.
 
 ## Document Inference
 
