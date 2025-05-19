@@ -92,24 +92,6 @@ class Document < ApplicationRecord
 
   COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
 
-  validates :file_name, presence: true
-  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
-  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
-  validates :document_category, inclusion: {in: CONTENT_TYPES}
-  #validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
-  validates :status, inclusion: {in: STATUSES}, presence: true
-  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
-
-  before_validation :set_defaults
-
-  def self.get_content_type_options
-    Document::CONTENT_TYPES.map { |c| [c.to_s.titleize, c] }
-  end
-
-  def self.get_complexity_options
-    Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
-  end
-
   def self.get_status_options
     options = {}
     Document::STATUSES.each do |key, item|
@@ -123,6 +105,25 @@ class Document < ApplicationRecord
     end
     return options
   end
+
+  def self.get_content_type_options
+    Document::CONTENT_TYPES.map { |c| [c.to_s.titleize, c] }
+  end
+
+  def self.get_complexity_options
+    Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
+  end
+
+
+  validates :file_name, presence: true
+  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
+  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
+  validates :document_category, inclusion: {in: CONTENT_TYPES}
+  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
+  validates :status, inclusion: {in: get_status_options}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
+
+  before_validation :set_defaults
 
   def modification_year
     if modification_date.present?

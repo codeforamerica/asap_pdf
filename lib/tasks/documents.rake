@@ -59,15 +59,16 @@ namespace :documents do
 
     csv_manifest = {
       "dor_georgia.csv" => ga_dor,
-      "dbf_georgia.csv" => ga_dbf,
-      "gta_psg_georgia.csv" => ga_psg,
-      "dfcs_georgia.csv" => ga_dfcs,
-      "austin.csv" => austin,
-      "san_rafael.csv" => san_rafael,
-      "salt_lake_city.csv" => slc
+      # "dbf_georgia.csv" => ga_dbf,
+      # "gta_psg_georgia.csv" => ga_psg,
+      # "dfcs_georgia.csv" => ga_dfcs,
+      # "austin.csv" => austin,
+      # "san_rafael.csv" => san_rafael,
+      # "salt_lake_city.csv" => slc
     }
 
-    archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
+    #archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
+    archive_name = "site_documents.zip"
     puts "Loading site data from #{archive_name}"
 
     Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
@@ -130,8 +131,11 @@ namespace :documents do
 
   desc "Update statuses."
   task update_statuses: :environment do
+    p "Updating document statuses from previous `accessibility_recommendation` values."
     PaperTrail.request(enabled: false) do
-      Document.not(accessibility_recommendation: [nil, "", "Needs Decision"]) do |document|
+      doc_count = Document.where.not(accessibility_recommendation: [nil, "", "Needs Decision"]).count
+      p "Found #{doc_count} documents to update."
+      Document.where.not(accessibility_recommendation: [nil, "", "Needs Decision"]).each do |document|
         document.status = case document.accessibility_recommendation
         when "Convert"
           Document::CONVERT_STATUS
@@ -144,6 +148,8 @@ namespace :documents do
         else
           document.status
         end
+        p "Here is the new status #{document.status}"
+        p "Here is the new validity #{document.valid?}"
         document.save
       end
     end
