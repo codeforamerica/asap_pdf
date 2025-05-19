@@ -165,7 +165,9 @@ if __name__ == "__main__":
 
     pdf_features = get_features(args.pdfs_path)
     pdf_feature_matrix = get_feature_matrix(pdf_features)
+    del pdf_features
     predictions, confidences = get_predictions(pdf_feature_matrix, "xgboost_model.json")
+    del pdf_feature_matrix
 
     output = pd.read_csv(args.pdfs_path)
     output["predicted_category"] = predictions
