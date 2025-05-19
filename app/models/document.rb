@@ -18,8 +18,14 @@ class Document < ApplicationRecord
   }
 
   scope :by_decision_type, ->(decision_type) {
-    return all if decision_type.blank?
-    where(accessibility_recommendation: decision_type)
+    if decision_type.present?
+      if  DECISION_TYPES[decision_type].present? and DECISION_TYPES[decision_type]["children"].present?
+        decision_type = DECISION_TYPES[decision_type]["children"].keys
+      end
+      where(accessibility_recommendation: decision_type)
+    else
+      where(accessibility_recommendation: DEFAULT_DECISION)
+    end
   }
 
   scope :by_department, ->(department) {
@@ -41,60 +47,42 @@ class Document < ApplicationRecord
     scope
   }
 
-  scope :by_status, ->(status) {
-    if status.present?
-      where(status: status)
-    else
-      where(status: DEFAULT_STATUS)
-    end
-  }
+  DEFAULT_DECISION = "Needs Decision".freeze
+  IN_REVIEW_DECISION = "In Review".freeze
+  DONE_DECISION = "Audit Done".freeze
+  ARCHIVE_DECISION = "Archive".freeze
+  REMOVE_DECISION = "Remove".freeze
+  CONVERT_DECISION = "Convert".freeze
+  REMEDIATE_DECISION = "Remediate".freeze
+  LEAVE_DECISION = "Leave".freeze
 
-  DEFAULT_STATUS = "Audit Backlog".freeze
-  IN_REVIEW_STATUS = "In Review".freeze
-  DONE_STATUS = "Audit Done".freeze
-  ARCHIVE_STATUS = "Archive".freeze
-  REMOVE_STATUS = "Remove".freeze
-  CONVERT_STATUS = "Convert".freeze
-  REMEDIATE_STATUS = "Remediate".freeze
-  LEAVE_STATUS = "Leave".freeze
-
-  STATUSES = {
-    DEFAULT_STATUS => {"label" => "Needs Decision"},
-    IN_REVIEW_STATUS => {"label" => "PDF is in review"},
-    DONE_STATUS => {
+  DECISION_TYPES = {
+    DEFAULT_DECISION => {"label" => "Needs Decision"},
+    IN_REVIEW_DECISION => {"label" => "PDF is in review"},
+    DONE_DECISION => {
       "label" => "Done",
       "children" => {
-        ARCHIVE_STATUS => {"label" => "Place PDF in archive section"},
-        REMOVE_STATUS => {"label" => "Remove PDF from website"},
-        CONVERT_STATUS => {"label" => "Convert PDF to HTML"},
-        REMEDIATE_STATUS => {"label" => "Remediate PDF"},
-        LEAVE_STATUS => {"label" => "Leave PDF as-is"},
+        ARCHIVE_DECISION => {"label" => "Place PDF in archive section"},
+        REMOVE_DECISION => {"label" => "Remove PDF from website"},
+        CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
+        REMEDIATE_DECISION => {"label" => "Remediate PDF"},
+        LEAVE_DECISION => {"label" => "Leave PDF as-is"},
       }
     },
   }
 
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
-  DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
-
   AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
-
-  DECISION_TYPES = {
-    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
-    LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => "Leave PDF as-is",
-    REMEDIATE_ACCESSIBILITY_RECOMMENDATION.to_s => "Remediate PDF",
-    "Convert" => "Convert PDF to web content",
-    "Remove" => "Remove PDF from website"
-  }.freeze
 
   SIMPLE_STATUS = "Simple".freeze
   COMPLEX_STATUS = "Complex".freeze
 
   COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
 
-  def self.get_status_options
+  def self.get_decision_types
     options = {}
-    Document::STATUSES.each do |key, item|
+    Document::DECISION_TYPES.each do |key, item|
       if item["children"].present?
         item["children"].each do |child_key, child|
           options[child_key] =  child["label"]
@@ -119,8 +107,7 @@ class Document < ApplicationRecord
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
   validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
-  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
-  validates :status, inclusion: {in: get_status_options}, presence: true
+  validates :accessibility_recommendation, inclusion: {in: get_decision_types}, presence: true
   validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
 
   before_validation :set_defaults
@@ -360,6 +347,6 @@ class Document < ApplicationRecord
 
   def set_defaults
     self.document_status = "discovered" unless document_status
-    self.status = DEFAULT_STATUS unless status
+    self.accessibility_recommendation = DEFAULT_DECISION unless accessibility_recommendation
   end
 end

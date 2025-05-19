@@ -11,7 +11,7 @@ export default class extends Controller {
         total: 0,
         checked: 0,
         toChange: {
-            key: "status",
+            key: "accessibility_recommendation",
             value: "",
         }
     }
@@ -54,7 +54,7 @@ export default class extends Controller {
     }
 
     handleMove(e) {
-        this.store.key = "status";
+        this.store.key = "accessibility_recommendation";
         this.store.toChange.value = e.target.value;
         const title = "Confirm move"
         const message = `You are about to move ${this.store.checked} documents to "${this.store.toChange.value}".`
@@ -63,7 +63,7 @@ export default class extends Controller {
 
     resetActionBar() {
         const bulkEditMove = this.actionsTarget.querySelector('#bulk-edit-move')
-        bulkEditMove.value="Move To Status"
+        bulkEditMove.value="Make Decision"
         bulkEditMove.blur()
     }
 

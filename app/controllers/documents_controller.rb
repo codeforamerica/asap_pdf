@@ -3,7 +3,7 @@ class DocumentsController < AuthenticatedController
   include ParamsHelper
 
   protect_from_forgery with: :exception
-  skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_status, :update_notes, :update_summary_inference, :update_recommendation_inference]
+  skip_before_action :verify_authenticity_token, only: [:update_document_category, :update_accessibility_recommendation, :update_notes, :update_summary_inference, :update_recommendation_inference]
   before_action :set_site, only: [:index, :modal_content, :batch_update]
   before_action :set_document, except: [:index, :batch_update]
   before_action :ensure_user_site_access, only: [:index, :modal_content, :batch_update]
@@ -15,7 +15,6 @@ class DocumentsController < AuthenticatedController
 
   def index
     @documents = @site.documents
-      .by_status(params[:status])
       .by_filename(params[:filename])
       .by_category(params[:category])
       .by_decision_type(params[:accessibility_recommendation])
@@ -25,7 +24,7 @@ class DocumentsController < AuthenticatedController
       .order(sort_column => sort_direction)
       .page(params[:page])
     @total_documents = @documents.total_count
-    @status_values = Document::get_status_options.reject { |k, v| k == (params[:status].present? ? params[:status] : Document::DEFAULT_STATUS) }.to_h
+    @decision_values = Document::get_decision_types.reject { |k, v| k == (params[:accessibility_recommendation].present? ? params[:accessibility_recommendation] : Document::DEFAULT_DECISION) }.to_h
 
     @filters_for_sorts = query_params [:sort, :direction, :page]
   end
@@ -85,22 +84,6 @@ class DocumentsController < AuthenticatedController
     end
   end
 
-  def update_status
-    # Set Unknown as default for empty values
-    existing_recommendation = @document.accessibility_recommendation || Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION
-    existing_category = @document.document_category
-
-    if @document.update(
-      status: params[:status],
-      accessibility_recommendation: existing_recommendation,
-      document_category: existing_category
-    )
-      render json: {success: true}
-    else
-      render json: {success: false, error: @document.errors.full_messages}, status: :unprocessable_entity
-    end
-  end
-
   def update_summary_inference
     if @document.summary.nil?
       @document.inference_summary!
@@ -139,7 +122,7 @@ class DocumentsController < AuthenticatedController
   private
 
   def batch_params
-    params.permit(:site_id, document: {}, documents: [:id, :status]).to_h
+    params.permit(:site_id, document: {}, documents: [:id, :accessibility_recommendation]).to_h
   end
 
   def set_site
