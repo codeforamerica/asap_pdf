@@ -11,7 +11,7 @@
               <% if key == Document::IN_REVIEW_DECISION %>
                 <i class="fas fa-clock w-5"></i>
               <% end %>
-              <span class="ml-2 "><%= item["label"] %></span>
+              <span class="ml-2 "><%= key %></span>
             </div>
             <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(key).count %></span>
           <% end %>

@@ -8,7 +8,7 @@ class Document < ApplicationRecord
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
-    filename = "%#{filename.gsub(/[\s_-]+/, '%')}%"
+    filename = "%#{filename.gsub(/[\s_-]+/, "%")}%"
     where("url ILIKE ? OR file_name ILIKE ?", "%#{filename}%", "%#{filename}%")
   }
 
@@ -19,7 +19,7 @@ class Document < ApplicationRecord
 
   scope :by_decision_type, ->(decision_type) {
     if decision_type.present?
-      if  DECISION_TYPES[decision_type].present? and DECISION_TYPES[decision_type]["children"].present?
+      if DECISION_TYPES[decision_type].present? && DECISION_TYPES[decision_type]["children"].present?
         decision_type = DECISION_TYPES[decision_type]["children"].keys
       end
       where(accessibility_recommendation: decision_type)
@@ -49,7 +49,7 @@ class Document < ApplicationRecord
 
   DEFAULT_DECISION = "Needs Decision".freeze
   IN_REVIEW_DECISION = "In Review".freeze
-  DONE_DECISION = "Audit Done".freeze
+  DONE_DECISION = "Done".freeze
   ARCHIVE_DECISION = "Archive".freeze
   REMOVE_DECISION = "Remove".freeze
   CONVERT_DECISION = "Convert".freeze
@@ -66,9 +66,9 @@ class Document < ApplicationRecord
         REMOVE_DECISION => {"label" => "Remove PDF from website"},
         CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
         REMEDIATE_DECISION => {"label" => "Remediate PDF"},
-        LEAVE_DECISION => {"label" => "Leave PDF as-is"},
+        LEAVE_DECISION => {"label" => "Leave PDF as-is"}
       }
-    },
+    }
   }
 
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
@@ -85,13 +85,13 @@ class Document < ApplicationRecord
     Document::DECISION_TYPES.each do |key, item|
       if item["children"].present?
         item["children"].each do |child_key, child|
-          options[child_key] =  child["label"]
+          options[child_key] = child["label"]
         end
       else
         options[key] = item["label"]
       end
     end
-    return options
+    options
   end
 
   def self.get_content_type_options
@@ -101,7 +101,6 @@ class Document < ApplicationRecord
   def self.get_complexity_options
     Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
   end
-
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
