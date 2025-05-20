@@ -8,8 +8,7 @@ class Document < ApplicationRecord
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
-    filename = "%#{filename.gsub(/[\s_-]+/, "%")}%"
-    where("url ILIKE ? OR file_name ILIKE ?", "%#{filename}%", "%#{filename}%")
+    where("file_name ILIKE ?", "%#{filename}%")
   }
 
   scope :by_category, ->(category) {
