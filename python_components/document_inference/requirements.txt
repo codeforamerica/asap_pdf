@@ -9,7 +9,7 @@ inflect==7.3.1
 isort==6.0.1
 jaraco.collections==5.1.0
 llm-anthropic==0.15.1
-llm-gemini==0.16
+llm-gemini==0.19.1
 pillow==11.2.1
 pip-chill==1.0.3
 pymupdf==1.25.5

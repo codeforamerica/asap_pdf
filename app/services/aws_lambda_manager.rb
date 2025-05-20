@@ -44,6 +44,10 @@ class AwsLambdaManager
     )
     # Create the HTTP request
     http = Net::HTTP.new(uri.host, uri.port)
+    http.open_timeout = 30
+    http.read_timeout = 180
+    http.write_timeout = 30
+    http.keep_alive_timeout = 30
     http.use_ssl = true if uri.scheme == "https"
     request = Net::HTTP::Post.new(uri)
     request.body = request_body

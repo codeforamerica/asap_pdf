@@ -7,6 +7,17 @@
       <p class="text-sm text-base-content/70 mb-6">Website PDF Accessibility Checker</p>
     </div>
     <%= form_with url: session_path, :html => { :id => "login-form" } do |form| %>
+      <% has_errors = @session.present? && @session.errors.any? %>
+      <% if has_errors %>
+        <% @session.errors.full_messages.each do |msg| %>
+          <div data-toast-target="container" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg text-sm mt-2 mb-4">
+            <p>
+              <i class="fas fa-exclamation-circle mr-2"></i>
+              <%= msg %>
+            </p>
+          </div>
+        <% end %>
+      <% end %>
       <div class="form-control w-full">
         <label class="label" for="email_address">
           <span class="label-text">Email Address</span>
@@ -18,7 +29,7 @@
                              autocomplete: "username",
                              placeholder: "you@example.com",
                              value: params[:email_address],
-                             class: "input input-bordered w-full",
+                             class: "input input-bordered w-full" + (has_errors ? " input-error " : ""),
                              "aria-required": true %>
       </div>
       <div class="form-control w-full mt-4">
@@ -31,7 +42,7 @@
                                 autocomplete: "current-password",
                                 placeholder: "Enter your password",
                                 maxlength: 72,
-                                class: "input input-bordered w-full",
+                                class: "input input-bordered w-full"  + (has_errors ? " input-error " : ""),
                                 "aria-required": true %>
       </div>
       <div class="form-control mt-6">

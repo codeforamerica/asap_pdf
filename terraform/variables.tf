@@ -10,6 +10,12 @@ variable "environment" {
   default     = "production"
 }
 
+variable "domain_name" {
+  description = "Name of the project"
+  type        = string
+  default     = "demo.codeforamerica.ai"
+}
+
 variable "vpc_cidr" {
   description = "CIDR block for VPC"
   type        = string
