@@ -22,6 +22,9 @@ application.register("modal", ModalController)
 import ModalNotesController from "./modal_notes_controller"
 application.register("modal-notes", ModalNotesController)
 
+import MultiStagePreloaderController from "./multi_stage_preloader_controller"
+application.register("multi-stage-preloader", MultiStagePreloaderController)
+
 import PasswordToggleController from "./password_toggle_controller"
 application.register("password-toggle", PasswordToggleController)
 

@@ -147,13 +147,19 @@
         </div>
         <% if exceptions.none? %>
           <div class="text-left">
-            <button data-recommendation-list-target="button"  data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
+            <button data-recommendation-list-target="button" data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
               <i class="fas fa-wand-magic-sparkles mr-1"></i>
               Get AI Exception Check
             </button>
-            <button data-recommendation-list-target="preloader"  class="btn btn-primary btn-sm hidden">
+            <button class="btn btn-primary btn-sm hidden multi-stage-preloader" data-recommendation-list-target="preloader" data-controller="multi-stage-preloader">
               <span class="loading loading-spinner"></span>
-              Getting AI Exception Check...
+              <div class="stages relative">
+                <span class="stage active">Getting AI Exception Check...</span>
+                <span class="stage inactive">Fetching document...</span>
+                <span class="stage inactive">Converting document...</span>
+                <span class="stage inactive">Asking AI...</span>
+                <span class="stage inactive">Thinking...</span>
+              </div>
             </button>
           </div>
         <% end %>
