@@ -17,7 +17,11 @@ def find_files(args: argparse.Namespace):
 def chunk_file(file: str, output_path, chunk_size: int):
     file_obj = Path(file)
     df = pd.read_csv(file, low_memory=False)
-    df.sample(n=chunk_size).to_csv(f"{output_path}/{file_obj.name}", index=False)
+    if chunk_size < len(df):
+        df.sample(n=chunk_size).to_csv(f"{output_path}/{file_obj.name}", index=False)
+    else:
+        # If dataset is less than chunk_size, return the whole dataset
+        df.to_csv(f"{output_path}/{file_obj.name}", index=False)
 
 
 if __name__ == "__main__":

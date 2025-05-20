@@ -93,7 +93,8 @@ def get_feature_matrix(pdfs):
     source_dummies = pd.DataFrame.sparse.from_spmatrix(
         mlb.fit_transform(pdfs["source_keywords"])
     )
-    source_dummies.columns = "source_" + mlb.classes_
+    if len(source_dummies.columns) > 0:
+        source_dummies.columns = "source_" + mlb.classes_
 
     url_dummies = pd.DataFrame.sparse.from_spmatrix(
         mlb.fit_transform(pdfs["url_keywords"])
