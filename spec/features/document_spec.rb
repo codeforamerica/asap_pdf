@@ -399,34 +399,34 @@ describe "documents function as expected", js: true, type: :feature do
     @current_user.site = site
     @current_user.save!
     Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf",
-      file_name: "rtd_contract.pdf",
-      document_category: "Agreement",
-      document_category_confidence: 0.73,
-      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
-      department: "Public Transportation",
-      complexity: "Simple",
-      site: site,
-      creation_date: "2022-10-01",
-      modification_date:  "2022-10-01")
+                    file_name: "rtd_contract.pdf",
+                    document_category: "Agreement",
+                    document_category_confidence: 0.73,
+                    accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+                    department: "Public Transportation",
+                    complexity: "Simple",
+                    site: site,
+                    creation_date: "2022-10-01",
+                    modification_date: "2022-10-01")
     Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf",
-      file_name: "teahouse_rules.pdf",
-      document_category: "Notice",
-      document_category_confidence: 0.71,
-      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
-      department: "The Earl Gray Team",
-      complexity: "Complex",
-      site: site,
-      creation_date: "2022-10-01",
-      modification_date:  "2023-10-01")
+                    file_name: "teahouse_rules.pdf",
+                    document_category: "Notice",
+                    document_category_confidence: 0.71,
+                    accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+                    department: "The Earl Gray Team",
+                    complexity: "Complex",
+                    site: site,
+                    creation_date: "2022-10-01",
+                    modification_date: "2023-10-01")
     Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf",
-      file_name: "farmers_market_2023.pdf",
-      document_category: "Notice",
-      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
-      department: "Parks and Recreation",
-      complexity: "Complex",
-      site: site,
-      creation_date: "2022-10-01",
-      modification_date: "2024-10-01")
+                    file_name: "farmers_market_2023.pdf",
+                    document_category: "Notice",
+                    accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+                    department: "Parks and Recreation",
+                    complexity: "Complex",
+                    site: site,
+                    creation_date: "2022-10-01",
+                    modification_date: "2024-10-01")
     visit "/"
     click_link "City of Boulder"
     within("#document-list #document-tabs") do
@@ -479,5 +479,50 @@ describe "documents function as expected", js: true, type: :feature do
     end
     sleep(1)
     assert_match "sites/#{site.id}/documents?accessibility_recommendation=Needs+Decision&category=Agreement&department=Public+Transportation&status=Audit+Backlog", current_url
+  end
+
+  it "search filtration is a bit fuzzy" do
+    site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "https://bouldercolorado.gov/docs/new_rtd_contract.pdf",
+                    file_name: "200-rtd_contract.pdf",
+                    document_category: "Agreement",
+                    document_category_confidence: 0.73,
+                    accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+                    department: "Public Transportation",
+                    complexity: "Simple",
+                    site: site,
+                    creation_date: "2022-10-01",
+                    modification_date: "2022-10-01")
+    visit "/"
+    click_link "City of Boulder"
+    # Test search that should have always worked.
+    within("#sidebar") do
+      fill_in id: "filename", with: "200"
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "200-rtd_contract.pdf"
+    end
+    # Test wildcard replacement.
+    within("#sidebar") do
+      fill_in id: "filename", with: "200-rtd-contract"
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "200-rtd_contract.pdf"
+    end
+    # Test URL search.
+    within("#sidebar") do
+      fill_in id: "filename", with: "new rtd contract"
+      click_button "Apply Filters"
+    end
+    within("#document-list") do
+      expect(page).to have_css("tbody tr", count: 1)
+      expect(page).to have_content "200-rtd_contract.pdf"
+    end
   end
 end
