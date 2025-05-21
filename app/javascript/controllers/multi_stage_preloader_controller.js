@@ -2,7 +2,7 @@ import {Controller} from "@hotwired/stimulus"
 
 export default class extends Controller {
 
-    STAGE_DURATION_SECONDS = 5;
+    STAGE_DURATION_SECONDS = 8;
 
     updateStageWrapperWidth(stageWrapper, currentStage) {
         if (currentStage) {
