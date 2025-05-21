@@ -57,15 +57,15 @@ class Document < ApplicationRecord
 
   DECISION_TYPES = {
     DEFAULT_DECISION => {"label" => "Needs Decision"},
-    IN_REVIEW_DECISION => {"label" => "PDF is in review"},
+    IN_REVIEW_DECISION => {"label" => "PDF is in Review"},
     DONE_DECISION => {
       "label" => "Done",
       "children" => {
-        ARCHIVE_DECISION => {"label" => "Place PDF in archive section"},
-        REMOVE_DECISION => {"label" => "Remove PDF from website"},
+        ARCHIVE_DECISION => {"label" => "Place PDF in Archive Section"},
+        REMOVE_DECISION => {"label" => "Remove PDF from Website"},
         CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
         REMEDIATE_DECISION => {"label" => "Remediate PDF"},
-        LEAVE_DECISION => {"label" => "Leave PDF as-is"}
+        LEAVE_DECISION => {"label" => "Leave PDF As-is"}
       }
     }
   }
@@ -167,11 +167,6 @@ class Document < ApplicationRecord
     # Filenames, cannot have characters with special url-meaning.
     unescaped_file_name.delete("?")
       .delete("/")
-  end
-
-  def file_name_from_url
-    uri = URI.parse(normalized_url)
-    File.basename(uri.path)
   end
 
   def url
