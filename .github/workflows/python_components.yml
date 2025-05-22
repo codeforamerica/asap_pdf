@@ -28,3 +28,6 @@ jobs:
     - name: Run Linting
       run: |
         ./python_components/scripts/ci_run_linting.sh "./python_components/."
+    - name: Run Tests
+      run: |
+        pytest python_components/ -W ignore::DeprecationWarning

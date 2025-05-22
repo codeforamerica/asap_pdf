@@ -6,6 +6,7 @@ packaging==24.2
 pandas==2.2.3
 pip-chill==1.0.3
 platformdirs==4.2.2
+pytest==8.3.5
 setuptools==75.8.2
 scikit-learn==1.6.1
 tomli==2.0.1

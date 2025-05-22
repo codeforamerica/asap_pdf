@@ -128,23 +128,6 @@ namespace :documents do
     end
   end
 
-  desc "Update statuses."
-  task update_statuses: :environment do
-    PaperTrail.request(enabled: false) do
-      Document.find_each do |document|
-        document.status = case document.status
-        when "In Review"
-          Document::IN_REVIEW_STATUS
-        when "Audit Done"
-          Document::DONE_STATUS
-        else
-          Document::DEFAULT_STATUS
-        end
-        document.save
-      end
-    end
-  end
-
   desc "Update departments."
   task :update_department, [:site_id] => :environment do |t, args|
     Document.where(site_id: args.site_id).each do |document|
@@ -167,6 +150,22 @@ namespace :documents do
           (document.number_of_tables == 0) &&
           (document.number_of_images == 0)) ? Document::SIMPLE_STATUS : Document::COMPLEX_STATUS
         document.complexity = complexity
+        document.save
+      end
+    end
+  end
+
+  desc "Validate creation and modification dates."
+  task validate_dates: :environment do
+    Document.where.not(creation_date: nil).each do |document|
+      if document.creation_date.year < 1995 || document.creation_date.year > Date.current.year
+        document.creation_date = nil
+        document.save
+      end
+    end
+    Document.where.not(modification_date: nil).each do |document|
+      if document.modification_date.year < 1995 || document.modification_date.year > Date.current.year
+        document.modification_date = nil
         document.save
       end
     end

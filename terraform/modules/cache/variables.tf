@@ -18,13 +18,13 @@ variable "security_group_id" {
   type        = string
 }
 
-variable "node_type" {
-  description = "ElastiCache node type"
-  type        = string
-}
-
-variable "port" {
-  description = "Port number for Redis"
-  type        = number
-  default     = 6379
-}
+# variable "node_type" {
+#   description = "ElastiCache node type"
+#   type        = string
+# }
+#
+# variable "port" {
+#   description = "Port number for Redis"
+#   type        = number
+#   default     = 6379
+# }

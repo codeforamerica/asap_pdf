@@ -181,8 +181,13 @@
               </div>
               <div class="mt-3 space-y-2">
                 <% version.changeset.each do |field, values| %>
+                  <% if field == "accessibility_recommendation" %>
+                    <% label = "Decision" %>
+                  <% else %>
+                    <% label = field.humanize %>
+                  <% end %>
                   <div class="text-sm">
-                    <span class="font-medium text-gray-700"><%= field.humanize %>:</span>
+                    <span class="font-medium text-gray-700"><%= label %>:</span>
                     <span class="text-red-600 line-through"><%= values[0].presence || "blank" %></span>
                     <span class="mx-2">→</span>
                     <span class="text-green-600"><%= values[1].presence || "blank" %></span>
