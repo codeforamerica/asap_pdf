@@ -1,0 +1,58 @@
+import datetime
+import re
+
+from evaluation.utility.document import Document, Result
+from evaluation.utility.helpers import logger
+
+date_formats = (
+    "%Y%m%d",           # "20240315"
+    "%m%d%Y",           # "03152024"
+    "%d%m%Y",           # "15032024"
+    "%B%d%Y",           # "march152024" (full month, lowercase)
+    "%b%d%Y",           # "mar152024" (abbreviated month, lowercase)
+    "%d%B%Y",           # "15march2024"
+    "%Y%m%d%H%M%S",     # "20240315143000"
+    "%B%Y",             # "march2024" (month year only)
+    "%b%Y",             # "mar2024" (abbreviated month year)
+    "%d%B",             # "15march" (day month, no year)
+    "%B%Y",             # "march2024" (full month, lowercase)
+)
+
+def evaluate_archival_exception(
+    branch_name: str,
+    commit_sha: str,
+    document: Document,) -> Result:
+    evaluations = {
+        "created_date": evaluate_created_date(document.created_date, document.ai_exception["why_archival"]),
+        "correctness": evaluate_correctness(document.human_exception["is_archival"], document.ai_exception["is_archival"]),
+    }
+    success_count = 0
+    for evaluation in evaluations.values():
+        success_count += evaluation["score"]
+    return Result(
+        branch_name=branch_name,
+        commit_sha=commit_sha,
+        file_name=document.file_name,
+        metric_name="deterministic_archival_exception",
+        metric_version=1,
+        score=success_count/len(evaluations),
+        details=evaluations,
+    )
+
+
+def evaluate_created_date(created_date: str, text: str) -> dict:
+    normalized_text = text.lower()
+    normalized_text = re.sub(r'[^a-zA-Z0-9]', "", normalized_text)
+    logger.info(f"normalized_text: {normalized_text}")
+    creation_dt =  datetime.datetime.strptime(created_date,  "%Y-%m-%d %H:%M:%S")
+    for date_format in date_formats:
+        logger.info(f"date: {creation_dt.strftime(date_format)}")
+        if creation_dt.strftime(date_format).lower() in normalized_text:
+            return {"score": 1, "reason": "Created date was found in explanation."}
+    return {"score": 0, "reason": "Created date was not found in explanation."}
+
+
+def evaluate_correctness(human_result: bool, ai_result: bool) -> dict:
+    if human_result == ai_result:
+        return {"score": 1, "reason": f"Human and AI results match {ai_result}."}
+    return {"score": 0, "reason": f"Human and AI results do not match, {human_result} and {ai_result} respectively."}

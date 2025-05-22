@@ -1,6 +1,9 @@
 import evaluate
 from evaluation.utility.document import Document, Result
 
+"""
+Provides a BertScore metric. Not currently ready for production use.
+"""
 
 def calculate_bert_score(
     branch_name: str,
@@ -19,6 +22,7 @@ def calculate_bert_score(
         commit_sha=commit_sha,
         file_name=document.file_name,
         metric_name="bert_score",
+        metric_version=1,
         score=metric_result["f1"][0],
         details=metric_result,
     )

@@ -3,7 +3,7 @@ import os
 import time
 
 from deepeval.models import MultimodalGeminiModel
-from evaluation import summary, utility
+from evaluation import exception, summary, utility
 from pydantic import ValidationError
 
 
@@ -41,6 +41,13 @@ def handler(event, context):
             event["commit_sha"],
             local_mode=local_mode
         )
+        exception_eval_wrapper = exception.EvaluationWrapper(
+            eval_model,
+            event["inference_model"],
+            event["branch_name"],
+            event["commit_sha"],
+            local_mode=local_mode
+        )
         output = []
         for document_dict in event["documents"]:
             utility.helpers.logger.info(
@@ -55,7 +62,9 @@ def handler(event, context):
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
             time.sleep(10)
-            results = summary_eval_wrapper.evaluate(document_model)
+            #results = summary_eval_wrapper.evaluate(document_model)
+            #output.extend(results)
+            results = exception_eval_wrapper.evaluate(document_model)
             output.extend(results)
         if "asap_endpoint" in event.keys():
             utility.helpers.logger.info("Writing eval results to Rails API")

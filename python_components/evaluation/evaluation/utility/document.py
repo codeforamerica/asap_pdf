@@ -20,6 +20,10 @@ class Document(BaseModel):
     human_summary: Optional[str] = None
     ai_summary: Optional[str] = None
     images: Optional[list] = None
+    created_date: Optional[str] = None
+    modification_date: Optional[str] = None
+    ai_exception: Optional[list] = None
+    human_exception: Optional[dict] = None
 
 
 class Result(BaseModel):
