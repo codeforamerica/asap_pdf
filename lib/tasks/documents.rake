@@ -154,4 +154,20 @@ namespace :documents do
       end
     end
   end
+
+  desc "Validate creation and modification dates."
+  task validate_dates: :environment do
+    Document.where.not(creation_date: nil).each do |document|
+      if document.creation_date.year < 1995 || document.creation_date.year > Date.current.year
+        document.creation_date = nil
+        document.save
+      end
+    end
+    Document.where.not(modification_date: nil).each do |document|
+      if document.modification_date.year < 1995 || document.modification_date.year > Date.current.year
+        document.modification_date = nil
+        document.save
+      end
+    end
+  end
 end

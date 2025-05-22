@@ -93,7 +93,8 @@ def get_feature_matrix(pdfs):
     source_dummies = pd.DataFrame.sparse.from_spmatrix(
         mlb.fit_transform(pdfs["source_keywords"])
     )
-    source_dummies.columns = "source_" + mlb.classes_
+    if len(source_dummies.columns) > 0:
+        source_dummies.columns = "source_" + mlb.classes_
 
     url_dummies = pd.DataFrame.sparse.from_spmatrix(
         mlb.fit_transform(pdfs["url_keywords"])
@@ -150,9 +151,6 @@ def get_predictions(feature_matrix, model_path):
     return prediction_labels, confidences
 
 
-labels = get_labels()
-label_mapping = {ind: label for label, ind in labels.items()}
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Uses paths to a CSV of PDFs and a model for document classification"
@@ -163,9 +161,14 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    labels = get_labels()
+    label_mapping = {ind: label for label, ind in labels.items()}
+
     pdf_features = get_features(args.pdfs_path)
     pdf_feature_matrix = get_feature_matrix(pdf_features)
+    del pdf_features
     predictions, confidences = get_predictions(pdf_feature_matrix, "xgboost_model.json")
+    del pdf_feature_matrix
 
     output = pd.read_csv(args.pdfs_path)
     output["predicted_category"] = predictions

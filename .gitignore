@@ -150,6 +150,8 @@ terraform.tfvars
 python_components/*/config.json
 python_components/*/__pycache__
 python_components/*/*/__pycache__
+python_components/*/.pytest_cache
+python_components/*/*/.pytest_cache
 
 db/schema.rb
 

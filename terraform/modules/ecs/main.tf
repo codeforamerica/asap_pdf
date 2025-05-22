@@ -1,5 +1,5 @@
 module "fargate_service" {
-  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.2.1"
+  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=configurable-resources"
 
   project       = var.project_name
   project_short = var.project_name
@@ -12,6 +12,8 @@ module "fargate_service" {
   private_subnets = var.private_subnets
   public_subnets  = var.public_subnets
   logging_key_id  = var.logging_key_id
+  cpu = 1024
+  memory = 2048
   container_port  = 3000
 
   execution_policies = [aws_iam_policy.ecs_task_secrets_policy.arn, aws_iam_policy.ecs_s3_access.arn]

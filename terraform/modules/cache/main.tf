@@ -29,10 +29,10 @@ resource "aws_elasticache_parameter_group" "main" {
 resource "aws_elasticache_cluster" "main" {
   cluster_id           = "${var.project_name}-${var.environment}"
   engine               = "redis"
-  node_type            = var.node_type
+  node_type            = "cache.t3.micro"
   num_cache_nodes      = 1
   parameter_group_name = aws_elasticache_parameter_group.main.name
-  port                 = var.port
+  port                 = 6379
   subnet_group_name    = aws_elasticache_subnet_group.main.name
   security_group_ids   = [var.security_group_id]
 

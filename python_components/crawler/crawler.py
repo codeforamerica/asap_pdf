@@ -185,7 +185,9 @@ def parse_pdf_date(date_string):
     # Removes the timeszone information from the date string
     if len(date_string) == 0:
         return None
-    return datetime.strptime(date_string[2:14], "%Y%m%d%H%M%S")
+    if date_string.startswith("D:"):
+        return datetime.strptime(date_string[2:16], "%Y%m%d%H%M%S")
+    return datetime.strptime(date_string[:16], "%Y%m%d%H%M%S")
 
 
 def get_pdf_metadata(pdfs, output_path):
@@ -233,7 +235,7 @@ def get_pdf_metadata(pdfs, output_path):
                     with io.BytesIO(response.content) as mem_obj:
                         try:
                             pdf_file = pymupdf.Document(stream=mem_obj)
-
+                            tqdm.write(f"Reading: {pdf_url}")
                             file_name = default_file_name
                             pdf_title = pdf_file.metadata.get("title")
                             if pdf_title and (len(pdf_title.strip()) > 0):
@@ -266,11 +268,11 @@ def get_pdf_metadata(pdfs, output_path):
                                 "text_around_link": texts,
                             }
                             csv_writer.writerow(row)
-                        except:  # noqa:
-                            # print(f'Error reading: {pdf_url}')
+                        except pymupdf.FileDataError:  # noqa:
+                            tqdm.write(f"Document isn't a PDF: {pdf_url}")
                             continue
             except:  # noqa
-                # print(f'Error reading: {pdf_url}')
+                tqdm.write(f"Error reading: {pdf_url}")
                 continue
 
     return None
@@ -298,12 +300,12 @@ if __name__ == "__main__":
 
     if use_sitemap:
         all_pages = parse_sitemap(sitemap)
-        print(f"Pages found from sitemap: {len(all_pages)}")
+        tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
 
         pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
-        print("Visited all pages on the sitemap.")
+        tqdm.write("Visited all pages on the sitemap.")
     else:
-        print("Doing recursive search instead.")
+        tqdm.write("Doing recursive search instead.")
         pdfs, visited = bfs_search_pdfs(
             args.url,
             allowable_domains,
@@ -312,7 +314,7 @@ if __name__ == "__main__":
             max_depth=depth,
         )
 
-    print(f"PDFs found: {len(pdfs)}")
+    tqdm.write(f"PDFs found: {len(pdfs)}")
     with open(args.output_path.replace(".csv", ".json"), "w") as f:
         json.dump(dict(pdfs), f, indent=4)
     get_pdf_metadata(pdfs, args.output_path)
