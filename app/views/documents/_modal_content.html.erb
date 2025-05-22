@@ -29,7 +29,7 @@
             <i class="fas fa-wand-magic-sparkles mr-1"></i>
             Summarize Document
           </button>
-          <button class="btn btn-primary btn-sm hidden" data-summarize-target="preloader">
+          <button class="btn btn-primary btn-sm hidden opacity-75" data-summarize-target="preloader">
             <span class="loading loading-spinner"></span>
             Summarizing...
           </button>
@@ -151,14 +151,14 @@
               <i class="fas fa-wand-magic-sparkles mr-1"></i>
               Get AI Exception Check
             </button>
-            <button class="btn btn-primary btn-sm hidden multi-stage-preloader" data-recommendation-list-target="preloader" data-controller="multi-stage-preloader">
+            <button class="btn btn-primary btn-sm hidden multi-stage-preloader opacity-75" data-recommendation-list-target="preloader" data-controller="multi-stage-preloader">
               <span class="loading loading-spinner"></span>
               <div class="stages relative">
-                <span class="stage active">Getting AI Exception Check...</span>
+                <span class="stage active">Beginning AI Exception Check...</span>
                 <span class="stage inactive">Fetching document...</span>
-                <span class="stage inactive">Converting document...</span>
                 <span class="stage inactive">Asking AI...</span>
                 <span class="stage inactive">Thinking...</span>
+                <span class="stage inactive">Retrieving results...</span>
               </div>
             </button>
           </div>
