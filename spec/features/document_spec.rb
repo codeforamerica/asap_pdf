@@ -529,7 +529,7 @@ describe "documents function as expected", js: true, type: :feature do
       file_name: "200-rtd_contract.pdf",
       document_category: "Agreement",
       document_category_confidence: 0.73,
-      accessibility_recommendation: Document::DEFAULT_ACCESSIBILITY_RECOMMENDATION,
+      accessibility_recommendation: Document::DEFAULT_DECISION,
       department: "Public Transportation",
       complexity: "Simple",
       site: site,
