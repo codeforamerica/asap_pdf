@@ -34,6 +34,13 @@ def handler(event, context):
         )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
+        summary_eval_wrapper = summary.EvaluationWrapper(
+            eval_model,
+            event["inference_model"],
+            event["branch_name"],
+            event["commit_sha"],
+            local_mode=local_mode
+        )
         output = []
         for document_dict in event["documents"]:
             utility.helpers.logger.info(
@@ -47,31 +54,9 @@ def handler(event, context):
                 document_model, "/tmp/data", event["page_limit"]
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
-            utility.helpers.logger.info("Beginning summarization.")
             time.sleep(10)
-            # todo abstract this for other domains besides "summary"
-            summary.add_summary_to_document(
-                document_model,
-                event["inference_model"],
-                local_mode,
-                event["page_limit"],
-            )
-            utility.helpers.logger.info(
-                "Summarization complete. Performing related evaluations."
-            )
-            result = summary.evaluation(
-                event["branch_name"], event["commit_sha"], document_model, eval_model
-            )
-            result.evaluation_model = event["evaluation_model"]
-            result.inference_model = event["inference_model"]
-            output.append(dict(result))
-            utility.helpers.logger.info("Calculating Rouge score.")
-            result = summary.calculate_rouge_score(
-                event["branch_name"], event["commit_sha"], document_model
-            )
-            result.inference_model = event["inference_model"]
-            output.append(dict(result))
-            utility.helpers.logger.info("Evaluation complete.")
+            results = summary_eval_wrapper.evaluate(document_model)
+            output.extend(results)
         if "asap_endpoint" in event.keys():
             utility.helpers.logger.info("Writing eval results to Rails API")
             # todo write API endpoint and put a call here.

@@ -566,6 +566,7 @@ def evaluation(
         commit_sha=commit_sha,
         file_name=document.file_name,
         metric_name="deepeval_mllm_summary",
+        metric_version=1,
         score=metric.score,
         reason=metric.reason,
         details=details,

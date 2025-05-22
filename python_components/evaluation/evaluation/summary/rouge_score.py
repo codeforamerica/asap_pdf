@@ -20,6 +20,7 @@ def calculate_rouge_score(
         commit_sha=commit_sha,
         file_name=document.file_name,
         metric_name="rouge_score",
+        metric_version=1,
         score=metric_result["rougeLsum"],
         details=metric_result,
     )
