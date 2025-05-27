@@ -19,9 +19,9 @@ from deepeval.test_case import (
     MLLMTestCaseParams,
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
-from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
 from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
 from evaluation.utility.document import Document, Result, convert_model_list
+from evaluation.utility.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
 
 
 class MultimodalInputSummarization(BaseMetric):
@@ -462,10 +462,9 @@ class MultimodalInputSummarization(BaseMetric):
 
     async def _a_generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+        prompt = MllMInputFaithfulnessTemplate.generate_truths(images,
             extraction_limit=self.truths_extraction_limit,
         )
-        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Truths)
             self.evaluation_cost += cost
@@ -481,10 +480,9 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+        prompt = MllMInputFaithfulnessTemplate.generate_truths(images,
             extraction_limit=self.truths_extraction_limit,
         )
-        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Truths)
             self.evaluation_cost += cost

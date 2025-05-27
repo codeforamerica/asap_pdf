@@ -30,7 +30,7 @@ def handler(event, context):
         )
         # todo Abstract: create a utility helper for this.
         eval_model = MultimodalGeminiModel(
-            model=event["evaluation_model"], api_key=api_key
+            model_name=event["evaluation_model"], api_key=api_key
         )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
@@ -62,8 +62,8 @@ def handler(event, context):
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
             time.sleep(10)
-            #results = summary_eval_wrapper.evaluate(document_model)
-            #output.extend(results)
+            results = summary_eval_wrapper.evaluate(document_model)
+            output.extend(results)
             results = exception_eval_wrapper.evaluate(document_model)
             output.extend(results)
         if "asap_endpoint" in event.keys():

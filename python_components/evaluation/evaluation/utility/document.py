@@ -22,7 +22,7 @@ class Document(BaseModel):
     images: Optional[list] = None
     created_date: Optional[str] = None
     modification_date: Optional[str] = None
-    ai_exception: Optional[list] = None
+    ai_exception: Optional[dict] = None
     human_exception: Optional[dict] = None
 
 

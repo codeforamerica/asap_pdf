@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from deepeval.test_case import MLLMImage
 
 class MllMInputFaithfulnessTemplate:
     @staticmethod
@@ -33,25 +34,30 @@ JSON:
 """
 
     @staticmethod
-    def generate_truths(extraction_limit: Optional[int] = None):
+    def generate_truths(retrieval_context: List[str|MLLMImage], extraction_limit: Optional[int] = None):
         if extraction_limit is None:
             limit = " FACTUAL, undisputed truths"
         elif extraction_limit == 1:
             limit = " the single most important FACTUAL, undisputed truth"
         else:
             limit = f" the {extraction_limit} most important FACTUAL, undisputed truths per document"
-        return f"""Based on the given images, please generate a comprehensive list of{limit}, that can inferred from the provided images.
+        return [f"""Based on the given text and images, please generate a comprehensive list of{limit}, that can inferred from the provided text and images.
 These truths, MUST BE COHERENT. They must NOT be taken out of context.
 
 Example:
+
+Example Text:
+"The following image was on Armand's phone."
+
 Example Description of Image:
 "An image is provided that depicts a grocery list with an extra note at the bottom."
 
 Example JSON: 
 {{
     "truths": [
+        "The image was on Armand's phone.",
         "The document is a grocery list.",
-        "Apples and almonds are on the list."
+        "Apples and almonds are on the list.",
         "There is a reminder to pick up Jill from the mall at 3pm."
     ]  
 }}
@@ -61,12 +67,15 @@ IMPORTANT: Please make sure to only return in JSON format, with the "truths" key
 Only include truths that are factual, BUT IT DOESN'T MATTER IF THEY ARE FACTUALLY CORRECT.
 **
 
+Text and Images:
+""", *retrieval_context, """
+
 JSON:
-"""
+"""]
 
     @staticmethod
-    def generate_verdicts(claims: List[str], retrieval_context: str):
-        return f"""Based on the given claims, which is a list of strings, generate a list of JSON objects to indicate whether EACH claim contradicts any facts in the retrieval context. The JSON will have 2 fields: 'verdict' and 'reason'.
+    def generate_verdicts(claims: List[str], retrieval_context: List[str|MLLMImage]):
+        return [f"""Based on the given claims, which is a list of strings, generate a list of JSON objects to indicate whether EACH claim contradicts any facts in the retrieval context. The JSON will have 2 fields: 'verdict' and 'reason'.
 The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given claim agrees with the context. 
 Provide a 'reason' ONLY if the answer is 'no'. 
 The provided claim is drawn from the actual output. Try to provide a correction in the reason using the facts in the retrieval context.
@@ -107,14 +116,14 @@ Claims made using vague, suggestive, speculative language such as 'may have', 'p
 Claims that is not backed up due to a lack of information/is not mentioned in the retrieval contexts MUST be answered 'idk', otherwise I WILL DIE.
 **
 
-Retrieval Contexts:
-{retrieval_context}
-
+Retrieval Contexts:""",
+                *retrieval_context,
+f"""
 Claims:
 {claims}
 
 JSON:
-"""
+"""]
 
     @staticmethod
     def generate_reason(score: float, contradictions: List[str]):
