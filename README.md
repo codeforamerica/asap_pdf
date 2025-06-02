@@ -4,6 +4,9 @@ A Rails application for navigating PDF Accessibility audits. We use traditional 
 stratify documents, guiding stakeholders through corrective action decision-making. In the future we hope to build in
 more accessibility auditing and remediation. For additional documentation, see the [docs](./docs) folder.
 
+Fill out [this Google Form](
+https://docs.google.com/forms/d/e/1FAIpQLSf2C4uKOgCTf-nrBM7bBWRSyNDELhE6c6EaHMN5Or71vyd7fw/viewform) to connect with Code for America and learn more.
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
