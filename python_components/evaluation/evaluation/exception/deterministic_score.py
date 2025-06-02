@@ -52,10 +52,8 @@ def evaluate_archival_exception(
 def evaluate_created_date(created_date: str, text: str) -> dict:
     normalized_text = text.lower()
     normalized_text = re.sub(r'[^a-zA-Z0-9]', "", normalized_text)
-    logger.info(f"normalized_text: {normalized_text}")
     creation_dt = datetime.datetime.strptime(created_date, "%Y-%m-%d %H:%M:%S")
     for date_format in date_formats:
-        logger.info(f"date: {creation_dt.strftime(date_format)}")
         if fnmatch.fnmatch(normalized_text, creation_dt.strftime(date_format).lower()):
             return {"score": 1, "reason": "Created date was found in explanation."}
     return {"score": 0, "reason": "Created date was not found in explanation."}

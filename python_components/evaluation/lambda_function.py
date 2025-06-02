@@ -62,8 +62,8 @@ def handler(event, context):
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
             time.sleep(10)
-            results = summary_eval_wrapper.evaluate(document_model)
-            output.extend(results)
+            #results = summary_eval_wrapper.evaluate(document_model)
+            #output.extend(results)
             results = exception_eval_wrapper.evaluate(document_model)
             output.extend(results)
         if "asap_endpoint" in event.keys():

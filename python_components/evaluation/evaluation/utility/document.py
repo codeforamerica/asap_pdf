@@ -38,8 +38,6 @@ class Result(BaseModel):
     details: Optional[dict] = None
     inference_model: Optional[str] = None
     evaluation_model: Optional[str] = None
-    created_date: Optional[str] = None
-    updated_date: Optional[str] = None
 
 
 class EvaluationWrapperBase(ABC):
