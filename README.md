@@ -119,7 +119,7 @@ Some basic API endpoints are currently provided.
 
 ## Contributing
 
-1. If contributing in Ruby, Ensure all tests pass and no new RuboCop violations are introduced. If contributing in
+1. If contributing in Ruby, ensure all tests pass and no new RuboCop violations are introduced. If contributing in
    Python, ensure all tests pass and that no new python linting violations are introduced.
 2. Update documentation as needed
 3. Follow the existing code style and conventions
