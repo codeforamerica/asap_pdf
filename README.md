@@ -15,10 +15,10 @@ Before you begin, ensure you have the following installed:
 * Node.js 18.17.0 (we recommend using `nvm` for version management)
 * Yarn (latest version)
 * Redis (for Sidekiq background jobs)
-* SQLite3 (default database, though we like PostgreSQL)
+* PostgreSQL locally or in a container.
 * Docker and Docker Compose (for LocalStack S3 in development)
 
-## Rails APP Development Setup
+## Rails App Development Setup
 
 1. Clone the repository:
    ```bash
@@ -69,8 +69,8 @@ The application will be available at http://localhost:3000
 
 The application includes several Python components for PDF processing:
 
-- Site Crawler: Discovers PDF files on government websites
-- Document Classifier: Determines document types using LLM
+- Site Crawler: Downloads PDF files and their metadata from government websites
+- Document Classifier: Determines document types using ML
 - Document Inference: LLM summary and exception check
 - Evaluation: Automated LLM evaluation suite.
 
@@ -94,14 +94,6 @@ The project includes several development tools:
 - **Overcommit**: Git hooks management
 - **Better Errors**: Enhanced error pages in development
 - **Bullet**: N+1 query detection
-
-## Environment Variables
-
-The following environment variables can be configured:
-
-- `REDIS_URL`: Redis connection URL (default: redis://localhost:6379/0)
-- `AWS_ACCESS_KEY_ID`: AWS access key for S3 in production
-- `AWS_SECRET_ACCESS_KEY`: AWS secret key for S3 in production
 
 ## API
 
@@ -128,7 +120,7 @@ Some basic API endpoints are currently provided.
 ## Contributing
 
 1. If contributing in Ruby, Ensure all tests pass and no new RuboCop violations are introduced. If contributing in
-   Python, Ensure all tests pass and that no new python linting violations are introduced.
+   Python, ensure all tests pass and that no new python linting violations are introduced.
 2. Update documentation as needed
 3. Follow the existing code style and conventions
 

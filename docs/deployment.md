@@ -16,7 +16,6 @@ ASAP begin by forking the repository.
         - ECR repository
         - ECS cluster and service
         - GitHub Actions OIDC provider and role
-        -
         - AWS Secrets Manager secrets
       ```bash
       tofu init

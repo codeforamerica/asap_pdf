@@ -1,6 +1,6 @@
 # Python Components
 
-The document crawler and classification components are currently used manually. Their containers are built from the Python base image. The document_inference and evaluation components are meant to be executed as AWS Lambda functions. Their containers are built from the Amazon Lambda Python Base images.
+The document crawler and classification components are currently used manually. Their containers are built from the Python base image. The document inference and evaluation components are meant to be executed as AWS Lambda functions. Their containers are built from the Amazon Lambda Python Base images.
 
 For local development, Lambda compatible components should be setup automatically by running `docker compose up` in the project root. Lambda functions should return JSON responses with `statusCode` and `body` keys.
 
