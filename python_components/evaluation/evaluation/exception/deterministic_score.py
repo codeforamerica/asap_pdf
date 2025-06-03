@@ -7,18 +7,18 @@ from dateutil import parser
 from evaluation.utility.document import Document
 
 date_formats = (
-    "*%Y%m%d*",         # "20240315"
-    "*%m%d%Y*",         # "03152024"
-    "*%m%Y*",           # "032024"
-    "*%d%m%Y*",         # "15032024"
-    "*%B%d%Y*",         # "march152024" (full month, lowercase)
-    "*%b%d%Y*",         # "mar152024" (abbreviated month, lowercase)
-    "*%d%B%Y*",         # "15march2024"
-    "*%Y%m%d%H%M%S*",   # "20240315143000"
-    "*%B%Y*",           # "march2024" (month year only)
-    "*%b%Y*",           # "mar2024" (abbreviated month year)
-    "*%d%B*",           # "15march" (day month, no year)
-    "*%B%Y*",           # "march2024" (full month, lowercase)
+    "*%Y%m%d*",  # "20240315"
+    "*%m%d%Y*",  # "03152024"
+    "*%m%Y*",  # "032024"
+    "*%d%m%Y*",  # "15032024"
+    "*%B%d%Y*",  # "march152024" (full month, lowercase)
+    "*%b%d%Y*",  # "mar152024" (abbreviated month, lowercase)
+    "*%d%B%Y*",  # "15march2024"
+    "*%Y%m%d%H%M%S*",  # "20240315143000"
+    "*%B%Y*",  # "march2024" (month year only)
+    "*%b%Y*",  # "mar2024" (abbreviated month year)
+    "*%d%B*",  # "15march" (day month, no year)
+    "*%B%Y*",  # "march2024" (full month, lowercase)
 )
 
 spacy.cli.download("en_core_web_sm")
@@ -88,8 +88,13 @@ def evaluate_modified_date_spacey(modified_date: str, text: str) -> dict:
     for date_found in dates:
         try:
             date_object = parser.parse(date_found)
-            if (abs(date_object - year_month).days > 365) or (date_object > compliance_deadline):
-                return {"score": 0, "reason": "Modified date was found in explanation. It's a year beyond the created date or it mentions any date beyond the compliance deadline."}
+            if (abs(date_object - year_month).days > 365) or (
+                date_object > compliance_deadline
+            ):
+                return {
+                    "score": 0,
+                    "reason": "Modified date was found in explanation. It's a year beyond the created date or it mentions any date beyond the compliance deadline.",
+                }
         except parser.ParserError:
             continue
     return {"score": 1, "reason": "Modified date was not found in explanation."}
