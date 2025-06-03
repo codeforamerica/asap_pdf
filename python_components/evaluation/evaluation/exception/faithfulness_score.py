@@ -27,7 +27,7 @@ from deepeval.metrics.faithfulness.schema import (
 
 from evaluation.utility.document import Document, Result, convert_model_list
 from evaluation.utility.helpers import logger
-from evaluation.utility.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
+from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
 
 

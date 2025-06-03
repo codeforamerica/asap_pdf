@@ -3,7 +3,7 @@ from typing import List
 from deepeval.test_case import MLLMTestCase
 
 from evaluation.utility.document import EvaluationWrapperBase, Document, Result, convert_model_list
-from evaluation.summary.mllmsummarization import MultimodalInputSummarization
+from evaluation.summary.summarization_score import MultimodalInputSummarization
 from evaluation.summary.rouge_score import calculate_rouge_score
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.helpers import logger

@@ -19,9 +19,9 @@ from deepeval.test_case import (
     MLLMTestCaseParams,
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
-from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
+from evaluation.summary.summarization_template import MLLMSummarizationTemplate
 from evaluation.utility.document import Document, Result, convert_model_list
-from evaluation.utility.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
+from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
 
 class MultimodalInputSummarization(BaseMetric):

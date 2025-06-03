@@ -1,7 +1,6 @@
 __all__ = [
-    "mllmsummarization",
-    "mllmsummarizationtemplate",
-    "mllmfaithfulnesstemplate",
+    "summarization_score",
+    "summarization_template",
     "bert_score",
     "rouge_score",
 ]
