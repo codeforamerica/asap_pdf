@@ -1,9 +1,15 @@
 from typing import List
 
-from evaluation.exception.deterministic_score import evaluate_archival_exception
+from deepeval.test_case import (
+    LLMTestCase,
+    MLLMTestCase,
+)
+
+from evaluation.exception import deterministic_score
 from evaluation.exception.faithfulness_score import evaluate_faithfulness
-from evaluation.exception.ceq_score import evaluate_ceq
-from evaluation.utility.document import EvaluationWrapperBase, Document, Result
+from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
+from evaluation.exception.faithfulness_score import MultiModalFaithfulnessMetric
+from evaluation.utility.document import EvaluationWrapperBase, Document, Result, convert_model_list
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.helpers import logger
 
@@ -20,43 +26,66 @@ class EvaluationWrapper(EvaluationWrapperBase):
 
     def evaluate(self, document: Document) -> List[Result]:
         output = []
+        # Perform inferences that we want to evaluate.
         result = get_inference_for_document(document, self.inference_model_name, "exception", self.local_mode, self.page_limit)
         logger.info(
             "Exception check complete. Performing related evaluations."
         )
         document.ai_exception = result
-        # @todo abstract this.
-        # @todo results could be created from a factory to prevent all the extra setting here.
+        # Perform deterministic evaluations.
         logger.info(f"Beginning deterministic evaluation...")
-        result = evaluate_archival_exception(
-            self.branch_name, self.commit_sha, document
-        )
-        result.inference_model = self.inference_model_name
+        score, details = deterministic_score.evaluate_archival_exception(document)
+        result = self.result_factory.new({
+            "metric_name": "deterministic_archival_exception",
+            "metric_version": 1,
+            "score": score,
+            "details": details,
+            "file_name": document.file_name,
+        })
         output.append(dict(result))
+        # Perform close ended questions evaluation.
         logger.info(f"Beginning CEQ evaluation...")
-        result = evaluate_ceq(
-            self.branch_name,
-            self.commit_sha,
-            document,
-            self.evaluation_model,
-            ARCHIVE_EXCEPTION_CEQ,
-            document.ai_exception["why_archival"],
-            ARCHIVE_EXCEPTION_CONTEXT
+        metric = CloseEndedQuestionsMetric(
+            model=self.evaluation_model,
+            assessment_questions=ARCHIVE_EXCEPTION_CEQ
         )
-        result.metric_name = f"{result.metric_name}:archival"
-        result.evaluation_model = self.evaluation_model.model_name
-        result.inference_model = self.inference_model_name
+        details = document.llm_context()
+        details.append(f"Qualifies as Archival: {document.human_exception["is_archival"]}")
+        test_case = LLMTestCase(
+            actual_output=[document.ai_exception["why_archival"]],
+            retrieval_context=ARCHIVE_EXCEPTION_CONTEXT,
+            input="\n\n".join(details)
+        )
+        metric.measure(test_case)
+        result = self.result_factory.new({
+            "metric_name": "deepeval_llm_ceq:archival",
+            "metric_version": 1,
+            "score": metric.score,
+            "details": {
+                "verdicts": convert_model_list(metric.verdicts)
+            },
+            "file_name": document.file_name,
+        })
         output.append(dict(result))
-        result = evaluate_faithfulness(
-            self.branch_name,
-            self.commit_sha,
-            document,
-            self.evaluation_model,
-            ARCHIVE_EXCEPTION_CONTEXT,
-            document.ai_exception["why_archival"],
+        # Perform faithfulness evaluation.
+        metric = MultiModalFaithfulnessMetric(model=self.evaluation_model)
+        test_case = MLLMTestCase(
+            input=[],
+            retrieval_context=ARCHIVE_EXCEPTION_CONTEXT + document.images,
+            actual_output=[document.ai_exception["why_archival"]]
         )
-        result.metric_name = f"{result.metric_name}:archival"
-        result.evaluation_model = self.evaluation_model.model_name
-        result.inference_model = self.inference_model_name
+        metric.measure(test_case)
+        details = {
+            "truths": metric.truths,
+            "claims": metric.claims,
+            "verdicts": convert_model_list(metric.verdicts),
+        }
+        result = self.result_factory.new({
+            "metric_name": "deepeval_mllm_faithfulness:archival",
+            "metric_version": 1,
+            "score": metric.score,
+            "details": details,
+            "file_name": document.file_name,
+        })
         output.append(dict(result))
         return output

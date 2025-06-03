@@ -344,31 +344,3 @@ class MultiModalFaithfulnessMetric(BaseMetric):
     @property
     def __name__(self):
         return "MLLM Faithfulness"
-
-
-def evaluate_faithfulness(
-    branch_name: str,
-    commit_sha: str,
-    document: Document,
-    model: DeepEvalBaseMLLM,
-    extra_context: [],
-    ai_text: str,
-) -> Result:
-    metric = MultiModalFaithfulnessMetric(model=model)
-    test_case = MLLMTestCase(input=[], retrieval_context=extra_context + document.images, actual_output=[ai_text])
-    metric.measure(test_case)
-    details = {
-        "truths": metric.truths,
-        "claims": metric.claims,
-        "verdicts": convert_model_list(metric.verdicts),
-    }
-    return Result(
-        branch_name=branch_name,
-        commit_sha=commit_sha,
-        file_name=document.file_name,
-        metric_name="deepeval_mllm_faithfulness",
-        metric_version=1,
-        score=metric.score,
-        reason=metric.reason,
-        details=details,
-    )

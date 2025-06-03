@@ -156,37 +156,3 @@ class CloseEndedQuestionsMetric(BaseMetric):
     @property
     def __name__(self):
         return "Multi Modal Close Ended Questions"
-
-def evaluate_ceq(
-    branch_name: str,
-    commit_sha: str,
-    document: Document,
-    model: DeepEvalBaseLLM,
-    questions: [],
-    ai_text: str,
-    retrieval_context: Optional[str] = None,
-) -> Result:
-    metric = CloseEndedQuestionsMetric(model=model, assessment_questions=questions)
-    # @todo add more detail here.
-    document_details = [
-        f"Created Date: {document.created_date}",
-        f"Modified Date: {document.modification_date}",
-        f"Category: {document.category}",
-        f"Url: {document.url}",
-        f"Qualifies as Archival: {document.human_exception["is_archival"]}",
-    ]
-    test_case = LLMTestCase(actual_output=[ai_text], retrieval_context=retrieval_context, input="\n\n".join(document_details))
-    metric.measure(test_case)
-    details = {
-        "verdicts": convert_model_list(metric.verdicts),
-    }
-    return Result(
-        branch_name=branch_name,
-        commit_sha=commit_sha,
-        file_name=document.file_name,
-        metric_name="deepeval_llm_ceq",
-        metric_version=1,
-        score=metric.score,
-        reason=metric.reason,
-        details=details,
-    )

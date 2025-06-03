@@ -25,6 +25,14 @@ class Document(BaseModel):
     ai_exception: Optional[dict] = None
     human_exception: Optional[dict] = None
 
+    def llm_context(self):
+        return [
+            f"Created Date: {self.created_date}",
+            f"Modified Date: {self.modification_date}",
+            f"Category: {self.category}",
+            f"Url: {self.url}",
+        ]
+
 
 class Result(BaseModel):
     branch_name: str
@@ -40,6 +48,14 @@ class Result(BaseModel):
     evaluation_model: Optional[str] = None
 
 
+class ResultFactory:
+
+    def __init__(self, base_values: dict):
+        self.base_values = base_values
+
+    def new(self, values: dict) -> Result:
+        return Result.model_validate({**self.base_values, **values})
+
 class EvaluationWrapperBase(ABC):
 
     def __init__(self, evaluation_model: DeepEvalBaseMLLM|None, inference_model_name: str|None, branch_name: str, commit_sha: str, **kwargs):
@@ -49,11 +65,16 @@ class EvaluationWrapperBase(ABC):
         self.commit_sha = commit_sha
         self.page_limit = kwargs.get("page_limit", 7)
         self.local_mode = kwargs.get("local_mode", False)
+        self.result_factory = ResultFactory({
+            "evaluation_model_name": self.evaluation_model.model_name,
+            "inference_model_name": self.inference_model_name,
+            "branch_name": self.branch_name,
+            "commit_sha": self.commit_sha,
+        })
 
     @abstractmethod
     def evaluate(self, document: Document) -> List[Result]:
         pass
-
 
 def add_images_to_document(
     document: Document, output_path: str, page_limit: int

@@ -25,10 +25,7 @@ date_formats = (
 spacy.cli.download("en_core_web_sm")
 
 
-def evaluate_archival_exception(
-        branch_name: str,
-        commit_sha: str,
-        document: Document, ) -> Result:
+def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
         "created_date": evaluate_created_date(document.created_date, document.ai_exception["why_archival"]),
         "created_date_ner": evaluate_created_date_spacey(document.created_date, document.ai_exception["why_archival"]),
@@ -38,15 +35,8 @@ def evaluate_archival_exception(
     success_count = 0
     for evaluation in evaluations.values():
         success_count += evaluation["score"]
-    return Result(
-        branch_name=branch_name,
-        commit_sha=commit_sha,
-        file_name=document.file_name,
-        metric_name="deterministic_archival_exception",
-        metric_version=1,
-        score=success_count / len(evaluations),
-        details=evaluations,
-    )
+    score = success_count / len(evaluations)
+    return score, evaluations
 
 
 def evaluate_created_date(created_date: str, text: str) -> dict:
