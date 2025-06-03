@@ -16,6 +16,3 @@ pymupdf==1.25.5
 pypdf==5.3.1
 requests==2.32.3
 tomli==2.0.1
-wheel==0.45.1
-setuptools==75.8.2
-document-inference==0.0.0
