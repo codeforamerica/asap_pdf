@@ -1,6 +1,5 @@
 import json
 import os
-import time
 import traceback
 
 from deepeval.models import MultimodalGeminiModel
@@ -62,11 +61,12 @@ def handler(event, context):
                 document_model, "/tmp/data", event["page_limit"]
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
-            time.sleep(10)
-            results = summary_eval_wrapper.evaluate(document_model)
-            output.extend(results)
-            results = exception_eval_wrapper.evaluate(document_model)
-            output.extend(results)
+            if event["evaluation_component"] == "summary":
+                results = summary_eval_wrapper.evaluate(document_model)
+                output.extend(results)
+            if event["evaluation_component"] == "exception":
+                results = exception_eval_wrapper.evaluate(document_model)
+                output.extend(results)
         if "asap_endpoint" in event.keys():
             utility.helpers.logger.info("Writing eval results to Rails API")
             # todo write API endpoint and put a call here.

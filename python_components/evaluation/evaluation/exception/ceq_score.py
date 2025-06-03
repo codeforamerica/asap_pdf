@@ -153,4 +153,4 @@ class CloseEndedQuestionsMetric(BaseMetric):
 
     @property
     def __name__(self):
-        return "Multi Modal Close Ended Questions"
+        return "Close Ended Questions"
