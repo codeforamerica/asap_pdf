@@ -541,31 +541,3 @@ class MultimodalInputSummarization(BaseMetric):
     @property
     def __name__(self):
         return "Image Input to Text Summarization"
-
-
-def evaluation(
-    branch_name: str,
-    commit_sha: str,
-    document: Document,
-    model: deepeval.models.DeepEvalBaseMLLM,
-) -> Result:
-    metric = MultimodalInputSummarization(model=model)
-    test_case = MLLMTestCase(input=document.images, actual_output=document.ai_summary)
-    metric.measure(test_case)
-    details = {
-        "truths": metric.truths,
-        "claims": metric.claims,
-        "assessment_questions": convert_model_list(metric.assessment_questions),
-        "coverage_verdicts": convert_model_list(metric.coverage_verdicts),
-        "alignment_verdicts": convert_model_list(metric.alignment_verdicts),
-    }
-    return Result(
-        branch_name=branch_name,
-        commit_sha=commit_sha,
-        file_name=document.file_name,
-        metric_name="deepeval_mllm_summary",
-        metric_version=1,
-        score=metric.score,
-        reason=metric.reason,
-        details=details,
-    )

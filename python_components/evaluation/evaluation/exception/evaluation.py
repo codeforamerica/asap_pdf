@@ -6,7 +6,6 @@ from deepeval.test_case import (
 )
 
 from evaluation.exception import deterministic_score
-from evaluation.exception.faithfulness_score import evaluate_faithfulness
 from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
 from evaluation.exception.faithfulness_score import MultiModalFaithfulnessMetric
 from evaluation.utility.document import EvaluationWrapperBase, Document, Result, convert_model_list
@@ -41,6 +40,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             "score": score,
             "details": details,
             "file_name": document.file_name,
+            "evaluation_model_name": None,
         })
         output.append(dict(result))
         # Perform close ended questions evaluation.

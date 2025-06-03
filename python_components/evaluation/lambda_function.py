@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import traceback
 
 from deepeval.models import MultimodalGeminiModel
 from evaluation import exception, summary, utility
@@ -8,6 +9,7 @@ from pydantic import ValidationError
 
 
 def handler(event, context):
+    local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
     try:
         if type(event) is str:
             event = json.loads(event)
@@ -19,7 +21,6 @@ def handler(event, context):
         utility.helpers.logger.info("Validating event")
         utility.helpers.validate_event(event)
         utility.helpers.logger.info("Event is valid")
-        local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
         utility.helpers.logger.info(f"Local mode set to: {local_mode}")
         utility.helpers.logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
@@ -62,8 +63,8 @@ def handler(event, context):
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
             time.sleep(10)
-            #results = summary_eval_wrapper.evaluate(document_model)
-            #output.extend(results)
+            results = summary_eval_wrapper.evaluate(document_model)
+            output.extend(results)
             results = exception_eval_wrapper.evaluate(document_model)
             output.extend(results)
         if "asap_endpoint" in event.keys():
@@ -96,4 +97,7 @@ def handler(event, context):
         message = f"Invalid document supplied to event: {str(e)}"
         return {"statusCode": 500, "body": message}
     except Exception as e:
-        return {"statusCode": 500, "body": str(e)}
+        output = str(e)
+        if local_mode:
+            output = traceback.format_exc()
+        return {"statusCode": 500, "body": output}
