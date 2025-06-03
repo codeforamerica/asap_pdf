@@ -1,8 +1,8 @@
 import os
 import urllib
+from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, List, Optional
-from abc import ABC, abstractmethod
 
 import boto3
 import fitz
@@ -56,25 +56,36 @@ class ResultFactory:
     def new(self, values: dict) -> Result:
         return Result.model_validate({**self.base_values, **values})
 
+
 class EvaluationWrapperBase(ABC):
 
-    def __init__(self, evaluation_model: DeepEvalBaseMLLM|None, inference_model_name: str|None, branch_name: str, commit_sha: str, **kwargs):
+    def __init__(
+        self,
+        evaluation_model: DeepEvalBaseMLLM | None,
+        inference_model_name: str | None,
+        branch_name: str,
+        commit_sha: str,
+        **kwargs,
+    ):
         self.evaluation_model = evaluation_model
         self.inference_model_name = inference_model_name
         self.branch_name = branch_name
         self.commit_sha = commit_sha
         self.page_limit = kwargs.get("page_limit", 7)
         self.local_mode = kwargs.get("local_mode", False)
-        self.result_factory = ResultFactory({
-            "evaluation_model_name": self.evaluation_model.model_name,
-            "inference_model_name": self.inference_model_name,
-            "branch_name": self.branch_name,
-            "commit_sha": self.commit_sha,
-        })
+        self.result_factory = ResultFactory(
+            {
+                "evaluation_model_name": self.evaluation_model.model_name,
+                "inference_model_name": self.inference_model_name,
+                "branch_name": self.branch_name,
+                "commit_sha": self.commit_sha,
+            }
+        )
 
     @abstractmethod
     def evaluate(self, document: Document) -> List[Result]:
         pass
+
 
 def add_images_to_document(
     document: Document, output_path: str, page_limit: int

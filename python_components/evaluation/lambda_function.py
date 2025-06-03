@@ -40,14 +40,14 @@ def handler(event, context):
             event["inference_model"],
             event["branch_name"],
             event["commit_sha"],
-            local_mode=local_mode
+            local_mode=local_mode,
         )
         exception_eval_wrapper = exception.EvaluationWrapper(
             eval_model,
             event["inference_model"],
             event["branch_name"],
             event["commit_sha"],
-            local_mode=local_mode
+            local_mode=local_mode,
         )
         output = []
         for document_dict in event["documents"]:

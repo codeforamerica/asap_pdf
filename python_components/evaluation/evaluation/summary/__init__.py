@@ -1,3 +1,4 @@
+# flake8: noqa
 __all__ = [
     "summarization_score",
     "summarization_template",

@@ -1,7 +1,6 @@
 import asyncio
-from typing import List, Union
+from typing import Union
 
-import deepeval.models
 from deepeval.metrics import BaseMetric
 from deepeval.metrics.faithfulness.schema import *  # noqa F403
 from deepeval.metrics.indicator import metric_progress_indicator
@@ -20,7 +19,6 @@ from deepeval.test_case import (
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.summarization_template import MLLMSummarizationTemplate
-from evaluation.utility.document import Document, Result, convert_model_list
 from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
 
@@ -462,7 +460,8 @@ class MultimodalInputSummarization(BaseMetric):
 
     async def _a_generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(images,
+        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+            images,
             extraction_limit=self.truths_extraction_limit,
         )
         if self.using_native_model:
@@ -480,7 +479,8 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(images,
+        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+            images,
             extraction_limit=self.truths_extraction_limit,
         )
         if self.using_native_model:

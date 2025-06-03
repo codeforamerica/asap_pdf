@@ -1,12 +1,17 @@
 from typing import List
 
 from deepeval.test_case import MLLMTestCase
-
-from evaluation.utility.document import EvaluationWrapperBase, Document, Result, convert_model_list
-from evaluation.summary.summarization_score import MultimodalInputSummarization
 from evaluation.summary.rouge_score import calculate_rouge_score
+from evaluation.summary.summarization_score import MultimodalInputSummarization
 from evaluation.utility.asap_inference import get_inference_for_document
+from evaluation.utility.document import (
+    Document,
+    EvaluationWrapperBase,
+    Result,
+    convert_model_list,
+)
 from evaluation.utility.helpers import logger
+
 
 class EvaluationWrapper(EvaluationWrapperBase):
 
@@ -14,14 +19,20 @@ class EvaluationWrapper(EvaluationWrapperBase):
         output = []
         # Perform any inference required for evaluation.
         logger.info("Beginning summarization.")
-        result = get_inference_for_document(document, self.inference_model_name, "summary", self.local_mode, self.page_limit)
-        logger.info(
-            "Summarization complete. Performing related evaluations."
+        result = get_inference_for_document(
+            document,
+            self.inference_model_name,
+            "summary",
+            self.local_mode,
+            self.page_limit,
         )
+        logger.info("Summarization complete. Performing related evaluations.")
         document.ai_summary = result["summary"]
         # Begin the DeepEval summary evaluation.
         metric = MultimodalInputSummarization(model=self.evaluation_model)
-        test_case = MLLMTestCase(input=document.images, actual_output=document.ai_summary)
+        test_case = MLLMTestCase(
+            input=document.images, actual_output=document.ai_summary
+        )
         metric.measure(test_case)
         details = {
             "truths": metric.truths,
@@ -30,26 +41,30 @@ class EvaluationWrapper(EvaluationWrapperBase):
             "coverage_verdicts": convert_model_list(metric.coverage_verdicts),
             "alignment_verdicts": convert_model_list(metric.alignment_verdicts),
         }
-        result = self.result_factory.new({
-            "metric_name": "deepeval_mllm_summary",
-            "metric_version": 1,
-            "score": metric.score,
-            "reason": metric.reason,
-            "details": details,
-            "file_name": document.file_name,
-        })
+        result = self.result_factory.new(
+            {
+                "metric_name": "deepeval_mllm_summary",
+                "metric_version": 1,
+                "score": metric.score,
+                "reason": metric.reason,
+                "details": details,
+                "file_name": document.file_name,
+            }
+        )
         output.append(dict(result))
         # Calculate Route score.
         logger.info("Calculating Rouge score.")
         score, details = calculate_rouge_score(document)
-        result = self.result_factory.new({
-            "metric_name": "rouge_score",
-            "metric_version": 1,
-            "score": score,
-            "details": details,
-            "file_name": document.file_name,
-            "evaluation_model_name": None,
-        })
+        result = self.result_factory.new(
+            {
+                "metric_name": "rouge_score",
+                "metric_version": 1,
+                "score": score,
+                "details": details,
+                "file_name": document.file_name,
+                "evaluation_model_name": None,
+            }
+        )
         logger.info("Evaluation complete.")
         result.inference_model = self.inference_model_name
         output.append(dict(result))

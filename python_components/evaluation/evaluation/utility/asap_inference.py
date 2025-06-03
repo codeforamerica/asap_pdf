@@ -20,7 +20,11 @@ def get_signature(session):
 
 
 def get_inference_for_document(
-    document: Document, inference_model_name: str, inference_type: str, local_mode: bool, page_number: int
+    document: Document,
+    inference_model_name: str,
+    inference_type: str,
+    local_mode: bool,
+    page_number: int,
 ) -> None:
     logger.info(f"Performing inference type {inference_type} for {document.url}...")
     if local_mode:

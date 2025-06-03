@@ -1,3 +1,4 @@
+# flake8: noqa
 __all__ = [
     "ceq_score",
     "ceq_schema",

@@ -1,34 +1,30 @@
-from typing import List, Optional, Union, Type
 import asyncio
+from typing import List, Optional, Type, Union
 
-from deepeval.test_case import (
-    MLLMTestCase,
-    MLLMTestCaseParams,
-    ConversationalTestCase,
-    MLLMImage,
-)
 from deepeval.metrics import BaseMetric
-from deepeval.utils import get_or_create_event_loop, prettify_list
-from deepeval.metrics.utils import (
-    construct_verbose_logs,
-    trimAndLoadJson,
-    check_mllm_test_case_params,
-    initialize_multimodal_model,
-)
-from deepeval.models import DeepEvalBaseMLLM
-from deepeval.metrics.indicator import metric_progress_indicator
 from deepeval.metrics.faithfulness.schema import (
+    Claims,
     FaithfulnessVerdict,
-    Verdicts,
     Reason,
     Truths,
-    Claims,
+    Verdicts,
 )
-
-from evaluation.utility.document import Document, Result, convert_model_list
-from evaluation.utility.helpers import logger
+from deepeval.metrics.indicator import metric_progress_indicator
+from deepeval.metrics.utils import (
+    check_mllm_test_case_params,
+    construct_verbose_logs,
+    initialize_multimodal_model,
+    trimAndLoadJson,
+)
+from deepeval.models import DeepEvalBaseMLLM
+from deepeval.test_case import (
+    ConversationalTestCase,
+    MLLMImage,
+    MLLMTestCase,
+    MLLMTestCaseParams,
+)
+from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
-
 
 
 class MultiModalFaithfulnessMetric(BaseMetric):
@@ -47,7 +43,9 @@ class MultiModalFaithfulnessMetric(BaseMetric):
         strict_mode: bool = False,
         verbose_mode: bool = False,
         truths_extraction_limit: Optional[int] = None,
-        evaluation_template: Type[MllMInputFaithfulnessTemplate] = MllMInputFaithfulnessTemplate,
+        evaluation_template: Type[
+            MllMInputFaithfulnessTemplate
+        ] = MllMInputFaithfulnessTemplate,
     ):
         self.threshold = 1 if strict_mode else threshold
         self.model, self.using_native_model = initialize_multimodal_model(model)
@@ -209,17 +207,13 @@ class MultiModalFaithfulnessMetric(BaseMetric):
             return verdicts
         else:
             try:
-                res: Verdicts = await self.model.a_generate(
-                    prompt, schema=Verdicts
-                )
+                res: Verdicts = await self.model.a_generate(prompt, schema=Verdicts)
                 verdicts = [item for item in res.verdicts]
                 return verdicts
             except TypeError:
                 res = await self.model.a_generate(prompt)
                 data = trimAndLoadJson(res, self)
-                verdicts = [
-                    FaithfulnessVerdict(**item) for item in data["verdicts"]
-                ]
+                verdicts = [FaithfulnessVerdict(**item) for item in data["verdicts"]]
                 return verdicts
 
     def _generate_verdicts(self) -> List[FaithfulnessVerdict]:
@@ -243,12 +237,12 @@ class MultiModalFaithfulnessMetric(BaseMetric):
             except TypeError:
                 res = self.model.generate(prompt)
                 data = trimAndLoadJson(res, self)
-                verdicts = [
-                    FaithfulnessVerdict(**item) for item in data["verdicts"]
-                ]
+                verdicts = [FaithfulnessVerdict(**item) for item in data["verdicts"]]
                 return verdicts
 
-    async def _a_generate_truths(self, retrieval_context: List[str|MLLMImage]) -> List[str]:
+    async def _a_generate_truths(
+        self, retrieval_context: List[str | MLLMImage]
+    ) -> List[str]:
         prompt = self.evaluation_template.generate_truths(
             retrieval_context=retrieval_context,
             extraction_limit=self.truths_extraction_limit,
@@ -266,7 +260,7 @@ class MultiModalFaithfulnessMetric(BaseMetric):
                 data = trimAndLoadJson(res, self)
                 return data["truths"]
 
-    def _generate_truths(self, retrieval_context: List[str|MLLMImage]) -> List[str]:
+    def _generate_truths(self, retrieval_context: List[str | MLLMImage]) -> List[str]:
         prompt = self.evaluation_template.generate_truths(
             retrieval_context=retrieval_context,
             extraction_limit=self.truths_extraction_limit,
@@ -285,9 +279,7 @@ class MultiModalFaithfulnessMetric(BaseMetric):
                 return data["truths"]
 
     async def _a_generate_claims(self, actual_output: str) -> List[str]:
-        prompt = self.evaluation_template.generate_claims(
-            actual_output=actual_output
-        )
+        prompt = self.evaluation_template.generate_claims(actual_output=actual_output)
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Claims)
             self.evaluation_cost += cost
@@ -302,9 +294,7 @@ class MultiModalFaithfulnessMetric(BaseMetric):
                 return data["claims"]
 
     def _generate_claims(self, actual_output: str) -> List[str]:
-        prompt = self.evaluation_template.generate_claims(
-            actual_output=actual_output
-        )
+        prompt = self.evaluation_template.generate_claims(actual_output=actual_output)
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Claims)
             self.evaluation_cost += cost
@@ -337,7 +327,7 @@ class MultiModalFaithfulnessMetric(BaseMetric):
         else:
             try:
                 self.success = self.score >= self.threshold
-            except:
+            except TypeError:
                 self.success = False
         return self.success
 

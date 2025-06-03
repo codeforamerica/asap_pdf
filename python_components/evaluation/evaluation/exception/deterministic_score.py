@@ -4,9 +4,7 @@ import re
 
 import spacy
 from dateutil import parser
-
-from evaluation.utility.document import Document, Result
-from evaluation.utility.helpers import logger
+from evaluation.utility.document import Document
 
 date_formats = (
     "%Y%m%d",  # "20240315"
@@ -27,10 +25,16 @@ spacy.cli.download("en_core_web_sm")
 
 def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
-        "created_date": evaluate_created_date(document.created_date, document.ai_exception["why_archival"]),
-        "created_date_ner": evaluate_created_date_spacey(document.created_date, document.ai_exception["why_archival"]),
-        "correctness": evaluate_correctness(document.human_exception["is_archival"],
-                                            document.ai_exception["is_archival"]),
+        "created_date": evaluate_created_date(
+            document.created_date, document.ai_exception["why_archival"]
+        ),
+        "created_date_ner": evaluate_created_date_spacey(
+            document.created_date, document.ai_exception["why_archival"]
+        ),
+        "correctness": evaluate_correctness(
+            document.human_exception["is_archival"],
+            document.ai_exception["is_archival"],
+        ),
     }
     success_count = 0
     for evaluation in evaluations.values():
@@ -41,7 +45,7 @@ def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
 
 def evaluate_created_date(created_date: str, text: str) -> dict:
     normalized_text = text.lower()
-    normalized_text = re.sub(r'[^a-zA-Z0-9]', "", normalized_text)
+    normalized_text = re.sub(r"[^a-zA-Z0-9]", "", normalized_text)
     creation_dt = datetime.datetime.strptime(created_date, "%Y-%m-%d %H:%M:%S")
     for date_format in date_formats:
         if fnmatch.fnmatch(normalized_text, creation_dt.strftime(date_format).lower()):
@@ -62,4 +66,7 @@ def evaluate_created_date_spacey(created_date: str, text: str) -> dict:
 def evaluate_correctness(human_result: bool, ai_result: bool) -> dict:
     if human_result == ai_result:
         return {"score": 1, "reason": f"Human and AI results match {ai_result}."}
-    return {"score": 0, "reason": f"Human and AI results do not match, {human_result} and {ai_result} respectively."}
+    return {
+        "score": 0,
+        "reason": f"Human and AI results do not match, {human_result} and {ai_result} respectively.",
+    }
