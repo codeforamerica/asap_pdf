@@ -11,7 +11,7 @@ class CEQTemplate:
         additional_context: Optional[str] = "",
     ) -> str:
         return f"""Based on the provided "Evaluation Text" answer the following close ended questions, labeled as "Questions" with JSON. The JSON will have 2 fields: 'verdict' and 'reason'.
-The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given question is answered by the "Evaluation Text". 
+The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given question is answered by the "Evaluation Text".
 Provide a 'reason' ONLY if the answer is 'no' OR 'idk'.
 
 You should include "Document Metadata" in your reasoning.
