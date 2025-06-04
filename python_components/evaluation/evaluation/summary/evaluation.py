@@ -1,8 +1,14 @@
 from typing import List
 
 from deepeval.test_case import MLLMTestCase
+from evaluation.summary.rouge_score import METRIC_VERSION as ROUGE_VERSION
 from evaluation.summary.rouge_score import calculate_rouge_score
-from evaluation.summary.summarization_score import MultimodalInputSummarization
+from evaluation.summary.summarization_score import (
+    METRIC_VERSION as SUMMARIZATION_VERSION,
+)
+from evaluation.summary.summarization_score import (
+    MultimodalInputSummarization,
+)
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
 from evaluation.utility.helpers import logger
@@ -40,7 +46,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
         result = self.result_factory.new(
             {
                 "metric_name": "deepeval_mllm_summary",
-                "metric_version": 1,
+                "metric_version": SUMMARIZATION_VERSION,
                 "score": metric.score,
                 "reason": metric.reason,
                 "details": details,
@@ -48,13 +54,13 @@ class EvaluationWrapper(EvaluationWrapperBase):
             }
         )
         output.append(dict(result))
-        # Calculate Rouge score.
-        logger.info("Calculating Rouge score.")
+        # Calculate ROUGE score.
+        logger.info("Calculating ROUGE score.")
         score, details = calculate_rouge_score(document)
         result = self.result_factory.new(
             {
                 "metric_name": "rouge_score",
-                "metric_version": 1,
+                "metric_version": ROUGE_VERSION,
                 "score": score,
                 "details": details,
                 "file_name": document.file_name,

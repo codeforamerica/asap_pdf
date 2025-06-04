@@ -7,7 +7,9 @@ from dateutil import parser
 from evaluation.utility.helpers import logger
 from evaluation.utility.schema import Document
 
-date_formats = (
+METRIC_VERSION = 1
+
+DATE_FORMATS = (
     "*%Y%m%d*",  # "20240315"
     "*%m%d%Y*",  # "03152024"
     "*%m%Y*",  # "032024"
@@ -65,7 +67,7 @@ def evaluate_created_date(created_date: str, text: str) -> dict:
             "reason": f"Provided created date, {created_date} was malformed.",
         }
     logger.info("Assessing date strings...")
-    for date_format in date_formats:
+    for date_format in DATE_FORMATS:
         if fnmatch.fnmatch(normalized_text, creation_dt.strftime(date_format).lower()):
             return {"score": 1, "reason": "Created date was found in explanation."}
     return {"score": 0, "reason": "Created date was not found in explanation."}

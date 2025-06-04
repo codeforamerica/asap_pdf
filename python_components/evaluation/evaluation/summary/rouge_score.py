@@ -2,6 +2,8 @@ import evaluate
 import numpy as np
 from evaluation.utility.schema import Document
 
+METRIC_VERSION = 1
+
 
 def calculate_rouge_score(document: Document) -> tuple[float, dict]:
     metric = evaluate.load("rouge")

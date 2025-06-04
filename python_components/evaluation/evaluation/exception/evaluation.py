@@ -4,9 +4,20 @@ from deepeval.test_case import (
     LLMTestCase,
     MLLMTestCase,
 )
-from evaluation.exception import deterministic_score
+from evaluation.exception.ceq_score import METRIC_VERSION as CEQ_VERSION
 from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
-from evaluation.exception.faithfulness_score import MultiModalFaithfulnessMetric
+from evaluation.exception.deterministic_score import (
+    METRIC_VERSION as DETERMINISTIC_VERSION,
+)
+from evaluation.exception.deterministic_score import (
+    evaluate_archival_exception,
+)
+from evaluation.exception.faithfulness_score import (
+    METRIC_VERSION as FAITHFULNESS_VERSION,
+)
+from evaluation.exception.faithfulness_score import (
+    MultiModalFaithfulnessMetric,
+)
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
 from evaluation.utility.helpers import logger
@@ -40,11 +51,11 @@ class EvaluationWrapper(EvaluationWrapperBase):
         document.ai_exception = result
         # Perform deterministic evaluations.
         logger.info("Beginning deterministic evaluation...")
-        score, details = deterministic_score.evaluate_archival_exception(document)
+        score, details = evaluate_archival_exception(document)
         result = self.result_factory.new(
             {
                 "metric_name": "deterministic_archival_exception",
-                "metric_version": 1,
+                "metric_version": DETERMINISTIC_VERSION,
                 "score": score,
                 "details": details,
                 "file_name": document.file_name,
@@ -70,7 +81,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
         result = self.result_factory.new(
             {
                 "metric_name": "deepeval_llm_ceq:archival",
-                "metric_version": 1,
+                "metric_version": CEQ_VERSION,
                 "score": metric.score,
                 "details": {"verdicts": convert_model_list(metric.verdicts)},
                 "file_name": document.file_name,
@@ -94,7 +105,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
         result = self.result_factory.new(
             {
                 "metric_name": "deepeval_mllm_faithfulness:archival",
-                "metric_version": 1,
+                "metric_version": FAITHFULNESS_VERSION,
                 "score": metric.score,
                 "details": details,
                 "file_name": document.file_name,

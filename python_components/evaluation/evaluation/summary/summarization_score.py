@@ -21,6 +21,8 @@ from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.summarization_template import MLLMSummarizationTemplate
 from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
+METRIC_VERSION = 1
+
 
 class MultimodalInputSummarization(BaseMetric):
 

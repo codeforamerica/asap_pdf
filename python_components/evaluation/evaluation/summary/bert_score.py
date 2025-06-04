@@ -5,6 +5,8 @@ from evaluation.utility.schema import Document
 Provides a BertScore metric. Not currently ready for production use.
 """
 
+METRIC_VERSION = 1
+
 
 def calculate_bert_score(document: Document) -> tuple[float, dict]:
     metric = evaluate.load("bertscore")

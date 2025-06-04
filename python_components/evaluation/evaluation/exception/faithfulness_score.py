@@ -26,6 +26,8 @@ from deepeval.test_case import (
 from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
+METRIC_VERSION = 1
+
 
 class MultiModalFaithfulnessMetric(BaseMetric):
     _required_params: List[MLLMTestCaseParams] = [

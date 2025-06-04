@@ -17,6 +17,8 @@ from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.exception.ceq_schema import CEQVerdict, Verdicts
 from evaluation.exception.ceq_template import CEQTemplate
 
+METRIC_VERSION = 1
+
 
 class CloseEndedQuestionsMetric(BaseMetric):
     _required_params: List[LLMTestCaseParams] = [
