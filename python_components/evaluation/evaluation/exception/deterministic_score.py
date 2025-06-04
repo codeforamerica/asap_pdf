@@ -5,6 +5,7 @@ import re
 import spacy
 from dateutil import parser
 from evaluation.utility.document import Document
+from evaluation.utility.helpers import logger
 
 date_formats = (
     "*%Y%m%d*",  # "20240315"
@@ -26,10 +27,10 @@ def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
         "created_date": evaluate_created_date(
             document.created_date, document.ai_exception["why_archival"]
         ),
-        "created_date_ner": evaluate_created_date_spacey(
+        "created_date_ner": evaluate_created_date_spacy(
             document.created_date, document.ai_exception["why_archival"]
         ),
-        "modified_date_ner": evaluate_modified_date_spacey(
+        "modified_date_ner": evaluate_modified_date_spacy(
             document.modification_date, document.ai_exception["why_archival"]
         ),
         "correctness": evaluate_correctness(
@@ -51,6 +52,7 @@ def extract_year_month(date_string):
 
 
 def evaluate_created_date(created_date: str, text: str) -> dict:
+    logger.info("Evaluating creation date via fuzzy search...")
     normalized_text = text.lower()
     normalized_text = re.sub(r"[^a-zA-Z0-9]", "", normalized_text)
     creation_dt = datetime.datetime.strptime(created_date, "%Y-%m-%d %H:%M:%S")
@@ -60,7 +62,8 @@ def evaluate_created_date(created_date: str, text: str) -> dict:
     return {"score": 0, "reason": "Created date was not found in explanation."}
 
 
-def evaluate_created_date_spacey(created_date: str, text: str) -> dict:
+def evaluate_created_date_spacy(created_date: str, text: str) -> dict:
+    logger.info("Evaluating creation date via spacy search...")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(text)
     dates = [ent.text for ent in doc.ents if ent.label_ == "DATE"]
@@ -76,7 +79,8 @@ def evaluate_created_date_spacey(created_date: str, text: str) -> dict:
     return {"score": 0, "reason": "Created date was not found in explanation."}
 
 
-def evaluate_modified_date_spacey(modified_date: str, text: str) -> dict:
+def evaluate_modified_date_spacy(modified_date: str, text: str) -> dict:
+    logger.info("Evaluating modification date via spacy search...")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(text)
     dates = [ent.text for ent in doc.ents if ent.label_ == "DATE"]
@@ -98,6 +102,7 @@ def evaluate_modified_date_spacey(modified_date: str, text: str) -> dict:
 
 
 def evaluate_correctness(human_result: bool, ai_result: bool) -> dict:
+    logger.info("Evaluating correctness...")
     if human_result == ai_result:
         return {"score": 1, "reason": f"Human and AI results match {ai_result}."}
     return {
