@@ -1,6 +1,6 @@
 # ASAP PDF
 
-A Rails application for navigating PDF Accessibility audits. We use traditional NLP and LLM processes to prioritize and
+A Rails application for navigating PDF accessibility audits. We use traditional NLP and LLM processes to prioritize and
 stratify documents, guiding stakeholders through corrective action decision-making. In the future we hope to build in
 more accessibility auditing and remediation. For additional documentation, see the [docs](./docs) folder.
 
@@ -116,6 +116,10 @@ Some basic API endpoints are currently provided.
 - `POST /api/v1/documents/inference`
     - Adds or updates a document inference record.
     - Ideally used for storing AI results for documents.
+
+
+## Adding Sites, Documents and Users
+The comes with a few sample sites, sandbox documents and an admin user. See [documents.rake](lib/tasks/documents.rake) for details. Currently, the easiest way to create your own sites, documents and users would be via [a custom rake task](https://guides.rubyonrails.org/command_line.html#custom-rake-tasks) or by modifying the one provided. To scrape a list of your website's PDFs, check out the documentation in [the python_components directory](python_components/README.md).
 
 ## Contributing
 
