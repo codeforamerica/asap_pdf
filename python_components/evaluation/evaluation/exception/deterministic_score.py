@@ -22,6 +22,7 @@ date_formats = (
     "*%B%Y*",  # "march2024" (full month, lowercase)
 )
 
+
 def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
         "created_date": evaluate_created_date(
@@ -55,7 +56,15 @@ def evaluate_created_date(created_date: str, text: str) -> dict:
     logger.info("Evaluating creation date via fuzzy search...")
     normalized_text = text.lower()
     normalized_text = re.sub(r"[^a-zA-Z0-9]", "", normalized_text)
-    creation_dt = datetime.datetime.strptime(created_date, "%Y-%m-%d %H:%M:%S")
+    logger.info("Text normalized...")
+    try:
+        creation_dt = datetime.datetime.strptime(created_date, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        return {
+            "score": 0,
+            "reason": f"Provided created date, {created_date} was malformed.",
+        }
+    logger.info("Assessing date strings...")
     for date_format in date_formats:
         if fnmatch.fnmatch(normalized_text, creation_dt.strftime(date_format).lower()):
             return {"score": 1, "reason": "Created date was found in explanation."}
