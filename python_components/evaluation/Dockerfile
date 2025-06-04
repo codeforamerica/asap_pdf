@@ -15,7 +15,8 @@ COPY requirements.txt .
 
 # Install the specified packages
 RUN dnf install poppler-utils git -y &&\
-  pip install -r requirements.txt
+  pip install -r requirements.txt &&\
+  python -m spacy download en_core_web_sm
 
 COPY models.json .
 COPY pyproject.toml .

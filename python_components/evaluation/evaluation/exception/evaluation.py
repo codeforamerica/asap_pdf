@@ -82,6 +82,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
         )
         output.append(dict(result))
         # Perform faithfulness evaluation.
+        logger.info("Beginning Faithfulness evaluation...")
         metric = MultiModalFaithfulnessMetric(model=self.evaluation_model)
         test_case = MLLMTestCase(
             input=[],
@@ -104,4 +105,5 @@ class EvaluationWrapper(EvaluationWrapperBase):
             }
         )
         output.append(dict(result))
+        logger.info("Evaluation complete.")
         return output

@@ -21,9 +21,6 @@ date_formats = (
     "*%B%Y*",  # "march2024" (full month, lowercase)
 )
 
-spacy.cli.download("en_core_web_sm")
-
-
 def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
         "created_date": evaluate_created_date(
