@@ -5,8 +5,8 @@ from evaluation.summary.rouge_score import calculate_rouge_score
 from evaluation.summary.summarization_score import MultimodalInputSummarization
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
-from evaluation.utility.schema import Document, Result
 from evaluation.utility.helpers import logger
+from evaluation.utility.schema import Document, Result
 
 
 class EvaluationWrapper(EvaluationWrapperBase):

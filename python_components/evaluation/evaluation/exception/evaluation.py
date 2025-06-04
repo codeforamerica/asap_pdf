@@ -9,8 +9,8 @@ from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
 from evaluation.exception.faithfulness_score import MultiModalFaithfulnessMetric
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
-from evaluation.utility.schema import Document, Result
 from evaluation.utility.helpers import logger
+from evaluation.utility.schema import Document, Result
 
 ARCHIVE_EXCEPTION_CONTEXT = [
     "An ADA rule exempts archived web content from accessibility requirements if it meets all four criteria: the content was created before the compliance deadline (April, 2026) or reproduces pre-compliance physical documents, it's kept only for reference/research/recordkeeping purposes, and it's stored in a designated archive area. The content must also remain completely unchanged since being archived. All four conditions must be satisfied simultaneously for the exemption to apply."

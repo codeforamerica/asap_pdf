@@ -9,9 +9,9 @@ import fitz
 import pandas as pd
 from deepeval.models import DeepEvalBaseMLLM
 from deepeval.test_case import MLLMImage
-
 from evaluation.utility.helpers import logger
 from evaluation.utility.schema import Document, Result
+from pydantic import BaseModel
 
 
 class ResultFactory:

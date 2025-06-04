@@ -1,4 +1,4 @@
-name: Python Component Linting
+name: Python Component Linting and Tests
 
 on:
   push:
