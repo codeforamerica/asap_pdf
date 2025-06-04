@@ -7,5 +7,3 @@ __all__ = [
     "evaluation",
     "faithfulness_score",
 ]
-
-from evaluation.exception.evaluation import EvaluationWrapper

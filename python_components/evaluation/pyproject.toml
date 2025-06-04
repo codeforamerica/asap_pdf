@@ -10,3 +10,8 @@ dynamic = ["version"]
 
 [tool.setuptools]
 packages = ["evaluation"]
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]

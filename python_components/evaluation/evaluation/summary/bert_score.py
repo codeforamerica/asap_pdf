@@ -1,5 +1,5 @@
 import evaluate
-from evaluation.utility.document import Document
+from evaluation.utility.schema import Document
 
 """
 Provides a BertScore metric. Not currently ready for production use.

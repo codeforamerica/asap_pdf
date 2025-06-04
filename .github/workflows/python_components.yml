@@ -30,4 +30,7 @@ jobs:
         ./python_components/scripts/ci_run_linting.sh "./python_components/."
     - name: Run Tests
       run: |
+        cd python_components/evaluation
+        pip install .
+        cd ../../
         pytest python_components/ -W ignore::DeprecationWarning

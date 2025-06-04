@@ -4,7 +4,7 @@ import re
 
 import spacy
 from dateutil import parser
-from evaluation.utility.document import Document
+from evaluation.utility.schema import Document
 from evaluation.utility.helpers import logger
 
 date_formats = (
@@ -107,7 +107,7 @@ def evaluate_modified_date_spacy(modified_date: str, text: str) -> dict:
                 }
         except parser.ParserError:
             continue
-    return {"score": 1, "reason": "Modified date was not found in explanation."}
+    return {"score": 1, "reason": "Modified date was not found in explanation or was within expected date range."}
 
 
 def evaluate_correctness(human_result: bool, ai_result: bool) -> dict:

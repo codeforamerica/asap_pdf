@@ -1,5 +1,6 @@
 FROM python:3.12
 COPY requirements.txt .
 ENV PYTHONPATH=\/workspace
-RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
+RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir &&\
+    python -m spacy download en_core_web_sm
 WORKDIR /workspace

@@ -1,6 +1,6 @@
 import evaluate
 import numpy as np
-from evaluation.utility.document import Document
+from evaluation.utility.schema import Document
 
 
 def calculate_rouge_score(document: Document) -> tuple[float, dict]:

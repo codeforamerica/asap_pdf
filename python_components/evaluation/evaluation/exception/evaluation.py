@@ -8,12 +8,8 @@ from evaluation.exception import deterministic_score
 from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
 from evaluation.exception.faithfulness_score import MultiModalFaithfulnessMetric
 from evaluation.utility.asap_inference import get_inference_for_document
-from evaluation.utility.document import (
-    Document,
-    EvaluationWrapperBase,
-    Result,
-    convert_model_list,
-)
+from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
+from evaluation.utility.schema import Document, Result
 from evaluation.utility.helpers import logger
 
 ARCHIVE_EXCEPTION_CONTEXT = [
