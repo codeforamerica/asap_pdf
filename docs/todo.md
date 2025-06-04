@@ -1,15 +1,16 @@
 # TODO
 
-## Rails App
-- encoded url links are broken #35
-- status => Backlog, In Review, Done (better name?)
-- remove unknown or use Unknown instead of Other in csv files
+ASAP PDF is a work in progress. Here are some upcoming goals.
 
-## Crawler
-- URLs with backslashes show up as empty filenames in the CSV files: http://www.slcdocs.com\recorder\BOE.pdf
-- Seems like we're missing a lot of PDFs (Austin and Georgia mentioned they have a lot more)
+## Rails APP
+* Improved user and site management, including many to many user-site relationships
+* Accessibility audit and improvements
+* Store documents in S3 instead of requesting every time, ideally preprocess PDFs as images
+* Enable backend processing, queue up and bulk process documents via Sidekiq and Redis
 
-## Classifier
-- Use this list of classifications: "Agreement", "Agenda", "Brochure", "Diagram", "Flyer", "Form", "Form Instructions", "Job Announcement", "Job Description", "Letter", "Map", "Memo", "Policy", "Slides", "Press", "Procurement", "Notice", "Report", "Spreadsheet" (ideally load from json file for classifier and document.rb)
-- Change "Other" to "Unknown"
-- Review accuracy by classification.
+## Python Components
+* Add evaluation metrics for Accessibility check
+* Refactor and tune Accessibility check
+* Add evaluation metrics for HTML conversion
+* Add HTML conversion
+* Explore and implement an accessibility remediation/assessment strategy
