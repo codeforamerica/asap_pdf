@@ -14,7 +14,7 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements.txt .
 
 # Install the specified packages
-RUN dnf install poppler-utils -y &&\
+RUN dnf install poppler-utils git -y &&\
   pip install -r requirements.txt
 
 COPY models.json .
