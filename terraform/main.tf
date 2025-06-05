@@ -2,9 +2,9 @@ data "aws_caller_identity" "identity" {}
 
 terraform {
   backend "s3" {
-    bucket = "${var.project_name}-${var.environment}-tfstate"
-    key    = "${var.project_name}.tfstate"
-    region = var.aws_region
+    bucket         = "${var.project_name}-${var.environment}-tfstate"
+    key            = "${var.project_name}.tfstate"
+    region         = var.aws_region
     dynamodb_table = "${var.environment}.tfstate"
   }
 }
@@ -24,24 +24,24 @@ module "secrets" {
   secrets = {
     database = {
       description = "Credentials for our Database."
-      name = "/asap-pdf/production/database"
+      name        = "/asap-pdf/production/database"
       start_value = jsonencode({
-        host = ""
-        name = ""
+        host     = ""
+        name     = ""
         username = ""
         password = ""
       })
     }
     redis = {
       description = "The Redis/Elasticache url."
-      name = "/asap-pdf/production/redis"
+      name        = "/asap-pdf/production/redis"
       start_value = jsonencode({
         url = ""
       })
     }
     rails = {
       description = "The Rails master key."
-      name = "/asap-pdf/production/rails"
+      name        = "/asap-pdf/production/rails"
       start_value = jsonencode({
         master_key = ""
         secret_key = ""
@@ -49,12 +49,20 @@ module "secrets" {
     }
     google = {
       description = "The Rails master key."
-      name = "/asap-pdf/production/GOOGLE_AI_KEY"
+      name        = "/asap-pdf/production/GOOGLE_AI_KEY"
     }
     anthropic = {
       description = "The Rails master key."
-      name = "/asap-pdf/production/ANTHROPIC_KEY"
+      name        = "/asap-pdf/production/ANTHROPIC_KEY"
     }
+    google_service_account = {
+      description = "Service account credentials for evaluation tasks only."
+      name        = "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT"
+    },
+    google_sheet_id_evaluation = {
+      description = "The Google sheet id for evaluation tasks only."
+      name        = "/asap-pdf/production/GOOGLE_SHEET_ID_EVALUATION"
+    },
   }
 }
 
@@ -69,10 +77,10 @@ module "logging" {
 module "networking" {
   source = "./modules/networking"
 
-  project_name         = var.project_name
-  environment          = var.environment
+  project_name   = var.project_name
+  environment    = var.environment
   availability_zones = ["us-east-1a", "us-east-1b"]
-  logging_key_id       = module.logging.kms_key_arn
+  logging_key_id = module.logging.kms_key_arn
 }
 
 # Database
@@ -99,12 +107,12 @@ module "cache" {
 module "deployment" {
   source = "./modules/deployment"
 
-  project_name      = var.project_name
-  environment       = var.environment
+  project_name = var.project_name
+  environment  = var.environment
 
-  db_password_secret_arn = "${module.secrets.secrets["database"].secret_arn}:password"
-  aws_account_id         = data.aws_caller_identity.identity.account_id
-  backend_kms_arn        = module.backend.kms_key
+  db_password_secret_arn                   = "${module.secrets.secrets["database"].secret_arn}:password"
+  aws_account_id                           = data.aws_caller_identity.identity.account_id
+  backend_kms_arn                          = module.backend.kms_key
   document_inference_lambda_arn            = module.lambda.document_inference_lambda_arn
   document_inference_evaluation_lambda_arn = module.lambda.document_inference_evaluation_lambda_arn
   evaluation_lambda_arn                    = module.lambda.evaluation_lambda_arn
@@ -114,8 +122,8 @@ module "deployment" {
 module "ecs" {
   source = "./modules/ecs"
 
-  project_name      = var.project_name
-  environment       = var.environment
+  project_name = var.project_name
+  environment  = var.environment
   # @todo are these automatic? Do we need them?
   # security_group_id = module.networking.ecs_security_group_id
   # container_image   = "${module.deployment.ecr_repository_url}:latest"
@@ -129,15 +137,15 @@ module "ecs" {
   db_password_secret_arn      = "${module.secrets.secrets["database"].secret_arn}:password"
   secret_key_base_secret_arn  = "${module.secrets.secrets["rails"].secret_arn}:secret_key"
   rails_master_key_secret_arn = "${module.secrets.secrets["rails"].secret_arn}:master_key"
-  redis_url_secret_arn        = "${module.secrets.secrets["redis"].secret_arn}:url"
+  redis_url_secret_arn = "${module.secrets.secrets["redis"].secret_arn}:url"
   #target_group_arn            = module.networking.alb_target_group_arn
 
-  vpc_id          = module.networking.vpc_id
-  private_subnets = module.networking.private_subnet_ids
-  public_subnets  = module.networking.public_subnet_ids
-  logging_key_id  = module.logging.kms_key_arn
-  domain_name     = var.domain_name
-  aws_s3_bucket_arn   = aws_s3_bucket.documents.arn
+  vpc_id            = module.networking.vpc_id
+  private_subnets   = module.networking.private_subnet_ids
+  public_subnets    = module.networking.public_subnet_ids
+  logging_key_id    = module.logging.kms_key_arn
+  domain_name       = var.domain_name
+  aws_s3_bucket_arn = aws_s3_bucket.documents.arn
 }
 
 # LAMBDA
@@ -153,6 +161,8 @@ module "lambda" {
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
   secret_google_ai_key_arn                         = module.secrets.secrets["google"].secret_arn
   secret_anthropic_key_arn                         = module.secrets.secrets["anthropic"].secret_arn
+  secret_google_service_account_evals_key_arn      = module.secrets.secrets["google_service_account"].secret_arn
+  secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["google_sheet_id_evaluation"].secret_arn
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
 }
 
@@ -182,7 +192,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "documents" {
     }
   }
 }
-
 
 
 # IAM policy for ECS tasks to access Secrets Manager

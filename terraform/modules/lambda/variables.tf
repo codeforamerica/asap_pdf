@@ -48,3 +48,13 @@ variable "s3_document_bucket_arn" {
   description = "Secret arn for our Anthropic creds."
   type        = string
 }
+
+variable "secret_google_service_account_evals_key_arn" {
+  description = "Google service account creds for evals."
+  type        = string
+}
+
+variable "secret_google_sheet_id_evals_key_arn" {
+  description = "Google sheet id for evals."
+  type        = string
+}
