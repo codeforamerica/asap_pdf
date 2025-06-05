@@ -2,39 +2,35 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Get the current branch
 BRANCH_NAME=$(git branch --show-current)
 
-TMP_PAYLOAD=$(mktemp)
-
-echo $DOCUMENTS_JSON
-
 while IFS= read -r line; do
-jq -n \
-   --arg eval_model "$EVALUATION_MODEL" \
-   --arg inference_model "$INFERENCE_MODEL" \
-   --arg evaluation_component "$EVALUATION_COMPONENT" \
-   --arg bucket "$OUTPUT_BUCKET_NAME" \
-   --arg branch "$BRANCH_NAME" \
-   --arg commit "$COMMIT_SHA" \
-   --argjson docs "$line"  \
-   '{
-     evaluation_model: $eval_model,
-     inference_model: $inference_model,
-     evaluation_component: $evaluation_component,
-     output_s3_bucket: $bucket,
-     branch_name: $branch,
-     commit_sha: $commit,
-     page_limit: 7,
-     output_google_sheet: "True",
-     documents: [$docs]
-   }' > $TMP_PAYLOAD
-   aws lambda invoke \
-  --cli-read-timeout 900 \
-  --function-name $FUNCTION_NAME \
-  --cli-binary-format raw-in-base64-out \
-  --payload file://$TMP_PAYLOAD \
-   /dev/stdout >> output.json &
+  payload=$(jq -n \
+      --arg eval_model "$EVALUATION_MODEL" \
+      --arg inference_model "$INFERENCE_MODEL" \
+      --arg evaluation_component "$EVALUATION_COMPONENT" \
+      --arg bucket "$OUTPUT_BUCKET_NAME" \
+      --arg branch "$BRANCH_NAME" \
+      --arg commit "$COMMIT_SHA" \
+      --argjson docs "$line"  \
+      '{
+       evaluation_model: $eval_model,
+       inference_model: $inference_model,
+       evaluation_component: $evaluation_component,
+       output_s3_bucket: $bucket,
+       branch_name: $branch,
+       commit_sha: $commit,
+       page_limit: 7,
+       output_google_sheet: "True",
+       documents: [$docs]
+      }')
+  echo "$payload"
+  echo "$payload" | aws lambda invoke \
+    --cli-read-timeout 900 \
+    --function-name $FUNCTION_NAME \
+    --cli-binary-format raw-in-base64-out \
+    --payload file:///dev/stdin \
+    /dev/stdout >> output.json &
 done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
 
 wait
