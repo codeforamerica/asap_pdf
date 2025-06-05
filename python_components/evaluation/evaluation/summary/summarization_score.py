@@ -1,7 +1,6 @@
 import asyncio
-from typing import List, Union
+from typing import Union
 
-import deepeval.models
 from deepeval.metrics import BaseMetric
 from deepeval.metrics.faithfulness.schema import *  # noqa F403
 from deepeval.metrics.indicator import metric_progress_indicator
@@ -19,9 +18,10 @@ from deepeval.test_case import (
     MLLMTestCaseParams,
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
-from evaluation.summary.mllmfaithfulnesstemplate import MllMInputFaithfulnessTemplate
-from evaluation.summary.mllmsummarizationtemplate import MLLMSummarizationTemplate
-from evaluation.utility.document import Document, Result, convert_model_list
+from evaluation.summary.summarization_template import MLLMSummarizationTemplate
+from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
+
+METRIC_VERSION = 1
 
 
 class MultimodalInputSummarization(BaseMetric):
@@ -463,9 +463,9 @@ class MultimodalInputSummarization(BaseMetric):
     async def _a_generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
+            images,
             extraction_limit=self.truths_extraction_limit,
         )
-        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Truths)
             self.evaluation_cost += cost
@@ -482,9 +482,9 @@ class MultimodalInputSummarization(BaseMetric):
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
         prompt = MllMInputFaithfulnessTemplate.generate_truths(
+            images,
             extraction_limit=self.truths_extraction_limit,
         )
-        prompt = [prompt] + images
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Truths)
             self.evaluation_cost += cost
@@ -543,30 +543,3 @@ class MultimodalInputSummarization(BaseMetric):
     @property
     def __name__(self):
         return "Image Input to Text Summarization"
-
-
-def evaluation(
-    branch_name: str,
-    commit_sha: str,
-    document: Document,
-    model: deepeval.models.DeepEvalBaseMLLM,
-) -> Result:
-    metric = MultimodalInputSummarization(model=model)
-    test_case = MLLMTestCase(input=document.images, actual_output=document.ai_summary)
-    metric.measure(test_case)
-    details = {
-        "truths": metric.truths,
-        "claims": metric.claims,
-        "assessment_questions": convert_model_list(metric.assessment_questions),
-        "coverage_verdicts": convert_model_list(metric.coverage_verdicts),
-        "alignment_verdicts": convert_model_list(metric.alignment_verdicts),
-    }
-    return Result(
-        branch_name=branch_name,
-        commit_sha=commit_sha,
-        file_name=document.file_name,
-        metric_name="deepeval_mllm_summary",
-        score=metric.score,
-        reason=metric.reason,
-        details=details,
-    )

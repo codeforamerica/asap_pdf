@@ -13,6 +13,7 @@ TMP_PAYLOAD=$(mktemp)
 jq -n \
    --arg eval_model "$EVALUATION_MODEL" \
    --arg inference_model "$INFERENCE_MODEL" \
+   --arg evaluation_component "$EVALUATION_COMPONENT" \
    --arg bucket "$OUTPUT_BUCKET_NAME" \
    --arg branch "$BRANCH_NAME" \
    --arg commit "$COMMIT_SHA" \
@@ -20,6 +21,7 @@ jq -n \
    '{
      evaluation_model: $eval_model,
      inference_model: $inference_model,
+     evaluation_component: $evaluation_component,
      output_s3_bucket: $bucket,
      branch_name: $branch,
      commit_sha: $commit,

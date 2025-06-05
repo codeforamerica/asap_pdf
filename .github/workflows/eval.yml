@@ -1,6 +1,26 @@
 name: AI Evaluation Suite
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      evaluation_component:
+        type: choice
+        description: Evaluation Component
+        options:
+          - summary
+          - exception
+      inference_model_name:
+        type: choice
+        description: Inference Model
+        options:
+          - gemini-2.5-pro-preview-03-25
+          - gemini-1.5-pro-latest
+      evaluation_model_name:
+        type: choice
+        description: Evaluation Model
+        options:
+          - gemini-2.5-pro-preview-03-25
+          - gemini-1.5-pro-latest
 
 env:
   AWS_REGION: us-east-1
@@ -101,9 +121,10 @@ jobs:
         env:
           REGION: ${{ env.AWS_REGION }}
           FUNCTION_NAME: "asap-pdf-evaluation-production"
-          EVALUATION_MODEL: "gemini-2.5-pro-preview-03-25"
-          INFERENCE_MODEL: "gemini-1.5-pro-latest"
+          EVALUATION_MODEL: ${{ github.event.inputs.evaluation_model_name }}
+          INFERENCE_MODEL: ${{ github.event.inputs.inference_model_name }}
           OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
+          EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh

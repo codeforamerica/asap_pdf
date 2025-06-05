@@ -1,1 +1,57 @@
-[{"file_name": "MINUTES%20December%202024.pdf", "url": "https://agr.georgia.gov/sites/default/files/documents/pest-control/MINUTES%20December%202024.pdf", "category": "Agenda", "human_summary": "Minutes for a December 12 2024 meeting of the Georgia Structural Pest Control Commission. During the meeting there were updates from the UGA Urban Entomology, Compliance and Enforcement, Certification and Training, among others."}, {"file_name": "VA S.A.V.E. Training One-Pager", "url": "https://www.mentalhealth.va.gov/suicide_prevention/docs/VA_SAVE_Training.pdf", "category": "Brochure", "human_summary": "Brochure highlighting four tips for helping veterans having thoughts of suicide. These include identifying the signs a veteran may be thinking about suicide, verballing asking them whether they are thinking of killing themself, validating their experiences, and encouraging them to get help by not leaving them alone, encouraging them to visit a hospital, and calling 911."}, {"file_name": "Microsoft Word - One-page reasonable accommodation form.docx", "url": "https://www.austintexas.gov/sites/default/files/files/HR/One-page_reasonable_accommodation_form.pdf", "category": "Form", "human_summary": "Form for applicants to request reasonable accommodation under the FHA. Information required includes the applicant’s name, contact information including the physical address where accommodation is needed, the accommodations requested and any relevant policies, and the applicant’s signature."}, {"file_name": "2013.07.16_PlanningCommission.pdf", "url": "http://www.slcdocs.com/attorney/COI/2013.07.16_PlanningCommission.pdf", "category": "Letter", "human_summary": "Letter from a city attorney at the Salt Lake City Law Department to the Salt Lake City Mayor dated July 13, 2013. Letter related to a potential conflict of interest between a member of the Salt Lake City Planning Commission and an application for the replacement of a building. The city attorney declined to prosecute the member of the commission for conflict of interest."}, {"file_name": "08.14.15.14.pdf", "url": "https://nathandeal.georgia.gov/sites/nathandeal.georgia.gov/files/related_files/document/08.14.15.14.pdf", "category": "Policy", "human_summary": "Executive order from the Georgia State Governor appointing a new member to the Board of Directors of the Georgia Regional Transportation Authority until June 2019. Order effective August 2015."}, {"file_name": "5.b-Vacancies-on-Boards-and-Commissions.pdf", "url": "https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2021/07/5.b-Vacancies-on-Boards-and-Commissions.pdf", "category": "Report", "human_summary": "San Rafael City Council agenda report from July 2021 meeting. Report discusses vacancies on the San Rafael Pickleweed Advisory and Special Library Parcel Tax Oversight Committee, and how the city clerk plans to fill those vacancies. Report includes a description of the positions, information on community outreach, and next steps."}]
+[
+  {
+    "file_name": "MINUTES%20December%202024.pdf",
+    "url": "https://agr.georgia.gov/sites/default/files/documents/pest-control/MINUTES%20December%202024.pdf",
+    "category": "Agenda",
+    "human_summary": "Minutes for a December 12 2024 meeting of the Georgia Structural Pest Control Commission. During the meeting there were updates from the UGA Urban Entomology, Compliance and Enforcement, Certification and Training, among others.",
+    "created_date": "2025-01-08 14:11:03",
+    "modification_date": "2025-01-08 14:11:05",
+    "human_exception": {
+      "is_archival": "True"
+    }
+  },
+  {
+    "file_name": "VA S.A.V.E. Training One-Pager",
+    "url": "https://www.mentalhealth.va.gov/suicide_prevention/docs/VA_SAVE_Training.pdf",
+    "category": "Brochure",
+    "human_summary": "Brochure highlighting four tips for helping veterans having thoughts of suicide. These include identifying the signs a veteran may be thinking about suicide, verballing asking them whether they are thinking of killing themself, validating their experiences, and encouraging them to get help by not leaving them alone, encouraging them to visit a hospital, and calling 911.",
+    "created_date": "2023-09-05 10:53:40",
+    "modification_date": "2023-09-05 14:10:59",
+    "human_exception": {
+      "is_archival": "False"
+    }
+  },
+  {
+    "file_name": "Microsoft Word - One-page reasonable accommodation form.docx",
+    "url": "https://www.austintexas.gov/sites/default/files/files/HR/One-page_reasonable_accommodation_form.pdf",
+    "category": "Form",
+    "human_summary": "Form for applicants to request reasonable accommodation under the FHA. Information required includes the applicant’s name, contact information including the physical address where accommodation is needed, the accommodations requested and any relevant policies, and the applicant’s signature.",
+    "created_date": "2016-12-09 15:36:09",
+    "modification_date": "2016-12-09 15:36:09",
+    "human_exception": {
+      "is_archival": "False"
+    }
+  },
+  {
+    "file_name": "2013.07.16_PlanningCommission.pdf",
+    "url": "http://www.slcdocs.com/attorney/COI/2013.07.16_PlanningCommission.pdf",
+    "category": "Letter",
+    "human_summary": "Letter from a city attorney at the Salt Lake City Law Department to the Salt Lake City Mayor dated July 13, 2013. Letter related to a potential conflict of interest between a member of the Salt Lake City Planning Commission and an application for the replacement of a building. The city attorney declined to prosecute the member of the commission for conflict of interest.",
+    "created_date": "2013-07-16 11:20:30",
+    "modification_date": "2015-08-26 10:40:03",
+    "human_exception": {
+      "is_archival": "True"
+    }
+  },
+  {
+    "file_name": "08.14.15.14.pdf",
+    "url": "https://nathandeal.georgia.gov/sites/nathandeal.georgia.gov/files/related_files/document/08.14.15.14.pdf",
+    "category": "Policy",
+    "human_summary": "Executive order from the Georgia State Governor appointing a new member to the Board of Directors of the Georgia Regional Transportation Authority until June 2019. Order effective August 2015.",
+    "created_date": "2015-09-11 12:27:49",
+    "modification_date": "2015-09-22 11:31:56",
+    "human_exception": {
+      "is_archival": "False"
+    }
+  }
+]

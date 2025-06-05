@@ -1,13 +1,14 @@
 import json
 import os
-import time
+import traceback
 
 from deepeval.models import MultimodalGeminiModel
-from evaluation import summary, utility
+from evaluation import exception, summary, utility
 from pydantic import ValidationError
 
 
 def handler(event, context):
+    local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
     try:
         if type(event) is str:
             event = json.loads(event)
@@ -19,7 +20,6 @@ def handler(event, context):
         utility.helpers.logger.info("Validating event")
         utility.helpers.validate_event(event)
         utility.helpers.logger.info("Event is valid")
-        local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
         utility.helpers.logger.info(f"Local mode set to: {local_mode}")
         utility.helpers.logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
@@ -30,10 +30,24 @@ def handler(event, context):
         )
         # todo Abstract: create a utility helper for this.
         eval_model = MultimodalGeminiModel(
-            model=event["evaluation_model"], api_key=api_key
+            model_name=event["evaluation_model"], api_key=api_key
         )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
+        summary_eval_wrapper = summary.EvaluationWrapper(
+            eval_model,
+            event["inference_model"],
+            event["branch_name"],
+            event["commit_sha"],
+            local_mode=local_mode,
+        )
+        exception_eval_wrapper = exception.EvaluationWrapper(
+            eval_model,
+            event["inference_model"],
+            event["branch_name"],
+            event["commit_sha"],
+            local_mode=local_mode,
+        )
         output = []
         for document_dict in event["documents"]:
             utility.helpers.logger.info(
@@ -47,31 +61,12 @@ def handler(event, context):
                 document_model, "/tmp/data", event["page_limit"]
             )
             utility.helpers.logger.info(f"Created {len(document_model.images)}")
-            utility.helpers.logger.info("Beginning summarization.")
-            time.sleep(10)
-            # todo abstract this for other domains besides "summary"
-            summary.add_summary_to_document(
-                document_model,
-                event["inference_model"],
-                local_mode,
-                event["page_limit"],
-            )
-            utility.helpers.logger.info(
-                "Summarization complete. Performing related evaluations."
-            )
-            result = summary.evaluation(
-                event["branch_name"], event["commit_sha"], document_model, eval_model
-            )
-            result.evaluation_model = event["evaluation_model"]
-            result.inference_model = event["inference_model"]
-            output.append(dict(result))
-            utility.helpers.logger.info("Calculating Rouge score.")
-            result = summary.calculate_rouge_score(
-                event["branch_name"], event["commit_sha"], document_model
-            )
-            result.inference_model = event["inference_model"]
-            output.append(dict(result))
-            utility.helpers.logger.info("Evaluation complete.")
+            if event["evaluation_component"] == "summary":
+                results = summary_eval_wrapper.evaluate(document_model)
+                output.extend(results)
+            if event["evaluation_component"] == "exception":
+                results = exception_eval_wrapper.evaluate(document_model)
+                output.extend(results)
         if "asap_endpoint" in event.keys():
             utility.helpers.logger.info("Writing eval results to Rails API")
             # todo write API endpoint and put a call here.
@@ -102,4 +97,7 @@ def handler(event, context):
         message = f"Invalid document supplied to event: {str(e)}"
         return {"statusCode": 500, "body": message}
     except Exception as e:
-        return {"statusCode": 500, "body": str(e)}
+        output = str(e)
+        if local_mode:
+            output = traceback.format_exc()
+        return {"statusCode": 500, "body": output}
