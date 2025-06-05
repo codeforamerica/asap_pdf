@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 BRANCH_NAME=$(git branch --show-current)
 
+counter=0
 while IFS= read -r line; do
   payload=$(jq -n \
       --arg eval_model "$EVALUATION_MODEL" \
@@ -30,8 +31,9 @@ while IFS= read -r line; do
     --function-name $FUNCTION_NAME \
     --cli-binary-format raw-in-base64-out \
     --payload file:///dev/stdin \
-    /dev/stdout >> output.json &
+    /dev/stdout >> "output-$counter.json" &
+  ((counter++))
 done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
 
 wait
-cat output.json
+cat output-*.json
