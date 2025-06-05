@@ -5,11 +5,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Get the current branch
 BRANCH_NAME=$(git branch --show-current)
 
-# Get the documents JSON content
-DOCUMENTS_JSON=$(cat $SCRIPT_DIR/../truthset.json)
-
 TMP_PAYLOAD=$(mktemp)
 
+echo $DOCUMENTS_JSON
+
+while IFS= read -r line; do
 jq -n \
    --arg eval_model "$EVALUATION_MODEL" \
    --arg inference_model "$INFERENCE_MODEL" \
@@ -17,7 +17,7 @@ jq -n \
    --arg bucket "$OUTPUT_BUCKET_NAME" \
    --arg branch "$BRANCH_NAME" \
    --arg commit "$COMMIT_SHA" \
-   --argjson docs "$DOCUMENTS_JSON"  \
+   --argjson docs "$line"  \
    '{
      evaluation_model: $eval_model,
      inference_model: $inference_model,
@@ -26,21 +26,16 @@ jq -n \
      branch_name: $branch,
      commit_sha: $commit,
      page_limit: 7,
-     documents: $docs
+     output_google_sheet: "True",
+     documents: [$docs]
    }' > $TMP_PAYLOAD
-
-cat $TMP_PAYLOAD
-
-aws lambda invoke \
+   aws lambda invoke \
   --cli-read-timeout 900 \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
   --payload file://$TMP_PAYLOAD \
-  response.json
+   /dev/stdout >> output.json &
+done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
 
-# At max CLI read timeout, we still aren't getting the final output.
-# Could be improved by using S3 assets or Rails API integration.
-# cat response.json
-#if ! grep -q 'Successfully dumped report' response.json; then
-#  exit 1
-#fi
+wait
+cat output.json
