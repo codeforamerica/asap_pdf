@@ -4,7 +4,12 @@ black==25.1.0
 boto3==1.38.3
 coverage==7.8.2
 deepeval @ git+https://github.com/codeforamerica/deepeval.git@fix/support-read-only-file-systems
+dotenv==0.9.9
+en-core-web-sm==3.8.0
 evaluate==0.4.3
+evaluation-utilities==0.0.0
+google-api-python-client==2.171.0
+google-auth-oauthlib==1.2.2
 inflect==7.3.1
 jaraco.collections==5.1.0
 langchain-community==0.3.24

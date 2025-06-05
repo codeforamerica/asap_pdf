@@ -27,6 +27,7 @@ class Document(BaseModel):
 class Result(BaseModel):
     branch_name: str
     commit_sha: str
+    metric_run_date: str
     file_name: str
     delta: Optional[int] = 0
     metric_name: str

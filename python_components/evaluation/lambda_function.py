@@ -67,12 +67,12 @@ def handler(event, context):
             if event["evaluation_component"] == "exception":
                 results = exception_eval_wrapper.evaluate(document_model)
                 output.extend(results)
-        if "asap_endpoint" in event.keys():
-            utility.helpers.logger.info("Writing eval results to Rails API")
-            # todo write API endpoint and put a call here.
+        if "output_google_sheet" in event.keys():
+            utility.helpers.logger.info("Writing eval results to Google Sheet")
+            utility.google_sheet.append_to_google_sheet(output, local_mode)
             return {
                 "statusCode": 200,
-                "body": "Successfully made document recommendation.",
+                "body": "Wrote evaluation results to Google Sheet.",
             }
         elif "output_s3_bucket" in event.keys():
             if local_mode:
