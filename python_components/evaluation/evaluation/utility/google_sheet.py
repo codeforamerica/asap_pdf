@@ -39,7 +39,11 @@ def append_to_google_sheet(results: List[dict], local_mode: bool) -> None:
     body = {
         'values': data
     }
-    service.spreadsheets().values().append(
-        spreadsheetId=sheet_id, range=RANGE_NAME,
-        valueInputOption='RAW', body=body
-    ).execute()
+    try:
+        service.spreadsheets().values().append(
+            spreadsheetId=sheet_id, range=RANGE_NAME,
+            valueInputOption='RAW', body=body
+        ).execute()
+    except Exception as e:
+        logger.info(f"Error appending to Google sheet: {str(e)}")
+
