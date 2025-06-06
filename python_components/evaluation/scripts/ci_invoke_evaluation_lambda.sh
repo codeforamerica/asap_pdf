@@ -28,7 +28,8 @@ while IFS= read -r line; do
          documents: [$docs]
        }' > "$TMP_PAYLOAD"
 
-    echo "Launching invocation $counter"
+    echo "Invoking Lambda with payload:"
+    cat $TMP_PAYLOAD
 
     aws lambda invoke \
       --cli-read-timeout 900 \
