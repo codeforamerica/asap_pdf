@@ -14,7 +14,7 @@ from deepeval.test_case import (
     LLMTestCaseParams,
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
-from evaluation.exception.ceq_schema import CEQVerdict, Verdicts, Reason
+from evaluation.exception.ceq_schema import CEQVerdict, Reason, Verdicts
 from evaluation.exception.ceq_template import CEQTemplate
 
 METRIC_VERSION = 1

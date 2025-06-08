@@ -11,8 +11,8 @@ from evaluation.exception.deterministic_score import (
     METRIC_VERSION as DETERMINISTIC_VERSION,
 )
 from evaluation.exception.deterministic_score import (
-    evaluate_archival_exception,
     evaluate_application_exception,
+    evaluate_archival_exception,
 )
 from evaluation.exception.faithfulness_score import (
     METRIC_VERSION as FAITHFULNESS_VERSION,
@@ -42,6 +42,7 @@ APPLICATION_EXCEPTION_CEQ = [
     'Does the "Reason Text" include information about whether the document could be currently used to apply for, access, or participate in a state or local government services, programs, or activities?',
     'Does the "Reason Text" suggest the same application status as the "Qualifies as Application" document metadata value?',
 ]
+
 
 class EvaluationWrapper(EvaluationWrapperBase):
 
@@ -115,7 +116,9 @@ class EvaluationWrapper(EvaluationWrapperBase):
     async def _ceq_evaluate(self, document, exception) -> Result:
         if exception == "archival":
             questions = ARCHIVE_EXCEPTION_CEQ
-            decision = f"Qualifies as Archival: {document.human_exception["is_archival"]}"
+            decision = (
+                f"Qualifies as Archival: {document.human_exception["is_archival"]}"
+            )
             response = document.ai_exception["why_archival"]
             context = ARCHIVE_EXCEPTION_CONTEXT
         elif exception == "application":

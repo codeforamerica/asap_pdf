@@ -1,13 +1,13 @@
 import json
 import logging
 import os
+import urllib
 
 import boto3
 import fitz
 import llm
 import pypdf
 import requests
-import urllib
 from document_inference.prompts import RECOMMENDATION, SUMMARY
 from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
 
