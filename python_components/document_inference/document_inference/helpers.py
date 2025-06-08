@@ -1,13 +1,13 @@
 import json
 import logging
 import os
-import shutil
 
 import boto3
 import fitz
 import llm
 import pypdf
 import requests
+import urllib
 from document_inference.prompts import RECOMMENDATION, SUMMARY
 from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
 
@@ -49,11 +49,7 @@ def get_secret(secret_name: str, local_mode: bool) -> str:
 def get_file(url: str, output_path: str) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
-    headers = {"User-Agent": "cfa:asap-pdf"}
-    with requests.get(url, headers=headers, stream=True) as response:
-        response.raise_for_status()
-        with open(f"{output_path}/{file_name}", "wb") as file:
-            shutil.copyfileobj(response.raw, file)
+    urllib.request.urlretrieve(url, local_path)
     return local_path
 
 

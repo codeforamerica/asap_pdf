@@ -27,18 +27,6 @@ DATE_FORMATS = (
 COMPLIANCE_DATE_FORMATS = ["April 2026", "April 24, 2026", "April 24"]
 
 
-def max_created_date_evaluation(document: Document) -> dict:
-    fuzzy_match = evaluate_created_date(
-        document.created_date, document.ai_exception["why_archival"]
-    )
-    ner = evaluate_created_date_spacy(
-        document.created_date, document.ai_exception["why_archival"]
-    )
-    if ner["score"] >= fuzzy_match["score"]:
-        return ner
-    return fuzzy_match
-
-
 def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
         "created_date": max_created_date_evaluation(document),
@@ -55,6 +43,32 @@ def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
         success_count += evaluation["score"]
     score = success_count / len(evaluations)
     return score, evaluations
+
+
+def evaluate_application_exception(document: Document) -> tuple[float, dict]:
+    evaluations = {
+        "correctness": evaluate_correctness(
+            document.human_exception["is_application"],
+            document.ai_exception["is_application"],
+        ),
+    }
+    success_count = 0
+    for evaluation in evaluations.values():
+        success_count += evaluation["score"]
+    score = success_count / len(evaluations)
+    return score, evaluations
+
+
+def max_created_date_evaluation(document: Document) -> dict:
+    fuzzy_match = evaluate_created_date(
+        document.created_date, document.ai_exception["why_archival"]
+    )
+    ner = evaluate_created_date_spacy(
+        document.created_date, document.ai_exception["why_archival"]
+    )
+    if ner["score"] >= fuzzy_match["score"]:
+        return ner
+    return fuzzy_match
 
 
 def extract_year_month(date_string):

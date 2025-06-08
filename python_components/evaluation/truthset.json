@@ -7,7 +7,8 @@
     "created_date": "2025-01-08 14:11:03",
     "modification_date": "2025-01-08 14:11:05",
     "human_exception": {
-      "is_archival": "True"
+      "is_archival": "True",
+      "is_application": "False"
     }
   },
   {
@@ -18,7 +19,8 @@
     "created_date": "2023-09-05 10:53:40",
     "modification_date": "2023-09-05 14:10:59",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": "False",
+      "is_application": "False"
     }
   },
   {
@@ -29,7 +31,8 @@
     "created_date": "2016-12-09 15:36:09",
     "modification_date": "2016-12-09 15:36:09",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": "False",
+      "is_application": "False"
     }
   },
   {
@@ -40,7 +43,8 @@
     "created_date": "2013-07-16 11:20:30",
     "modification_date": "2015-08-26 10:40:03",
     "human_exception": {
-      "is_archival": "True"
+      "is_archival": "True",
+      "is_application": "False"
     }
   },
   {
@@ -51,7 +55,8 @@
     "created_date": "2015-09-11 12:27:49",
     "modification_date": "2015-09-22 11:31:56",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": "False",
+      "is_application": "False"
     }
   }
 ]

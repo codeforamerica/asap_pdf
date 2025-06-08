@@ -14,7 +14,7 @@ from deepeval.test_case import (
     LLMTestCaseParams,
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
-from evaluation.exception.ceq_schema import CEQVerdict, Verdicts
+from evaluation.exception.ceq_schema import CEQVerdict, Verdicts, Reason
 from evaluation.exception.ceq_template import CEQTemplate
 
 METRIC_VERSION = 1
@@ -75,6 +75,7 @@ class CloseEndedQuestionsMetric(BaseMetric):
                     test_case.retrieval_context,
                 )
                 self.score = self._calculate_score()
+                self.reason = self._generate_reason()
                 self.success = self.score >= self.threshold
                 self.verbose_logs = construct_verbose_logs(
                     self,
@@ -103,6 +104,7 @@ class CloseEndedQuestionsMetric(BaseMetric):
                 test_case.input, test_case.actual_output, test_case.retrieval_context
             )
             self.score = self._calculate_score()
+            self.reason = self._generate_reason()
             self.success = self.score >= self.threshold
             self.verbose_logs = construct_verbose_logs(
                 self,
@@ -112,6 +114,33 @@ class CloseEndedQuestionsMetric(BaseMetric):
                 ],
             )
             return self.score
+
+    def _generate_reason(self) -> str:
+        if self.include_reason is False:
+            return None
+
+        contradictions = []
+        for verdict in self.verdicts:
+            if verdict.verdict.strip().lower() == "no":
+                contradictions.append(verdict.reason)
+
+        prompt = self.evaluation_template.generate_reason(
+            contradictions=contradictions,
+            score=format(self.score, ".2f"),
+        )
+
+        if self.using_native_model:
+            res, cost = self.model.generate(prompt, schema=Reason)
+            self.evaluation_cost += cost
+            return res.reason
+        else:
+            try:
+                res: Reason = self.model.generate(prompt, schema=Reason)
+                return res.reason
+            except TypeError:
+                res = self.model.generate(prompt)
+                data = trimAndLoadJson(res, self)
+                return data["reason"]
 
     def _generate_verdicts(
         self, input: str, actual_output: str, retrieval_context: Optional[str]

@@ -55,3 +55,29 @@ The length of 'answers' SHOULD BE STRICTLY EQUAL to that of questions.
 
 JSON:
 """
+
+    @staticmethod
+    def generate_reason(score: float, contradictions: List[str]):
+        return f"""Below is a list of responses to close ended questions. It is a list of strings explaining why the 'actual output' did not answer a question about 'retrieval context'. These verdicts happen in the 'actual output', NOT the 'retrieval context'.
+Given the close-ended question (CEQ) score, which is a 0-1 score indicating how aligned the `actual output` is to our subject matter expertise (higher the better), CONCISELY summarize the contradictions to justify the score.
+
+**
+IMPORTANT: Please make sure to only return in JSON format, with the 'reason' key providing the reason.
+Example JSON:
+{{
+    "reason": "The score is <ceq_score> because <your_reason>."
+}}
+
+If there are no contradictions, just say something positive with an upbeat encouraging tone (but don't overdo it otherwise it gets annoying).
+Your reason MUST use information in `contradiction` in your reason.
+Be sure in your reason, as if you know what the actual output is from the contradictions.
+**
+
+CEQ Score:
+{score}
+
+Contradictions:
+{contradictions}
+
+JSON:
+"""
