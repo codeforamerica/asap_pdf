@@ -90,7 +90,6 @@ class MultiModalFaithfulnessMetric(BaseMetric):
                 self.claims = self._generate_claims(test_case.actual_output)
                 self.verdicts = self._generate_verdicts()
                 self.score = self._calculate_score()
-                self.reason = self._generate_reason()
                 self.success = self.score >= self.threshold
                 self.verbose_logs = construct_verbose_logs(
                     self,
@@ -126,7 +125,6 @@ class MultiModalFaithfulnessMetric(BaseMetric):
             )
             self.verdicts = await self._a_generate_verdicts()
             self.score = self._calculate_score()
-            self.reason = await self._a_generate_reason()
             self.success = self.score >= self.threshold
             self.verbose_logs = construct_verbose_logs(
                 self,
@@ -139,60 +137,6 @@ class MultiModalFaithfulnessMetric(BaseMetric):
             )
 
             return self.score
-
-    async def _a_generate_reason(self) -> str:
-        if self.include_reason is False:
-            return None
-
-        contradictions = []
-        for verdict in self.verdicts:
-            if verdict.verdict.strip().lower() == "no":
-                contradictions.append(verdict.reason)
-
-        prompt = self.evaluation_template.generate_reason(
-            contradictions=contradictions,
-            score=format(self.score, ".2f"),
-        )
-
-        if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt, schema=Reason)
-            self.evaluation_cost += cost
-            return res.reason
-        else:
-            try:
-                res: Reason = await self.model.a_generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res = await self.model.a_generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
-
-    def _generate_reason(self) -> str:
-        if self.include_reason is False:
-            return None
-
-        contradictions = []
-        for verdict in self.verdicts:
-            if verdict.verdict.strip().lower() == "no":
-                contradictions.append(verdict.reason)
-
-        prompt = self.evaluation_template.generate_reason(
-            contradictions=contradictions,
-            score=format(self.score, ".2f"),
-        )
-
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt, schema=Reason)
-            self.evaluation_cost += cost
-            return res.reason
-        else:
-            try:
-                res: Reason = self.model.generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
 
     async def _a_generate_verdicts(self) -> List[FaithfulnessVerdict]:
         if len(self.claims) == 0:

@@ -80,7 +80,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             output.append(dict(result))
 
         # Perform faithfulness evaluation.
-        logger.info("Beginning Faithfulness evaluation...")
+        logger.info("Beginning faithfulness evaluation...")
         tasks = [
             self._faithfulness_evaluate(document, "archival"),
             self._faithfulness_evaluate(document, "application"),
