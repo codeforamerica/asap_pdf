@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Name of the Docker image to create for CI operations
 LOCAL_CI_IMAGE='asap_pdf:ci'
 
@@ -12,17 +14,5 @@ BASE_COMMAND="docker run --rm -v $SCRIPT_DIR/../../:/workspace $LOCAL_CI_IMAGE"
 # The -t flag tags the image with the name specified in LOCAL_CI_IMAGE
 docker build -t $LOCAL_CI_IMAGE $SCRIPT_DIR/../.
 
-# Run isort to sort Python imports
-echo "Output from isort utility..."
-$BASE_COMMAND isort --profile black python_components/.
-echo "\n"
-
-# Run black to format Python code according to PEP 8 standards
-echo "Output from black utility..."
-$BASE_COMMAND black python_components/.
-echo "\n"
-
-# Run flake8 to check for style guide enforcement and lint errors
-echo "Output from flake8 utility..."
-$BASE_COMMAND flake8 --ignore=E501,W503,F405 python_components/.
-echo "\n"
+# Run our pytests.
+$BASE_COMMAND pytest -W ignore::DeprecationWarning python_components
