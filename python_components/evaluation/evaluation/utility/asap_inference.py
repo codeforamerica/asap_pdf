@@ -81,6 +81,8 @@ def get_inference_for_document(
         logger.error(f"Response content: {response.text}")
         logger.error(f"Status code: {response.status_code}")
         raise RuntimeError(f"Failed to parse response from Lambda: {str(e)}")
+    if int(response_json["statusCode"]) != 200 or int(response.status_code) != 200:
+        raise RuntimeError(f"Document inference failed: {response_json["body"]}")
     if "body" in response_json.keys():
         if type(response_json["body"]) is str:
             full_response = json.loads(response_json["body"])
