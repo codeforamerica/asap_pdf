@@ -5,7 +5,6 @@ from deepeval.metrics import BaseMetric
 from deepeval.metrics.faithfulness.schema import (
     Claims,
     FaithfulnessVerdict,
-    Reason,
     Truths,
     Verdicts,
 )
