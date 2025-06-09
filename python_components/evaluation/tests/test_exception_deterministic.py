@@ -8,7 +8,7 @@ test_doc = Document(
     human_summary="Minutes for a December 12 2024 meeting of the Georgia Structural Pest Control Commission. During the meeting there were updates from the UGA Urban Entomology, Compliance and Enforcement, Certification and Training, among others.",
     created_date="2025-01-08 14:11:03",
     modification_date="2025-01-08 14:11:05",
-    human_exception={"is_archival": "True"},
+    human_exception={"is_archival": "True", "is_application": "False"},
     ai_exception={
         "is_archival": "False",
         "why_archival": "While this document was used for meeting minutes for an event that occurred in the past, there is no indication it is kept for reference only or that it is stored in a special archival section.",
@@ -130,3 +130,12 @@ def test_updated_date_spacy():
         result["reason"]
         == "Modified date was not found in explanation or was within expected date range."
     )
+
+
+def test_correctness():
+    doc = test_doc.model_copy(deep=True)
+
+    result = deterministic_score.evaluate_correctness(
+        doc.ai_exception["is_archival"], doc.ai_exception["is_archival"]
+    )
+    assert result["score"] == 1

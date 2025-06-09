@@ -36,7 +36,7 @@ ARCHIVE_EXCEPTION_CEQ = [
 ]
 
 APPLICATION_EXCEPTION_CONTEXT = [
-    "An ADA rule exempts prexisting conventional electronic documents from accessibility requirements if it meets all three criteria: the document is a PDF file, content was available on the government's website or mobile app before the compliance date (April 2026), and the document is not currently being used by individuals to apply for, access, or participate in government services. All three conditions must be satisfied simultaneously for the exception to apply."
+    "An ADA rule exempts prexisting conventional electronic documents from accessibility requirements if it meets all three criteria: the document is a PDF file, content was availcable on the government's website or mobile app before the compliance date (April 2026), and the document is not currently being used by individuals to apply for, access, or participate in government services. All three conditions must be satisfied simultaneously for the exception to apply."
 ]
 APPLICATION_EXCEPTION_CEQ = [
     'Does the "Reason Text" include information about whether the document could be currently used to apply for, access, or participate in a state or local government services, programs, or activities?',
