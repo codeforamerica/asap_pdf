@@ -91,7 +91,6 @@ class MultimodalInputSummarization(BaseMetric):
                     ScoreType.COVERAGE.value: coverage_score,
                 }
                 self.score = min(alignment_score, coverage_score)
-                self.reason = self._generate_reason()
                 self.success = self.score >= self.threshold
                 self.verbose_logs = construct_verbose_logs(
                     self,
@@ -137,7 +136,6 @@ class MultimodalInputSummarization(BaseMetric):
                 ScoreType.COVERAGE.value: coverage_score,
             }
             self.score = min(alignment_score, coverage_score)
-            self.reason = await self._a_generate_reason()
             self.success = self.score >= self.threshold
             self.verbose_logs = construct_verbose_logs(
                 self,
@@ -151,104 +149,6 @@ class MultimodalInputSummarization(BaseMetric):
                 ],
             )
             return self.score
-
-    async def _a_generate_reason(self) -> str:
-        if self.include_reason is False:
-            return None
-
-        contradictions = []
-        redundancies = []
-        for verdict in self.alignment_verdicts:
-            if verdict.verdict.strip().lower() == "no":
-                contradictions.append(verdict.reason)
-            elif verdict.verdict.strip().lower() == "idk":
-                redundancies.append(verdict.reason)
-
-        questions = []
-        if self.coverage_verdicts:
-            for verdict in self.coverage_verdicts:
-                if (
-                    verdict.original_verdict.strip().lower() == "yes"
-                    and verdict.summary_verdict.strip().lower() == "no"
-                ):
-                    questions.append(verdict.question)
-
-        prompt: dict = MLLMSummarizationTemplate.generate_reason(
-            contradictions=contradictions,
-            redundancies=redundancies,
-            questions=questions,
-            score=format(self.score, ".2f"),
-        )
-
-        if len(questions) > 0:
-            prompt += f"""Questions the original text can answer but not the summary:
-{questions}
-
-"""
-        prompt += """JSON:
-"""
-
-        if self.using_native_model:
-            res, cost = await self.model.a_generate(prompt, schema=Reason)
-            self.evaluation_cost += cost
-            return res.reason
-        else:
-            try:
-                res: Reason = await self.model.a_generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res = await self.model.a_generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
-
-    def _generate_reason(self) -> str:
-        if self.include_reason is False:
-            return None
-
-        contradictions = []
-        redundancies = []
-        for verdict in self.alignment_verdicts:
-            if verdict.verdict.strip().lower() == "no":
-                contradictions.append(verdict.reason)
-            elif verdict.verdict.strip().lower() == "idk":
-                redundancies.append(verdict.reason)
-
-        questions = []
-        if self.coverage_verdicts:
-            for verdict in self.coverage_verdicts:
-                if (
-                    verdict.original_verdict.strip().lower() == "yes"
-                    and verdict.summary_verdict.strip().lower() == "no"
-                ):
-                    questions.append(verdict.question)
-
-        prompt: dict = MLLMSummarizationTemplate.generate_reason(
-            contradictions=contradictions,
-            redundancies=redundancies,
-            questions=questions,
-            score=format(self.score, ".2f"),
-        )
-
-        if len(questions) > 0:
-            prompt += f"""Questions the original text can answer but not the summary:
-{questions}
-
-"""
-        prompt += """JSON:
-"""
-
-        if self.using_native_model:
-            res, cost = self.model.generate(prompt, schema=Reason)
-            self.evaluation_cost += cost
-            return res.reason
-        else:
-            try:
-                res: Reason = self.model.generate(prompt, schema=Reason)
-                return res.reason
-            except TypeError:
-                res = self.model.generate(prompt)
-                data = trimAndLoadJson(res, self)
-                return data["reason"]
 
     def _calculate_score(self, score_type: ScoreType) -> float:
         if score_type == ScoreType.ALIGNMENT:
