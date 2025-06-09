@@ -46,7 +46,9 @@ class EvaluationWrapperBase(ABC):
                 "inference_model": self.inference_model_name,
                 "branch_name": self.branch_name,
                 "commit_sha": self.commit_sha,
-                "metric_run_date": datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S")
+                "metric_run_date": datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H-%M-%S"
+                ),
             }
         )
 
