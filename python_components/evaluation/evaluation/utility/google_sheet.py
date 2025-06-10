@@ -25,7 +25,6 @@ def append_to_google_sheet(results: List[dict], local_mode: bool) -> None:
     # Create credentials from the service account info
     credentials = Credentials.from_service_account_info(creds_json, scopes=SCOPES)
     service = build("sheets", "v4", credentials=credentials)
-
     data = []
     for result in results:
         result_values = []
@@ -42,4 +41,5 @@ def append_to_google_sheet(results: List[dict], local_mode: bool) -> None:
             spreadsheetId=sheet_id, range=RANGE_NAME, valueInputOption="RAW", body=body
         ).execute()
     except Exception as e:
-        logger.info(f"Error appending to Google sheet: {str(e)}")
+        # Add some additional context to the Google Sheet exception.
+        raise RuntimeError(f"Error appending to Google sheet: {str(e)}")
