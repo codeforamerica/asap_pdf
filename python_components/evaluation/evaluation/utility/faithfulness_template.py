@@ -85,7 +85,7 @@ JSON:
         return [
             """Based on the given claims, which is a list of strings, generate a list of JSON objects to indicate whether EACH claim contradicts any facts in the retrieval context. The JSON will have 2 fields: 'verdict' and 'reason'.
 The 'verdict' key should STRICTLY be either 'yes', 'no', or 'idk', which states whether the given claim agrees with the context.
-Provide a 'reason' ONLY if the answer is 'no'.
+Provide a 'reason' ONLY if the answer is 'no' or 'idk'.
 The provided claim is drawn from the actual output. Try to provide a correction in the reason using the facts in the retrieval context.
 
 **
@@ -97,10 +97,12 @@ Example:
 {{
     "verdicts": [
         {{
-            "verdict": "idk"
+            "verdict": "idk",
+            "reason": "The actual output doesn't mention Barack Obama or his race."
         }},
         {{
             "verdict": "idk"
+            "reason": "The actual output doesn't mention Zurich being a city in London."
         }},
         {{
             "verdict": "yes"

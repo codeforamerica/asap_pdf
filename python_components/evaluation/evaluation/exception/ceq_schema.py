@@ -10,7 +10,3 @@ class CEQVerdict(BaseModel):
 
 class Verdicts(BaseModel):
     verdicts: List[CEQVerdict]
-
-
-class Reason(BaseModel):
-    reason: str

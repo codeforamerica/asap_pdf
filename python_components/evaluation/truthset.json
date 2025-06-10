@@ -7,7 +7,8 @@
     "created_date": "2025-01-08 14:11:03",
     "modification_date": "2025-01-08 14:11:05",
     "human_exception": {
-      "is_archival": "True"
+      "is_archival": true,
+      "is_application": false
     }
   },
   {
@@ -18,7 +19,8 @@
     "created_date": "2023-09-05 10:53:40",
     "modification_date": "2023-09-05 14:10:59",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": false,
+      "is_application": false
     }
   },
   {
@@ -29,7 +31,8 @@
     "created_date": "2016-12-09 15:36:09",
     "modification_date": "2016-12-09 15:36:09",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": false,
+      "is_application": false
     }
   },
   {
@@ -40,7 +43,8 @@
     "created_date": "2013-07-16 11:20:30",
     "modification_date": "2015-08-26 10:40:03",
     "human_exception": {
-      "is_archival": "True"
+      "is_archival": true,
+      "is_application": false
     }
   },
   {
@@ -51,7 +55,68 @@
     "created_date": "2015-09-11 12:27:49",
     "modification_date": "2015-09-22 11:31:56",
     "human_exception": {
-      "is_archival": "False"
+      "is_archival": false,
+      "is_application": false
+    }
+  },
+  {
+    "file_name": "atlanta-market-map.pdf",
+    "url": "https://agr.georgia.gov/sites/default/files/documents/agritourism/atlanta-market-map.pdf",
+    "category": "Diagram",
+    "human_summary": "Map for the Atlanta State Farmer’s Market located between Forest Parkway and Interstate 75. The east side of the map has stands for wholesale dealers, many of which are not open to the public, and the west side has stands for wholesale and retail dealers.",
+    "created_date": "2023-02-06 13:21:30",
+    "modification_date": "2023-02-06 13:21:30-05:00",
+    "human_exception": {
+      "is_archival": false,
+      "is_application": false
+    }
+  },
+  {
+    "file_name": "Font Size:  12",
+    "url": "https://services.austintexas.gov/edims/document.cfm?id=446835",
+    "category": "Notice",
+    "human_summary": "Public notice that the March 26th meeting of the Waller Creek Local Government Corporation has been cancelled due to a lack of agenda items.",
+    "created_date": "2025-03-06 10:39:56",
+    "modification_date": "2025-03-06 10:39:58",
+    "human_exception": {
+      "is_archival": true,
+      "is_application": false
+    }
+  },
+  {
+    "file_name": "5.b-Vacancies-on-Boards-and-Commissions.pdf",
+    "url": "https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2021/07/5.b-Vacancies-on-Boards-and-Commissions.pdf",
+    "category": "Report",
+    "human_summary": "San Rafael City Council agenda report from July 2021 meeting. Report discusses vacancies on the San Rafael Pickleweed Advisory and Special Library Parcel Tax Oversight Committee, and how the city clerk plans to fill those vacancies. Report includes a description of the positions, information on community outreach, and next steps. ",
+    "created_date": "2021-07-14 13:42:02",
+    "modification_date": "2021-07-14 13:42:02",
+    "human_exception": {
+      "is_archival": true,
+      "is_application": false
+    }
+  },
+  {
+    "file_name": "Microsoft PowerPoint - Council Workession Update on Bond Development 4-3-17 FINAL.pptx",
+    "url": "https://services.austintexas.gov/edims/document.cfm?id=274486",
+    "category": "Slides",
+    "human_summary": "Presentation for an update on the bond program development calendar from April 2017 during a city council worksession. Slides describe the typical bond development process, previous processes, the bond election advisory task force and its timeline, and some details on how a bond program is developed and upcoming deadlines for bond development.",
+    "created_date": "2017-04-03 14:35:57",
+    "modification_date": "2017-04-03 14:35:57",
+    "human_exception": {
+      "is_archival": true,
+      "is_application": false
+    }
+  },
+  {
+    "file_name": "July-2016-WCE-Salary-Schedule.pdf",
+    "url": "https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2016/09/July-2016-WCE-Salary-Schedule.pdf",
+    "category": "Spreadsheet",
+    "human_summary": "Two tables describing the salary schedules for civil engineers, technicians, and traffic engineers. One effective July 2016 and another effective July 2017.",
+    "created_date": "2016-07-21 19:05:23",
+    "modification_date": "2016-09-27 09:06:22",
+    "human_exception": {
+      "is_archival": true,
+      "is_application": false
     }
   }
 ]

@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import traceback
@@ -65,7 +66,7 @@ def handler(event, context):
                 results = summary_eval_wrapper.evaluate(document_model)
                 output.extend(results)
             if event["evaluation_component"] == "exception":
-                results = exception_eval_wrapper.evaluate(document_model)
+                results = asyncio.run(exception_eval_wrapper.evaluate(document_model))
                 output.extend(results)
         if "output_google_sheet" in event.keys():
             utility.helpers.logger.info("Writing eval results to Google Sheet")

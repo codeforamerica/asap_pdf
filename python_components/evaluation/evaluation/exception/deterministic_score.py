@@ -7,7 +7,7 @@ from dateutil import parser
 from evaluation.utility.helpers import logger
 from evaluation.utility.schema import Document
 
-METRIC_VERSION = 1
+METRIC_VERSION = 2
 
 DATE_FORMATS = (
     "*%Y%m%d*",  # "20240315"
@@ -24,16 +24,13 @@ DATE_FORMATS = (
     "*%B%Y*",  # "march2024" (full month, lowercase)
 )
 
+COMPLIANCE_DATE_FORMATS = ["April 2026", "April 24, 2026", "April 24"]
+
 
 def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
     evaluations = {
-        "created_date": evaluate_created_date(
-            document.created_date, document.ai_exception["why_archival"]
-        ),
-        "created_date_ner": evaluate_created_date_spacy(
-            document.created_date, document.ai_exception["why_archival"]
-        ),
-        "modified_date_ner": evaluate_modified_date_spacy(
+        "created_date": max_created_date_evaluation(document),
+        "modified_date": evaluate_modified_date_spacy(
             document.modification_date, document.ai_exception["why_archival"]
         ),
         "correctness": evaluate_correctness(
@@ -46,6 +43,32 @@ def evaluate_archival_exception(document: Document) -> tuple[float, dict]:
         success_count += evaluation["score"]
     score = success_count / len(evaluations)
     return score, evaluations
+
+
+def evaluate_application_exception(document: Document) -> tuple[float, dict]:
+    evaluations = {
+        "correctness": evaluate_correctness(
+            document.human_exception["is_application"],
+            document.ai_exception["is_application"],
+        ),
+    }
+    success_count = 0
+    for evaluation in evaluations.values():
+        success_count += evaluation["score"]
+    score = success_count / len(evaluations)
+    return score, evaluations
+
+
+def max_created_date_evaluation(document: Document) -> dict:
+    fuzzy_match = evaluate_created_date(
+        document.created_date, document.ai_exception["why_archival"]
+    )
+    ner = evaluate_created_date_spacy(
+        document.created_date, document.ai_exception["why_archival"]
+    )
+    if ner["score"] >= fuzzy_match["score"]:
+        return ner
+    return fuzzy_match
 
 
 def extract_year_month(date_string):
@@ -90,16 +113,21 @@ def evaluate_created_date_spacy(created_date: str, text: str) -> dict:
     return {"score": 0, "reason": "Created date was not found in explanation."}
 
 
-def evaluate_modified_date_spacy(modified_date: str, text: str) -> dict:
+def evaluate_modified_date_spacy(created_date: str, text: str) -> dict:
     logger.info("Evaluating modification date via spacy search...")
     nlp = spacy.load("en_core_web_sm")
     doc = nlp(text)
     dates = [ent.text for ent in doc.ents if ent.label_ == "DATE"]
     compliance_deadline = parser.parse("2026-04-24")
-    year_month = extract_year_month(modified_date)
+    year_month = extract_year_month(created_date)
     for date_found in dates:
         try:
-            date_object = parser.parse(date_found)
+            date_object = extract_year_month(date_found)
+            if (date_object == compliance_deadline) or (
+                date_found in COMPLIANCE_DATE_FORMATS
+            ):
+                # If this date is the compliance deadline, then continue to look over other dates.
+                continue
             if (abs(date_object - year_month).days > 365) or (
                 date_object > compliance_deadline
             ):

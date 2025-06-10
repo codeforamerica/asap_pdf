@@ -33,7 +33,6 @@ class Result(BaseModel):
     metric_name: str
     metric_version: float
     score: float
-    reason: Optional[str] = None
     details: Optional[dict] = None
     inference_model: Optional[str] = None
     evaluation_model: Optional[str] = None
