@@ -16,7 +16,8 @@ base_payload = {
 
 
 def invoke_lambdas():
-    truthset = json.loads("truthset.json")
+    with open(os.getenv("TRUTHSET_FILE")) as file:
+        truthset = json.loads(file.read())
     for document in truthset:
         payload = base_payload.copy()
         payload["documents"].append(document)
