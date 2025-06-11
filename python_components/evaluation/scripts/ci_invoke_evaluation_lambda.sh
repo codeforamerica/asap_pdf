@@ -35,7 +35,6 @@ while IFS= read -r line; do
       --function-name $FUNCTION_NAME \
       --cli-binary-format raw-in-base64-out \
       --payload "file://$TMP_PAYLOAD" \
-      --invocation-type RequestResponse \
       "output-$counter.json" &
 
     ((counter++))
