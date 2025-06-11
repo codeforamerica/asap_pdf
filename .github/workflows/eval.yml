@@ -68,53 +68,53 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build, tag, and push Evaluation Lambda image to ECR
-        id: build-evaluation-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/evaluation/.
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Update Evaluation Lambda
-        id: update-evaluation-lambda
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: "asap-pdf-evaluation-production"
-        run: |
-          aws lambda update-function-code \
-             --function-name  $FUNCTION_NAME \
-             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-      - name: Build, tag, and push Document Inference Evaluation Lambda image to ECR
-        id: build-document-inference-evaluation-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Update Document Inference Evaluation Lambda
-        id: update-document-inference-evaluation-lambda
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
-          IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: "asap-pdf-document-inference-evaluation-production"
-        run: |
-          aws lambda update-function-code \
-             --function-name $FUNCTION_NAME \
-             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#      - name: Build, tag, and push Evaluation Lambda image to ECR
+#        id: build-evaluation-image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/evaluation/.
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#
+#      - name: Update Evaluation Lambda
+#        id: update-evaluation-lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+#          IMAGE_TAG: ${{ github.sha }}
+#          FUNCTION_NAME: "asap-pdf-evaluation-production"
+#        run: |
+#          aws lambda update-function-code \
+#             --function-name  $FUNCTION_NAME \
+#             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#
+#      - name: Build, tag, and push Document Inference Evaluation Lambda image to ECR
+#        id: build-document-inference-evaluation-image
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+#          IMAGE_TAG: ${{ github.sha }}
+#        run: |
+#          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+#          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+#          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+#
+#      - name: Update Document Inference Evaluation Lambda
+#        id: update-document-inference-evaluation-lambda
+#        env:
+#          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+#          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+#          IMAGE_TAG: ${{ github.sha }}
+#          FUNCTION_NAME: "asap-pdf-document-inference-evaluation-production"
+#        run: |
+#          aws lambda update-function-code \
+#             --function-name $FUNCTION_NAME \
+#             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
       - name: Invoke Evaluation Lambda
         id: invoke-evaluation-lambda
