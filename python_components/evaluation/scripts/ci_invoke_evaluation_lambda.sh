@@ -23,7 +23,7 @@ while IFS= read -r line; do
          branch_name: $branch,
          commit_sha: $commit,
          page_limit: 7,
-         output_google_sheet: "True",
+         output_google_sheet: true,
          documents: [$docs]
        }' > "$TMP_PAYLOAD"
 
@@ -35,11 +35,11 @@ while IFS= read -r line; do
       --function-name $FUNCTION_NAME \
       --cli-binary-format raw-in-base64-out \
       --payload "file://$TMP_PAYLOAD" \
+      --invocation-type Event \
       "output-$counter.json" &
 
     ((counter++))
 done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
-
 
 wait
 cat output-*.json
