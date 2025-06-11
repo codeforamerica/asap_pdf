@@ -128,4 +128,5 @@ jobs:
           COMMIT_SHA: ${{ github.sha }}
           TRUTHSET_FILE: "./python_components/evaluation/truthset.json"
         run: |
+          export BRANCH_NAME=$(git branch --show-current)
           python ./python_components/evaluation/ci_invoke_lambda.py
