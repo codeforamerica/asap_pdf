@@ -71,6 +71,40 @@
   background-color: #ffe4bc;
 }
 
+.multi-stage-preloader {
+  justify-content: right;
+  align-items: center;
+
+  .stages {
+    overflow: hidden;
+    height: inherit;
+    transition: width 0.5s ease-in-out;
+    transform-origin: left center;
+    display: inline-block;
+  }
+
+  .stage {
+    position: absolute;
+    left: 0;
+    text-overflow: ellipsis;
+    width: max-content;
+    transition: bottom 0.5s ease-in-out;
+  }
+
+  .stage.active {
+    bottom: 0.55rem;
+  }
+
+  .stage.inactive {
+    bottom: -10rem;
+  }
+
+  .stage.complete {
+    bottom: 10rem;
+  }
+
+}
+
 @layer base {
   h1 {
     @apply text-2xl font-medium text-gray-500 leading-tight text-base-content;

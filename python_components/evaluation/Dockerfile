@@ -14,13 +14,16 @@ WORKDIR ${LAMBDA_TASK_ROOT}
 COPY requirements.txt .
 
 # Install the specified packages
-RUN dnf install poppler-utils -y &&\
-  pip install -r requirements.txt
+RUN dnf install poppler-utils git -y &&\
+  pip install -r requirements.txt &&\
+  python -m spacy download en_core_web_sm
 
 COPY models.json .
 COPY pyproject.toml .
 COPY evaluation ./evaluation
 COPY lambda_function.py .
+COPY scripts/entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN pip install --no-cache-dir .
 

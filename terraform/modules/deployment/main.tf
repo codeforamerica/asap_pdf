@@ -17,24 +17,24 @@ data "aws_iam_policy_document" "lambda_ecr" {
   }
 }
 
-resource "aws_ecr_repository" "app" {
-  name                 = "${var.project_name}-${var.environment}"
-  force_delete         = true
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  encryption_configuration {
-    encryption_type = "AES256"
-  }
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}"
-    Environment = var.environment
-  }
-}
+# resource "aws_ecr_repository" "app" {
+#   name                 = "${var.project_name}-${var.environment}"
+#   force_delete         = true
+#   image_tag_mutability = "MUTABLE"
+#
+#   image_scanning_configuration {
+#     scan_on_push = true
+#   }
+#
+#   encryption_configuration {
+#     encryption_type = "AES256"
+#   }
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}"
+#     Environment = var.environment
+#   }
+# }
 
 # Document inference ECR repository.
 resource "aws_ecr_repository" "document_inference" {
@@ -56,7 +56,7 @@ resource "aws_ecr_repository" "document_inference" {
 }
 
 resource "aws_ecr_repository_policy" "document_inference" {
-  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  policy     = data.aws_iam_policy_document.lambda_ecr.json
   repository = aws_ecr_repository.document_inference.name
 }
 
@@ -79,7 +79,7 @@ resource "aws_ecr_repository" "evaluation" {
 }
 
 resource "aws_ecr_repository_policy" "evaluation" {
-  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  policy     = data.aws_iam_policy_document.lambda_ecr.json
   repository = aws_ecr_repository.evaluation.name
 }
 
@@ -102,7 +102,7 @@ resource "aws_ecr_repository" "document_inference_evaluation" {
 }
 
 resource "aws_ecr_repository_policy" "document_inference_evaluation" {
-  policy  = data.aws_iam_policy_document.lambda_ecr.json
+  policy     = data.aws_iam_policy_document.lambda_ecr.json
   repository = aws_ecr_repository.document_inference_evaluation.name
 }
 
@@ -189,7 +189,9 @@ resource "aws_iam_role_policy" "github_actions" {
           "ecs:ListTaskDefinitions",
           "ecs:DescribeTaskDefinition",
           "ecs:ListTasks",
-          "ecs:DescribeTasks"
+          "ecs:DescribeTasks",
+          "ecs:TagResource",
+          "ecs:DeregisterTaskDefinition",
         ]
         Resource = "*"
       },
@@ -198,14 +200,14 @@ resource "aws_iam_role_policy" "github_actions" {
         Action = [
           "logs:GetLogEvents"
         ]
-        Resource = "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/ecs/${var.project_name}-${var.environment}:*"
+        Resource = "arn:aws:logs:${var.aws_region}:${var.aws_account_id}:log-group:/aws/ecs/${var.project_name}/${var.environment}/app:*"
       },
       {
         Effect = "Allow"
         Action = "iam:PassRole"
         Resource = [
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-execution-role",
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-task-role"
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-execution",
+          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-task"
         ]
       },
       {
@@ -219,168 +221,204 @@ resource "aws_iam_role_policy" "github_actions" {
           var.document_inference_evaluation_lambda_arn,
           var.evaluation_lambda_arn
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ssm:PutParameter"
+        ]
+        Resource = [
+          "arn:aws:ssm:${var.aws_region}:${var.aws_account_id}:parameter/${var.project_name}/${var.environment}/app/version",
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:GetItem",
+          "dynamodb:DeleteItem",
+        ]
+        Resource = [
+          "arn:aws:dynamodb:${var.aws_region}:${var.aws_account_id}:table/*.tfstate"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+        ]
+        Resource = [
+          "arn:aws:kms:${var.aws_region}:${var.aws_account_id}:key/${var.backend_kms_arn}"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:PutObject",
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.project_name}-${var.environment}-tfstate/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+        ]
+        Resource = [
+          "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:/${var.project_name}/${var.environment}/*"
+        ]
       }
     ]
   })
 }
 
+resource "aws_iam_role_policy_attachment" "github_readonly" {
+  role       = aws_iam_role.github_actions.id
+  policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
+}
+
 # Database Host Secret
-resource "aws_secretsmanager_secret" "db_host" {
-  name = "${var.project_name}/${var.environment}/DB_HOST"
+# resource "aws_secretsmanager_secret" "db_host" {
+#   name = "${var.project_name}/${var.environment}/DB_HOST"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-db-host"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-db-host"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "db_host" {
-  secret_id     = aws_secretsmanager_secret.db_host.id
-  secret_string = var.db_endpoint
-}
+# resource "aws_secretsmanager_secret_version" "db_host" {
+#   secret_id     = aws_secretsmanager_secret.db_host.id
+#   secret_string = var.db_endpoint
+# }
 
 # Database Name Secret
-resource "aws_secretsmanager_secret" "db_name" {
-  name = "${var.project_name}/${var.environment}/DB_NAME"
+# resource "aws_secretsmanager_secret" "db_name" {
+#   name = "${var.project_name}/${var.environment}/DB_NAME"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-db-name"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-db-name"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "db_name" {
-  secret_id     = aws_secretsmanager_secret.db_name.id
-  secret_string = var.db_name
-}
+# resource "aws_secretsmanager_secret_version" "db_name" {
+#   secret_id     = aws_secretsmanager_secret.db_name.id
+#   secret_string = var.db_name
+# }
 
 # Database Username Secret
-resource "aws_secretsmanager_secret" "db_username" {
-  name = "${var.project_name}/${var.environment}/DB_USERNAME"
+# resource "aws_secretsmanager_secret" "db_username" {
+#   name = "${var.project_name}/${var.environment}/DB_USERNAME"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-db-username"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-db-username"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "db_username" {
-  secret_id     = aws_secretsmanager_secret.db_username.id
-  secret_string = var.db_username
-}
+# resource "aws_secretsmanager_secret_version" "db_username" {
+#   secret_id     = aws_secretsmanager_secret.db_username.id
+#   secret_string = var.db_username
+# }
 
 # Database Password Secret (using existing secret)
-resource "aws_secretsmanager_secret" "db_password" {
-  name = "${var.project_name}/${var.environment}/DB_PASSWORD"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-db-password"
-    Environment = var.environment
-  }
-}
+# resource "aws_secretsmanager_secret" "db_password" {
+#   name = "${var.project_name}/${var.environment}/DB_PASSWORD"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-db-password"
+#     Environment = var.environment
+#   }
+# }
 
 # Get the existing password from the provided secret ARN
-data "aws_secretsmanager_secret" "db_password" {
-  arn = var.db_password_secret_arn
-}
+# data "aws_secretsmanager_secret" "db_password" {
+#   arn = var.db_password_secret_arn
+# }
 
-data "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = data.aws_secretsmanager_secret.db_password.id
-}
+# data "aws_secretsmanager_secret_version" "db_password" {
+#   secret_id = data.aws_secretsmanager_secret.db_password.id
+# }
 
-resource "aws_secretsmanager_secret_version" "db_password" {
-  secret_id     = aws_secretsmanager_secret.db_password.id
-  secret_string = data.aws_secretsmanager_secret_version.db_password.secret_string
-}
+# resource "aws_secretsmanager_secret_version" "db_password" {
+#   secret_id     = aws_secretsmanager_secret.db_password.id
+#   secret_string = data.aws_secretsmanager_secret_version.db_password.secret_string
+# }
 
 # Rails Master Key Secret
-resource "aws_secretsmanager_secret" "rails_master_key" {
-  name = "${var.project_name}/${var.environment}/RAILS_MASTER_KEY"
+# resource "aws_secretsmanager_secret" "rails_master_key" {
+#   name = "${var.project_name}/${var.environment}/RAILS_MASTER_KEY"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-rails-master-key"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-rails-master-key"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "rails_master_key" {
-  secret_id     = aws_secretsmanager_secret.rails_master_key.id
-  secret_string = var.rails_master_key
-}
+# resource "aws_secretsmanager_secret_version" "rails_master_key" {
+#   secret_id     = aws_secretsmanager_secret.rails_master_key.id
+#   secret_string = var.rails_master_key
+# }
 
 # Secret Key Base Secret
-resource "aws_secretsmanager_secret" "secret_key_base" {
-  name = "${var.project_name}/${var.environment}/SECRET_KEY_BASE"
+# resource "aws_secretsmanager_secret" "secret_key_base" {
+#   name = "${var.project_name}/${var.environment}/SECRET_KEY_BASE"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-secret-key-base"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-secret-key-base"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "secret_key_base" {
-  secret_id     = aws_secretsmanager_secret.secret_key_base.id
-  secret_string = var.secret_key_base
-}
+# resource "aws_secretsmanager_secret_version" "secret_key_base" {
+#   secret_id     = aws_secretsmanager_secret.secret_key_base.id
+#   secret_string = var.secret_key_base
+# }
 
 # Redis URL Secret
-resource "aws_secretsmanager_secret" "redis_url" {
-  name = "${var.project_name}/${var.environment}/REDIS_URL"
+# resource "aws_secretsmanager_secret" "redis_url" {
+#   name = "${var.project_name}/${var.environment}/REDIS_URL"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-redis-url"
+#     Environment = var.environment
+#   }
+# }
 
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-redis-url"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "redis_url" {
-  secret_id     = aws_secretsmanager_secret.redis_url.id
-  secret_string = var.redis_url
-}
+# resource "aws_secretsmanager_secret_version" "redis_url" {
+#   secret_id     = aws_secretsmanager_secret.redis_url.id
+#   secret_string = var.redis_url
+# }
 
 # Google/Gemini API Keys
-resource "aws_secretsmanager_secret" "google_ai_key" {
-  name = "${var.project_name}/${var.environment}/GOOGLE_AI_KEY"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-google-ai-key"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "google_ai_key" {
-  secret_id     = aws_secretsmanager_secret.google_ai_key.id
-  secret_string = var.google_ai_key
-}
-
-resource "aws_secretsmanager_secret" "anthropic_key" {
-  name = "${var.project_name}/${var.environment}/ANTHROPIC_KEY"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-anthropic-key"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret_version" "anthropic_key" {
-  secret_id     = aws_secretsmanager_secret.anthropic_key.id
-  secret_string = var.anthropic_key
-}
-
-resource "aws_secretsmanager_secret" "asap_api_user" {
-  name = "${var.project_name}/${var.environment}/ASAP_API_USER"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-asap-api-user"
-    Environment = var.environment
-  }
-}
-
-resource "aws_secretsmanager_secret" "asap_api_password" {
-  name = "${var.project_name}/${var.environment}/ASAP_API_PASSWORD"
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-asap-api-password"
-    Environment = var.environment
-  }
-}
+# resource "aws_secretsmanager_secret" "google_ai_key" {
+#   name = "${var.project_name}/${var.environment}/GOOGLE_AI_KEY"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-google-ai-key"
+#     Environment = var.environment
+#   }
+# }
+#
+# resource "aws_secretsmanager_secret_version" "google_ai_key" {
+#   secret_id     = aws_secretsmanager_secret.google_ai_key.id
+#   secret_string = var.google_ai_key
+# }
+#
+# resource "aws_secretsmanager_secret" "anthropic_key" {
+#   name = "${var.project_name}/${var.environment}/ANTHROPIC_KEY"
+#
+#   tags = {
+#     Name        = "${var.project_name}-${var.environment}-anthropic-key"
+#     Environment = var.environment
+#   }
+# }
+#
+# resource "aws_secretsmanager_secret_version" "anthropic_key" {
+#   secret_id     = aws_secretsmanager_secret.anthropic_key.id
+#   secret_string = var.anthropic_key
+# }

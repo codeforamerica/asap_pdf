@@ -6,14 +6,14 @@ resource "random_password" "db_password" {
 }
 
 # Store password in AWS Secrets Manager
-resource "aws_secretsmanager_secret" "db_password" {
-  name = "${var.project_name}-${var.environment}-db-password"
-}
+# resource "aws_secretsmanager_secret" "db_password" {
+#   name = "${var.project_name}-${var.environment}-db-password"
+# }
 
-resource "aws_secretsmanager_secret_version" "db_password" {
-  secret_id     = aws_secretsmanager_secret.db_password.id
-  secret_string = random_password.db_password.result
-}
+# resource "aws_secretsmanager_secret_version" "db_password" {
+#   secret_id     = aws_secretsmanager_secret.db_password.id
+#   secret_string = random_password.db_password.result
+# }
 
 # RDS subnet group
 resource "aws_db_subnet_group" "main" {
@@ -51,11 +51,11 @@ resource "aws_db_instance" "main" {
   identifier        = "${var.project_name}-${var.environment}"
   engine            = "postgres"
   engine_version    = "14"
-  instance_class    = var.instance_class
-  allocated_storage = var.allocated_storage
+  instance_class    = "db.t3.small"
+  allocated_storage = 20
 
-  db_name  = var.db_name
-  username = var.db_username
+  db_name  = "access_pdf_production"
+  username = "asap_pdf"
   password = random_password.db_password.result
 
   db_subnet_group_name   = aws_db_subnet_group.main.name

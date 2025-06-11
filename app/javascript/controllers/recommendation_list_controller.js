@@ -11,6 +11,7 @@ export default class extends Controller {
         try {
             this.buttonTarget.classList.add('hidden');
             this.preloaderTarget.classList.remove('hidden')
+            this.application.getControllerForElementAndIdentifier(this.preloaderTarget, 'multi-stage-preloader').animate();
             const response = await fetch(`/documents/${this.documentIdValue}/update_recommendation_inference`, {
                 method: "PATCH",
                 headers: {

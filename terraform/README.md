@@ -1,17 +1,19 @@
 # ASAP PDF Infrastructure
 
-This directory contains the OpenTofu configuration for deploying the ASAP PDF application infrastructure to AWS.
+This directory contains the OpenTofu configuration for deploying the ASAP PDF application infrastructure to AWS. Several components are provided by Code for America (OpenTofu Backend, Secrets, Fargate, VPC). They are lovingly documented [here](https://dev.docs.cfa.codes/tofu-modules/index.html).
 
 ## Architecture
 
 The infrastructure consists of:
 
 - VPC with public and private subnets
+- NAT Gateway and routing for public traffic
 - RDS PostgreSQL database in private subnet
 - Redis cluster for Sidekiq in private subnet
 - ECS cluster with EC2 instances in public subnet
 - S3 bucket for PDF storage with versioning enabled
-- Lambda for running Python components
+- Lambdas for running Python components
+- SSM Deployment Parameter with DynamoDB for locking
 
 ## Prerequisites
 
@@ -34,21 +36,7 @@ chmod +x setup-state-bucket.sh
 tofu init
 ```
 
-2. Create a `terraform.tfvars` file with your specific values:
-```hcl
-project_name = "asap-pdf"
-environment  = "production"
-
-# Optional overrides
-db_instance_class = "db.t3.small"
-redis_node_type   = "cache.t3.micro"
-container_image   = "your-registry/asap-pdf:latest"
-aws_account_id    = "Your AWS Account #"
-```
-
-NB: If adding `aws_account_id` to prevent OpenTofu prompting for account, make sure to wrap in quotes to include all characters.
-
-3. Review the execution plan:
+2. Review the execution plan:
 ```bash
 tofu plan
 ```
@@ -77,16 +65,9 @@ After applying, you'll get several important outputs:
 - Database connection URL
 - Redis connection URL
 - ECS cluster and service names
-- S3 bucket name
 - CloudWatch log group name
 
 Use these outputs to configure your application environment variables.
-
-## Scaling
-
-- The ECS cluster can scale between 1 and 2 instances by default
-- Modify `ecs_min_size` and `ecs_max_size` variables to adjust scaling limits
-- RDS and Redis can be scaled by modifying their respective instance class variables
 
 ## Security
 

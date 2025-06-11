@@ -1,11 +1,11 @@
 {
   "anthropic/claude-3-5-haiku-latest": {
-    "key": "asap-pdf/production/ANTHROPIC_KEY"
+    "key": "/asap-pdf/production/ANTHROPIC_KEY-20250521205655572700000001"
   },
   "gemini-1.5-pro-latest": {
-    "key": "asap-pdf/production/GOOGLE_AI_KEY"
+    "key": "/asap-pdf/production/GOOGLE_AI_KEY-20250521205655769000000003"
   },
-  "gemini-2.0-pro-exp-02-05": {
-    "key": "asap-pdf/production/GOOGLE_AI_KEY"
+  "gemini-2.5-pro-preview-03-25": {
+    "key": "/asap-pdf/production/GOOGLE_AI_KEY-20250521205655769000000003"
   }
 }

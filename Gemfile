@@ -23,7 +23,7 @@ gem "thruster", require: false
 gem "redis", "~> 5.4.0"
 gem "sidekiq", "~> 8.0"
 
-gem "view_component", "~> 3.22"
+gem "view_component", "~> 3.23"
 gem "kaminari", "~> 1.2"
 
 group :development, :test do
@@ -55,7 +55,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.186"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.188"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

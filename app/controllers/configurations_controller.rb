@@ -3,10 +3,10 @@ class ConfigurationsController < AuthenticatedController
 
   before_action :ensure_user_admin
 
-  GOOGLE_API_SECRET_NAME = "asap-pdf/production/GOOGLE_AI_KEY"
-  ANTHROPIC_API_SECRET_NAME = "asap-pdf/production/ANTHROPIC_KEY"
   ASAP_API_USER = "asap-pdf/production/ASAP_API_USER"
   ASAP_API_PASSWORD = "asap-pdf/production/ASAP_API_PASSWORD"
+  GOOGLE_API_SECRET_NAME = "/asap-pdf/production/GOOGLE_AI_KEY-20250521205655769000000003"
+  ANTHROPIC_API_SECRET_NAME = "/asap-pdf/production/ANTHROPIC_KEY-20250521205655572700000001"
 
   def initialize
     super

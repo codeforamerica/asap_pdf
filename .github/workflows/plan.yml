@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Tofu Plan
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_APP_REPOSITORY: asap-pdf-production-app
+  ECR_DOCUMENT_INFERENCE_REPOSITORY: asap-pdf-lambda-document-inference-production
+  ECS_CLUSTER: asap-pdf-production-app
+  ECS_SERVICE: asap-pdf-production-app
+  ECS_TASK_DEFINITION: .aws/task-definition.json
+  AWS_ACCOUNT_ID: 073165201938
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Debug OIDC claims
+        run: |
+          echo "GitHub repository: ${{ github.repository }}"
+          echo "GitHub ref: ${{ github.ref }}"
+          echo "GitHub SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Workflow ref: ${{ github.workflow_ref }}"
+          echo "Environment: ${{ github.environment }}"
+          echo "Job: ${{ github.job }}"
+
+      - name: Debug AWS role
+        run: |
+          echo "Attempting to assume role with:"
+          echo "Repository: repo:${{ github.repository }}:*"
+          echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          audience: "sts.amazonaws.com"
+          role-session-name: "GitHubActions-${{ github.run_id }}"
+          mask-aws-account-id: false
+          role-duration-seconds: 900 # 15 minutes
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Initialize OpenTofu
+        working-directory: ./terraform
+        run: tofu init
+
+      - name: Get OpenTofu version
+        working-directory: ./terraform
+        run: tofu --version
+
+      - name: List out state
+        working-directory: ./terraform
+        run: tofu state list
+
+      - name: Run tofu plan
+        id: plan
+        timeout-minutes: 5
+        working-directory: ./terraform
+        run: tofu plan -input=false
+
+      - name: Output stderr
+        if: always()
+        run: echo ${{ steps.plan.outputs.stderr }}
+
+      - name: Output exitcode
+        if: always()
+        run: echo ${{ steps.plan.outputs.exitcode }}

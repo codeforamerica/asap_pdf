@@ -1,10 +1,14 @@
 # Python Components
 
-The components in this directory cover various document handling processes. They are intended to be run in AWS Lambda functions in Docker containers. Each component should contain a Lambda entry point (Python script), requirements.txt and Dockerfile minimally.
+The document crawler and classification components are currently used manually. Their containers are built from the Python base image. The document inference and evaluation components are meant to be executed as AWS Lambda functions. Their containers are built from the Amazon Lambda Python Base images.
 
 For local development, Lambda compatible components should be setup automatically by running `docker compose up` in the project root. Lambda functions should return JSON responses with `statusCode` and `body` keys.
 
 To set API keys for AI services, visit the application configuration page. API keys are saved to the localstack version of AWS Secretes Manager.
+
+## Prerequisites
+- Docker and Docker Compose
+- Google Cloud account with access to Gemini API or Anthropic account with API access.
 
 ## Codestyle
 
@@ -12,6 +16,13 @@ The Python components should be PEP8 compliant. They are currently linted with i
 
 Or the `scripts/local_fix_linting.sh` was included to help fix codestyle issues locally.
 
+## Crawling and Classification
+
+Two python components run as needed, usually when we're onboarding a new partner. The crawling component can be run by initializing the docker container with `docker run --rm -it -v "$(pwd):/workspace" asap_pdf:crawler bash`, adding any new sites to `crawler/config.json`, and running the script with `python crawler.py <site_url> <output_path>`. There is an optional delay argument to add time between requests.
+
+The classification python component can be run by initializing the docker container (`docker run --rm -it -v "$(pwd):/workspace" asap_pdf:classifier bash`), and then running the script with `python crawler.py <input_path> <labeled_output_path>`. The script expects the input CSV to have the same format as the output of the crawling script.
+
+After running these scripts, the output from the classification component can be used to update the production data at `site_documents.zip`. Use the `split_for_dev.py` script to randomly sample among the production data, and update `site_documents_dev.zip` with those sampled datasets.
 
 ## Document Inference
 
@@ -33,8 +44,3 @@ Sample curl command:
 ```shell
 curl "http://localhost:9003/2015-03-31/functions/function/invocations" -d '{"evaluation_model": "gemini-2.5-pro-preview-03-25", "inference_model": "gemini-1.5-pro-latest", "page_limit": 7, "documents": [{"file_name": "MINUTES%20December%202024.pdf", "category": "Agenda", "url": "https://agr.georgia.gov/sites/default/files/documents/pest-control/MINUTES%20December%202024.pdf", "human_summary": "Minutes for a December 12 2024 meeting of the Georgia Structural Pest Control Commission. During the meeting there were updates from the UGA Urban Entomology, Compliance and Enforcement, Certification and Training, among others."}], "branch_name": "foo", "commit_sha": "123"}'
 ```
-
-## TODO
-
-* Include unit tests when it makes sense.
-* Pull down documents from S3, rather than http request to gov website.

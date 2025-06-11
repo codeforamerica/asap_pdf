@@ -1,4 +1,4 @@
-name: Python Component Linting
+name: Python Component Linting and Tests
 
 on:
   push:
@@ -25,6 +25,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         if [ -f ./python_components/requirements.txt ]; then pip install -r ./python_components/requirements.txt; fi
+        pip install python_components/evaluation
+        python -m spacy download en_core_web_sm
     - name: Run Linting
       run: |
         ./python_components/scripts/ci_run_linting.sh "./python_components/."
+    - name: Run Tests
+      run: |
+        pytest python_components/ -W ignore::DeprecationWarning

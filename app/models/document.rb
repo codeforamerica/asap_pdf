@@ -1,5 +1,6 @@
 class Document < ApplicationRecord
   belongs_to :site
+  # Do we still need this?
   has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
   has_many :document_inferences
 
@@ -7,7 +8,8 @@ class Document < ApplicationRecord
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
-    where("file_name ILIKE ?", "%#{filename}%")
+    filename = "%#{filename.gsub(/[\s_-]+/, "%")}%"
+    where("url ILIKE ? OR file_name ILIKE ?", "%#{filename}%", "%#{filename}%")
   }
 
   scope :by_category, ->(category) {
@@ -16,8 +18,14 @@ class Document < ApplicationRecord
   }
 
   scope :by_decision_type, ->(decision_type) {
-    return all if decision_type.blank?
-    where(accessibility_recommendation: decision_type)
+    if decision_type.present?
+      if DECISION_TYPES[decision_type].present? && DECISION_TYPES[decision_type]["children"].present?
+        decision_type = DECISION_TYPES[decision_type]["children"].keys
+      end
+      where(accessibility_recommendation: decision_type)
+    else
+      where(accessibility_recommendation: DEFAULT_DECISION)
+    end
   }
 
   scope :by_department, ->(department) {
@@ -39,48 +47,52 @@ class Document < ApplicationRecord
     scope
   }
 
-  scope :by_status, ->(status) {
-    if status.present?
-      where(status: status)
-    else
-      where(status: DEFAULT_STATUS)
-    end
+  DEFAULT_DECISION = "Needs Decision".freeze
+  IN_REVIEW_DECISION = "In Review".freeze
+  DONE_DECISION = "Done".freeze
+  ARCHIVE_DECISION = "Archive".freeze
+  REMOVE_DECISION = "Remove".freeze
+  CONVERT_DECISION = "Convert".freeze
+  REMEDIATE_DECISION = "Remediate".freeze
+  LEAVE_DECISION = "Leave".freeze
+
+  DECISION_TYPES = {
+    DEFAULT_DECISION => {"label" => "Needs Decision"},
+    IN_REVIEW_DECISION => {"label" => "PDF is in Review"},
+    DONE_DECISION => {
+      "label" => "Done",
+      "children" => {
+        ARCHIVE_DECISION => {"label" => "Place PDF in Archive Section"},
+        REMOVE_DECISION => {"label" => "Remove PDF from Website"},
+        CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
+        REMEDIATE_DECISION => {"label" => "Remediate PDF"},
+        LEAVE_DECISION => {"label" => "Leave PDF As-is"}
+      }
+    }
   }
-
-  DEFAULT_STATUS = "Audit Backlog".freeze
-  IN_REVIEW_STATUS = "In Review".freeze
-  DONE_STATUS = "Audit Done".freeze
-
-  STATUSES = [DEFAULT_STATUS, IN_REVIEW_STATUS, DONE_STATUS].freeze
 
   CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
 
-  DEFAULT_ACCESSIBILITY_RECOMMENDATION, LEAVE_ACCESSIBILITY_RECOMMENDATION, REMEDIATE_ACCESSIBILITY_RECOMMENDATION = %w[Needs\ Decision Leave Remediate].freeze
-
   AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
-
-  DECISION_TYPES = {
-    DEFAULT_ACCESSIBILITY_RECOMMENDATION.to_s => "Needs Decision",
-    LEAVE_ACCESSIBILITY_RECOMMENDATION.to_s => "Leave PDF as-is",
-    REMEDIATE_ACCESSIBILITY_RECOMMENDATION.to_s => "Remediate PDF",
-    "Convert" => "Convert PDF to web content",
-    "Remove" => "Remove PDF from website"
-  }.freeze
 
   SIMPLE_STATUS = "Simple".freeze
   COMPLEX_STATUS = "Complex".freeze
 
   COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
 
-  validates :file_name, presence: true
-  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
-  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
-  validates :document_category, inclusion: {in: CONTENT_TYPES}
-  validates :accessibility_recommendation, inclusion: {in: DECISION_TYPES.keys}, allow_nil: true
-  validates :status, inclusion: {in: STATUSES}, presence: true
-  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
-
-  before_validation :set_defaults
+  def self.get_decision_types
+    options = {}
+    Document::DECISION_TYPES.each do |key, item|
+      if item["children"].present?
+        item["children"].each do |child_key, child|
+          options[child_key] = child["label"]
+        end
+      else
+        options[key] = item["label"]
+      end
+    end
+    options
+  end
 
   def self.get_content_type_options
     Document::CONTENT_TYPES.map { |c| [c.to_s.titleize, c] }
@@ -90,9 +102,14 @@ class Document < ApplicationRecord
     Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
   end
 
-  def self.get_status_options
-    Document::STATUSES.map { |item| [item, item] }.to_h
-  end
+  validates :file_name, presence: true
+  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
+  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
+  validates :document_category, inclusion: {in: CONTENT_TYPES}
+  validates :accessibility_recommendation, inclusion: {in: get_decision_types}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
+
+  before_validation :set_defaults
 
   def modification_year
     if modification_date.present?
@@ -246,7 +263,7 @@ class Document < ApplicationRecord
         api_host = "https://demo.codeforamerica.ai"
       end
       payload = {
-        model_name: "gemini-2.0-pro-exp-02-05",
+        model_name: "gemini-2.5-pro-preview-03-25",
         documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "exception",
@@ -324,6 +341,6 @@ class Document < ApplicationRecord
 
   def set_defaults
     self.document_status = "discovered" unless document_status
-    self.status = DEFAULT_STATUS unless status
+    self.accessibility_recommendation = DEFAULT_DECISION unless accessibility_recommendation
   end
 end

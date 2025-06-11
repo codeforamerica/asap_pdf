@@ -12,9 +12,6 @@ BASE_COMMAND="docker run --rm -v $SCRIPT_DIR/../../:/workspace $LOCAL_CI_IMAGE"
 # The -t flag tags the image with the name specified in LOCAL_CI_IMAGE
 docker build -t $LOCAL_CI_IMAGE $SCRIPT_DIR/../.
 
-# Print the base Docker command for debugging purposes
-echo "$BASE_COMMAND"
-
 # Run isort to sort Python imports
 echo "Output from isort utility..."
 $BASE_COMMAND isort --profile black python_components/.

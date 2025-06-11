@@ -2,12 +2,10 @@ backports.tarfile==1.2.0
 importlib-metadata==8.0.0
 inflect==7.3.1
 jaraco.collections==5.1.0
-packaging==24.2
 pandas==2.2.3
 pip-chill==1.0.3
 platformdirs==4.2.2
-setuptools==75.8.2
+pytest==8.3.5
 scikit-learn==1.6.1
 tomli==2.0.1
-wheel==0.45.1
 xgboost==2.1.4

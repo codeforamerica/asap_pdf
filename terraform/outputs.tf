@@ -30,7 +30,7 @@ output "db_username" {
 
 output "db_password_secret_arn" {
   description = "ARN of the secret containing the database password"
-  value       = module.database.db_password_secret_arn
+  value       = "${module.secrets.secrets["database"].secret_arn}:password"
   sensitive   = true
 }
 
@@ -49,15 +49,15 @@ output "ecs_cluster_name" {
   value       = module.ecs.cluster_name
 }
 
-output "ecs_service_name" {
-  description = "Name of the ECS service"
-  value       = module.ecs.service_name
-}
+# output "ecs_service_name" {
+#   description = "Name of the ECS service"
+#   value       = module.ecs.service_name
+# }
 
-output "cloudwatch_log_group" {
-  description = "Name of the CloudWatch log group"
-  value       = module.ecs.cloudwatch_log_group_name
-}
+# output "cloudwatch_log_group" {
+#   description = "Name of the CloudWatch log group"
+#   value       = module.ecs.cloudwatch_log_group_name
+# }
 
 output "s3_bucket_name" {
   description = "Name of the S3 bucket for document storage"
@@ -74,7 +74,7 @@ output "database_url" {
   description = "Database connection URL"
   value = format("postgres://%s:%s@%s/%s",
     module.database.db_instance_username,
-    module.database.db_password_secret_arn,
+    "${module.secrets.secrets["database"].secret_arn}:password",
     module.database.db_instance_endpoint,
     module.database.db_instance_name
   )
@@ -89,10 +89,10 @@ output "redis_url" {
   )
 }
 
-output "ecr_repository_name" {
-  description = "The name of the ECR repository"
-  value       = module.deployment.ecr_repository_name
-}
+# output "ecr_repository_name" {
+#   description = "The name of the ECR repository"
+#   value       = module.deployment.ecr_repository_name
+# }
 
 output "github_actions_role_arn" {
   description = "The ARN of the IAM role for GitHub Actions"

@@ -19,10 +19,14 @@ def get_signature(session):
     return sigv4auth
 
 
-def add_summary_to_document(
-    document: Document, inference_model_name: str, local_mode: bool, page_number: int
+def get_inference_for_document(
+    document: Document,
+    inference_model_name: str,
+    inference_type: str,
+    local_mode: bool,
+    page_number: int,
 ) -> None:
-    logger.info(f"Getting summary for {document.url}...")
+    logger.info(f"Performing inference type {inference_type} for {document.url}...")
     if local_mode:
         url = (
             "http://host.docker.internal:9002/2015-03-31/functions/function/invocations"
@@ -44,14 +48,14 @@ def add_summary_to_document(
             )
         url = response["FunctionUrl"]
     signature = get_signature(session)
-    logger.info(f"Created signature. Summary url is: {url}")
+    logger.info(f"Created signature. Url is: {url}")
     headers = {
         "Content-Type": "application/json",  # Changed from application/x-amz-json-1.1
         "Accept": "application/json",
     }
     payload = json.dumps(
         {
-            "inference_type": "summary",
+            "inference_type": inference_type,
             "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
             "page_limit": page_number,
             "documents": [
@@ -84,4 +88,4 @@ def add_summary_to_document(
             full_response = response_json["body"]
     else:
         full_response = response_json
-    document.ai_summary = full_response["000"]["summary"]
+    return full_response["000"]
