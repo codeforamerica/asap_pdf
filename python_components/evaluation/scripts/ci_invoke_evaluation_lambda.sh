@@ -20,7 +20,6 @@ while IFS= read -r line; do
          evaluation_model: $eval_model,
          inference_model: $inference_model,
          evaluation_component: $evaluation_component,
-         output_s3_bucket: $bucket,
          branch_name: $branch,
          commit_sha: $commit,
          page_limit: 7,
@@ -31,16 +30,18 @@ while IFS= read -r line; do
     echo "Invoking Lambda with payload:"
     cat $TMP_PAYLOAD
 
-    aws lambda invoke \
-      --cli-read-timeout 900 \
-      --function-name $FUNCTION_NAME \
-      --cli-binary-format raw-in-base64-out \
-      --payload "file://$TMP_PAYLOAD" \
-      --invocation-type RequestResponse \
-      "output-$counter.json" &
+#    aws lambda invoke \
+#      --cli-read-timeout 900 \
+#      --function-name $FUNCTION_NAME \
+#      --cli-binary-format raw-in-base64-out \
+#      --payload "file://$TMP_PAYLOAD" \
+#      --invocation-type RequestResponse \
+#      "output-$counter.json" &
+    sleep 5 &
 
     ((counter++))
 done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
+
 
 wait
 cat output-*.json
