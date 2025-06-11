@@ -30,14 +30,12 @@ while IFS= read -r line; do
     echo "Invoking Lambda with payload:"
     cat $TMP_PAYLOAD
 
-#    aws lambda invoke \
-#      --cli-read-timeout 900 \
-#      --function-name $FUNCTION_NAME \
-#      --cli-binary-format raw-in-base64-out \
-#      --payload "file://$TMP_PAYLOAD" \
-#      --invocation-type RequestResponse \
-#      "output-$counter.json" &
-    sleep 5 &
+    aws lambda invoke \
+      --cli-read-timeout 900 \
+      --function-name $FUNCTION_NAME \
+      --cli-binary-format raw-in-base64-out \
+      --payload "file://$TMP_PAYLOAD" \
+      "output-$counter.json" &
 
     ((counter++))
 done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
