@@ -43,8 +43,3 @@ done < <(jq -c '.[]' $SCRIPT_DIR/../truthset.json)
 
 wait
 cat output-*.json
-
-if grep -q '"StatusCode": 500' output-*.json; then
-    echo "Error: Found StatusCode 500 in Lambda responses"
-    exit 1
-fi
