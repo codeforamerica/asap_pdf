@@ -126,5 +126,6 @@ jobs:
           OUTPUT_BUCKET_NAME: "asap-pdf-production-documents"
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
+          TRUTHSET_FILE: "./truthset.json"
         run: |
           python ./python_components/evaluation/ci_invoke_lambda.py
