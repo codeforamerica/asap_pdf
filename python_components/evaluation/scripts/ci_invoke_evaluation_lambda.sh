@@ -10,7 +10,7 @@ PAYLOAD=$(jq -n \
        --arg evaluation_component "$EVALUATION_COMPONENT" \
        --arg branch "$BRANCH_NAME" \
        --arg commit "$COMMIT_SHA" \
-       --argjson docs "$DOC"  \
+       --argjson doc "$DOC"  \
        '{
          evaluation_model: $eval_model,
          inference_model: $inference_model,
@@ -19,7 +19,7 @@ PAYLOAD=$(jq -n \
          commit_sha: $commit,
          page_limit: 7,
          output_google_sheet: true,
-         documents: [$DOC]
+         documents: [$doc]
        }')
 
 echo $PAYLOAD
