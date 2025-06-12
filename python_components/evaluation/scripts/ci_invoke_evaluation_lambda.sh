@@ -28,10 +28,15 @@ echo "HERE IT IS: $AWS_MAX_ATTEMPTS"
 
 aws lambda invoke \
   --invocation-type RequestResponse \
-  --cli-read-timeout 900 \
+  --cli-read-timeout 960 \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
   --payload file://"$TMP_PAYLOAD" \
   "output.json"
 
 cat output.json
+
+if grep -q '"StatusCode": 500' output-*.json; then
+    echo "Error: Found StatusCode 500 in Lambda responses"
+    exit 1
+fi
