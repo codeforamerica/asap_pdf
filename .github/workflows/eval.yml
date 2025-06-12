@@ -157,6 +157,6 @@ jobs:
           INFERENCE_MODEL: ${{ github.event.inputs.inference_model_name }}
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
-          DOC: ${{ matrix.payload }}
+          DOC: ${{ toJson(matrix.payload) }}
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh
