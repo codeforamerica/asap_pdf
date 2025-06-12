@@ -24,7 +24,7 @@ jq -n \
 
 cat "$TMP_PAYLOAD"
 
-echo "HERE IT IS: $AWS_MAX_ATTEMPTS"
+echo "AWS Max Attempts: $AWS_MAX_ATTEMPTS"
 
 aws lambda invoke \
   --invocation-type RequestResponse \
