@@ -53,7 +53,7 @@ class EvaluationWrapperBase(ABC):
         )
 
     @abstractmethod
-    def evaluate(self, document: Document) -> List[Result]:
+    def evaluate(self, document: Document, sub_component:str = "") -> List[Result]:
         pass
 
 

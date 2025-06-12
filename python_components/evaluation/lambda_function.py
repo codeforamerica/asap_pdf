@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+import time
 import traceback
 
 from deepeval.models import MultimodalGeminiModel
@@ -9,6 +10,7 @@ from pydantic import ValidationError
 
 
 def handler(event, context):
+    start = time.time()
     local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
     try:
         if type(event) is str:
@@ -65,8 +67,9 @@ def handler(event, context):
             if event["evaluation_component"] == "summary":
                 results = summary_eval_wrapper.evaluate(document_model)
                 output.extend(results)
-            if event["evaluation_component"] == "exception":
-                results = asyncio.run(exception_eval_wrapper.evaluate(document_model))
+            if "exception" in event["evaluation_component"]:
+                sub_components =  event["evaluation_component"].split(":")
+                results = asyncio.run(exception_eval_wrapper.evaluate(document_model, sub_components[1]))
                 output.extend(results)
         if "output_google_sheet" in event.keys():
             utility.helpers.logger.info("Writing eval results to Google Sheet")
@@ -87,18 +90,32 @@ def handler(event, context):
             utility.document.write_output_to_s3(
                 event["output_s3_bucket"], report_name, output
             )
-            return {
+            response =  {
                 "statusCode": 200,
                 "body": f'Successfully dumped report to S3 bucket, {event["output_s3_bucket"]}.',
             }
         else:
             utility.helpers.logger.info("Dumping results into Lambda return")
-            return {"statusCode": 200, "body": output}
+            response = {
+                "statusCode": 200,
+                "body": output
+            }
     except ValidationError as e:
         message = f"Invalid document supplied to event: {str(e)}"
-        return {"statusCode": 500, "body": message}
+        response = {
+            "statusCode": 500,
+            "body": message
+        }
     except Exception as e:
         output = str(e)
         if local_mode:
             output = traceback.format_exc()
-        return {"statusCode": 500, "body": output}
+        response = {
+            "statusCode": 500,
+            "body": output
+        }
+    duration = time.time() - start
+    utility.helpers.logger.info(
+        f"Full execution of {event["evaluation_component"]} took {duration} seconds"
+    )
+    return response

@@ -46,7 +46,7 @@ APPLICATION_EXCEPTION_CEQ = [
 
 class EvaluationWrapper(EvaluationWrapperBase):
 
-    async def evaluate(self, document: Document) -> List[Result]:
+    async def evaluate(self, document: Document, sub_component:str = "") -> List[Result]:
         output = []
         # Perform inferences that we want to evaluate.
         result = get_inference_for_document(
@@ -60,39 +60,23 @@ class EvaluationWrapper(EvaluationWrapperBase):
         document.ai_exception = result
 
         # Perform deterministic evaluations.
-        logger.info("Beginning deterministic evaluation...")
+        logger.info(f"Beginning {sub_component} deterministic evaluation...")
+        result = self._deterministic_evaluate(document, sub_component)
+        output.append(dict(result))
+
+        # Perform close ended questions and faithfulness evaluation.
+        logger.info(f"Beginning {sub_component} CEQ and Faithfulness evaluation...")
         tasks = [
-            self._deterministic_evaluate(document, "archival"),
-            self._deterministic_evaluate(document, "application"),
+            self._ceq_evaluate(document, sub_component),
+            self._faithfulness_evaluate(document, sub_component),
         ]
         results = await asyncio.gather(*tasks)
         for result in results:
             output.append(dict(result))
-
-        # Perform close ended questions evaluation.
-        logger.info("Beginning CEQ evaluation...")
-        tasks = [
-            self._ceq_evaluate(document, "archival"),
-            self._ceq_evaluate(document, "application"),
-        ]
-        results = await asyncio.gather(*tasks)
-        for result in results:
-            output.append(dict(result))
-
-        # Perform faithfulness evaluation.
-        logger.info("Beginning faithfulness evaluation...")
-        tasks = [
-            self._faithfulness_evaluate(document, "archival"),
-            self._faithfulness_evaluate(document, "application"),
-        ]
-        results = await asyncio.gather(*tasks)
-        for result in results:
-            output.append(dict(result))
-
         logger.info("Evaluation complete.")
         return output
 
-    async def _deterministic_evaluate(self, document, exception) -> Result:
+    def _deterministic_evaluate(self, document, exception) -> Result:
         if exception == "archival":
             score, details = evaluate_archival_exception(document)
             response = document.ai_exception["why_archival"]
@@ -163,7 +147,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             response = document.ai_exception["why_application"]
             context = APPLICATION_EXCEPTION_CONTEXT
 
-        metric = MultiModalFaithfulnessMetric(model=self.evaluation_model, truths_extraction_limit=15)
+        metric = MultiModalFaithfulnessMetric(model=self.evaluation_model)
         test_case = MLLMTestCase(
             input=[],
             retrieval_context=context + document.images,
