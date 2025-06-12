@@ -27,6 +27,9 @@ env:
   ECR_EVAL_REPOSITORY: asap-pdf-evaluation-production
   ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-document-inference-evaluation-production
   AWS_ACCOUNT_ID: 073165201938
+  AWS_MAX_ATTEMPTS: 1
+  AWS_RETRY_MODE: standard
+
 
 permissions:
   contents: read
@@ -129,7 +132,7 @@ jobs:
     strategy:
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
-      max-parallel: 4
+      max-parallel: 10
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS credentials
@@ -156,5 +159,6 @@ jobs:
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
           DOC: ${{ toJson(matrix.payload) }}
+
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh

@@ -24,6 +24,8 @@ jq -n \
 
 cat "$TMP_PAYLOAD"
 
+echo "HERE IT IS: $AWS_MAX_ATTEMPTS"
+
 aws lambda invoke \
   --invocation-type RequestResponse \
   --cli-read-timeout 900 \
