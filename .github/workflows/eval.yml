@@ -128,8 +128,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        payload:
-          payload: ${{ fromJson(needs.build.outputs.matrix) }}
+        payload: ${{ fromJson(needs.build.outputs.matrix) }}
     max-parallel: 4
     steps:
       - uses: actions/checkout@v4
