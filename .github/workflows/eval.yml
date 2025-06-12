@@ -116,6 +116,20 @@ jobs:
 #             --function-name $FUNCTION_NAME \
 #             --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
+  invoke:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        payload:
+          - '{"file_name":"July-2016-WCE-Salary-Schedule.pdf","url":"https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2016/09/July-2016-WCE-Salary-Schedule.pdf","category":"Spreadsheet","human_summary":"Two tables describing the salary schedules for civil engineers, technicians, and traffic engineers. One effective July 2016 and another effective July 2017.","created_date":"2016-07-21 19:05:23","modification_date":"2016-09-27 09:06:22","human_exception":{"is_archival":true,"is_application":false}}'
+          - '{"file_name":"July-2016-WCE-Salary-Schedule.pdf","url":"https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2016/09/July-2016-WCE-Salary-Schedule.pdf","category":"Spreadsheet","human_summary":"Two tables describing the salary schedules for civil engineers, technicians, and traffic engineers. One effective July 2016 and another effective July 2017.","created_date":"2016-07-21 19:05:23","modification_date":"2016-09-27 09:06:22","human_exception":{"is_archival":true,"is_application":false}}'
+      max-parallel: 4
+    steps:
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
       - name: Invoke Evaluation Lambda
         id: invoke-evaluation-lambda
         env:
@@ -125,6 +139,6 @@ jobs:
           INFERENCE_MODEL: ${{ github.event.inputs.inference_model_name }}
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
-          DOC: '{"file_name":"July-2016-WCE-Salary-Schedule.pdf","url":"https://storage.googleapis.com/proudcity/sanrafaelca/uploads/2016/09/July-2016-WCE-Salary-Schedule.pdf","category":"Spreadsheet","human_summary":"Two tables describing the salary schedules for civil engineers, technicians, and traffic engineers. One effective July 2016 and another effective July 2017.","created_date":"2016-07-21 19:05:23","modification_date":"2016-09-27 09:06:22","human_exception":{"is_archival":true,"is_application":false}}'
+          DOC: ${{ matrix.payload }}
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh
