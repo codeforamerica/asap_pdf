@@ -71,7 +71,7 @@ jobs:
       - name: Read JSON file and set matrix
         id: set-matrix
         run: |
-          matrix=$(jq -c '.' payloads.json)
+          matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
           echo "Matrix data: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 #      - name: Build, tag, and push Evaluation Lambda image to ECR
