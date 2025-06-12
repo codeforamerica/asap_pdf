@@ -1,10 +1,10 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 BRANCH_NAME=$(git branch --show-current)
 
-PAYLOAD=$(jq -n \
+TMP_PAYLOAD=$(mktemp)
+
+jq -n \
        --arg eval_model "$EVALUATION_MODEL" \
        --arg inference_model "$INFERENCE_MODEL" \
        --arg evaluation_component "$EVALUATION_COMPONENT" \
@@ -20,13 +20,13 @@ PAYLOAD=$(jq -n \
          page_limit: 7,
          output_google_sheet: true,
          documents: [$doc]
-       }')
+       }' > "$TMP_PAYLOAD"
 
-echo $PAYLOAD
+cat "$TMP_PAYLOAD"
 
 aws lambda invoke \
   --cli-read-timeout 900 \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
-  --payload $PAYLOAD \
+  --payload file://"$TMP_PAYLOAD" \ \
   "output.json"
