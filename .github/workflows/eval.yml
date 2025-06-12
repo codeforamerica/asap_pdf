@@ -129,7 +129,7 @@ jobs:
     strategy:
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
-    max-parallel: 4
+      max-parallel: 4
     steps:
       - uses: actions/checkout@v4
       - name: Configure AWS credentials
