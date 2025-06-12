@@ -17,7 +17,7 @@ from evaluation.utility.schema import Document, Result
 
 class EvaluationWrapper(EvaluationWrapperBase):
 
-    def evaluate(self, document: Document, sub_component:str = "") -> List[Result]:
+    def evaluate(self, document: Document) -> List[Result]:
         output = []
         # Perform any inference required for evaluation.
         logger.info("Beginning summarization.")

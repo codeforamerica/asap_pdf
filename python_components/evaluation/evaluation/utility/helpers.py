@@ -58,9 +58,9 @@ def validate_event(event):
             raise ValueError(
                 f"Function called without required parameter, {required_key}."
             )
-    if event["evaluation_component"] not in ("summary", "exception:archival", "exception:application"):
+    if event["evaluation_component"] not in ("summary", "exception"):
         raise ValueError(
-            f"Unexpected value for evaluation_component, '{event['evaluation_component']}'. Expected 'summary', 'exception:archival', 'exception:application'."
+            f"Unexpected value for evaluation_component, '{event['evaluation_component']}'. Expected 'summary' or 'exception'."
         )
     documents = event["documents"]
     if type(documents) is dict:
