@@ -164,7 +164,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             context = APPLICATION_EXCEPTION_CONTEXT
 
         metric = MultiModalFaithfulnessMetric(
-            model=self.evaluation_model, truths_extraction_limit=15
+            model=self.evaluation_model
         )
         test_case = MLLMTestCase(
             input=[],
