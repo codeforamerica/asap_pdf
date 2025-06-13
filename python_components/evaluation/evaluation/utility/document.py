@@ -1,3 +1,4 @@
+import datetime
 import os
 import urllib
 from abc import ABC, abstractmethod
@@ -41,10 +42,13 @@ class EvaluationWrapperBase(ABC):
         self.local_mode = kwargs.get("local_mode", False)
         self.result_factory = ResultFactory(
             {
-                "evaluation_model_name": self.evaluation_model.model_name,
-                "inference_model_name": self.inference_model_name,
+                "evaluation_model": self.evaluation_model.model_name,
+                "inference_model": self.inference_model_name,
                 "branch_name": self.branch_name,
                 "commit_sha": self.commit_sha,
+                "metric_run_date": datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
             }
         )
 

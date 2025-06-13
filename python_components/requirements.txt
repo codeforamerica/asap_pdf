@@ -4,6 +4,8 @@ black==25.1.0
 boto3==1.38.30
 deepeval @ git+https://github.com/codeforamerica/deepeval.git@fix/support-read-only-file-systems
 flake8==7.1.2
+google-api-python-client==2.171.0
+google-auth-oauthlib==1.2.2
 importlib-metadata==8.0.0
 isort==6.0.1
 jaraco.collections==5.1.0

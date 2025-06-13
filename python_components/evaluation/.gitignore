@@ -6,3 +6,5 @@ deepeval
 evaluation_utilities.egg-info
 __pycache__
 **/__pycache__
+.env
+credentials.json

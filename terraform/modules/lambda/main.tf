@@ -46,8 +46,8 @@ resource "aws_lambda_function" "evaluation" {
   function_name = "${var.project_name}-evaluation-${var.environment}"
   image_uri     = "${var.evaluation_ecr_repository_url}:latest"
   package_type  = "Image"
-  timeout       = 720
-  memory_size   = 512
+  timeout       = 900
+  memory_size   = 640
 
   vpc_config {
     security_group_ids = [var.security_group_id]
@@ -142,7 +142,9 @@ resource "aws_iam_role_policy" "lambda_secrets" {
         ]
         Resource = [
           var.secret_google_ai_key_arn,
-          var.secret_anthropic_key_arn
+          var.secret_anthropic_key_arn,
+          var.secret_google_service_account_evals_key_arn,
+          var.secret_google_sheet_id_evals_key_arn
         ]
       }
     ]

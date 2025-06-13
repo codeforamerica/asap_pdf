@@ -58,6 +58,22 @@
                 </div>
               </div>
             </div>
+            <div class="form-control w-full">
+              <%= f.label :google_evaluation_service_account_credentials, "Google Credentials JSON (Evaluation)", class: "label" %>
+              <div class="mt-2">
+                <%= f.text_area :google_evaluation_service_account_credentials,
+                                value: @config["google_evaluation_service_account_credentials"],
+                                class: "input input-bordered w-full font-mono" %>
+              </div>
+            </div>
+            <div class="form-control w-full">
+              <%= f.label :google_evaluation_sheet_id, "Google Sheet ID (Evaluation)", class: "label" %>
+              <div class="mt-2">
+                <%= f.text_field :google_evaluation_sheet_id,
+                                 value: @config["google_evaluation_sheet_id"],
+                                 class: "input input-bordered w-full font-mono" %>
+              </div>
+            </div>
             <div class="card-actions justify-end mt-6">
               <%= f.submit "Save Changes",
                            class: "btn btn-primary" %>

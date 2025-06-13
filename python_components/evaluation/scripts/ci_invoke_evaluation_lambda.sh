@@ -1,46 +1,42 @@
 #!/bin/bash
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Get the current branch
 BRANCH_NAME=$(git branch --show-current)
-
-# Get the documents JSON content
-DOCUMENTS_JSON=$(cat $SCRIPT_DIR/../truthset.json)
 
 TMP_PAYLOAD=$(mktemp)
 
 jq -n \
-   --arg eval_model "$EVALUATION_MODEL" \
-   --arg inference_model "$INFERENCE_MODEL" \
-   --arg evaluation_component "$EVALUATION_COMPONENT" \
-   --arg bucket "$OUTPUT_BUCKET_NAME" \
-   --arg branch "$BRANCH_NAME" \
-   --arg commit "$COMMIT_SHA" \
-   --argjson docs "$DOCUMENTS_JSON"  \
-   '{
-     evaluation_model: $eval_model,
-     inference_model: $inference_model,
-     evaluation_component: $evaluation_component,
-     output_s3_bucket: $bucket,
-     branch_name: $branch,
-     commit_sha: $commit,
-     page_limit: 7,
-     documents: $docs
-   }' > $TMP_PAYLOAD
+       --arg eval_model "$EVALUATION_MODEL" \
+       --arg inference_model "$INFERENCE_MODEL" \
+       --arg evaluation_component "$EVALUATION_COMPONENT" \
+       --arg branch "$BRANCH_NAME" \
+       --arg commit "$COMMIT_SHA" \
+       --argjson doc "$DOC"  \
+       '{
+         evaluation_model: $eval_model,
+         inference_model: $inference_model,
+         evaluation_component: $evaluation_component,
+         branch_name: $branch,
+         commit_sha: $commit,
+         page_limit: 7,
+         output_google_sheet: true,
+         documents: [$doc]
+       }' > "$TMP_PAYLOAD"
 
-cat $TMP_PAYLOAD
+cat "$TMP_PAYLOAD"
+
+echo "AWS Max Attempts: $AWS_MAX_ATTEMPTS"
 
 aws lambda invoke \
-  --cli-read-timeout 900 \
+  --invocation-type RequestResponse \
+  --cli-read-timeout 960 \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
-  --payload file://$TMP_PAYLOAD \
-  response.json
+  --payload file://"$TMP_PAYLOAD" \
+  "output.json"
 
-# At max CLI read timeout, we still aren't getting the final output.
-# Could be improved by using S3 assets or Rails API integration.
-# cat response.json
-#if ! grep -q 'Successfully dumped report' response.json; then
-#  exit 1
-#fi
+cat output.json
+
+if grep -q '"StatusCode": 500' output-*.json; then
+    echo "Error: Found StatusCode 500 in Lambda responses"
+    exit 1
+fi
