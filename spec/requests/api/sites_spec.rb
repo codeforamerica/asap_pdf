@@ -10,7 +10,7 @@ RSpec.describe AsapPdf::API do
   def auth_headers
     user = User.last
     encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, "password")
-    { "HTTP_AUTHORIZATION" => encoded_credentials }
+    {"HTTP_AUTHORIZATION" => encoded_credentials}
   end
 
   let!(:user) { create(:user, :admin) }
@@ -29,7 +29,6 @@ RSpec.describe AsapPdf::API do
     end
 
     it "returns sites with correct structure" do
-
       get "/sites", {}, auth_headers
       json_response = JSON.parse(last_response.body)
       first_site = json_response.first

@@ -7,7 +7,7 @@ module AsapPdf
 
     http_basic do |email, password|
       user = User.find_by(email_address: email)
-      user && user.authenticate(password)
+      user&.authenticate(password)
     end
 
     rescue_from ActiveRecord::RecordNotFound do |e|

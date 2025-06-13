@@ -5,7 +5,9 @@ import llm
 from document_inference import helpers
 
 API_USER_NAME_SECRET = "/asap-pdf/production/RAILS_API_USER-20250613220933079900000001"
-API_PASSWORD_SECRET  = "/asap-pdf/production/RAILS_API_PASSWORD-20250613220933080000000003"
+API_PASSWORD_SECRET = (
+    "/asap-pdf/production/RAILS_API_PASSWORD-20250613220933080000000003"
+)
 
 
 def handler(event, context):
@@ -56,7 +58,10 @@ def handler(event, context):
             if "asap_endpoint" in event.keys():
                 helpers.logger.info("Writing LLM results to Rails API")
                 helpers.post_document(
-                    event["asap_endpoint"], event["inference_type"], response, (asap_creds_user, asap_creds_password)
+                    event["asap_endpoint"],
+                    event["inference_type"],
+                    response,
+                    (asap_creds_user, asap_creds_password),
                 )
             else:
                 helpers.logger.info("Dumping results into Lambda return")
