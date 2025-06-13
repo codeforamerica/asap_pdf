@@ -49,6 +49,16 @@ variable "s3_document_bucket_arn" {
   type        = string
 }
 
+variable "secret_rails_api_user" {
+  description = "The Rails API user."
+  type        = string
+}
+
+variable "secret_rails_api_password" {
+  description = "The Rails API password."
+  type        = string
+}
+
 variable "secret_google_service_account_evals_key_arn" {
   description = "Google service account creds for evals."
   type        = string
