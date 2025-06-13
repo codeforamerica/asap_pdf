@@ -49,7 +49,7 @@ group :test do
   gem "shoulda-matchers", "~> 4.5"
   gem "simplecov", require: false # Optional: for code coverage
   gem "rails-controller-testing"
-  gem "factory_bot_rails", "~> 6.4"
+  gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "webdrivers"
 end
