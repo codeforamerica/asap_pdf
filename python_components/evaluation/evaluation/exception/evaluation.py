@@ -163,9 +163,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             response = document.ai_exception["why_application"]
             context = APPLICATION_EXCEPTION_CONTEXT
 
-        metric = MultiModalFaithfulnessMetric(
-            model=self.evaluation_model
-        )
+        metric = MultiModalFaithfulnessMetric(model=self.evaluation_model)
         test_case = MLLMTestCase(
             input=[],
             retrieval_context=context + document.images,
