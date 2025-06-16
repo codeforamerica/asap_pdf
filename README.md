@@ -101,13 +101,13 @@ The project includes several development tools:
 
 ### Setting API credentials
 
-For the Python components to use the Rails API, an API username and password must be provided in AWS secretes manager for production or in the Rails credential file for local development.
+For the Python components to use the Rails API, an API username and password must be provided in AWS secrets manager for production or in the Rails credential file for local development.
 
 To set credentials for local development add an `api_user` and `api_password` configuration via editing the credentials file:
 
 `EDITOR="Your editor" rails credentials:edit --environment development`
 
-After setting the API credentials, navigate to the AI configuration screen (http://localhost:3000/configuration/edit) and save. This will set the secrets value in the localstack secretsmanager service.
+After setting the API credentials, navigate to the AI configuration screen (http://localhost:3000/configuration/edit) and save. This will set the secrets value in the LocalStack secretsmanager service.
 
 ### Sites API (v1)
 
