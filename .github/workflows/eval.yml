@@ -146,7 +146,7 @@ jobs:
       - name: Generate run matrix
         id: set-runs
         run: |
-          runs_per_doc=${{ github.event.inputs.runs_per_document || '1' }}
+          runs_per_doc="${github.event.inputs.runs_per_document:-'1'}"
           run_array=$(seq 1 $runs_per_doc | jq -R . | jq -s .)
           echo "runs=$run_array" >> $GITHUB_OUTPUT   
 
