@@ -76,6 +76,11 @@ RSpec.describe AsapPdf::API do
     end
 
     context "when the site exists" do
+      it "blocks access to anonymous users" do
+        post "/sites/#{site.id}/documents", {documents: valid_documents}
+        expect(last_response.status).to eq(401)
+      end
+
       it "creates new documents for new URLs" do
         expect {
           post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
@@ -159,6 +164,30 @@ RSpec.describe AsapPdf::API do
       it "returns 400 bad request when document is missing required fields" do
         post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}, auth_headers
         expect(last_response.status).to eq(400)
+      end
+    end
+  end
+
+  describe "POST /documents/:id/inference" do
+    let(:timestamp) { Time.current }
+    let!(:document) { create(:document) }
+    let(:inference) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section."}} }
+    let(:inference_update) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section.", is_application: "True", why_application: "Test 123"}} }
+
+    context "when the document receives inferences" do
+      it "blocks access to anonymous users" do
+        post "/documents/#{document.id}/inference", inference
+        expect(last_response.status).to eq(401)
+      end
+      it "creates new inferences" do
+        expect {
+          post "/documents/#{document.id}/inference", inference, auth_headers
+        }.to change(DocumentInference, :count).by(1)
+        expect(document.document_inferences.count).to eq(1)
+        expect {
+          post "/documents/#{document.id}/inference", inference_update, auth_headers
+        }.to change(DocumentInference, :count).by(1)
+        expect(document.document_inferences.count).to eq(2)
       end
     end
   end
