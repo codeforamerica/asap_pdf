@@ -65,12 +65,14 @@ jobs:
           echo "Job: ${{ github.job }}"
 
       - name: Debug AWS role
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         run: |
           echo "Attempting to assume role with:"
           echo "Repository: repo:${{ github.repository }}:*"
           echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
 
       - name: Configure AWS credentials
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -82,6 +84,7 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push Evaluation Lambda image to ECR
@@ -188,5 +191,4 @@ jobs:
           DOC: ${{ toJson(matrix.payload) }}
 
         run: |
-          echo "Hooray! Would run:"
-          echo "$DOC"
+          ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh
