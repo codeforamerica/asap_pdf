@@ -34,14 +34,3 @@ class DocumentRecommendation(BaseModel):
         ge=0,
         le=1,
     )
-    is_third_party: bool = Field(
-        description="Whether the document meets exception 3: Content Posted by Third Parties Exception"
-    )
-    why_third_party: str = Field(
-        description="An explanation of why the document meets or does not meet exception 3: Content Posted by Third Parties Exception"
-    )
-    is_third_party_confidence: float = Field(
-        description="Percentage representing how confident you are about whether the document meets exception 3: Content Posted by Third Parties Exception",
-        ge=0,
-        le=1,
-    )

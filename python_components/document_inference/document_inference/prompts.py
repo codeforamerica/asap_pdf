@@ -22,11 +22,6 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
    - Document was available on the government"s website or mobile app before the compliance date
    - HOWEVER: This exception does NOT apply if the document is currently being used by individuals to apply for, access, or participate in government services
 
-3. **Content Posted by Third Parties Exception** - Applies when:
-   - Content is posted by third parties (members of the public or others not controlled by or acting for government entities)
-   - The third party is not posting due to contractual, licensing, or other arrangements with the government entity
-   - HOWEVER: This exception does NOT apply to content posted by the government itself, content posted by government contractors/vendors, or to tools/platforms that allow third parties to post content
-
 ## Document Information
 
   - Document title: {title}
