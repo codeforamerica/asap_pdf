@@ -103,7 +103,7 @@ module AsapPdf
       if params[:inference_type] == "exception"
         ["individualized", "archival", "application", "third_party"].each do |type|
           result_boolean = "is_#{type}"
-          if params[:result][result_boolean].present?
+          unless params[:result][result_boolean].nil?
             inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "exception:#{result_boolean}")
             inference.inference_value = params[:result][result_boolean] ? "True" : "False"
             inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
