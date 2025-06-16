@@ -144,13 +144,13 @@ jobs:
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
       - name: Generate run matrix
-        id: set-
-        env:
-          RUNS_INPUT: ${{ github.event.inputs.runs_per_document }}
+        id: set-runs
         run: |
           runs_per_doc=${{ github.event.inputs.runs_per_document || 1 }}
-          run_array=$(seq 1 $runs_per_doc | jq -R . | jq -s .)
-          echo "runs=$run_array" >> $GITHUB_OUTPUT 
+          run_array=$(seq 1 $runs_per_doc | jq -R . | jq -s . | tr -d '\n')
+          echo "runs<<EOF" >> $GITHUB_OUTPUT
+          echo "$run_array" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
   invoke:
     needs: build
