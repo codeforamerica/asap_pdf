@@ -40,15 +40,15 @@ class EvaluationWrapperBase(ABC):
         self.commit_sha = commit_sha
         self.page_limit = kwargs.get("page_limit", 7)
         self.local_mode = kwargs.get("local_mode", False)
+        now =  datetime.datetime.now()
+        metric_run_date = now.strftime("%Y-%m-%d %H:%M:%S") + f".{now.microsecond // 1000:03d}"
         self.result_factory = ResultFactory(
             {
                 "evaluation_model": self.evaluation_model.model_name,
                 "inference_model": self.inference_model_name,
                 "branch_name": self.branch_name,
                 "commit_sha": self.commit_sha,
-                "metric_run_date": datetime.datetime.now().strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                ),
+                "metric_run_date": metric_run_date
             }
         )
 
