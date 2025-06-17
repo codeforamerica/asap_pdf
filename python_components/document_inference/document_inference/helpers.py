@@ -107,7 +107,7 @@ def validate_model(all_models: dict, model_name: str):
         )
 
 
-def post_document(url: str, inference_type: str, json_result: dict):
+def post_document(url: str, inference_type: str, json_result: dict, auth: tuple):
     data = {
         "inference_type": inference_type,
         "result": json_result,
@@ -117,7 +117,7 @@ def post_document(url: str, inference_type: str, json_result: dict):
     # Headers (optional, but often needed for specifying content type)
     headers = {"Content-type": "application/json"}
     # Send the POST request
-    response = requests.post(url, data=json.dumps(data), headers=headers)
+    response = requests.post(url, data=json.dumps(data), headers=headers, auth=auth)
     # Check the response status code
     if response.status_code > 300:
         raise RuntimeError(

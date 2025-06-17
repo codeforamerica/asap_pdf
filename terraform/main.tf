@@ -55,6 +55,14 @@ module "secrets" {
       description = "The Rails master key."
       name        = "/asap-pdf/production/ANTHROPIC_KEY"
     }
+    rails_api_user = {
+      description = "The Rails API user to pass to our python components."
+      name        = "/asap-pdf/production/RAILS_API_USER"
+    }
+    rails_api_password = {
+      description = "The Rails API password to pass to our python components."
+      name        = "/asap-pdf/production/RAILS_API_PASSWORD"
+    }
     google_service_account = {
       description = "Service account credentials for evaluation tasks only."
       name        = "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT"
@@ -161,6 +169,8 @@ module "lambda" {
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
   secret_google_ai_key_arn                         = module.secrets.secrets["google"].secret_arn
   secret_anthropic_key_arn                         = module.secrets.secrets["anthropic"].secret_arn
+  secret_rails_api_user                            = module.secrets.secrets["rails_api_user"].secret_arn
+  secret_rails_api_password                        = module.secrets.secrets["rails_api_password"].secret_arn
   secret_google_service_account_evals_key_arn      = module.secrets.secrets["google_service_account"].secret_arn
   secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["google_sheet_id_evaluation"].secret_arn
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
