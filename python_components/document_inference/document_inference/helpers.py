@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-import shutil
+import urllib
 
 import boto3
 import fitz
@@ -49,11 +49,7 @@ def get_secret(secret_name: str, local_mode: bool) -> str:
 def get_file(url: str, output_path: str) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
-    headers = {"User-Agent": "cfa:asap-pdf"}
-    with requests.get(url, headers=headers, stream=True) as response:
-        response.raise_for_status()
-        with open(f"{output_path}/{file_name}", "wb") as file:
-            shutil.copyfileobj(response.raw, file)
+    urllib.request.urlretrieve(url, local_path)
     return local_path
 
 
@@ -111,7 +107,7 @@ def validate_model(all_models: dict, model_name: str):
         )
 
 
-def post_document(url: str, inference_type: str, json_result: dict):
+def post_document(url: str, inference_type: str, json_result: dict, auth: tuple):
     data = {
         "inference_type": inference_type,
         "result": json_result,
@@ -121,7 +117,7 @@ def post_document(url: str, inference_type: str, json_result: dict):
     # Headers (optional, but often needed for specifying content type)
     headers = {"Content-type": "application/json"}
     # Send the POST request
-    response = requests.post(url, data=json.dumps(data), headers=headers)
+    response = requests.post(url, data=json.dumps(data), headers=headers, auth=auth)
     # Check the response status code
     if response.status_code > 300:
         raise RuntimeError(
