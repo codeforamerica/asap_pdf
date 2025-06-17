@@ -32,6 +32,7 @@ class EvaluationWrapperBase(ABC):
         inference_model_name: str | None,
         branch_name: str,
         commit_sha: str,
+        delta: int,
         **kwargs,
     ):
         self.evaluation_model = evaluation_model
@@ -48,6 +49,7 @@ class EvaluationWrapperBase(ABC):
                 "inference_model": self.inference_model_name,
                 "branch_name": self.branch_name,
                 "commit_sha": self.commit_sha,
+                "delta": delta,
                 "metric_run_date": metric_run_date
             }
         )

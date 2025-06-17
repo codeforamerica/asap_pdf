@@ -27,7 +27,7 @@ on:
         default: '1'
         type: string
       should_rebuild_images:
-        description: 'Should images be rebuilt?'
+        description: 'Rebuild and push images'
         type: boolean
         required: false
         default: true
@@ -189,6 +189,7 @@ jobs:
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
           DOC: ${{ toJson(matrix.payload) }}
+          DELTA: ${{ matrix.run }}
 
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh

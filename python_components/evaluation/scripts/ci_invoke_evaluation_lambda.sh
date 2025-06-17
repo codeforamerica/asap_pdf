@@ -10,6 +10,7 @@ jq -n \
        --arg evaluation_component "$EVALUATION_COMPONENT" \
        --arg branch "$BRANCH_NAME" \
        --arg commit "$COMMIT_SHA" \
+       --arg delta "$DELTA" \
        --argjson doc "$DOC"  \
        '{
          evaluation_model: $eval_model,
@@ -19,6 +20,7 @@ jq -n \
          commit_sha: $commit,
          page_limit: 7,
          output_google_sheet: true,
+         delta: $delta,
          documents: [$doc]
        }' > "$TMP_PAYLOAD"
 
