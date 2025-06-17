@@ -23,7 +23,6 @@ variable "document_inference_evaluation_ecr_repository_url" {
   type        = string
 }
 
-
 variable "subnet_ids" {
   description = "List of subnet IDs for the Fargate tasks"
   type        = list(string)
@@ -50,12 +49,12 @@ variable "s3_document_bucket_arn" {
 }
 
 variable "secret_rails_api_user" {
-  description = "The Rails API user."
+  description = "Rails API user for Python access."
   type        = string
 }
 
 variable "secret_rails_api_password" {
-  description = "The Rails API password."
+  description = "Rails API password for Python access."
   type        = string
 }
 
