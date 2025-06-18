@@ -11,7 +11,7 @@ GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = (
 GOOGLE_EVAL_SHEET_ID = (
     "/asap-pdf/production/GOOGLE_SHEET_ID_EVALUATION-20250605155250934400000003"
 )
-RANGE_NAME = "Results!A2:L2"
+RANGE_NAME = "Results!A:L"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
