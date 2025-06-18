@@ -143,6 +143,8 @@ resource "aws_iam_role_policy" "lambda_secrets" {
         Resource = [
           var.secret_google_ai_key_arn,
           var.secret_anthropic_key_arn,
+          var.secret_rails_api_user,
+          var.secret_rails_api_password,
           var.secret_google_service_account_evals_key_arn,
           var.secret_google_sheet_id_evals_key_arn
         ]

@@ -5,6 +5,11 @@ module AsapPdf
   class API < Grape::API::Instance
     format :json
 
+    http_basic do |email, password|
+      user = User.find_by(email_address: email)
+      user&.authenticate(password)
+    end
+
     rescue_from ActiveRecord::RecordNotFound do |e|
       error!({error: e.message}, 404)
     end
@@ -98,11 +103,13 @@ module AsapPdf
       if params[:inference_type] == "exception"
         ["individualized", "archival", "application", "third_party"].each do |type|
           result_boolean = "is_#{type}"
-          inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "exception:#{result_boolean}")
-          inference.inference_value = params[:result][result_boolean] ? "True" : "False"
-          inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
-          inference.inference_reason = params[:result]["why_#{type}"]
-          inference.save!
+          unless params[:result][result_boolean].nil?
+            inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "exception:#{result_boolean}")
+            inference.inference_value = params[:result][result_boolean] ? "True" : "False"
+            inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
+            inference.inference_reason = params[:result]["why_#{type}"]
+            inference.save!
+          end
         end
       end
     end

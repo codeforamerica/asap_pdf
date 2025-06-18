@@ -44,6 +44,14 @@ ASAP begin by forking the repository.
 You are now ready to run your first deployment. NB: Images will not be built and pushed to their respective ECR
 repositories until a deployment is made.
 
+6. **Update Any Secret Names in Code**
+
+- There are some hard coded secret names that may need adjustment in the code. Their locations are as follows:
+  - [Local Configuration Controller](../app/controllers/configurations_controller.rb)
+  - [Inference Models](../python_components/document_inference/models.json)
+  - [Inference Lambda](../python_components/document_inference/lambda_function.py)
+  - [Evaluation Models](../python_components/evaluation/models.json)
+
 ## Deployment Process
 
 1. **Manual Deployment**

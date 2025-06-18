@@ -49,16 +49,6 @@ output "ecs_cluster_name" {
   value       = module.ecs.cluster_name
 }
 
-# output "ecs_service_name" {
-#   description = "Name of the ECS service"
-#   value       = module.ecs.service_name
-# }
-
-# output "cloudwatch_log_group" {
-#   description = "Name of the CloudWatch log group"
-#   value       = module.ecs.cloudwatch_log_group_name
-# }
-
 output "s3_bucket_name" {
   description = "Name of the S3 bucket for document storage"
   value       = aws_s3_bucket.documents.id
@@ -88,11 +78,6 @@ output "redis_url" {
     module.cache.redis_port
   )
 }
-
-# output "ecr_repository_name" {
-#   description = "The name of the ECR repository"
-#   value       = module.deployment.ecr_repository_name
-# }
 
 output "github_actions_role_arn" {
   description = "The ARN of the IAM role for GitHub Actions"

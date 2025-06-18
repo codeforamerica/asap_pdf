@@ -35,11 +35,16 @@ def handler(event, context):
         )
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
+        # Delta from Github actions is 1 indexed.
+        # If delta is provided subtract one, so we can maintain zero indexing.
+        delta = int(event["delta"]) - 1 if "delta" in event else 0
+        delta = 0 if delta < 0 else delta
         summary_eval_wrapper = summary.EvaluationWrapper(
             eval_model,
             event["inference_model"],
             event["branch_name"],
             event["commit_sha"],
+            delta,
             local_mode=local_mode,
         )
         exception_eval_wrapper = exception.EvaluationWrapper(
@@ -47,6 +52,7 @@ def handler(event, context):
             event["inference_model"],
             event["branch_name"],
             event["commit_sha"],
+            delta,
             local_mode=local_mode,
         )
         output = []

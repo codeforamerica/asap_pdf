@@ -7,17 +7,29 @@ RSpec.describe AsapPdf::API do
     AsapPdf::API
   end
 
+  def auth_headers
+    user = User.last
+    encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, "password")
+    {"HTTP_AUTHORIZATION" => encoded_credentials}
+  end
+
+  let!(:user) { create(:user, :admin) }
+
   describe "GET /sites" do
     let!(:sites) { create_list(:site, 3) }
+    it "blocks access to anonymous users" do
+      get "/sites"
+      expect(last_response.status).to eq(401)
+    end
 
     it "returns all sites" do
-      get "/sites"
+      get "/sites", {}, auth_headers
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body).length).to eq(3)
     end
 
     it "returns sites with correct structure" do
-      get "/sites"
+      get "/sites", {}, auth_headers
       json_response = JSON.parse(last_response.body)
       first_site = json_response.first
 
@@ -32,10 +44,9 @@ RSpec.describe AsapPdf::API do
 
   describe "GET /sites/:id" do
     let!(:site) { create(:site) }
-
     context "when the site exists" do
       it "returns the requested site" do
-        get "/sites/#{site.id}"
+        get "/sites/#{site.id}", {}, auth_headers
         expect(last_response.status).to eq(200)
 
         json_response = JSON.parse(last_response.body)
@@ -48,7 +59,7 @@ RSpec.describe AsapPdf::API do
 
     context "when the site does not exist" do
       it "returns 404 not found" do
-        get "/sites/0"
+        get "/sites/0", {}, auth_headers
         expect(last_response.status).to eq(404)
       end
     end
@@ -65,9 +76,14 @@ RSpec.describe AsapPdf::API do
     end
 
     context "when the site exists" do
+      it "blocks access to anonymous users" do
+        post "/sites/#{site.id}/documents", {documents: valid_documents}
+        expect(last_response.status).to eq(401)
+      end
+
       it "creates new documents for new URLs" do
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(2)
 
         expect(last_response.status).to eq(201)
@@ -97,7 +113,7 @@ RSpec.describe AsapPdf::API do
         )
 
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(1) # Only creates one new document
 
         expect(last_response.status).to eq(201)
@@ -117,7 +133,7 @@ RSpec.describe AsapPdf::API do
         )
 
         expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}
+          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
         }.to change(Document, :count).by(1) # Only creates one new document
 
         expect(last_response.status).to eq(201)
@@ -129,25 +145,49 @@ RSpec.describe AsapPdf::API do
 
     context "when the site does not exist" do
       it "returns 404 not found" do
-        post "/sites/0/documents", {documents: valid_documents}
+        post "/sites/0/documents", {documents: valid_documents}, auth_headers
         expect(last_response.status).to eq(404)
       end
     end
 
     context "with invalid parameters" do
       it "returns 400 bad request when documents is missing" do
-        post "/sites/#{site.id}/documents"
+        post "/sites/#{site.id}/documents", {}, auth_headers
         expect(last_response.status).to eq(400)
       end
 
       it "returns 400 bad request when documents is not an array" do
-        post "/sites/#{site.id}/documents", {documents: "not_an_array"}
+        post "/sites/#{site.id}/documents", {documents: "not_an_array"}, auth_headers
         expect(last_response.status).to eq(400)
       end
 
       it "returns 400 bad request when document is missing required fields" do
-        post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}
+        post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}, auth_headers
         expect(last_response.status).to eq(400)
+      end
+    end
+  end
+
+  describe "POST /documents/:id/inference" do
+    let(:timestamp) { Time.current }
+    let!(:document) { create(:document) }
+    let(:inference) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section."}} }
+    let(:inference_update) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section.", is_application: "True", why_application: "Test 123"}} }
+
+    context "when the document receives inferences" do
+      it "blocks access to anonymous users" do
+        post "/documents/#{document.id}/inference", inference
+        expect(last_response.status).to eq(401)
+      end
+      it "creates new inferences" do
+        expect {
+          post "/documents/#{document.id}/inference", inference, auth_headers
+        }.to change(DocumentInference, :count).by(1)
+        expect(document.document_inferences.count).to eq(1)
+        expect {
+          post "/documents/#{document.id}/inference", inference_update, auth_headers
+        }.to change(DocumentInference, :count).by(1)
+        expect(document.document_inferences.count).to eq(2)
       end
     end
   end

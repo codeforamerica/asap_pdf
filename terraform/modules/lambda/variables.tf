@@ -23,7 +23,6 @@ variable "document_inference_evaluation_ecr_repository_url" {
   type        = string
 }
 
-
 variable "subnet_ids" {
   description = "List of subnet IDs for the Fargate tasks"
   type        = list(string)
@@ -46,6 +45,16 @@ variable "secret_anthropic_key_arn" {
 
 variable "s3_document_bucket_arn" {
   description = "Secret arn for our Anthropic creds."
+  type        = string
+}
+
+variable "secret_rails_api_user" {
+  description = "Rails API user for Python access."
+  type        = string
+}
+
+variable "secret_rails_api_password" {
+  description = "Rails API password for Python access."
   type        = string
 }
 

@@ -36,7 +36,7 @@ end
 group :development do
   gem "overcommit", "~> 0.67.1"
   gem "better_errors", "~> 2.10"
-  gem "ruby-lsp", "~> 0.23"
+  gem "ruby-lsp", "~> 0.24"
   gem "web-console"
   gem "dockerfile-rails", ">= 1.7.9"
   gem "bundler-audit", "~> 0.9.2"
@@ -49,13 +49,13 @@ group :test do
   gem "shoulda-matchers", "~> 4.5"
   gem "simplecov", require: false # Optional: for code coverage
   gem "rails-controller-testing"
-  gem "factory_bot_rails", "~> 6.4"
+  gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "webdrivers"
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.188"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.189"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

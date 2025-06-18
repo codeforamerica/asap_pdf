@@ -55,6 +55,14 @@ module "secrets" {
       description = "The Rails master key."
       name        = "/asap-pdf/production/ANTHROPIC_KEY"
     }
+    rails_api_user = {
+      description = "The Rails API user to pass to our python components."
+      name        = "/asap-pdf/production/RAILS_API_USER"
+    }
+    rails_api_password = {
+      description = "The Rails API password to pass to our python components."
+      name        = "/asap-pdf/production/RAILS_API_PASSWORD"
+    }
     google_service_account = {
       description = "Service account credentials for evaluation tasks only."
       name        = "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT"
@@ -124,12 +132,6 @@ module "ecs" {
 
   project_name = var.project_name
   environment  = var.environment
-  # @todo are these automatic? Do we need them?
-  # security_group_id = module.networking.ecs_security_group_id
-  # container_image   = "${module.deployment.ecr_repository_url}:latest"
-  # container_port    = var.container_port
-  # container_cpu     = var.container_cpu
-  # container_memory  = var.container_memory
 
   db_host_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:host"
   db_name_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:name"
@@ -138,7 +140,6 @@ module "ecs" {
   secret_key_base_secret_arn  = "${module.secrets.secrets["rails"].secret_arn}:secret_key"
   rails_master_key_secret_arn = "${module.secrets.secrets["rails"].secret_arn}:master_key"
   redis_url_secret_arn = "${module.secrets.secrets["redis"].secret_arn}:url"
-  #target_group_arn            = module.networking.alb_target_group_arn
 
   vpc_id            = module.networking.vpc_id
   private_subnets   = module.networking.private_subnet_ids
@@ -161,6 +162,8 @@ module "lambda" {
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
   secret_google_ai_key_arn                         = module.secrets.secrets["google"].secret_arn
   secret_anthropic_key_arn                         = module.secrets.secrets["anthropic"].secret_arn
+  secret_rails_api_user                            = module.secrets.secrets["rails_api_user"].secret_arn
+  secret_rails_api_password                        = module.secrets.secrets["rails_api_password"].secret_arn
   secret_google_service_account_evals_key_arn      = module.secrets.secrets["google_service_account"].secret_arn
   secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["google_sheet_id_evaluation"].secret_arn
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
@@ -192,29 +195,3 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "documents" {
     }
   }
 }
-
-
-# IAM policy for ECS tasks to access Secrets Manager
-# resource "aws_iam_role_policy" "ecs_secrets_access" {
-#   name = "${var.project_name}-${var.environment}-ecs-secrets-access"
-#   role = split("/", module.ecs.task_execution_role_arn)[1]
-#
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Action = "secretsmanager:GetSecretValue"
-#         Resource = [
-#           module.deployment.db_host_secret_arn,
-#           module.deployment.db_name_secret_arn,
-#           module.deployment.db_username_secret_arn,
-#           module.deployment.db_password_secret_arn,
-#           module.deployment.secret_key_base_secret_arn,
-#           module.deployment.rails_master_key_secret_arn,
-#           module.deployment.redis_url_secret_arn
-#         ]
-#       }
-#     ]
-#   })
-# }
