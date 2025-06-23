@@ -1,4 +1,4 @@
-name: CI
+name: Accessibility Scan
 
 on:
   pull_request:
