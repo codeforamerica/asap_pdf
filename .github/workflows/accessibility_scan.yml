@@ -24,6 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Setup GeckoDriver
+        uses: browser-actions/setup-geckodriver@v1
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -55,16 +61,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-
-      - name: Setup Firefox
-        uses: browser-actions/setup-firefox@latest
-        with:
-          firefox-version: latest
-
-      - name: Setup GeckoDriver
-        uses: browser-actions/setup-geckodriver@latest
-        with:
-          geckodriver-version: latest
 
       - name: Install Python dependencies
         run: |
