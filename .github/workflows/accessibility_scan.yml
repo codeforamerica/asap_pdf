@@ -45,6 +45,12 @@ jobs:
           bundle exec rails db:migrate
           bundle exec rails db:setup
 
+      - name: Run Rails app
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
+        run: bin/rails server -e test&
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -65,7 +71,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r  python_components/accessibility_scan/requirements.txt
 
-      - name: Run tests
+      - name: Run Accessibility Scan
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test

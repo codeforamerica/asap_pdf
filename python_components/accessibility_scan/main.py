@@ -10,12 +10,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 TAGS = ["wcag2a", "wcag2aa", "wcag21aa"]
 
-ANON_URLS_TO_SCAN = ("http://host.docker.internal:3000",)
+ANON_URLS_TO_SCAN = ("http://localhost:3000",)
 
 AUTHED_URLS_TO_SCAN = (
-    "http://host.docker.internal:3000/sites",
-    "http://host.docker.internal:3000/sites/1/documents"
-    "http://host.docker.internal:3000/sites/1/insights",
+    "http://localhost:3000/sites",
+    "http://localhost:3000/sites/1/documents"
+    "http://localhost:3000/sites/1/insights",
 )
 
 
