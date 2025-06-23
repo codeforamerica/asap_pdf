@@ -56,15 +56,15 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install Firefox and GeckoDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox wget
-          sudo rm -rf /var/lib/apt/lists/*
-          wget -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
-          sudo tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/
-          sudo chmod +x /usr/local/bin/geckodriver
-          rm /tmp/geckodriver.tar.gz
+      - name: Setup Firefox
+        uses: browser-actions/setup-firefox@latest
+        with:
+          firefox-version: latest
+
+      - name: Setup GeckoDriver
+        uses: browser-actions/setup-geckodriver@latest
+        with:
+          geckodriver-version: latest
 
       - name: Install Python dependencies
         run: |
