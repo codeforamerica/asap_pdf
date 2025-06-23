@@ -26,6 +26,8 @@ RSpec.describe Document, type: :model do
       expect(document.normalized_url).to eq("https://www.slcdocs.com/building/January%20Report%202025.pdf")
       document.url = "https://www.slcdocs.com%5Crecorder%5CEO_Disclosures%5CD4_Eva_Lopez_Chavez_2025Dislosure.pdf"
       expect(document.normalized_url).to eq("https://www.slcdocs.com/recorder/EO_Disclosures/D4_Eva_Lopez_Chavez_2025Dislosure.pdf")
+      document.url = "https://www.slcdocs.com/Planning/Online+Open+Houses/2023/07_2023/PLNPCM2023-00482/SIDWELL+PARCEL+MAP+%282%29.pdf"
+      expect(document.normalized_url).to eq("https://www.slcdocs.com/Planning/Online%20Open%20Houses/2023/07_2023/PLNPCM2023-00482/SIDWELL%20PARCEL%20MAP%20(2).pdf")
     end
     it "converts insecure urls to https" do
       document.url = "http://www.austintexas.gov/growgreen/%25C3%2581fidos_GrowGreen_web.pdf"
