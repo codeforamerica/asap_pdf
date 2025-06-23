@@ -177,7 +177,7 @@ class Document < ApplicationRecord
   def normalized_url
     decoded_url = recursive_decode(url)
     # Add any additional oddities here.
-    decoded_url = decoded_url.tr("\\", "/")
+    decoded_url = decoded_url.tr("\\", "/").tr("+", " ")
     URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
