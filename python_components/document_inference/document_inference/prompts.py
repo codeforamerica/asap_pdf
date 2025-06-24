@@ -14,7 +14,7 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
 1. **Archived Web Content Exception** - Applies when ALL of these conditions are met:
    - Created before the compliance date April 24, 2026
    - Kept only for reference, research, or recordkeeping
-   - Stored in a special area for archived content
+   - Could be stored in a special area for archived content
    - Has not been changed since it was archived
 
 2. **Preexisting Conventional Electronic Documents Exception** - Applies when ALL conditions are met:
@@ -25,6 +25,7 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
 ## Document Information
 
   - Document title: {title}
+  - Document created date: {creation_date}
   - Document purpose: {purpose}
   - Document URL: {url}
 """

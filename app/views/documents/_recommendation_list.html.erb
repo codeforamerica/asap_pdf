@@ -16,7 +16,11 @@
         <dt class="text-sm/6 font-medium text-gray-900 text-left text-wrap">
           <br>
           <span class="font-bold"><%= info[:label] %>:</span>
-          <%= exception.inference_value.to_s.downcase == "true" ? "Yes" : "No" %>
+          <% if exception.inference_type == 'exception:is_archival' %>
+            <%= exception.inference_value.to_s.downcase == "true" ? "Yes, but clearly mark as archived" : "No" %>
+          <% else %>
+            <%= exception.inference_value.to_s.downcase == "true" ? "Yes" : "No" %>
+          <% end %>
           <a href="<%= info[:url] %>" target="_blank"><i class="fas fa-info-circle ml-1"></i><span class="hidden">See ADA Fact Sheet</span></a>
         </dt>
         <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0 text-wrap text-left"><%= exception.inference_reason %></dd>
