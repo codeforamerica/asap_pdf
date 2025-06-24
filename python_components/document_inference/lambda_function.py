@@ -39,7 +39,7 @@ def handler(event, context):
         if not os.path.exists("/tmp/data"):
             os.makedirs("/tmp/data")
         # Send images off to our friend.
-        helpers.logger.info(f"Summarizing with {event["model_name"]}...")
+        helpers.logger.info(f"Summarizing or generating exception likelihood with {event["model_name"]}...")
         for document in event["documents"]:
             helpers.logger.info(f"Attempting to fetch document: {document["url"]}")
             # Download file locally.
