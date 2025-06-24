@@ -111,11 +111,13 @@ jobs:
           DISPLAY: :99
           MOZ_HEADLESS: 1
           DBUS_SESSION_BUS_ADDRESS: /dev/null
+          MOZ_DISABLE_CONTENT_SANDBOX: 1
+          MOZ_DISABLE_GMP_SANDBOX: 1
         run: |
           # Start virtual display with better settings
           Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
           XVFB_PID=$!
-          sleep 3
+          sleep 5
           
           # Debug: Check if Xvfb is running
           if ! ps -p $XVFB_PID > /dev/null; then
@@ -123,15 +125,17 @@ jobs:
             exit 1
           fi
           
+          echo "Xvfb is running with PID: $XVFB_PID"
+          
           # Debug: Check if Rails server is still running
           curl -f http://localhost:3000 || (echo "Rails server not responding" && exit 1)
           
-          # Set additional Firefox environment variables for headless mode
-          export MOZ_HEADLESS=1
-          export DISPLAY=:99
-          export GECKO_DRIVER_LOG=debug
+          # Test Firefox can start in this environment
+          echo "Testing Firefox startup..."
+          timeout 15 firefox --headless --screenshot=/tmp/test-ci.png about:blank || echo "Firefox test completed"
           
           # Run the accessibility scan with timeout
+          echo "Starting accessibility scan..."
           timeout 300 python python_components/accessibility_scan/main.py || (echo "Accessibility scan timed out or failed" && exit 1)
 
       - name: Stop Rails server
