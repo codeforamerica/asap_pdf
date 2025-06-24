@@ -29,26 +29,6 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r  python_components/accessibility_scan/requirements.txt
-
-      - name: Install Firefox and GeckoDriver
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y firefox wget xvfb
-          sudo rm -rf /var/lib/apt/lists/*
-          wget -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
-          sudo tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/
-          sudo chmod +x /usr/local/bin/geckodriver
-          rm /tmp/geckodriver.tar.gz
-
       - name: Compile CSS and JS
         run: |
           npm install -g yarn@1.22.22 tailwindcss@3.4.1
@@ -64,6 +44,30 @@ jobs:
           bundle exec rails db:create
           bundle exec rails db:migrate
           bundle exec rails db:setup
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Firefox and GeckoDriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y firefox-esr wget xvfb dbus-x11 openbox
+          sudo rm -rf /var/lib/apt/lists/*
+          # Use a more recent GeckoDriver version
+          wget -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz
+          sudo tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/
+          sudo chmod +x /usr/local/bin/geckodriver
+          rm /tmp/geckodriver.tar.gz
+          # Verify installations
+          firefox --version
+          geckodriver --version
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r python_components/accessibility_scan/requirements.txt
 
       - name: Start Rails server
         env:
@@ -87,12 +91,49 @@ jobs:
           done
           echo "Rails server is ready!"
 
+      - name: Debug Environment
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo "=== Firefox Version ==="
+          firefox --version
+          echo "=== GeckoDriver Version ==="
+          geckodriver --version
+          echo "=== Display ==="
+          echo $DISPLAY
+          echo "=== Processes ==="
+          ps aux | grep -E "(rails|firefox|geckodriver|Xvfb)" | grep -v grep
+          echo "=== Network ==="
+          netstat -tlnp | grep :3000
+          echo "=== Rails Server Test ==="
+          curl -v http://localhost:3000 || echo "Rails server not responding"
+
       - name: Run Accessibility Scan
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
           DISPLAY: :99
+          MOZ_HEADLESS: 1
+          DBUS_SESSION_BUS_ADDRESS: /dev/null
         run: |
-          # Start virtual display for headless browser testing
-          Xvfb :99 -screen 0 1024x768x24 &
-          python python_components/accessibility_scan/main.py
+          # Start virtual display with better settings
+          Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
+          sleep 3
+          
+          # Start a minimal window manager to help with graphics
+          openbox --display=:99 &
+          sleep 2
+          
+          # Debug: Check if Rails server is still running
+          curl -f http://localhost:3000 || (echo "Rails server not responding" && exit 1)
+          
+          # Run the accessibility scan with timeout
+          timeout 300 python python_components/accessibility_scan/main.py || (echo "Accessibility scan timed out or failed" && exit 1)
+
+      - name: Stop Rails server
+        if: always()
+        run: |
+          if [ -f rails_server.pid ]; then
+            kill $(cat rails_server.pid) || true
+            rm rails_server.pid
+          fi
