@@ -5,9 +5,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 TAGS = ["wcag2a", "wcag2aa", "wcag21aa"]
 
@@ -62,9 +59,6 @@ def scan_urls():
 
 
 def create_firefox_driver():
-    """Create a Firefox WebDriver instance optimized for CI environments"""
-
-    # Firefox options for CI environment
     options = Options()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
@@ -73,40 +67,33 @@ def create_firefox_driver():
     options.add_argument('--window-size=1280,1024')
     options.add_argument('--disable-extensions')
     options.add_argument('--disable-plugins')
-    options.add_argument('--disable-images')  # Speed up loading
-    options.add_argument('--disable-javascript')  # Only if your accessibility scan doesn't need JS
+    options.add_argument('--disable-web-security')
+    options.add_argument('--allow-running-insecure-content')
 
-    # Set preferences for better CI performance
     options.set_preference('dom.webdriver.enabled', False)
     options.set_preference('useAutomationExtension', False)
     options.set_preference('browser.startup.homepage', 'about:blank')
     options.set_preference('browser.startup.firstrunSkipped', True)
     options.set_preference('dom.disable_beforeunload', True)
+    options.set_preference('browser.cache.disk.enable', False)
+    options.set_preference('browser.cache.memory.enable', False)
+    options.set_preference('browser.cache.offline.enable', False)
+    options.set_preference('network.http.use-cache', False)
 
-    # Service configuration
+    options.page_load_strategy = 'normal'
+
     service = Service(
         executable_path='/usr/local/bin/geckodriver',
-        log_path='/tmp/geckodriver.log'
+        log_output='/tmp/geckodriver.log'
     )
-
-    # Desired capabilities for additional timeout control
-    caps = DesiredCapabilities.FIREFOX.copy()
-    caps['pageLoadStrategy'] = 'normal'  # or 'eager' for faster loading
-    caps['timeouts'] = {
-        'implicit': 30000,
-        'pageLoad': 60000,
-        'script': 30000
-    }
 
     try:
         print("Creating Firefox WebDriver...")
         driver = webdriver.Firefox(
             service=service,
-            options=options,
-            desired_capabilities=caps
+            options=options
         )
 
-        # Set additional timeouts
         driver.implicitly_wait(30)
         driver.set_page_load_timeout(60)
         driver.set_script_timeout(30)
@@ -121,8 +108,10 @@ def create_firefox_driver():
             with open('/tmp/geckodriver.log', 'r') as f:
                 print("GeckoDriver logs:")
                 print(f.read())
-        except:
-            pass
+        except FileNotFoundError:
+            print("No geckodriver log file found")
+        except Exception as log_error:
+            print(f"Could not read geckodriver log: {log_error}")
         raise
 
 
