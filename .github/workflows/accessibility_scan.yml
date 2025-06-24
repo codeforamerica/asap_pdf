@@ -53,20 +53,83 @@ jobs:
       - name: Install Firefox and GeckoDriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox-esr wget
+          sudo apt-get install -y firefox-esr wget xvfb dbus-x11 openbox
           sudo rm -rf /var/lib/apt/lists/*
-          wget -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz
+          # Use a more recent GeckoDriver version
+          wget -O /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.34.0/geckodriver-v0.34.0-linux64.tar.gz
           sudo tar -xzf /tmp/geckodriver.tar.gz -C /usr/local/bin/
           sudo chmod +x /usr/local/bin/geckodriver
           rm /tmp/geckodriver.tar.gz
+          # Verify installations
+          firefox --version
+          geckodriver --version
 
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r  python_components/accessibility_scan/requirements.txt
+          pip install -r python_components/accessibility_scan/requirements.txt
 
-      - name: Run tests
+      - name: Start Rails server
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
-        run: python python_components/accessibility_scan/main.py
+        run: |
+          # Start Rails server on a specific port in the background
+          bin/rails server -e test -p 3000 &
+          echo $! > rails_server.pid
+          
+          # Wait for Rails server to be ready
+          echo "Waiting for Rails server to start..."
+          timeout=60
+          while ! curl -f http://localhost:3000 >/dev/null 2>&1; do
+            sleep 2
+            timeout=$((timeout - 2))
+            if [ $timeout -le 0 ]; then
+              echo "Rails server failed to start within 60 seconds"
+              exit 1
+            fi
+          done
+          echo "Rails server is ready!"
+
+      - name: Debug Environment
+        run: |
+          echo "=== System Information ==="
+          uname -a
+          echo "=== Firefox Version ==="
+          firefox --version
+          echo "=== GeckoDriver Version ==="
+          geckodriver --version
+          echo "=== Network ==="
+          netstat -tlnp | grep :3000
+          echo "=== Rails Server Test ==="
+          curl -v http://localhost:3000 || echo "Rails server not responding"
+
+      - name: Run Accessibility Scan
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
+          DISPLAY: :99
+          MOZ_HEADLESS: 1
+          DBUS_SESSION_BUS_ADDRESS: /dev/null
+        run: |
+          # Start virtual display with better settings
+          Xvfb :99 -screen 0 1280x1024x24 -ac +extension GLX +render -noreset &
+          sleep 3
+          
+          # Start a minimal window manager to help with graphics
+          openbox --display=:99 &
+          sleep 2
+          
+          # Debug: Check if Rails server is still running
+          curl -f http://localhost:3000 || (echo "Rails server not responding" && exit 1)
+          
+          # Run the accessibility scan with timeout
+          timeout 300 python python_components/accessibility_scan/main.py || (echo "Accessibility scan timed out or failed" && exit 1)
+
+      - name: Stop Rails server
+        if: always()
+        run: |
+          if [ -f rails_server.pid ]; then
+            kill $(cat rails_server.pid) || true
+            rm rails_server.pid
+          fi
