@@ -62,6 +62,7 @@ def get_inference_for_document(
                 {
                     "title": document.file_name,
                     "id": "000",  # Does this matter?
+                    "created_date": document.created_date,
                     "purpose": document.category,
                     "url": document.url,
                 }
