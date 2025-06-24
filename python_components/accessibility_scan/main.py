@@ -29,8 +29,7 @@ def scan_urls():
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
 
-    service = Service("/usr/local/bin/geckodriver")
-    driver = webdriver.Firefox(service=service, options=options)
+    driver = create_firefox_driver()
 
     all_results = {
         "total_violations": 0,
@@ -68,6 +67,103 @@ def scan_urls():
 
     print(json.dumps(all_results, indent=2))
 
+
+def create_firefox_driver():
+    """Create a Firefox WebDriver configured for CI/headless environment"""
+
+    # Firefox options for CI environment
+    options = Options()
+
+    # Essential headless options
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--disable-extensions')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1280,1024')
+    options.add_argument('--disable-web-security')
+    options.add_argument('--disable-features=VizDisplayCompositor')
+
+    # CI-specific Firefox preferences
+    preferences = {
+        # Disable caching
+        'browser.cache.disk.enable': False,
+        'browser.cache.memory.enable': False,
+        'browser.cache.offline.enable': False,
+
+        # Disable session restore and startup
+        'browser.sessionstore.resume_from_crash': False,
+        'browser.startup.page': 0,
+        'browser.startup.homepage': 'about:blank',
+
+        # Disable tabs and process isolation (helps in CI)
+        'browser.tabs.remote.autostart': False,
+        'browser.tabs.remote.autostart.2': False,
+        'dom.ipc.processCount': 1,
+
+        # Disable sandbox (often needed in CI)
+        'security.sandbox.content.level': 0,
+        'security.sandbox.gpu.level': 0,
+
+        # Disable various features that can cause issues
+        'browser.safebrowsing.enabled': False,
+        'browser.safebrowsing.malware.enabled': False,
+        'browser.safebrowsing.phishing.enabled': False,
+        'datareporting.healthreport.uploadEnabled': False,
+        'datareporting.policy.dataSubmissionEnabled': False,
+        'toolkit.telemetry.enabled': False,
+        'toolkit.telemetry.unified': False,
+
+        # Media and WebRTC
+        'media.navigator.enabled': False,
+        'media.peerconnection.enabled': False,
+        'media.autoplay.default': 2,
+
+        # Notifications and geolocation
+        'dom.webnotifications.enabled': False,
+        'geo.enabled': False,
+
+        # Disable automatic updates
+        'app.update.enabled': False,
+        'app.update.auto': False,
+
+        # Network settings
+        'network.http.phishy-userpass-length': 255,
+        'network.manage-offline-status': False,
+
+        # Accessibility (don't disable - we need this for axe)
+        'accessibility.force_disabled': 0,
+    }
+
+    # Apply all preferences
+    for key, value in preferences.items():
+        options.set_preference(key, value)
+
+    # Service configuration
+    service_args = [
+        '--log=debug',  # Enable debug logging
+        '--marionette-port=2828',  # Explicit port
+    ]
+
+    try:
+        service = Service(
+            executable_path='/usr/local/bin/geckodriver',
+            service_args=service_args
+        )
+
+        print("Creating Firefox WebDriver...")
+        driver = webdriver.Firefox(service=service, options=options)
+
+        # Set timeouts
+        driver.set_page_load_timeout(30)
+        driver.implicitly_wait(10)
+
+        print("Firefox WebDriver created successfully")
+        return driver
+
+    except Exception as e:
+        print(f"Failed to create Firefox WebDriver: {str(e)}")
+        raise
 
 def get_axe_results(driver):
     axe = Axe(driver)
