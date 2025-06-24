@@ -1,5 +1,6 @@
 FROM python:3.12
 ENV PYTHONPATH=\/workspace
+ENV ACCESSIBILITY_SCAN_HOST="host.docker.internal"
 WORKDIR /workspace
 RUN apt-get update && apt-get install -y \
     firefox-esr \

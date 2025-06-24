@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Name of the Docker image to create for CI operations
 LOCAL_CI_IMAGE='asap_pdf:ci'
 
