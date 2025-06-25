@@ -21,6 +21,8 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
    - Document is a PDF file
    - Document was available on the government"s website or mobile app before the compliance date
    - HOWEVER: This exception does NOT apply if the document is currently being used by individuals to apply for, access, or participate in government services
+   - For example, this exception would probably apply to a flyer for an event or a sample ballot for a past election, if they were posted before the compliance deadline.
+   - But it would NOT apply to a business license application that was posted before the deadline, but could still be used to apply for a license after the deadline.
 
 ## Document Information
 
