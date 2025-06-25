@@ -19,7 +19,7 @@ AUTHED_URLS_TO_SCAN = (
     f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites",
     f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/documents",
     f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/insights",
-    f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/documents/302/modal_content"
+    f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/documents/302/modal_content",
 )
 
 
