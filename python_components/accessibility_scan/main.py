@@ -1,4 +1,5 @@
 import json
+import os
 
 from axe_selenium_python import Axe
 from selenium import webdriver
@@ -8,14 +9,16 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+ACCESSIBILITY_SCAN_HOST = os.getenv("ACCESSIBILITY_SCAN_HOST", "localhost")
+
 TAGS = ["wcag2a", "wcag2aa", "wcag21aa"]
 
-ANON_URLS_TO_SCAN = ("http://host.docker.internal:3000",)
+ANON_URLS_TO_SCAN = (f"http://{ACCESSIBILITY_SCAN_HOST}:3000",)
 
 AUTHED_URLS_TO_SCAN = (
-    "http://host.docker.internal:3000/sites",
-    "http://host.docker.internal:3000/sites/1/documents"
-    "http://host.docker.internal:3000/sites/1/insights",
+    f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites",
+    f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/documents",
+    f"http://{ACCESSIBILITY_SCAN_HOST}:3000/sites/1/insights",
 )
 
 
