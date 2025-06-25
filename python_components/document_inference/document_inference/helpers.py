@@ -174,20 +174,19 @@ def document_inference_recommendation(
         DocumentRecommendation.model_validate(response_json)
         logger.info("Validation complete.")
         response_json["is_third_party"] = False
-        response_json["is_third_party_confidence"] = 1
         response_json["why_third_party"] = (
             'Document is hosted and maintained on a government website. It is unlikely to meet the "Third-Party Content" exception.'
         )
 
         response_json["is_individualized"] = False
-        response_json["is_individualized_confidence"] = 1
         response_json["why_individualized"] = (
             'Document was not encrypted and is likely not included in the "Individualized Content" exception.'
         )
     else:
         response_json = {
+            "is_third_party": False,
+            "why_third_party": 'Document is hosted and maintained on a government website. It is unlikely to meet the "Third-Party Content" exception.',
             "is_individualized": True,
-            "is_individualized_confidence": 1,
             "why_individualized": 'Document was encrypted and should be manually evaluated for the "Individualized Content" exception.',
         }
     return response_json
