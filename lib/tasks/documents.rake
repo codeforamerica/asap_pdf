@@ -67,8 +67,7 @@ namespace :documents do
       "salt_lake_city.csv" => slc
     }
 
-    # archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
-    archive_name = "site_documents.zip"
+    archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
     puts "Loading site data from #{archive_name}"
 
     Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
@@ -170,20 +169,5 @@ namespace :documents do
         document.save
       end
     end
-  end
-
-  desc "Normalize bad URLs"
-  task :normalize_bad_urls, [:site_id] => :environment do |t, args|
-    site = Site.find(args.site_id)
-    p "Normalizing bad URLS for site #{site.name}..."
-    update_count = 0
-    PaperTrail.request(enabled: false) do
-      site.documents.where("url like '%+%'").find_each(batch_size: 50) do |document|
-        document.url = document.normalized_url
-        document.save!
-        update_count += 1
-      end
-    end
-    p "Updated #{update_count} documents."
   end
 end
