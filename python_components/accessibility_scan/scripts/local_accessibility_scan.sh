@@ -5,7 +5,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Add an inference to our test document.
-"$SCRIPT_DIR"/../../../bin/rake "documents:add_document_inference[302,exception:is_archival,True,Fee fi fo fum.]"
+"$SCRIPT_DIR"/../../../bin/rake "documents:add_document_inference[302,exception:is_archival,True,Fee fi fo fum.]" >/dev/null
 
 # Name of the image locally.
 LOCAL_ACCESSIBILITY_SCAN_IMAGE="asap:accessibility_scan"

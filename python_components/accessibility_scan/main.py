@@ -35,6 +35,7 @@ def scan_urls():
 
     all_results = {
         "total_violations": 0,
+        "total_incomplete": 0,
         "anon_urls": {},
         "authed_urls": {},
     }
@@ -46,24 +47,26 @@ def scan_urls():
         all_results["total_violations"] += len(results["violations"])
         all_results["anon_urls"][url] = results
 
-    # Log into the app.
-    wait = WebDriverWait(driver, 10)
-    email_field = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "#email_address"))
-    )
-    password_field = driver.find_element(By.CSS_SELECTOR, "#password")
-    email_field.send_keys("admin@codeforamerica.org")
-    password_field.send_keys("password")
-    submit_button = driver.find_element(By.CSS_SELECTOR, "#submit-session-form")
-    submit_button.click()
-    wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#add-site-modal")))
+    if AUTHED_URLS_TO_SCAN is not None:
+        # Log into the app.
+        wait = WebDriverWait(driver, 10)
+        email_field = wait.until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#email_address"))
+        )
+        password_field = driver.find_element(By.CSS_SELECTOR, "#password")
+        email_field.send_keys("admin@codeforamerica.org")
+        password_field.send_keys("password")
+        submit_button = driver.find_element(By.CSS_SELECTOR, "#submit-session-form")
+        submit_button.click()
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "#add-site-modal")))
 
-    for url in AUTHED_URLS_TO_SCAN:
-        driver.get(url)
-        driver.implicitly_wait(5)
-        results = get_axe_results(driver)
-        all_results["total_violations"] += len(results["violations"])
-        all_results["authed_urls"][url] = results
+        for url in AUTHED_URLS_TO_SCAN:
+            driver.get(url)
+            driver.implicitly_wait(5)
+            results = get_axe_results(driver)
+            all_results["total_violations"] += len(results["violations"])
+            all_results["total_incomplete"] += len(results["incomplete"])
+            all_results["authed_urls"][url] = results
 
     driver.quit()
 
