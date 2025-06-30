@@ -35,7 +35,7 @@
           </button>
         <% end %>
       </div>
-      <iframe src="<%= serve_file_content_document_path(@document.id, @document.file_name) %>?pagemode=none&toolbar=1" class="w-full h-[calc(90vh-8rem)]" type="application/pdf"></iframe>
+      <iframe title="Embedded PDF: <%= @document.file_name %>" src="<%= serve_file_content_document_path(@document.id, @document.file_name) %>?pagemode=none&toolbar=1" class="w-full h-[calc(90vh-8rem)]" type="application/pdf"></iframe>
     </div>
     <!-- PDF Details View -->
     <div data-modal-target="metadataView" class="hidden h-[calc(90vh-12rem)] overflow-y-auto bg-white rounded-md">
@@ -118,13 +118,14 @@
         </div>
         <!--  Notes -->
         <div class="col-span-1 md:col-span-2 px-3" data-controller="modal-notes" data-modal-notes-document-id-value="<%= document.id %>">
-          <h3 class="text-md font-semibold text-gray-600 mb-2 flex items-center">
+          <h3 id="notes-label" class="text-md font-semibold text-gray-600 mb-2 flex items-center">
             Notes
           </h3>
           <textarea
             data-modal-notes-target="textarea"
             class="w-full h-16 p-2 text-sm border rounded-lg focus:border-primary-500 focus:ring-primary-500"
             placeholder="Add your notes here..."
+            aria-labelledby="notes-label"
           ><%= document.notes %></textarea>
           <div class="mt-2 flex justify-end">
             <button class="btn btn-primary btn-sm" data-action="modal-notes#updateNotes">

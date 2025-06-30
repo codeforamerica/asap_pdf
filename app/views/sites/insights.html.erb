@@ -13,7 +13,7 @@
           </div>
           <%= form_tag insights_site_path(@site), method: :get, class: "px-4 py-4", data: { action: "submit->filter#submitForm" } do %>
             <div>
-              <label class="label">
+              <label for="category" class="label">
                 <span class="label-text">Document Type</span>
               </label>
               <%= select_tag :category,
@@ -22,7 +22,7 @@
             </div>
             <% if @site.has_departments? %>
               <div>
-                <label class="label">
+                <label for="department" class="label">
                   <span class="label-text">Department</span>
                 </label>
                 <%= select_tag :department,

@@ -4,7 +4,7 @@
       <div class="mb-4">
         <%= image_tag "logo.png", class: "h-12 mx-auto", alt: "Code for America Logo" %>
       </div>
-      <p class="text-sm text-base-content/70 mb-6">Website PDF Accessibility Checker</p>
+      <p class="text-lg mb-6">Website PDF Accessibility Checker</p>
     </div>
     <%= form_with url: session_path, :html => { :id => "login-form" } do |form| %>
       <% has_errors = @session.present? && @session.errors.any? %>
@@ -20,21 +20,21 @@
       <% end %>
       <div class="form-control w-full">
         <label class="label" for="email_address">
-          <span class="label-text">Email Address</span>
+          <span class="label-text text-black">Email Address</span>
         </label>
         <%= form.email_field :email_address,
                              id: "email_address",
                              required: true,
                              autofocus: true,
-                             autocomplete: "username",
+                             autocomplete: "email",
                              placeholder: "you@example.com",
                              value: params[:email_address],
-                             class: "input input-bordered w-full" + (has_errors ? " input-error " : ""),
+                             class: "input input-bordered border-black w-full " + (has_errors ? " input-error " : ""),
                              "aria-required": true %>
       </div>
       <div class="form-control w-full mt-4">
         <label class="label" for="password">
-          <span class="label-text">Password</span>
+          <span class="label-text text-black">Password</span>
         </label>
         <%= form.password_field :password,
                                 id: "password",
@@ -42,11 +42,11 @@
                                 autocomplete: "current-password",
                                 placeholder: "Enter your password",
                                 maxlength: 72,
-                                class: "input input-bordered w-full"  + (has_errors ? " input-error " : ""),
+                                class: "input input-bordered border-black w-full "  + (has_errors ? " input-error " : ""),
                                 "aria-required": true %>
       </div>
       <div class="form-control mt-6">
-        <%= form.button type: "submit", id: "submit-session-form", class: "btn btn-primary" do %>
+        <%= form.button type: "submit", id: "submit-session-form", class: "btn btn-primary text-white" do %>
           <i class="fas fa-sign-in-alt mr-2"></i>
           Login
         <% end %>
