@@ -90,7 +90,7 @@ GEM
     aws-sdk-lambda (1.153.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.189.1)
+    aws-sdk-s3 (1.191.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -499,7 +499,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk-lambda
-  aws-sdk-s3 (~> 1.189)
+  aws-sdk-s3 (~> 1.191)
   aws-sdk-secretsmanager
   aws-sigv4
   bcrypt (~> 3.1)
