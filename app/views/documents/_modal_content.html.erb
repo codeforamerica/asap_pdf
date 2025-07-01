@@ -177,6 +177,15 @@
                 </div>
                 <div class="text-sm text-gray-500">
                   <%= version.created_at.strftime("%B %d, %Y %I:%M %p") %>
+                  <br>
+                  <% if version.whodunnit.present? %>
+                  <% user=User.find(version.whodunnit) %>
+                    <% if user.present? %>
+                      Author: <%= user.email_address %>
+                    <% end %>
+                  <% else %>
+                    Author: System
+                  <% end %>
                 </div>
               </div>
               <div class="mt-3 space-y-2">
