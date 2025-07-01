@@ -28,10 +28,10 @@
               <thead class="bg-gray-50">
               <tr>
                 <th scope="col" class="tracking-wider w-12 py-4 px-3">
-                  <label class="text-left text-left text-xs font-medium text-gray-500 uppercase relative-bump-top">
+                  <label for="bulk-edit-all" class="text-left text-left text-xs font-medium text-gray-500 uppercase relative-bump-top">
                     Move
                     <br/>
-                    <input type="checkbox" class="bulk-edit-all" data-bulk-edit-target="selectAll" data-action="click->bulk-edit#handleCheckAll"/>
+                    <input type="checkbox" id="bulk-edit-all" class="bulk-edit-all" data-bulk-edit-target="selectAll" data-action="click->bulk-edit#handleCheckAll"/>
                   </label>
                 </th>
                 <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -83,6 +83,7 @@
                 <tr>
                   <td class="px-3 py-4 text-center whitespace-nowrap">
                     <label>
+                      <span class="sr-only">Include or Exclude Document: <%= document.file_name %></span>
                       <input type="checkbox" class="bulk-edit-document" data-bulk-edit-target="selectOne" data-action="click->bulk-edit#handleCheckOne" data-bulk-edit-document-id-value="<%= document.id %>"/>
                     </label>
                   </td>
@@ -90,6 +91,7 @@
                     <div class="text-gray-900">
                       <button data-action="click->modal#openModal" class="text-left">
                         <i class="fas fa-file-pdf text-sm"></i> <%= document.file_name&.truncate(80) %>
+                        <span class="sr-only">Show Document Modal</span>
                       </button>
                     </div>
                     <% source = document_source(document.primary_source) %>
@@ -156,15 +158,21 @@
                 <div class="checked-count join-item px-4 border-r border-gray-300 py-1">Selected: <span>1</span>
                 </div>
                 <div class="join-item px-4 border-r border-gray-300">
-                  <select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove" class="select select-sm">
-                    <option disabled selected>Make Decision</option>
-                    <% @decision_values.each do |key, value| %>
-                      <option value="<%= key %>"><%= value %></option>
-                    <% end %>
-                  </select>
+                  <label>
+                    <span class="sr-only">Change Audit Workflow Status</span>
+                    <select id="bulk-edit-move" name="bulk-edit-move" data-action="bulk-edit#handleMove" class="select select-sm">
+                      <option disabled selected>Make Decision</option>
+                      <% @decision_values.each do |key, value| %>
+                        <option value="<%= key %>"><%= value %></option>
+                      <% end %>
+                    </select>
+                  </label>
                 </div>
                 <div class="join-item clear px-4 py-1">
-                  <button data-action="bulk-edit#handleCloseActions"><i class="fas fa-x"></i></button>
+                  <button data-action="bulk-edit#handleCloseActions">
+                    <i class="fas fa-x"></i>
+                    <span class="sr-only">Close Bulk Editor</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -180,7 +188,7 @@
                 </div>
               </div>
               <form method="dialog" class="modal-backdrop">
-                <button>close</button>
+                <button>Close</button>
               </form>
             </dialog>
           </div>

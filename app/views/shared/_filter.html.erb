@@ -12,22 +12,22 @@
       <%= hidden_field_tag :direction, params[:direction] %>
       <div class="grid grid-cols-1 gap-4">
         <div>
-          <label class="label">
+          <div id="date-filter-label" class="label">
             <span class="label-text">Time Frame</span>
-          </label>
+          </div>
           <div class="space-y-2">
-            <%= date_field_tag :start_date, params[:start_date], class: "input input-bordered w-full" + (params[:start_date].present? ? " active-highlight" : ""), placeholder: "From"%>
-            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full"+ (params[:end_date].present? ? " active-highlight" : ""), placeholder: "To" %>
+            <%= date_field_tag :start_date, params[:start_date], class: "input input-bordered w-full" + (params[:start_date].present? ? " active-highlight" : ""), placeholder: "From", "aria-labelledby": "date-filter-label" %>
+            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full"+ (params[:end_date].present? ? " active-highlight" : ""), placeholder: "To", "aria-labelledby": "date-filter-label" %>
           </div>
         </div>
         <div>
-          <label class="label">
+          <label for="filename" class="label">
             <span class="label-text">File Name</span>
           </label>
           <%= text_field_tag :filename, params[:filename], class: "input input-bordered w-full" + (params[:filename].present? ? " active-highlight" : ""), placeholder: "Search by file or web page..." %>
         </div>
         <div>
-          <label class="label">
+          <label for="category" class="label">
             <span class="label-text">Document Type</span>
           </label>
           <%= select_tag :category,
@@ -36,7 +36,7 @@
         </div>
         <% if site.has_departments? %>
           <div>
-            <label class="label">
+            <label for="department" class="label">
               <span class="label-text">Department</span>
             </label>
             <%= select_tag :department,
@@ -46,7 +46,7 @@
         <% end %>
         <% if site.has_complexities? %>
           <div>
-            <label class="label">
+            <label for="complexity" class="label">
               <span class="label-text">Complexity</span>
             </label>
             <%= select_tag :complexity,

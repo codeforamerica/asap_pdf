@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <title><%= content_for(:title) || "PDF Audit Tool - Code for America" %></title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -29,9 +29,10 @@
         <% end %>
       </div>
       <div class="relative" data-controller="dropdown">
-        <button data-action="click->dropdown#toggle" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 focus:outline-none">
+        <button data-action="click->dropdown#toggle" class="flex items-center space-x-2 text-gray-500 hover:text-gray-900 focus:outline-none" aria-label="User Navigation Toggle">
           <i class="fas fa-user-circle text-xl"></i>
           <i class="fas fa-chevron-down text-sm"></i>
+          <span class="sr-only">User Navigation</span>
         </button>
         <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
           <div class="py-1">

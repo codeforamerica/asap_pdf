@@ -25,12 +25,14 @@
           <% end %>
           <ul>
             <% item["children"].each do |child_key, child_item| %>
-              <%= link_to site_documents_path(site, accessibility_recommendation: child_key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:accessibility_recommendation] == child_key ? 'bg-gray-100' : ''}" do %>
-                <div class="flex items-center <%= "text-primary" if params[:accessibility_recommendation] == child_key %>">
-                  <span class="ml-2 "><%= child_key %></span>
-                </div>
-                <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(child_key).count %></span>
-              <% end %>
+              <li>
+                <%= link_to site_documents_path(site, accessibility_recommendation: child_key), class: "flex items-center justify-between p-2 text-gray-700 hover:bg-gray-50 rounded #{params[:accessibility_recommendation] == child_key ? 'bg-gray-100' : ''}" do %>
+                  <div class="flex items-center <%= "text-primary" if params[:accessibility_recommendation] == child_key %>">
+                    <span class="ml-2 "><%= child_key %></span>
+                  </div>
+                  <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"><%= short_number site.documents.by_decision_type(child_key).count %></span>
+                <% end %>
+              </li>
             <% end %>
           </ul>
         <% end %>

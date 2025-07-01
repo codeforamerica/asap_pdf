@@ -34,7 +34,7 @@ group :development, :test do
 end
 
 group :development do
-  gem "overcommit", "~> 0.67.1"
+  gem "overcommit", "~> 0.68.0"
   gem "better_errors", "~> 2.10"
   gem "ruby-lsp", "~> 0.24"
   gem "web-console"
@@ -61,7 +61,7 @@ gem "aws-sdk-lambda"
 gem "aws-sigv4"
 
 # API and Documentation
-gem "grape", "~> 2.3"
+gem "grape", "~> 2.4"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 16.0"

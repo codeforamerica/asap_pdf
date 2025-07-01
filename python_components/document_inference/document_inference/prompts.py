@@ -14,22 +14,20 @@ The attached jpeg documents represent a PDF. Analyze the PDF document informatio
 1. **Archived Web Content Exception** - Applies when ALL of these conditions are met:
    - Created before the compliance date April 24, 2026
    - Kept only for reference, research, or recordkeeping
-   - Stored in a special area for archived content
+   - Could be stored in a special area for archived content
    - Has not been changed since it was archived
 
 2. **Preexisting Conventional Electronic Documents Exception** - Applies when ALL conditions are met:
    - Document is a PDF file
    - Document was available on the government"s website or mobile app before the compliance date
    - HOWEVER: This exception does NOT apply if the document is currently being used by individuals to apply for, access, or participate in government services
-
-3. **Content Posted by Third Parties Exception** - Applies when:
-   - Content is posted by third parties (members of the public or others not controlled by or acting for government entities)
-   - The third party is not posting due to contractual, licensing, or other arrangements with the government entity
-   - HOWEVER: This exception does NOT apply to content posted by the government itself, content posted by government contractors/vendors, or to tools/platforms that allow third parties to post content
+   - For example, this exception would probably apply to a flyer for an event or a sample ballot for a past election, if they were posted before the compliance deadline.
+   - But it would NOT apply to a business license application that was posted before the deadline, but could still be used to apply for a license after the deadline.
 
 ## Document Information
 
   - Document title: {title}
+  - Document created date: {creation_date}
   - Document purpose: {purpose}
   - Document URL: {url}
 """

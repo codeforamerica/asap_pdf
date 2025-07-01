@@ -21,6 +21,17 @@ on:
         options:
           - gemini-2.5-pro-preview-03-25
           - gemini-1.5-pro-latest
+          - gemini-2.5-flash
+      runs_per_document:
+        description: 'Number of times generate evaluations per document'
+        required: false
+        default: '1'
+        type: string
+      should_rebuild_images:
+        description: 'Rebuild and push images'
+        type: boolean
+        required: false
+        default: true
 
 env:
   AWS_REGION: us-east-1
@@ -40,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runs: ${{ steps.set-runs.outputs.runs }}
     steps:
       - uses: actions/checkout@v4
       - name: Debug OIDC claims
@@ -54,12 +66,14 @@ jobs:
           echo "Job: ${{ github.job }}"
 
       - name: Debug AWS role
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         run: |
           echo "Attempting to assume role with:"
           echo "Repository: repo:${{ github.repository }}:*"
           echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
 
       - name: Configure AWS credentials
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -71,9 +85,12 @@ jobs:
 
       - name: Login to Amazon ECR
         id: login-ecr
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         uses: aws-actions/amazon-ecr-login@v2
+
       - name: Build, tag, and push Evaluation Lambda image to ECR
         id: build-evaluation-image
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
@@ -86,6 +103,7 @@ jobs:
 
       - name: Update Evaluation Lambda
         id: update-evaluation-lambda
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
@@ -98,6 +116,7 @@ jobs:
 
       - name: Build, tag, and push Document Inference Evaluation Lambda image to ECR
         id: build-document-inference-evaluation-image
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
@@ -110,6 +129,7 @@ jobs:
 
       - name: Update Document Inference Evaluation Lambda
         id: update-document-inference-evaluation-lambda
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
@@ -119,6 +139,7 @@ jobs:
           aws lambda update-function-code \
              --function-name $FUNCTION_NAME \
              --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
       - name: Read JSON file and set matrix
         id: set-matrix
         run: |
@@ -126,12 +147,22 @@ jobs:
           echo "Matrix data: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
+      - name: Generate run matrix
+        id: set-runs
+        run: |
+          runs_per_doc=${{ github.event.inputs.runs_per_document || 1 }}
+          run_array=$(seq 1 $runs_per_doc | jq -R . | jq -s . | tr -d '\n')
+          echo "runs<<EOF" >> $GITHUB_OUTPUT
+          echo "$run_array" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
   invoke:
     needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
+        run: ${{ fromJson(needs.build.outputs.runs) }}
       max-parallel: 10
     steps:
       - uses: actions/checkout@v4
@@ -159,6 +190,7 @@ jobs:
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
           COMMIT_SHA: ${{ github.sha }}
           DOC: ${{ toJson(matrix.payload) }}
+          DELTA: ${{ matrix.run }}
 
         run: |
           ./python_components/evaluation/scripts/ci_invoke_evaluation_lambda.sh

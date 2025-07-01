@@ -10,6 +10,7 @@ jq -n \
        --arg evaluation_component "$EVALUATION_COMPONENT" \
        --arg branch "$BRANCH_NAME" \
        --arg commit "$COMMIT_SHA" \
+       --arg delta "$DELTA" \
        --argjson doc "$DOC"  \
        '{
          evaluation_model: $eval_model,
@@ -19,6 +20,7 @@ jq -n \
          commit_sha: $commit,
          page_limit: 7,
          output_google_sheet: true,
+         delta: $delta,
          documents: [$doc]
        }' > "$TMP_PAYLOAD"
 
@@ -36,7 +38,7 @@ aws lambda invoke \
 
 cat output.json
 
-if grep -q '"StatusCode": 500' output-*.json; then
+if grep -q '"StatusCode": 500' output.json; then
     echo "Error: Found StatusCode 500 in Lambda responses"
     exit 1
 fi

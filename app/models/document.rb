@@ -177,7 +177,7 @@ class Document < ApplicationRecord
   def normalized_url
     decoded_url = recursive_decode(url)
     # Add any additional oddities here.
-    decoded_url = decoded_url.tr("\\", "/")
+    decoded_url = decoded_url.tr("\\", "/").tr("+", " ")
     URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
@@ -264,7 +264,7 @@ class Document < ApplicationRecord
       end
       payload = {
         model_name: "gemini-2.5-pro-preview-03-25",
-        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
+        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category, creation_date: creation_date}],
         page_limit: 7,
         inference_type: "exception",
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"

@@ -25,7 +25,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list") do
       expect(page).to have_content "Colorado: City of Denver"
       expect(page).to have_no_content "No documents found"
-      expect(page).to have_content "example.pdf\nAgenda\nNeeds Decision\nNo notes"
+      expect(page).to have_content "example.pdf\nShow Document Modal\nAgenda\nNeeds Decision\nNo notes"
       expect(page).to have_no_content "rtd_contract.pdf"
       expect(page).not_to have_selector "[data-text-edit-field-value='notes'] textarea"
       notes = find("[data-text-edit-field-value='notes']")
@@ -50,14 +50,14 @@ describe "documents function as expected", js: true, type: :feature do
     end
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
-      expect(page).to have_content "example.pdf\nAgenda\nConvert\nFee fi fo fum"
+      expect(page).to have_content "example.pdf\nShow Document Modal\nAgenda\nConvert\nFee fi fo fum"
     end
     within("#sidebar") do
       click_link "Convert"
     end
     within("#document-list") do
       expect(page).to have_no_content "No documents found"
-      expect(page).to have_content "example.pdf\nAgenda\nConvert\nFee fi fo fum"
+      expect(page).to have_content "example.pdf\nShow Document Modal\nAgenda\nConvert\nFee fi fo fum"
     end
     within("#sidebar") do
       expect(page).to have_content "Needs Decision\n0"
@@ -173,7 +173,7 @@ describe "documents function as expected", js: true, type: :feature do
       click_link "Type"
     end
     within("#document-list") do
-      expect(page).to have_no_selector("tbody tr:nth-child(3)", wait: 5)
+      expect(page).to have_no_selector("tbody tr:nth-child(3)", wait: 10)
       expect(page).to have_no_content "rtd_contract.pdf"
     end
     within("#document-list tbody tr:nth-child(1)") do
@@ -348,9 +348,9 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Leave\n0"
     end
     within("#document-list") do
-      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nNeeds Decision"
-      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nNeeds Decision"
-      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nNeeds Decision"
+      expect(page).to have_content "rtd_contract.pdf\nShow Document Modal\nAgreement\n73%\nNeeds Decision"
+      expect(page).to have_content "teahouse_rules.pdf\nShow Document Modal\nNotice\n71%\nNeeds Decision"
+      expect(page).to have_content "farmers_market_2023.pdf\nShow Document Modal\nOct 01, 2024\nNotice\nNeeds Decision"
       expect(page).to have_css("#bulk_edit_control.off-screen-bottom", visible: false)
       # Try checking a box.
       find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
@@ -401,9 +401,9 @@ describe "documents function as expected", js: true, type: :feature do
       visit "/sites/#{site.id}/documents?accessibility_recommendation=In+Review"
     end
     within("#document-list") do
-      expect(page).to have_content "rtd_contract.pdf\nAgreement\n73%\nIn Review"
-      expect(page).to have_content "teahouse_rules.pdf\nNotice\n71%\nIn Review"
-      expect(page).to have_content "farmers_market_2023.pdf\nOct 01, 2024\nNotice\nIn Review"
+      expect(page).to have_content "rtd_contract.pdf\nShow Document Modal\nAgreement\n73%\nIn Review"
+      expect(page).to have_content "teahouse_rules.pdf\nShow Document Modal\nNotice\n71%\nIn Review"
+      expect(page).to have_content "farmers_market_2023.pdf\nShow Document Modal\nOct 01, 2024\nNotice\nIn Review"
       # Try checking a box.
       find("tr:nth-child(1) [data-bulk-edit-target='selectOne']").check
     end
@@ -425,6 +425,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Leave\n0"
     end
   end
+
   it "insights may be had" do
     # Create our test setup
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")

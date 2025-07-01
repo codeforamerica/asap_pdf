@@ -74,6 +74,7 @@ def validate_event(event):
             for required_document_key in (
                 "file_name",
                 "category",
+                "created_date",
                 "url",
                 "human_summary",
             ):

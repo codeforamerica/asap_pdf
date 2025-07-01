@@ -22,8 +22,3 @@ output "db_instance_name" {
   description = "The name of the database"
   value       = aws_db_instance.main.db_name
 }
-
-# output "db_password_secret_arn" {
-#   description = "ARN of the secret containing the database password"
-#   value       = aws_secretsmanager_secret.db_password.arn
-# }
