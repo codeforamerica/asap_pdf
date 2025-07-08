@@ -14,13 +14,20 @@ import requests
 import tldextract
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.service import Service
 from tqdm import tqdm
 
 
 def get_url(url, use_webdriver=False, timeout=90):
     if use_webdriver:
-        options = webdriver.SafariOptions()
-        driver = webdriver.Safari()
+        options = Options()
+        options.add_argument("--headless")
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
+
+        service = Service("/usr/local/bin/geckodriver")
+        driver = webdriver.Firefox(service=service, options=options)
         driver.get(url)
         return driver.page_source
     else:
@@ -105,7 +112,7 @@ def get_links(url, timeout=90, use_webdriver=False):
                     new_href = urllib.parse.urljoin(url, href)
                     links.append(remove_trailing_slash(new_href))
     except:  # noqa:
-        print('Failing to get content')
+        tqdm.write("Failing to get content")
         # TODO: Be explicit on errors
         return [], []
 
@@ -125,7 +132,13 @@ def get_all_pages(all_pages, delay=0):
 
 
 def bfs_search_pdfs(
-    url, allowable_domains, allowable_subdomains=None, delay=0, max_depth=7, timeout=90, use_webdriver=False
+    url,
+    allowable_domains,
+    allowable_subdomains=None,
+    delay=0,
+    max_depth=7,
+    timeout=90,
+    use_webdriver=False,
 ):
     # Restricts search to links sharing the same domain, capture all PDFs
     # along the way
@@ -140,7 +153,9 @@ def bfs_search_pdfs(
         if node not in visited:
             time.sleep(delay)
             visited.add(node)  # Mark the node as visited
-            links, link_texts = get_links(node, timeout=timeout, use_webdriver=use_webdriver)
+            links, link_texts = get_links(
+                node, timeout=timeout, use_webdriver=use_webdriver
+            )
 
             # Add the node's neighbors to the queue, if they share the same
             # domain
@@ -306,7 +321,9 @@ if __name__ == "__main__":
     allowable_subdomains = config.get("allow_subdomains")
     use_sitemap = config["use_sitemap"]
     depth = config["depth"]
-    use_webdriver = config.get('use_webdriver') if config.get('use_webdriver') else False
+    use_webdriver = (
+        config.get("use_webdriver") if config.get("use_webdriver") else False
+    )
 
     allowable_domains = [
         tldextract.extract(link).registered_domain for link in allow_list
@@ -327,7 +344,7 @@ if __name__ == "__main__":
             allowable_subdomains=allowable_subdomains,
             delay=manual_crawl_delay,
             max_depth=depth,
-            use_webdriver=use_webdriver
+            use_webdriver=use_webdriver,
         )
 
     tqdm.write(f"PDFs found: {len(pdfs)}")
