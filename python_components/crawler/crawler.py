@@ -29,7 +29,11 @@ def get_url(url, use_webdriver=False, timeout=90):
         service = Service("/usr/local/bin/geckodriver")
         driver = webdriver.Firefox(service=service, options=options)
         driver.get(url)
-        return driver.page_source
+        page = driver.page_source
+
+        driver.close()
+        driver.quit()
+        return page
     else:
         response = requests.get(url, timeout=timeout)
         if response.status_code >= 400:
@@ -112,7 +116,7 @@ def get_links(url, timeout=90, use_webdriver=False):
                     new_href = urllib.parse.urljoin(url, href)
                     links.append(remove_trailing_slash(new_href))
     except:  # noqa:
-        tqdm.write("Failing to get content")
+        tqdm.write(f"Failed to get content: {url}")
         # TODO: Be explicit on errors
         return [], []
 
@@ -264,7 +268,7 @@ def get_pdf_metadata(pdfs, output_path):
                     with io.BytesIO(response.content) as mem_obj:
                         try:
                             pdf_file = pymupdf.Document(stream=mem_obj)
-                            tqdm.write(f"Reading: {pdf_url}")
+                            # tqdm.write(f"Reading: {pdf_url}")
                             file_name = default_file_name
                             pdf_title = pdf_file.metadata.get("title")
                             if pdf_title and (len(pdf_title.strip()) > 0):

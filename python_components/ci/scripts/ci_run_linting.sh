@@ -39,7 +39,7 @@ echo "Flake8 Output:"
 echo "$flake8_output"
 echo "\n"
 
-HELP_MESSAGE="Try running python_components/scripts/local_fix_linting.sh for help."
+HELP_MESSAGE="Try running python_components/ci/scripts/local_fix_linting.sh for help."
 
 ## Check isort budget
 if [ "$isort_change_count" -gt "$ISORT_BUDGET" ]; then
