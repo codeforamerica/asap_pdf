@@ -13,7 +13,21 @@ import pymupdf
 import requests
 import tldextract
 from bs4 import BeautifulSoup
+from selenium import webdriver
 from tqdm import tqdm
+
+
+def get_url(url, use_webdriver=False, timeout=90):
+    if use_webdriver:
+        options = webdriver.SafariOptions()
+        driver = webdriver.Safari()
+        driver.get(url)
+        return driver.page_source
+    else:
+        response = requests.get(url, timeout=timeout)
+        if response.status_code >= 400:
+            return None
+        return response.content
 
 
 def get_config(url):
@@ -70,15 +84,13 @@ def remove_trailing_slash(url_string):
     return urllib.parse.urlunparse(updated_url)
 
 
-def get_links(url, timeout=90):
+def get_links(url, timeout=90, use_webdriver=False):
     # Fetch the HTML content from a website
     try:
-        response = requests.get(url, timeout=timeout)
-        if response.status_code >= 400:
-            return [], []
-
         # Parse HTML and retrieve all links
-        html_content = response.content
+        html_content = get_url(url, timeout, use_webdriver)
+        if not html_content:
+            return [], []
         soup = BeautifulSoup(html_content, "html.parser")
         atags = soup.find_all("a")
 
@@ -93,6 +105,7 @@ def get_links(url, timeout=90):
                     new_href = urllib.parse.urljoin(url, href)
                     links.append(remove_trailing_slash(new_href))
     except:  # noqa:
+        print('Failing to get content')
         # TODO: Be explicit on errors
         return [], []
 
@@ -112,7 +125,7 @@ def get_all_pages(all_pages, delay=0):
 
 
 def bfs_search_pdfs(
-    url, allowable_domains, allowable_subdomains=None, delay=0, max_depth=7, timeout=90
+    url, allowable_domains, allowable_subdomains=None, delay=0, max_depth=7, timeout=90, use_webdriver=False
 ):
     # Restricts search to links sharing the same domain, capture all PDFs
     # along the way
@@ -127,7 +140,7 @@ def bfs_search_pdfs(
         if node not in visited:
             time.sleep(delay)
             visited.add(node)  # Mark the node as visited
-            links, link_texts = get_links(node, timeout=timeout)
+            links, link_texts = get_links(node, timeout=timeout, use_webdriver=use_webdriver)
 
             # Add the node's neighbors to the queue, if they share the same
             # domain
@@ -151,6 +164,7 @@ def bfs_search_pdfs(
                     link.endswith(".pdf")
                     or re.search(r"\.cfm\?id=", link)
                     or link.endswith("/download")
+                    or ("/download/" in link)
                 ):
                     # Save pdfs
                     pdfs[link].append({"source": node, "text": text})
@@ -292,6 +306,7 @@ if __name__ == "__main__":
     allowable_subdomains = config.get("allow_subdomains")
     use_sitemap = config["use_sitemap"]
     depth = config["depth"]
+    use_webdriver = config.get('use_webdriver') if config.get('use_webdriver') else False
 
     allowable_domains = [
         tldextract.extract(link).registered_domain for link in allow_list
@@ -312,6 +327,7 @@ if __name__ == "__main__":
             allowable_subdomains=allowable_subdomains,
             delay=manual_crawl_delay,
             max_depth=depth,
+            use_webdriver=use_webdriver
         )
 
     tqdm.write(f"PDFs found: {len(pdfs)}")

@@ -29,6 +29,13 @@
         "depth": 7,
         "use_sitemap": false
     },
+    "https://www.audits2.ga.gov": {
+        "allow_list": ["https://www.audits2.ga.gov", "https://audits2.ga.gov", "http://www.audits2.ga.gov"],
+        "allow_subdomains": ["www.audits2"],
+        "depth": 5,
+        "use_sitemap": false,
+        "use_webdriver": true
+    },
     "https://bsitf.georgia.gov": {
         "allow_list": ["https://bsitf.georgia.gov"],
         "allow_subdomains": ["bsitf"],
