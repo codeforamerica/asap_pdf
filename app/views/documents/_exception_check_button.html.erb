@@ -1,0 +1,16 @@
+<div class="text-left mb-4">
+  <button data-recommendation-list-target="button" data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
+    <i class="fas fa-wand-magic-sparkles mr-1"></i>
+    <%= button_text %>
+  </button>
+  <button class="btn btn-primary btn-sm hidden multi-stage-preloader opacity-75" data-recommendation-list-target="preloader" data-controller="multi-stage-preloader">
+    <span class="loading loading-spinner"></span>
+    <span class="stages relative">
+      <span class="stage active">Beginning AI Exception Check...</span>
+      <span class="stage inactive">Fetching document...</span>
+      <span class="stage inactive">Asking AI...</span>
+      <span class="stage inactive">Thinking...</span>
+      <span class="stage inactive">Retrieving results...</span>
+    </span>
+  </button>
+</div>

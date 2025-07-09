@@ -11,6 +11,10 @@ export default class extends Controller {
         try {
             this.buttonTarget.classList.add('hidden');
             this.preloaderTarget.classList.remove('hidden')
+            let list = this.displayTarget.querySelector(".recommendation-list")
+            if (list) {
+                list.classList.add("hidden")
+            }
             this.application.getControllerForElementAndIdentifier(this.preloaderTarget, 'multi-stage-preloader').animate();
             const response = await fetch(`/documents/${this.documentIdValue}/update_recommendation_inference`, {
                 method: "PATCH",
@@ -23,7 +27,6 @@ export default class extends Controller {
             if (response.ok) {
                 const jsonSummary = await response.json()
                 this.displayTarget.innerHTML = jsonSummary.html;
-                this.preloaderTarget.classList.add('hidden')
             } else {
                 this.displayTarget.textContent = 'An error occurred getting the recommendation list for this document. Please try again later.';
                 throw new Error("Response was not OK")

@@ -142,28 +142,13 @@
       <div data-controller="recommendation-list" data-recommendation-list-document-id-value="<%= document.id %>" class="col-span-1 md:col-span-2 px-3 pt-4">
         <div data-recommendation-list-target="display">
           <% exceptions = document.exceptions(false) %>
+          <% if exceptions.none? %>
+            <%= render partial: "documents/exception_check_button", locals: { button_text: "Get AI Exception Check" } %>
+          <% end %>
           <% if exceptions.any? %>
             <%= render partial: "documents/recommendation_list", locals: { document: @document } %>
           <% end %>
         </div>
-        <% if exceptions.none? %>
-          <div class="text-left">
-            <button data-recommendation-list-target="button" data-action="click->recommendation-list#getRecommendationList" class="btn btn-primary btn-sm">
-              <i class="fas fa-wand-magic-sparkles mr-1"></i>
-              Get AI Exception Check
-            </button>
-            <button class="btn btn-primary btn-sm hidden multi-stage-preloader opacity-75" data-recommendation-list-target="preloader" data-controller="multi-stage-preloader">
-              <span class="loading loading-spinner"></span>
-              <div class="stages relative">
-                <span class="stage active">Beginning AI Exception Check...</span>
-                <span class="stage inactive">Fetching document...</span>
-                <span class="stage inactive">Asking AI...</span>
-                <span class="stage inactive">Thinking...</span>
-                <span class="stage inactive">Retrieving results...</span>
-              </div>
-            </button>
-          </div>
-        <% end %>
       </div>
     </div>
     <!-- History View -->

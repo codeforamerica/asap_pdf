@@ -95,10 +95,14 @@ class DocumentsController < AuthenticatedController
   end
 
   def update_recommendation_inference
-    if @document.exceptions(false).none?
-      @document.inference_recommendation!
-      @document.reload
+    exceptions = @document.exceptions(false)
+    if exceptions.present?
+      exceptions.each do |exception|
+        exception.destroy
+      end
     end
+    @document.inference_recommendation!
+    @document.reload
     render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
   end
 

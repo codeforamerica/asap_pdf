@@ -254,34 +254,32 @@ class Document < ApplicationRecord
   end
 
   def inference_recommendation!
-    if exceptions.none?
-      if Rails.env.to_s != "production"
-        lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
-        api_host = "http://host.docker.internal:3000"
-      else
-        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-        api_host = "https://demo.codeforamerica.ai"
-      end
-      payload = {
-        model_name: "gemini-2.5-pro-preview-03-25",
-        documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category, creation_date: creation_date}],
-        page_limit: 7,
-        inference_type: "exception",
-        asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
-      }
+    if Rails.env.to_s != "production"
+      lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+      api_host = "http://host.docker.internal:3000"
+    else
+      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+      api_host = "https://demo.codeforamerica.ai"
+    end
+    payload = {
+      model_name: "gemini-2.5-pro-preview-03-25",
+      documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category, creation_date: creation_date}],
+      page_limit: 7,
+      inference_type: "exception",
+      asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
+    }
+    begin
+      response = lambda_manager.invoke_lambda!(payload)
       begin
-        response = lambda_manager.invoke_lambda!(payload)
-        begin
-          json_body = JSON.parse(response.body)
-          body = json_body["body"]
-          status = json_body["statusCode"]
-        rescue JSON::ParserError
-          body = response.body
-          status = response.code
-        end
-        if Integer(status) != 200
-          raise StandardError, "Inference failed: #{body}"
-        end
+        json_body = JSON.parse(response.body)
+        body = json_body["body"]
+        status = json_body["statusCode"]
+      rescue JSON::ParserError
+        body = response.body
+        status = response.code
+      end
+      if Integer(status) != 200
+        raise StandardError, "Inference failed: #{body}"
       end
     end
   end
