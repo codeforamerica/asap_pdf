@@ -9,8 +9,6 @@ class DocumentSummarySchema(BaseModel):
 
 
 class DocumentRecommendation(BaseModel):
-    is_individualized: SkipJsonSchema[bool] = None
-    why_individualized: SkipJsonSchema[str] = None
     is_archival: bool = Field(
         description="Whether the document meets exception 1: Archived Web Content Exception"
     )
@@ -23,5 +21,4 @@ class DocumentRecommendation(BaseModel):
     why_application: str = Field(
         description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
     )
-    is_third_party: SkipJsonSchema[bool] = None
-    why_third_party: SkipJsonSchema[str] = None
+
