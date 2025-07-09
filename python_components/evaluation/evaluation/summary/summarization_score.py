@@ -23,7 +23,7 @@ from deepeval.test_case import (
 from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.summarization_template import MLLMSummarizationTemplate
 
-METRIC_VERSION = 1
+METRIC_VERSION = 2
 
 
 class MultimodalInputSummarization(BaseMetric):
