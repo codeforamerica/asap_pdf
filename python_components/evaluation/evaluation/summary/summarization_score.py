@@ -4,6 +4,9 @@ from typing import Union
 from deepeval.metrics import BaseMetric
 from deepeval.metrics.faithfulness.schema import *  # noqa F403
 from deepeval.metrics.indicator import metric_progress_indicator
+from deepeval.metrics.multimodal_metrics.multimodal_faithfulness.template import (
+    MultimodalFaithfulnessTemplate,
+)
 from deepeval.metrics.summarization.schema import *  # noqa F403
 from deepeval.metrics.utils import (
     check_mllm_test_case_params,
@@ -19,7 +22,6 @@ from deepeval.test_case import (
 )
 from deepeval.utils import get_or_create_event_loop, prettify_list
 from evaluation.summary.summarization_template import MLLMSummarizationTemplate
-from evaluation.utility.faithfulness_template import MllMInputFaithfulnessTemplate
 
 METRIC_VERSION = 1
 
@@ -362,7 +364,7 @@ class MultimodalInputSummarization(BaseMetric):
 
     async def _a_generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+        prompt = MultimodalFaithfulnessTemplate.generate_truths(
             images,
             extraction_limit=self.truths_extraction_limit,
         )
@@ -381,7 +383,7 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_truths(self, images: list[MLLMImage]) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_truths(
+        prompt = MultimodalFaithfulnessTemplate.generate_truths(
             images,
             extraction_limit=self.truths_extraction_limit,
         )
@@ -400,7 +402,7 @@ class MultimodalInputSummarization(BaseMetric):
 
     async def _a_generate_claims(self, text: str) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_claims(actual_output=text)
+        prompt = MultimodalFaithfulnessTemplate.generate_claims([text])
         if self.using_native_model:
             res, cost = await self.model.a_generate(prompt, schema=Claims)
             self.evaluation_cost += cost
@@ -416,7 +418,7 @@ class MultimodalInputSummarization(BaseMetric):
 
     def _generate_claims(self, text: str) -> List[str]:
         # Borrow faithfulness template
-        prompt = MllMInputFaithfulnessTemplate.generate_claims(actual_output=text)
+        prompt = MultimodalFaithfulnessTemplate.generate_claims([text])
         if self.using_native_model:
             res, cost = self.model.generate(prompt, schema=Claims)
             self.evaluation_cost += cost

@@ -5,7 +5,6 @@ __all__ = [
     "ceq_template",
     "deterministic_score",
     "evaluation",
-    "faithfulness_score",
 ]
 
 from evaluation.exception.evaluation import EvaluationWrapper

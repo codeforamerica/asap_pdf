@@ -1,10 +1,8 @@
 import asyncio
 from typing import List
 
-from deepeval.test_case import (
-    LLMTestCase,
-    MLLMTestCase,
-)
+from deepeval.metrics.multimodal_metrics import MultimodalFaithfulnessMetric
+from deepeval.test_case import LLMTestCase, MLLMTestCase
 from evaluation.exception.ceq_score import METRIC_VERSION as CEQ_VERSION
 from evaluation.exception.ceq_score import CloseEndedQuestionsMetric
 from evaluation.exception.deterministic_score import (
@@ -13,12 +11,6 @@ from evaluation.exception.deterministic_score import (
 from evaluation.exception.deterministic_score import (
     evaluate_application_exception,
     evaluate_archival_exception,
-)
-from evaluation.exception.faithfulness_score import (
-    METRIC_VERSION as FAITHFULNESS_VERSION,
-)
-from evaluation.exception.faithfulness_score import (
-    MultiModalFaithfulnessMetric,
 )
 from evaluation.utility.asap_inference import get_inference_for_document
 from evaluation.utility.document import EvaluationWrapperBase, convert_model_list
@@ -163,7 +155,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             response = document.ai_exception["why_application"]
             context = APPLICATION_EXCEPTION_CONTEXT
 
-        metric = MultiModalFaithfulnessMetric(model=self.evaluation_model)
+        metric = MultimodalFaithfulnessMetric(model=self.evaluation_model)
         test_case = MLLMTestCase(
             input=[],
             retrieval_context=context + document.images,
@@ -180,7 +172,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
         return self.result_factory.new(
             {
                 "metric_name": f"deepeval_mllm_faithfulness:{exception}",
-                "metric_version": FAITHFULNESS_VERSION,
+                "metric_version": 2,
                 "score": metric.score,
                 "details": details,
                 "file_name": document.file_name,
