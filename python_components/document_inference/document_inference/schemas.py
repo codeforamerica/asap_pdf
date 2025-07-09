@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field
-from pydantic.json_schema import SkipJsonSchema
 
 
 class DocumentSummarySchema(BaseModel):
@@ -21,4 +20,3 @@ class DocumentRecommendation(BaseModel):
     why_application: str = Field(
         description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
     )
-
