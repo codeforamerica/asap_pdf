@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe SessionsController, type: :controller do
-  let(:user) { User.create!(email_address: "test@example.com", password: "password") }
+  let(:user) { User.create!(email: "test@example.com", password: "password") }
 
   describe "GET #new" do
     it "returns http success" do
@@ -14,12 +14,12 @@ RSpec.describe SessionsController, type: :controller do
     context "with valid credentials" do
       it "creates a new session" do
         expect {
-          post :create, params: {email_address: user.email_address, password: "password"}
+          post :create, params: {email: user.email, password: "password"}
         }.to change(Session, :count).by(1)
       end
 
       it "redirects to root path" do
-        post :create, params: {email_address: user.email_address, password: "password"}
+        post :create, params: {email: user.email, password: "password"}
         expect(response).to redirect_to(root_path)
       end
     end
@@ -27,12 +27,12 @@ RSpec.describe SessionsController, type: :controller do
     context "with invalid credentials" do
       it "does not create a session" do
         expect {
-          post :create, params: {email_address: user.email_address, password: "wrong"}
+          post :create, params: {email: user.email, password: "wrong"}
         }.not_to change(Session, :count)
       end
 
       it "renders new template" do
-        post :create, params: {email_address: user.email_address, password: "wrong"}
+        post :create, params: {email: user.email, password: "wrong"}
         expect(response).to render_template(:new)
       end
     end

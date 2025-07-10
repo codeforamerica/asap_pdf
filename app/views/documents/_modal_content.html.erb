@@ -167,7 +167,7 @@
                   <% if version.whodunnit.present? %>
                   <% user=User.find(version.whodunnit) %>
                     <% if user.present? %>
-                      Author: <%= user.email_address %>
+                      Author: <%= user.email %>
                     <% end %>
                   <% else %>
                     Author: System

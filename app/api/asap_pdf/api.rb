@@ -6,8 +6,8 @@ module AsapPdf
     format :json
 
     http_basic do |email, password|
-      user = User.find_by(email_address: email)
-      user&.authenticate(password)
+      user = User.find_by(email: email)
+      user&.valid_password?(password)
     end
 
     rescue_from ActiveRecord::RecordNotFound do |e|

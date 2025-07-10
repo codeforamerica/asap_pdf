@@ -9,7 +9,7 @@ RSpec.describe AsapPdf::API do
 
   def auth_headers
     user = User.last
-    encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email_address, "password")
+    encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email, "password")
     {"HTTP_AUTHORIZATION" => encoded_credentials}
   end
 

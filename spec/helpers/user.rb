@@ -1,11 +1,11 @@
 module AuthHelpers
   def login_user(user)
-    visit "/login"
-    within("#login-form") do
-      fill_in "Email Address", with: user.email_address
+    visit "/users/sign_in"
+    within("#new_user") do
+      fill_in "Email", with: user.email
       fill_in "Password", with: user.password
     end
-    click_button "Login"
+    click_button "Log in"
     sleep(1)
   end
 end

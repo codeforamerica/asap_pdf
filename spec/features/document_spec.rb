@@ -2,7 +2,7 @@ require "rails_helper"
 
 describe "documents function as expected", js: true, type: :feature do
   before :each do
-    @current_user = User.create(email_address: "user@example.com", password: "password1231231232wordpass")
+    @current_user = User.create(email: "user@example.com", password: "password1231231232wordpass")
     login_user(@current_user)
   end
 
@@ -14,7 +14,7 @@ describe "documents function as expected", js: true, type: :feature do
     @current_user.save!
     Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
-    boulder_user = User.create(email_address: "boulder@example.com", password: "password1231231232wordpass", site: site)
+    boulder_user = User.create(email: "boulder@example.com", password: "password1231231232wordpass", site: site)
     rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, site: site)
     teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, site: site, modification_date: "2024-10-01")
     market_doc = Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", site: site, modification_date: "2024-10-01")

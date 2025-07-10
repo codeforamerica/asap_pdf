@@ -39,7 +39,7 @@
             <%= link_to sites_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <i class="fas fa-globe mr-2"></i>My Sites
             <% end %>
-            <% if Current.user.present? && Current.user.is_admin? %>
+            <% if current_user.present? && current_user.is_admin? %>
               <%= link_to edit_configuration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
                 <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
               <% end %>

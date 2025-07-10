@@ -2,7 +2,7 @@ require "rails_helper"
 
 describe "admins can see admin pages", type: :feature do
   before :each do
-    @current_user = User.create(email_address: "user@example.com", password: "password")
+    @current_user = User.create(email: "user@example.com", password: "password")
     login_user(@current_user)
   end
 
