@@ -51,9 +51,9 @@ def scan_urls():
         # Log into the app.
         wait = WebDriverWait(driver, 10)
         email_field = wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "#email_address"))
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#user_email"))
         )
-        password_field = driver.find_element(By.CSS_SELECTOR, "#password")
+        password_field = driver.find_element(By.CSS_SELECTOR, "#user_password")
         email_field.send_keys("admin@codeforamerica.org")
         password_field.send_keys("password")
         submit_button = driver.find_element(By.CSS_SELECTOR, "#submit-session-form")
