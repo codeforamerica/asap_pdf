@@ -1,26 +1,45 @@
-<h2>Log in</h2>
-
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
-  </div>
-
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "current-password" %>
-  </div>
-
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
+<div class="card w-96 bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div class="text-center">
+      <div class="mb-4">
+        <%= image_tag "logo.png", class: "h-12 mx-auto", alt: "Code for America Logo" %>
+      </div>
+      <p class="text-lg mb-6">Website PDF Accessibility Checker</p>
     </div>
-  <% end %>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <div class="form-control w-full">
+        <%= f.label :email, class: "label label-text text-black" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full " + (resource.errors[:base].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:base].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_messages.first %>
+          </div>
+        <% end %>
+      </div>
 
-  <div class="actions">
-    <%= f.submit "Log in" %>
+      <div class="form-control w-full mt-4">
+        <%= f.label :password, class: "label label-text text-black" %>
+        <%= f.password_field :password, autocomplete: "current-password", class: "input input-bordered w-full "  + (resource.errors[:base].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:base].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_messages.first %>
+          </div>
+        <% end %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="mt-4">
+          <%= f.check_box :remember_me %>
+          <%= f.label :remember_me, class: "label-text text-black" %>
+        </div>
+      <% end %>
+
+      <div class="actions form-control mt-6">
+        <%= button_tag type: "submit", class: "btn btn-primary text-white" do %>
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          Log in
+        <% end %>
+      </div>
+    <% end %>
   </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>
