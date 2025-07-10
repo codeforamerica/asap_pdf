@@ -3,7 +3,7 @@
     <div class="px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center">
         <h1 class="text-gray-600">My Sites</h1>
-        <% if Current.user.is_admin? %>
+        <% if current_user.is_admin? %>
           <button id="add-site-modal" onclick="add_site_modal.showModal()" class="btn btn-primary">Add Site</button>
         <% end %>
       </div>
@@ -44,7 +44,7 @@
     </div>
   </div>
 </div>
-<% if Current.user.is_admin? %>
+<% if current_user.is_admin? %>
   <!-- Add Site Modal -->
   <dialog id="add_site_modal" class="modal" data-controller="modal">
     <div class="modal-box">

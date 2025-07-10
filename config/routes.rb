@@ -1,8 +1,16 @@
 Rails.application.routes.draw do
+  Rails.application.routes.draw do
+    devise_for :users, controllers: {
+      sessions: 'users/sessions',
+      passwords: 'users/passwords',
+      registrations: 'users/registrations'
+    }
+  end
+
   get "up" => "rails/health#show", :as => :rails_health_check
 
-  resource :session
-  get "login", to: "sessions#new", as: :login
+  # resource :session
+  # get "login", to: "sessions#new", as: :login
 
   resources :dashboard, only: [:index] do
     collection do

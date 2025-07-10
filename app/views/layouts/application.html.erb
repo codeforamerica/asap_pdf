@@ -44,7 +44,7 @@
                 <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
               <% end %>
             <% end %>
-            <%= button_to session_path, method: :delete, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+            <%= button_to destroy_user_session_path, method: :delete, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <i class="fas fa-sign-out-alt mr-2"></i>Logout
             <% end %>
           </div>
