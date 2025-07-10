@@ -12,13 +12,13 @@ describe "users may log into the site", js: true, type: :feature do
     assert_match "/users/sign_in", current_url
     within "#new_user" do
       # Test out validation.
-      # fill_in "Email Address", with: "user@example.com"
-      # fill_in "Password", with: "notagoodanswer"
-      # click_button "Login"
-      # expect(page).to have_content "Try another email address or password.", wait: 5
-      # expect(page).to have_selector "#email.input-error"
-      # expect(page).to have_selector "#password.input-error"
-      # assert_match "login", current_url
+      fill_in "Email", with: "user@example.com"
+      fill_in "Password", with: "notagoodanswer"
+      click_button "Log in"
+      expect(page).to have_content "Invalid email or password", wait: 5
+      expect(page).to have_selector "#user_email.input-error"
+      expect(page).to have_selector "#user_password.input-error"
+      assert_match "/users/sign_in", current_url
       # Test out success.
       fill_in "Email", with: "user@example.com"
       fill_in "Password", with: "password"

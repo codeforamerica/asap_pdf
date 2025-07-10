@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Users::SessionsController < Devise::SessionsController
-  layout 'centered'
+  layout "centered"
 
   def new
     flash.clear
@@ -11,6 +11,7 @@ class Users::SessionsController < Devise::SessionsController
   def create
     self.resource = warden.authenticate(auth_options)
     if resource
+      set_flash_message!(:notice, :signed_in)
       sign_in(resource_name, resource)
       respond_with resource, location: after_sign_in_path_for(resource)
     else
@@ -21,10 +22,9 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def destroy
-    signed_out = (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
-    #set_flash_message! :notice, :signed_out if signed_out
+    (Devise.sign_out_all_scopes ? sign_out : sign_out(resource_name))
+    # set_flash_message! :notice, :signed_out if signed_out
     yield if block_given?
     respond_to_on_destroy
   end
-
 end

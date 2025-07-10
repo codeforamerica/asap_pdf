@@ -26,8 +26,8 @@ gem "sidekiq", "~> 8.0"
 gem "view_component", "~> 3.23"
 gem "kaminari", "~> 1.2"
 
-gem 'devise', '~> 4.9.4'
-gem 'activerecord-session_store'
+gem "devise", "~> 4.9.4"
+gem "activerecord-session_store"
 
 group :development, :test do
   gem "brakeman", "~> 7.0", require: false
