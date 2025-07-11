@@ -4,11 +4,10 @@ Rails.application.routes.draw do
     passwords: "users/passwords",
     registrations: "users/registrations"
   }
+  # Administrative user paths.
+  resources :users, only: [:index, :new, :create, :edit, :update], controller: 'users/admin'
 
   get "up" => "rails/health#show", :as => :rails_health_check
-
-  # resource :session
-  # get "login", to: "sessions#new", as: :logi
 
   resources :sites do
     member do
