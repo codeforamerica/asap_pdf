@@ -5,9 +5,7 @@ export default class extends Controller {
 
   connect() {
     super.connect();
-    if (this.hasWrapperTarget) {
-      this.wrapperTarget.addEventListener('close', this.onModalClose.bind(this))
-    }
+    this.wrapperTarget.addEventListener('close', this.onModalClose.bind(this))
   }
 
   submitAndClose(event) {

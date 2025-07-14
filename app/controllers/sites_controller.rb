@@ -6,7 +6,7 @@ class SitesController < AuthenticatedController
   before_action :ensure_user_site_access, only: [:insights, :show, :edit, :update, :destroy]
 
   def index
-    @sites = if current_user.is_site_admin?
+    @sites = if current_user.is_admin?
       Site.all
     else
       current_user.site.nil? ? [] : [current_user.site]
