@@ -14,12 +14,13 @@ import requests
 import tldextract
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 from tqdm import tqdm
 
 
-def get_url(url, use_webdriver=False, timeout=90):
+def get_url(url, timeout=90, use_webdriver=False):
     if use_webdriver:
         options = Options()
         options.add_argument("--headless")
@@ -29,16 +30,35 @@ def get_url(url, use_webdriver=False, timeout=90):
         service = Service("/usr/local/bin/geckodriver")
         driver = webdriver.Firefox(service=service, options=options)
         driver.get(url)
-        page = driver.page_source
+        time.sleep(timeout)
+
+        soup = BeautifulSoup(driver.page_source, "html.parser")
+        atags = soup.find_all("a")
+
+        buttons = driver.find_elements(By.XPATH, "//*[text()='Next']")
+        page_count = 0
+        while len(buttons) > 0:
+            tqdm.write(f"Paging through links on {url}: {page_count}")
+            buttons[0].click()
+
+            time.sleep(timeout)
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+            atags.extend(soup.find_all("a"))
+
+            buttons = driver.find_elements(By.XPATH, "//*[text()='Next']")
+            page_count += 1
 
         driver.close()
         driver.quit()
-        return page
+        return atags
     else:
         response = requests.get(url, timeout=timeout)
         if response.status_code >= 400:
             return None
-        return response.content
+
+        soup = BeautifulSoup(response.content, "html.parser")
+        atags = soup.find_all("a")
+        return atags
 
 
 def get_config(url):
@@ -99,11 +119,9 @@ def get_links(url, timeout=90, use_webdriver=False):
     # Fetch the HTML content from a website
     try:
         # Parse HTML and retrieve all links
-        html_content = get_url(url, timeout, use_webdriver)
-        if not html_content:
+        atags = get_url(url, timeout=timeout, use_webdriver=use_webdriver)
+        if not atags:
             return [], []
-        soup = BeautifulSoup(html_content, "html.parser")
-        atags = soup.find_all("a")
 
         links, link_texts = [], []
         for atag in atags:
