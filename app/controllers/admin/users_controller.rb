@@ -2,6 +2,8 @@ class Admin::UsersController < ApplicationController
 
   include Access
 
+  before_action :ensure_user_user_admin
+
   before_action :set_user, only: [:new, :edit, :update]
   before_action :site_list, only: [:new, :create, :edit, :update]
   before_action :set_minimum_password_length, only: [:new, :edit, :update]

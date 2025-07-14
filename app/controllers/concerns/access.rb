@@ -1,6 +1,12 @@
 module Access
-  def ensure_user_admin
+  def ensure_user_site_admin
     unless current_user.is_site_admin?
+      redirect_to sites_path, alert: "You don't have permission to access that page."
+    end
+  end
+
+  def ensure_user_user_admin
+    unless current_user.is_user_admin?
       redirect_to sites_path, alert: "You don't have permission to access that page."
     end
   end
