@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     registrations: "users/registrations"
   }
   # Administrative user paths.
-  resources :users, only: [:index, :new, :create, :edit, :update], controller: 'users/admin'
+  resources :users, only: [:index, :new, :create, :edit, :update], controller: "users/admin"
 
   get "up" => "rails/health#show", :as => :rails_health_check
 
