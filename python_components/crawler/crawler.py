@@ -343,9 +343,7 @@ if __name__ == "__main__":
     allowable_subdomains = config.get("allow_subdomains")
     use_sitemap = config["use_sitemap"]
     depth = config["depth"]
-    use_webdriver = (
-        config.get("use_webdriver") if config.get("use_webdriver") else False
-    )
+    use_webdriver = config.get("use_webdriver", False)
 
     allowable_domains = [
         tldextract.extract(link).registered_domain for link in allow_list
