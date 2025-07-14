@@ -59,12 +59,12 @@ describe "admins can see admin pages", js: true, type: :feature do
     within("#user-list") do
       click_link "Add User"
     end
-    expect(page).to have_current_path('/admin/users/new')
+    expect(page).to have_current_path("/admin/users/new")
     fill_in "Email", with: "user@example.com"
     fill_in "Password", with: "123459!"
     fill_in "Password confirmation", with: "123459!"
     click_button "Save"
-    expect(page).to have_current_path('/admin/users/new')
+    expect(page).to have_current_path("/admin/users/new")
     expect(page).to have_content "Email has already been taken"
     fill_in "Email", with: "bob@example.com"
     fill_in "Password", with: "123459!"
@@ -72,7 +72,7 @@ describe "admins can see admin pages", js: true, type: :feature do
     check "Is user admin"
     select "City and County of Denver", from: "Site"
     click_button "Save"
-    expect(page).to have_current_path('/admin/users')
+    expect(page).to have_current_path("/admin/users")
     expect(page).to have_content "bob@example.com City and County of Denver No Yes Edit"
     within("#user-list tr:nth-child(2)") do
       click_link("Edit")
@@ -81,7 +81,7 @@ describe "admins can see admin pages", js: true, type: :feature do
     select "None", from: "Site"
     check "Is site admin"
     click_button "Update"
-    expect(page).to have_current_path('/admin/users')
+    expect(page).to have_current_path("/admin/users")
     expect(page).to have_content "bob@example.com None Yes Yes Edit"
   end
 end
