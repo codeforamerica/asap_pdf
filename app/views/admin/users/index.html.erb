@@ -4,10 +4,10 @@
       <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
         <div class="flex justify-between items-center">
           <h1 class="text-lg font-medium">Manage Users</h1>
-          <%= button_tag type: "submit", class: "btn btn-primary text-white", id: "submit-session-form" do %>
+          <a href="<%= new_admin_user_path(@user) %>"  class="btn btn-primary text-white">
             <i class="fas fa-plus mr-2"></i>
             Add User
-          <% end %>
+          </a>
         </div>
       </div>
       <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll px-6 ">
@@ -26,7 +26,9 @@
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.email %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_site_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_user_admin? ? "Yes" : "No" %></td>
-                <td class="tracking-wider text-left text-sm py-4 px-3">Edit</td>
+                <td class="tracking-wider text-left text-sm py-4 px-3">
+                  <%= link_to "Edit", edit_admin_user_path(user) %>
+                </td>
               </tr>
             <% end %>
           </tbody>

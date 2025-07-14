@@ -3,37 +3,61 @@
     <h1 class="text-lg font-medium">Edit <%= resource_name.to_s.humanize %></h1>
 
     <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-      <%= render "users/shared/error_messages", resource: resource %>
 
       <div class="form-control w-full mt-4">
         <%= f.label :email, class: "label-text text-black mb-2 font-semibold" %>
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered border-black w-full"  %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full" + (resource.errors[:email].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:email].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_message(:email, resource.errors[:email].first) %>
+          </div>
+        <% end %>
       </div>
 
       <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
         <div class="label-text text-black mt-2">Currently waiting confirmation for: <%= resource.unconfirmed_email %></div>
       <% end %>
 
-      <div class="form-control w-full mt-4">
-        <%= f.label :current_password, class: "label-text text-black mb-2 font-semibold" %>
-        <%= f.password_field :current_password, autocomplete: "current-password", class: "input input-bordered border-black w-full" %>
-        <span class="label-text text-black mt-2">We need your current password to confirm your changes.</span>
-      </div>
+      <% if resource.id == current_user.id %>
+        <div class="form-control w-full mt-4">
+          <%= f.label :current_password, class: "label-text text-black mb-2 font-semibold" %>
+          <%= f.password_field :current_password, autocomplete: "current-password", class: "input input-bordered w-full" + (resource.errors[:current_password].any? ? " input-error " : " border-black ") %>
+          <span class="label-text text-black mt-2">We need your current password to confirm your changes.</span>
+          <% if resource.errors[:current_password].any? %>
+            <div class="field-error label-text mt-2 text-red-700">
+              <%= resource.errors.full_message(:current_password, resource.errors[:current_password].first) %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
 
       <div class="form-control w-full mt-4">
         <%= f.label :password, class: "label-text text-black mb-2 font-semibold" %>
-        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered border-black w-full" %>
-        <span class="label-text text-black mt-2"><% if @minimum_password_length %><%= @minimum_password_length %> characters minimum<% end %>. Leave blank if you don't want to change it.</span>
+        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" + (resource.errors[:password].any? ? " input-error " : " border-black ") %>
+        <% if @minimum_password_length %>
+          <span class="label-text text-black mt-2">
+            <% if @minimum_password_length %><%= @minimum_password_length %> characters minimum.<% end %> Leave blank if you don't want to change it.</span>
+        <% end %>
+        <% if resource.errors[:password].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_message(:password, resource.errors[:password].first) %>
+          </div>
+        <% end %>
       </div>
 
-      <div class="form-control w-full mt-4 font-semibold">
-        <%= f.label :password_confirmation, class: "label-text text-black mb-2" %>
-        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered border-black w-full"  %>
+      <div class="form-control w-full mt-4">
+        <%= f.label :password_confirmation, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" + (resource.errors[:password_confirmation].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:password_confirmation].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_message(:password_confirmation, resource.errors[:password_confirmation].first) %>
+          </div>
+        <% end %>
       </div>
 
       <div class="actions flex gap-4 items-center mt-6">
         <%= button_tag type: "submit", class: "btn btn-primary w-1/4 text-white", id: "submit-session-form" do %>
-          <i class="fas fa-sign-in-alt mr-2"></i>
+          <i class="fas fa-check mr-2"></i>
           Update
         <% end %>
         <%= link_to "Back", :back %>

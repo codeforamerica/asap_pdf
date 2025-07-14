@@ -48,7 +48,7 @@
               <% end %>
             <% end %>
             <% if current_user.present? && current_user.is_user_admin? %>
-              <%= link_to users_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+              <%= link_to admin_users_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
                 <i class="fas fa-users mr-2"></i>Admin Users
               <% end %>
             <% end %>
