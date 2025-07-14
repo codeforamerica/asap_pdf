@@ -9,7 +9,7 @@ The Department of Justice published a final rule updating regulations for Title 
 
 ## Your Task
 
-The attached jpeg documents represent a PDF. Analyze the PDF document information and determine whether it qualifies for an exception from WCAG 2.1, Level AA compliance requirements under one of the following exception categories:
+The attached jpeg documents represent a PDF. Analyze the PDF document information and determine whether it qualifies for an exception from WCAG 2.1, Level AA compliance requirements under one of the following exception categories. Please use plain language and avoid technical jargon:
 
 1. **Archived Web Content Exception** - Applies when ALL of these conditions are met:
    - Created before the compliance date April 24, 2026
