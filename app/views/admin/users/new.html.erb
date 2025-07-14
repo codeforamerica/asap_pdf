@@ -36,6 +36,25 @@
         <% end %>
       </div>
 
+      <div class="w-full mt-4">
+        <%= f.check_box :is_site_admin %>
+        <%= f.label :is_site_admin, class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">User should be able to see and edit all sites and documents.</div>
+      </div>
+
+      <div class="w-full mt-4">
+        <%= f.check_box :is_user_admin %>
+        <%= f.label :is_user_admin, class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">User should be able to edit other users and create admins.</div>
+      </div>
+
+      <div class="w-full mt-4">
+        <%= f.label :site_id, "Site", class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.select :site_id, grouped_options_for_select(@sites, @user.site_id),
+                     { prompt: "None" },
+                     { class: "input input-bordered w-full select" } %>
+      </div>
+
       <div class="actions flex gap-4 items-center mt-6">
         <%= button_tag type: "submit", class: "btn btn-primary w-1/4 text-white", id: "submit-session-form" do %>
           <i class="fas fa-check mr-2"></i>

@@ -3,6 +3,7 @@ class Admin::UsersController < ApplicationController
   include Access
 
   before_action :set_user, only: [:new, :edit, :update]
+  before_action :site_list, only: [:new, :create, :edit, :update]
   before_action :set_minimum_password_length, only: [:new, :edit, :update]
 
   def index
@@ -23,8 +24,6 @@ class Admin::UsersController < ApplicationController
   end
 
   def edit
-
-    p current_user
     render '/admin/users/edit'
   end
 
@@ -48,17 +47,24 @@ class Admin::UsersController < ApplicationController
     end
   end
 
+  private
+
+  def site_list
+    @sites = Site.all.order(:location, :name).group_by(&:location).map do |location, sites|
+      [location, sites.map { |site| [site.name, site.id] }]
+    end
+  end
+
   def set_user
     @user = params[:id].present? ? User.find(params[:id]) : User.new
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :current_password)
+    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id)
   end
 
   def set_minimum_password_length
     @minimum_password_length = User.password_length.min
   end
 
-  helper_method :user
 end
