@@ -10,11 +10,12 @@
           </a>
         </div>
       </div>
-      <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll px-6 ">
+      <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll">
         <table class="min-w-full divide-y divide-gray-200 table-zebra">
           <thead>
             <tr>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Email</th>
+              <th scope="col" class="tracking-wider text-left py-4 px-3">Site</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Site Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">User Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Actions</th>
@@ -24,10 +25,11 @@
             <% @users.each do |user| %>
               <tr>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.email %></td>
+                <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.site.present? ? user.site.name : "None" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_site_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_user_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3">
-                  <%= link_to "Edit", edit_admin_user_path(user) %>
+                  <%= link_to "Edit", edit_admin_user_path(user), class: "text-primary" %>
                 </td>
               </tr>
             <% end %>
