@@ -14,9 +14,12 @@ import requests
 import tldextract
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
 
 
@@ -30,26 +33,35 @@ def get_url(url, timeout=90, use_webdriver=False):
         service = Service("/usr/local/bin/geckodriver")
         driver = webdriver.Firefox(service=service, options=options)
         driver.get(url)
-        time.sleep(timeout)
 
-        soup = BeautifulSoup(driver.page_source, "html.parser")
-        atags = soup.find_all("a")
-
-        buttons = driver.find_elements(By.XPATH, "//*[text()='Next']")
-        page_count = 0
-        while len(buttons) > 0:
-            tqdm.write(f"Paging through links on {url}: {page_count}")
-            buttons[0].click()
-
-            time.sleep(timeout)
+        wait = WebDriverWait(driver, timeout)
+        next_button_xpath = (By.XPATH, "//*[text()='Next']")
+        atags = []
+        try:
+            buttons = wait.until(EC.presence_of_all_elements_located(next_button_xpath))
             soup = BeautifulSoup(driver.page_source, "html.parser")
             atags.extend(soup.find_all("a"))
 
-            buttons = driver.find_elements(By.XPATH, "//*[text()='Next']")
-            page_count += 1
+            page_count = 0
+            while len(buttons) > 0:
+                tqdm.write(f"Paging through links on {url}: {page_count}")
+                buttons[0].click()
 
-        driver.close()
-        driver.quit()
+                soup = BeautifulSoup(driver.page_source, "html.parser")
+                atags.extend(soup.find_all("a"))
+                page_count += 1
+
+                buttons = wait.until(
+                    EC.presence_of_all_elements_located(next_button_xpath)
+                )
+        except TimeoutException:
+            soup = BeautifulSoup(driver.page_source, "html.parser")
+            atags.extend(soup.find_all("a"))
+
+            driver.close()
+            driver.quit()
+            return atags
+
         return atags
     else:
         response = requests.get(url, timeout=timeout)
