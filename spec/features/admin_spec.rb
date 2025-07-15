@@ -18,7 +18,7 @@ describe "admins can see admin pages", js: true, type: :feature do
       expect(page).to have_no_content "AI Settings"
     end
     visit "/configuration/edit"
-    expect(current_path).to eq("/sites")
+    expect(page).to have_current_path("/sites")
     expect(page).to have_content "You don't have permission to access that page."
     @current_user.is_site_admin = true
     @current_user.save
@@ -28,7 +28,7 @@ describe "admins can see admin pages", js: true, type: :feature do
       user_menu.click
       click_link("AI Settings")
     end
-    expect(current_path).to eq("/configuration/edit")
+    expect(page).to have_current_path("/configuration/edit")
     expect(page).to have_content "AI Configuration Settings"
   end
 
@@ -43,13 +43,13 @@ describe "admins can see admin pages", js: true, type: :feature do
       expect(page).to have_no_content "Admin Users"
     end
     visit "/admin/users"
-    expect(current_path).to eq("/sites")
+    expect(page).to have_current_path("/sites")
     expect(page).to have_content "You don't have permission to access that page."
     visit "/admin/users/new"
     expect(current_path).to eq("/sites")
     expect(page).to have_content "You don't have permission to access that page."
     visit "/admin/users/1/edit"
-    expect(current_path).to eq("/sites")
+    expect(page).to have_current_path("/sites")
     expect(page).to have_content "You don't have permission to access that page."
     @current_user.is_user_admin = true
     @current_user.save
