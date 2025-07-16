@@ -82,7 +82,7 @@ GEM
       public_suffix (>= 2.0.2, < 7.0)
     ast (2.4.3)
     aws-eventstream (1.4.0)
-    aws-partitions (1.1124.0)
+    aws-partitions (1.1128.0)
     aws-sdk-core (3.226.2)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -96,7 +96,7 @@ GEM
     aws-sdk-lambda (1.153.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.192.0)
+    aws-sdk-s3 (1.193.0)
       aws-sdk-core (~> 3, >= 3.225.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -517,7 +517,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord-session_store
   aws-sdk-lambda
-  aws-sdk-s3 (~> 1.192)
+  aws-sdk-s3 (~> 1.193)
   aws-sdk-secretsmanager
   aws-sigv4
   bcrypt (~> 3.1)
