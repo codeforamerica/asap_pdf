@@ -13,7 +13,11 @@
         <% end %>
       </div>
 
-
+      <div class="w-full mt-4">
+        <%= f.check_box :is_invited %>
+        <%= f.label :is_invited, "Send invitation email", class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">Send the user an invitation email, which includes a link to set password (skip password fields below).</div>
+      </div>
 
       <div class="form-control w-full mt-4">
         <%= f.label :password, class: "label-text text-black mb-2 font-semibold" %>

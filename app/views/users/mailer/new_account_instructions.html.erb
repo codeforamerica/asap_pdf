@@ -1,0 +1,7 @@
+<p>Hello!</p>
+
+<p>Your account has been created, but requires activation. Please follow the link below to set a new password and log in.</p>
+
+<p><%= link_to 'Set my password', edit_password_url(@resource, reset_password_token: @token, is_invitation: 1) %></p>
+
+<p>If you didn't request this, please ignore this email.</p>

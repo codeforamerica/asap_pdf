@@ -17,8 +17,21 @@ class Admin::UsersController < ApplicationController
 
   def create
     @user = User.new(user_params)
+    if @user.is_invited?
+      temp_password = SecureRandom.hex(12)
+      @user.password = temp_password
+      @user.password_confirmation = temp_password
+    end
     if @user.save
-      redirect_to admin_users_path, notice: "User added successfully"
+      begin
+        msg = "User added successfully"
+        if @user.send_new_account_instructions?
+          msg = "User added successfully. Instructions were emailed to the user."
+        end
+        redirect_to admin_users_path, notice: msg
+      rescue Net::SMTPFatalError
+        redirect_to admin_users_path, notice: msg
+      end
     else
       render :new, status: 422
     end
@@ -60,7 +73,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id)
+    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id, :is_invited)
   end
 
   def set_minimum_password_length

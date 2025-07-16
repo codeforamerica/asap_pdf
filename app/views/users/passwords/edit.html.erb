@@ -1,6 +1,6 @@
 <div class="card w-96 bg-base-100 shadow-xl">
   <div class="card-body">
-    <h1 class="text-lg">Change your password</h1>
+    <h1 class="text-lg"><%= @is_invitation ? "Set" : "Change" %> your password</h1>
     <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
       <%= f.hidden_field :reset_password_token %>
       <% if resource.errors[:reset_password_token].any? %>
@@ -37,7 +37,7 @@
       <div class="actions mt-6">
         <%= button_tag type: "submit", class: "btn btn-primary text-white", id: "submit-session-form" do %>
           <i class="fas fa-sign-in-alt mr-2"></i>
-          Change my password
+          <%= @is_invitation ? "Set" : "Change"%> my password
         <% end %>
       </div>
     <% end %>
