@@ -32,10 +32,11 @@ class Admin::UsersController < ApplicationController
     if params[:user][:password].blank?
       params[:user].delete(:password)
       params[:user].delete(:password_confirmation)
+      params[:user].delete(:current_password)
       success = @user.update_without_password(user_params)
     elsif @user.id == current_user.id
-      bypass_sign_in @user, scope: "user"
       success = @user.update_with_password(user_params)
+      bypass_sign_in @user, scope: "user"
     else
       success = @user.update(user_params)
     end

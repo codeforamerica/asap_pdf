@@ -1,13 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <style>
-      /* Email styles need to be inline */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        #wrapper {
+            background-color: #d6d6d6;
+            padding: 20px;
+        }
+
+        #wrapper-inner {
+            background-color: #FFFFFF;
+            padding: 32px;
+            margin: 0 auto;
+            max-width: 600px;
+            border: 1px solid #e5e5e5;
+            border-radius: 5px;
+        }
+
+        #header {
+            width: 100%;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        #header img {
+            width: 120px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: normal;
+            margin: 16px 0 0 0;
+        }
+
+        #message-body {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        a {
+            color: #7f1125 !important;
+            text-decoration: none;
+        }
+
+        p {
+            margin: 0 0 16px 0;
+        }
     </style>
   </head>
-
   <body>
-    <%= yield %>
+    <div id="wrapper">
+      <div id="wrapper-inner">
+        <div id="header">
+          <img src="https://demo.codeforamerica.ai/assets/logo-81b734de.png" alt="The Code for America Logo"/>
+          <h1>Website PDF Accessibility Checker</h1>
+        </div>
+        <div id="message-body">
+          <%= yield %>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

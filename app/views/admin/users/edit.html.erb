@@ -67,7 +67,7 @@
         <%= f.label :site_id, "Site", class: "label-text text-black mb-2 font-semibold" %>
         <%= f.select :site_id, grouped_options_for_select(@sites, @user.site_id),
                      { include_blank: "None" },
-                     { class: "input input-bordered w-full select" } %>
+                     { class: "input input-bordered w-full select border-black" } %>
       </div>
 
       <div class="actions flex gap-4 items-center mt-6">
