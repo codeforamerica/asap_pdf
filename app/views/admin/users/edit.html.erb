@@ -28,7 +28,7 @@
       <% end %>
 
       <div class="form-control w-full mt-4">
-        <%= f.label :password, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.label :password, "New password", class: "label-text text-black mb-2 font-semibold" %>
         <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" + (@user.errors[:password].any? ? " input-error " : " border-black ") %>
         <% if @minimum_password_length %>
           <span class="label-text text-black mt-2">
@@ -42,7 +42,7 @@
       </div>
 
       <div class="form-control w-full mt-4">
-        <%= f.label :password_confirmation, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.label :password_confirmation, "New password confirmation", class: "label-text text-black mb-2 font-semibold" %>
         <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" + (@user.errors[:password_confirmation].any? ? " input-error " : " border-black ") %>
         <% if @user.errors[:password_confirmation].any? %>
           <div class="field-error label-text mt-2 text-red-700">
