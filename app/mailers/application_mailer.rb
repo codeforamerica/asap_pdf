@@ -1,5 +1,6 @@
 class ApplicationMailer < Devise::Mailer
-  default from: "admin@demo.codeforamerica.ai"
+  default from: 'Code for America <admin@demo.codeforamerica.ai>'
+
   layout "mailer"
 
   def new_account_instructions(record, token)

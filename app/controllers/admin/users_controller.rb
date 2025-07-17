@@ -29,8 +29,8 @@ class Admin::UsersController < ApplicationController
           msg = "User added successfully. Instructions were emailed to the user."
         end
         redirect_to admin_users_path, notice: msg
-      rescue Net::SMTPFatalError
-        redirect_to admin_users_path, notice: msg
+      rescue Net::SMTPFatalError => e
+        redirect_to admin_users_path, alert: e.message
       end
     else
       render :new, status: 422
