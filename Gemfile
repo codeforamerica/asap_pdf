@@ -39,7 +39,7 @@ end
 group :development do
   gem "overcommit", "~> 0.68.0"
   gem "better_errors", "~> 2.10"
-  gem "ruby-lsp", "~> 0.25"
+  gem "ruby-lsp", "~> 0.26"
   gem "web-console"
   gem "dockerfile-rails", ">= 1.7.9"
   gem "bundler-audit", "~> 0.9.2"
