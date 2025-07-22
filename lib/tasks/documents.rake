@@ -2,9 +2,8 @@ require "zip"
 
 namespace :documents do
   desc "Bootstrap"
-  task :bootstrap, [:file_name] => :environment do |t, args|
+  task bootstrap: :environment do |t, args|
     User.first
-
     # Create Salt Lake City site
     slc = Site.find_or_create_by!(
       name: "SLC.gov",
@@ -12,112 +11,21 @@ namespace :documents do
       primary_url: "https://www.slc.gov/"
     )
     puts "Created site: #{slc.name}"
-
+    slc.process_archive_or_csv "db/seeds/site_documents_dev/salt_lake_city.csv", true
     # Create San Rafael site
     san_rafael = Site.find_or_create_by!(
       name: "The City with a Mission",
       location: "San Rafael, CA",
       primary_url: "https://www.cityofsanrafael.org/"
     )
-    puts "Created site: #{san_rafael.name}"
+    san_rafael.process_archive_or_csv "db/seeds/site_documents_dev/san_rafael.csv", true
+  end
 
-    # Create Austin site
-    austin = Site.find_or_create_by!(
-      name: "The Official Website of The City of Austin",
-      location: "Austin, TX",
-      primary_url: "https://www.austintexas.gov/"
-    )
-    puts "Created site: #{austin.name}"
-
-    ga_dor = Site.find_or_create_by!(
-      name: "Department of Revenue",
-      location: "Georgia",
-      primary_url: "https://dor.georgia.gov"
-    )
-    puts "Created site: #{ga_dor.name}"
-
-    ga_dbf = Site.find_or_create_by!(
-      name: "Department of Banking and Finance",
-      location: "Georgia",
-      primary_url: "https://dbf.georgia.gov"
-    )
-    puts "Created site: #{ga_dbf.name}"
-
-    ga_psg = Site.find_or_create_by!(
-      name: "Enterprise Policies, Standards and Guidelines (PSGs)",
-      location: "Georgia",
-      primary_url: "https://gta-psg.georgia.gov"
-    )
-    puts "Created site: #{ga_psg.name}"
-
-    ga_dfcs = Site.find_or_create_by!(
-      name: "Department of Human Services Division of Family & Children Services",
-      location: "Georgia",
-      primary_url: "https://dfcs.georgia.gov"
-    )
-    puts "Created site: #{ga_dfcs.name}"
-
-    ga_gnpec = Site.find_or_create_by!(
-      name: "Nonpublic Postsecondary Education Commission",
-      location: "Georgia",
-      primary_url: "http://gnpec.georgia.gov"
-    )
-    puts "Created site: #{ga_gnpec.name}"
-
-    ga_oca = Site.find_or_create_by!(
-      name: "Office of the Child Advocate",
-      location: "Georgia",
-      primary_url: "http://oca.georgia.gov"
-    )
-    puts "Created site: #{ga_oca.name}"
-
-    ga_gta = Site.find_or_create_by!(
-      name: "Georgia Technology Authority",
-      location: "Georgia",
-      primary_url: "http://gta.georgia.gov"
-    )
-    puts "Created site: #{ga_gta.name}"
-
-    ga_audits = Site.find_or_create_by!(
-      name: "Department of Audits & Accounts",
-      location: "Georgia",
-      primary_url: "http://audits.georgia.gov/"
-    )
-    puts "Created site: #{ga_audits.name}"
-
-    csv_manifest = {
-      "dor_georgia.csv" => ga_dor,
-      "dbf_georgia.csv" => ga_dbf,
-      "gta_psg_georgia.csv" => ga_psg,
-      "dfcs_georgia.csv" => ga_dfcs,
-      "gnpec_georgia.csv" => ga_gnpec,
-      "oca_georgia.csv" => ga_oca,
-      "gta_georgia.csv" => ga_gta,
-      "audits_georgia.csv" => ga_audits,
-      "austin.csv" => austin,
-      "san_rafael.csv" => san_rafael,
-      "salt_lake_city.csv" => slc
-    }
-
-    archive_name = (Rails.env != "production") ? "site_documents_dev.zip" : "site_documents.zip"
-    puts "Loading site data from #{archive_name}"
-
-    Zip::File.open(Rails.root.join("db", "seeds", archive_name)) do |zipfile|
-      zipfile.each do |entry|
-        if entry.file?
-          file_name = entry.name.delete_prefix("site_documents/").delete_prefix("site_documents_dev/")
-          if csv_manifest.has_key?(file_name) && (args.file_name.nil? || (args.file_name == file_name))
-            site = csv_manifest[file_name]
-            puts "\nProcessing #{site.name} documents in #{entry.name}..."
-            tmp_path = "/tmp/#{file_name}"
-            File.delete(tmp_path) if File.exist? tmp_path
-            entry.extract(tmp_path)
-            site.process_csv_documents(tmp_path)
-            File.delete(tmp_path) if File.exist? tmp_path
-          end
-        end
-      end
-    end
+  desc "Import documents"
+  task :import_documents, [:site_id, :file_path, :archive] => :environment do |t, args|
+    args.with_defaults(archive: false)
+    site = Site.find(args.site_id)
+    site.process_archive_or_csv args.file_path, args.archive.to_s.strip.downcase == "true"
   end
 
   desc "Show percentage of null values for each column in the documents table"
@@ -176,13 +84,11 @@ namespace :documents do
 
   desc "Add PDF complexity."
   task add_pdf_complexity: :environment do
-    Document.find_each do |document|
-      unless document.number_of_tables.nil? || document.number_of_images.nil?
-        complexity = ((document.document_category != "Form") &&
-          (document.number_of_tables == 0) &&
-          (document.number_of_images == 0)) ? Document::SIMPLE_STATUS : Document::COMPLEX_STATUS
-        document.complexity = complexity
-        document.save
+    PaperTrail.request(enabled: false) do
+      Document.where(complexity: nil).find_each do |document|
+        unless document.number_of_tables.nil? || document.number_of_images.nil?
+          document.save
+        end
       end
     end
   end
