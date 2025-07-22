@@ -1,10 +1,53 @@
 class Document < ApplicationRecord
+  DEFAULT_DECISION = "Needs Decision".freeze
+  IN_REVIEW_DECISION = "In Review".freeze
+  DONE_DECISION = "Done".freeze
+  ARCHIVE_DECISION = "Archive".freeze
+  REMOVE_DECISION = "Remove".freeze
+  CONVERT_DECISION = "Convert".freeze
+  REMEDIATE_DECISION = "Remediate".freeze
+  LEAVE_DECISION = "Leave".freeze
+
+  DECISION_TYPES = {
+    DEFAULT_DECISION => {"label" => "Needs Decision"},
+    IN_REVIEW_DECISION => {"label" => "PDF is in Review"},
+    DONE_DECISION => {
+      "label" => "Done",
+      "children" => {
+        ARCHIVE_DECISION => {"label" => "Place PDF in Archive Section"},
+        REMOVE_DECISION => {"label" => "Remove PDF from Website"},
+        CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
+        REMEDIATE_DECISION => {"label" => "Remediate PDF"},
+        LEAVE_DECISION => {"label" => "Leave PDF As-is"}
+      }
+    }
+  }
+
+  CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
+
+  AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
+
+  SIMPLE_STATUS = "Simple".freeze
+  COMPLEX_STATUS = "Complex".freeze
+
+  COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
+
   belongs_to :site
-  # Do we still need this?
-  has_many :workflow_histories, class_name: "DocumentWorkflowHistory"
+
   has_many :document_inferences
 
+  before_save :set_complexity
+
   has_paper_trail versions: {scope: -> { order(created_at: :desc) }}
+
+  validates :file_name, presence: true
+  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
+  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
+  validates :document_category, inclusion: {in: CONTENT_TYPES}
+  validates :accessibility_recommendation, inclusion: {in: -> { get_decision_types }}, presence: true
+  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
+
+  before_validation :set_defaults
 
   scope :by_filename, ->(filename) {
     return all if filename.blank?
@@ -47,39 +90,6 @@ class Document < ApplicationRecord
     scope
   }
 
-  DEFAULT_DECISION = "Needs Decision".freeze
-  IN_REVIEW_DECISION = "In Review".freeze
-  DONE_DECISION = "Done".freeze
-  ARCHIVE_DECISION = "Archive".freeze
-  REMOVE_DECISION = "Remove".freeze
-  CONVERT_DECISION = "Convert".freeze
-  REMEDIATE_DECISION = "Remediate".freeze
-  LEAVE_DECISION = "Leave".freeze
-
-  DECISION_TYPES = {
-    DEFAULT_DECISION => {"label" => "Needs Decision"},
-    IN_REVIEW_DECISION => {"label" => "PDF is in Review"},
-    DONE_DECISION => {
-      "label" => "Done",
-      "children" => {
-        ARCHIVE_DECISION => {"label" => "Place PDF in Archive Section"},
-        REMOVE_DECISION => {"label" => "Remove PDF from Website"},
-        CONVERT_DECISION => {"label" => "Convert PDF to HTML"},
-        REMEDIATE_DECISION => {"label" => "Remediate PDF"},
-        LEAVE_DECISION => {"label" => "Leave PDF As-is"}
-      }
-    }
-  }
-
-  CONTENT_TYPES = %w[Agreement Agenda Brochure Diagram Flyer Form Job Letter Policy Slides Press Procurement Notice Report Spreadsheet].freeze
-
-  AI_SUGGESTION_EXCEPTION, AI_SUGGESTION_NO_EXCEPTION = %w[Might\ be\ exception Likely\ not\ exception]
-
-  SIMPLE_STATUS = "Simple".freeze
-  COMPLEX_STATUS = "Complex".freeze
-
-  COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
-
   def self.get_decision_types
     options = {}
     Document::DECISION_TYPES.each do |key, item|
@@ -101,15 +111,6 @@ class Document < ApplicationRecord
   def self.get_complexity_options
     Document::COMPLEXITIES.map { |c| [c.to_s.titleize, c] }
   end
-
-  validates :file_name, presence: true
-  validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
-  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
-  validates :document_category, inclusion: {in: CONTENT_TYPES}
-  validates :accessibility_recommendation, inclusion: {in: get_decision_types}, presence: true
-  validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
-
-  before_validation :set_defaults
 
   def modification_year
     if modification_date.present?
@@ -340,5 +341,17 @@ class Document < ApplicationRecord
   def set_defaults
     self.document_status = "discovered" unless document_status
     self.accessibility_recommendation = DEFAULT_DECISION unless accessibility_recommendation
+  end
+
+  def set_complexity
+    if (number_of_tables.nil? || number_of_images.nil?) && document_category != "Form"
+      return
+    end
+    self.complexity = calculate_complexity
+  end
+
+  def calculate_complexity
+    return COMPLEX_STATUS unless document_category != "Form" && number_of_tables == 0 && number_of_images == 0
+    SIMPLE_STATUS
   end
 end

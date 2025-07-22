@@ -1,6 +1,4 @@
 class DocumentInference < ApplicationRecord
-  belongs_to :document
-
   INFERENCE_TYPES = {
     summary: {
       label: "Summary"
@@ -22,6 +20,8 @@ class DocumentInference < ApplicationRecord
       url: "https://www.ada.gov/resources/2024-03-08-web-rule/#4-individualized-documents-that-are-password-protected"
     }
   }.freeze
+
+  belongs_to :document
 
   validates :inference_type, inclusion: {in: INFERENCE_TYPES.keys.map(&:to_s)}, presence: true
   validates :inference_value, presence: true
