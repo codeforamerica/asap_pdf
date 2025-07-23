@@ -20,7 +20,7 @@ gem "solid_cache"
 
 gem "bootsnap", require: false
 gem "thruster", require: false
-gem "redis", "~> 5.4.0"
+gem "redis", "~> 5.4.1"
 gem "sidekiq", "~> 8.0"
 
 gem "view_component", "~> 3.23"
@@ -30,7 +30,7 @@ gem "devise", "~> 4.9.4"
 gem "activerecord-session_store"
 
 group :development, :test do
-  gem "brakeman", "~> 7.0", require: false
+  gem "brakeman", "~> 7.1", require: false
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "dotenv-rails", "~> 3.1"
   gem "standard"
@@ -39,7 +39,7 @@ end
 group :development do
   gem "overcommit", "~> 0.68.0"
   gem "better_errors", "~> 2.10"
-  gem "ruby-lsp", "~> 0.25"
+  gem "ruby-lsp", "~> 0.26"
   gem "web-console"
   gem "dockerfile-rails", ">= 1.7.9"
   gem "bundler-audit", "~> 0.9.2"
@@ -58,7 +58,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.192"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.194"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

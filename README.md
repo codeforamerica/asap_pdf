@@ -14,7 +14,6 @@ Before you begin, ensure you have the following installed:
 * Ruby 3.2.2 (we recommend using a version manager like `rbenv` or `rvm`)
 * Node.js 18.17.0 (we recommend using `nvm` for version management)
 * Yarn (latest version)
-* Redis (for Sidekiq background jobs)
 * PostgreSQL locally or in a container.
 * Docker and Docker Compose (for LocalStack S3 in development)
 

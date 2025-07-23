@@ -17,7 +17,7 @@
           </div>
           <div class="space-y-2">
             <%= date_field_tag :start_date, params[:start_date], class: "input input-bordered w-full" + (params[:start_date].present? ? " active-highlight" : ""), placeholder: "From", "aria-labelledby": "date-filter-label" %>
-            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full"+ (params[:end_date].present? ? " active-highlight" : ""), placeholder: "To", "aria-labelledby": "date-filter-label" %>
+            <%= date_field_tag :end_date, params[:end_date], class: "input input-bordered w-full" + (params[:end_date].present? ? " active-highlight" : ""), placeholder: "To", "aria-labelledby": "date-filter-label" %>
           </div>
         </div>
         <div>
@@ -40,14 +40,17 @@
               <span class="label-text">Department</span>
             </label>
             <%= select_tag :department,
-                           options_for_select({'All Departments': ''}.merge(site.get_departments), params[:department]),
+                           options_for_select({ 'All Departments': '' }.merge(site.get_departments), params[:department]),
                            class: "select-custom w-full" + (params[:department].present? ? " active-highlight" : "") %>
           </div>
         <% end %>
         <% if site.has_complexities? %>
           <div>
             <label for="complexity" class="label">
-              <span class="label-text">Complexity</span>
+              <%
+                tooltip_text = '"Simple" filters by easier-to-review documents that have no images or tables, and likely aren\'t forms.'
+              %>
+              <span class="label-text">Complexity <span class="tooltip tooltip-right tooltip-primary" data-tip="<%= tooltip_text %>"><i class="fas fa-question-circle w-5"></i></span></span>
             </label>
             <%= select_tag :complexity,
                            options_for_select([['All Documents', '']] + Document::get_complexity_options, params[:complexity]),
