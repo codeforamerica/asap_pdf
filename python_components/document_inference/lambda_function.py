@@ -76,4 +76,5 @@ def handler(event, context):
         else:
             return {"statusCode": 200, "body": helpers.json_dump_collection()}
     except Exception as e:
+        helpers.logger.error(f"Error during execution: {e}")
         return {"statusCode": 500, "body": str(e)}

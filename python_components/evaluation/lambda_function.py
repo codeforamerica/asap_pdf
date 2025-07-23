@@ -107,4 +107,5 @@ def handler(event, context):
         output = str(e)
         if local_mode:
             output = traceback.format_exc()
+        utility.helpers.logger.error(f"Error during execution: {output}")
         return {"statusCode": 500, "body": output}
