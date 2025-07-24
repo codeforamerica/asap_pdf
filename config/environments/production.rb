@@ -27,7 +27,18 @@ Rails.application.configure do
 
   config.active_support.report_deprecations = false
 
-  config.action_mailer.default_url_options = {host: "example.com"}
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: ENV.fetch("SMTP_ENDPOINT"),
+    port: 587,
+    domain: 'demo.codeforamerica.ai',
+    user_name: ENV.fetch("SMTP_USER"),
+    password: ENV.fetch("SMTP_PASSWORD"),
+    authentication: 'plain'
+  }
+  config.action_mailer.perform_deliveries = true
+  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.default_url_options = { host: 'demo.codeforamerica.ai' }
 
   config.i18n.fallbacks = true
   config.active_record.dump_schema_after_migration = false
