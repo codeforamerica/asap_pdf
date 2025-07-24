@@ -1,7 +1,7 @@
 class ConfigurationsController < AuthenticatedController
   include Access
 
-  before_action :ensure_user_admin
+  before_action :ensure_user_site_admin
 
   ASAP_API_USER = "/asap-pdf/production/RAILS_API_USER-20250613220933079900000001"
   ASAP_API_PASSWORD = "/asap-pdf/production/RAILS_API_PASSWORD-20250613220933080000000003"

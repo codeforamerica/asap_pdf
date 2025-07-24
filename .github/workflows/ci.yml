@@ -52,11 +52,17 @@ jobs:
           bundle exec rails db:create
           bundle exec rails db:migrate
 
-      - name: Run tests
+      - name: Run Non-JS tests
         env:
           RAILS_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
-        run: bundle exec rspec
+        run: bundle exec rspec spec/models spec/requests
+
+      - name: Run JS tests
+        env:
+          RAILS_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/access_pdf_test
+        run: bundle exec rspec spec/features
 
       - name: Keep screenshots from failed system tests
         uses: actions/upload-artifact@v4
