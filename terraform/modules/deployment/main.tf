@@ -238,9 +238,12 @@ resource "aws_iam_role_policy" "github_actions" {
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutObject",
+          "s3:PutEncryptionConfiguration",
         ]
         Resource = [
-          "arn:aws:s3:::${var.project_name}-${var.environment}-tfstate/*"
+          "arn:aws:s3:::${var.project_name}-${var.environment}-tfstate/*",
+          "arn:aws:s3:::${var.project_name}-${var.environment}-logs",
+          "arn:aws:s3:::${var.project_name}-${var.environment}-logs/*",
         ]
       },
       {

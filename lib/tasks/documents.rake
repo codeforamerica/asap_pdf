@@ -57,11 +57,43 @@ namespace :documents do
     )
     puts "Created site: #{ga_dfcs.name}"
 
+    ga_gnpec = Site.find_or_create_by!(
+      name: "Nonpublic Postsecondary Education Commission",
+      location: "Georgia",
+      primary_url: "http://gnpec.georgia.gov"
+    )
+    puts "Created site: #{ga_gnpec.name}"
+
+    ga_oca = Site.find_or_create_by!(
+      name: "Office of the Child Advocate",
+      location: "Georgia",
+      primary_url: "http://oca.georgia.gov"
+    )
+    puts "Created site: #{ga_oca.name}"
+
+    ga_gta = Site.find_or_create_by!(
+      name: "Georgia Technology Authority",
+      location: "Georgia",
+      primary_url: "http://gta.georgia.gov"
+    )
+    puts "Created site: #{ga_gta.name}"
+
+    ga_audits = Site.find_or_create_by!(
+      name: "Department of Audits & Accounts",
+      location: "Georgia",
+      primary_url: "http://audits.georgia.gov/"
+    )
+    puts "Created site: #{ga_audits.name}"
+
     csv_manifest = {
       "dor_georgia.csv" => ga_dor,
       "dbf_georgia.csv" => ga_dbf,
       "gta_psg_georgia.csv" => ga_psg,
       "dfcs_georgia.csv" => ga_dfcs,
+      "gnpec_georgia.csv" => ga_gnpec,
+      "oca_georgia.csv" => ga_oca,
+      "gta_georgia.csv" => ga_gta,
+      "audits_georgia.csv" => ga_audits,
       "austin.csv" => austin,
       "san_rafael.csv" => san_rafael,
       "salt_lake_city.csv" => slc
