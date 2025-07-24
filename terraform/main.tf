@@ -47,12 +47,21 @@ module "secrets" {
         secret_key = ""
       })
     }
+    smtp = {
+      description = "The SMTP credentials."
+      name        = "/asap-pdf/production/smtp"
+      start_value = jsonencode({
+        endpoint = ""
+        user     = ""
+        password = ""
+      })
+    }
     google = {
-      description = "The Rails master key."
+      description = "Optional Google API key."
       name        = "/asap-pdf/production/GOOGLE_AI_KEY"
     }
     anthropic = {
-      description = "The Rails master key."
+      description = "Optional Anthropic API key."
       name        = "/asap-pdf/production/ANTHROPIC_KEY"
     }
     rails_api_user = {
@@ -139,7 +148,10 @@ module "ecs" {
   db_password_secret_arn      = "${module.secrets.secrets["database"].secret_arn}:password"
   secret_key_base_secret_arn  = "${module.secrets.secrets["rails"].secret_arn}:secret_key"
   rails_master_key_secret_arn = "${module.secrets.secrets["rails"].secret_arn}:master_key"
-  redis_url_secret_arn = "${module.secrets.secrets["redis"].secret_arn}:url"
+  smtp_endpoint_secret_arn    = "${module.secrets.secrets["smtp"].secret_arn}:ednpoint"
+  smtp_user_secret_arn        = "${module.secrets.secrets["smtp"].secret_arn}:user"
+  smtp_password_secret_arn    = "${module.secrets.secrets["smtp"].secret_arn}:password"
+  redis_url_secret_arn        = "${module.secrets.secrets["redis"].secret_arn}:url"
 
   vpc_id            = module.networking.vpc_id
   private_subnets   = module.networking.private_subnet_ids
@@ -167,6 +179,14 @@ module "lambda" {
   secret_google_service_account_evals_key_arn      = module.secrets.secrets["google_service_account"].secret_arn
   secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["google_sheet_id_evaluation"].secret_arn
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
+}
+
+module "ses" {
+  source = "./modules/ses"
+
+  project_name = var.project_name
+  environment  = var.environment
+  domain_name  = var.domain_name
 }
 
 # S3 bucket for PDF storage

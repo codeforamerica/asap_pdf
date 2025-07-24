@@ -12,8 +12,8 @@ module "fargate_service" {
   private_subnets = var.private_subnets
   public_subnets  = var.public_subnets
   logging_key_id  = var.logging_key_id
-  cpu = 1024
-  memory = 2048
+  cpu             = 1024
+  memory          = 2048
   container_port  = 3000
 
   execution_policies = [aws_iam_policy.ecs_task_secrets_policy.arn, aws_iam_policy.ecs_s3_access.arn]
@@ -41,15 +41,16 @@ module "fargate_service" {
     DB_PASSWORD : var.db_password_secret_arn
     SECRET_KEY_BASE : var.secret_key_base_secret_arn
     RAILS_MASTER_KEY : var.rails_master_key_secret_arn
-    REDIS_URL : var.redis_url_secret_arn
+    REDIS_URL : var.redis_url_secret_arn,
+    SMTP_ENDPOINT : var.smtp_endpoint_secret_arn,
+    SMTP_USER : var.smtp_user_secret_arn,
+    SMTP_PASSWORD : var.smtp_password_secret_arn,
   }
 }
 
 # Add permissions for Secrets Manager access
 resource "aws_iam_policy" "ecs_task_secrets_policy" {
   name = "${var.project_name}-${var.environment}-task-secrets-policy"
-  # @todo Not sure how to get this.
-  #role = aws_iam_role.ecs_task_execution_role.id
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -66,7 +67,10 @@ resource "aws_iam_policy" "ecs_task_secrets_policy" {
           var.db_password_secret_arn,
           var.secret_key_base_secret_arn,
           var.rails_master_key_secret_arn,
-          var.redis_url_secret_arn
+          var.redis_url_secret_arn,
+          var.smtp_endpoint_secret_arn,
+          var.smtp_user_secret_arn,
+          var.smtp_password_secret_arn,
         ]
       }
     ]
