@@ -38,6 +38,8 @@ services:
       - "9002:8080"
     environment:
       - ASAP_LOCAL_MODE=True
+    volumes:
+      - ./python_components/document_inference:/var/task
   lambda_evaluation:
     container_name: lambda_evaluation
     build:

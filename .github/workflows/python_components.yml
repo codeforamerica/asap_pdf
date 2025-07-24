@@ -26,6 +26,7 @@ jobs:
         python -m pip install --upgrade pip
         if [ -f ./python_components/ci/requirements.txt ]; then pip install -r ./python_components/ci/requirements.txt; fi
         pip install python_components/evaluation
+        pip install python_components/document_inference
         python -m spacy download en_core_web_sm
     - name: Run Linting
       run: |
