@@ -230,7 +230,7 @@ class Document < ApplicationRecord
         api_host = "https://demo.codeforamerica.ai"
       end
       payload = {
-        model_name: "gemini-1.5-pro-latest",
+        model_name: "gemini-2.0-flash",
         documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "summary",
