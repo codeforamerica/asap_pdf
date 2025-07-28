@@ -27,7 +27,7 @@ Devise.setup do |config|
   config.mailer_sender = "admin@demo.codeforamerica.ai"
 
   # Configure the class responsible to send e-mails.
-  config.mailer = 'ApplicationMailer'
+  config.mailer = "ApplicationMailer"
 
   # Configure the parent class responsible to send e-mails.
   # config.parent_mailer = 'ActionMailer::Base'

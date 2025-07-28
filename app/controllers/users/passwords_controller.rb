@@ -16,5 +16,4 @@ class Users::PasswordsController < Devise::PasswordsController
     set_minimum_password_length
     resource.reset_password_token = params[:reset_password_token]
   end
-
 end
