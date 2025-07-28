@@ -84,4 +84,19 @@ describe "admins can see admin pages", js: true, type: :feature do
     expect(page).to have_current_path("/admin/users")
     expect(page).to have_content "bob@example.com None Yes Yes Edit"
   end
+
+  it "admins can invite users" do
+    clear_emails
+    @current_user.is_user_admin = true
+    @current_user.save
+    visit "/admin/users/new"
+    fill_in "Email", with: "test-invite@example.com"
+    check "Send invitation email"
+    click_button "Save"
+    expect(page).to have_content "User added successfully. Instructions were emailed to the user."
+    expect(page).to have_current_path "/admin/users"
+    wait_for_mail_delivery
+    open_email("test-invite@example.com")
+    expect(current_email).to have_content "Your account has been created, but requires activation. Please follow the link below to set a new password and log in."
+  end
 end
