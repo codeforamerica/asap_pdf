@@ -54,7 +54,7 @@ group :test do
   gem "rails-controller-testing"
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
-  gem 'capybara-email'
+  gem "capybara-email"
   gem "webdrivers"
 end
 

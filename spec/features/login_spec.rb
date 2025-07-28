@@ -28,7 +28,7 @@ describe "users may log into the site", js: true, type: :feature do
     expect(page).to have_content "Signed in successfully"
     expect(page).to have_no_selector "#new_user"
   end
-  #clear_emails
+  # clear_emails
   it "password resets" do
     clear_emails
     visit "/users/sign_in"
