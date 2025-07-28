@@ -1,9 +1,9 @@
 class Admin::UsersController < ApplicationController
   include Access
 
-  before_action :ensure_user_user_admin
+  before_action :ensure_user_is_user_admin
 
-  before_action :set_user, only: [:new, :edit, :update]
+  before_action :set_user, only: [:edit, :update]
   before_action :site_list, only: [:new, :create, :edit, :update]
   before_action :set_minimum_password_length, only: [:new, :edit, :update]
 
@@ -12,7 +12,8 @@ class Admin::UsersController < ApplicationController
   end
 
   def new
-    render "/admin/users/new"
+    @user = User.new
+    render :new
   end
 
   def create
@@ -38,7 +39,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def edit
-    render "/admin/users/edit"
+    render :edit
   end
 
   def update
@@ -69,7 +70,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def set_user
-    @user = params[:id].present? ? User.find(params[:id]) : User.new
+    @user = User.find(params[:id])
   end
 
   def user_params
