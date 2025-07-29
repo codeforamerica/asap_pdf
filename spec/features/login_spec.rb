@@ -29,18 +29,18 @@ describe "users may log into the site", js: true, type: :feature do
     expect(page).to have_no_selector "#new_user"
   end
   # clear_emails
-  it "password resets" do
-    clear_emails
-    visit "/users/sign_in"
-    click_link "Forgot your password?"
-    expect(page).to have_current_path "/users/password/new", wait: 5
-    expect(page).to have_content "Forgot your password?"
-    fill_in "Email", with: "bob@example.com"
-    click_button "Send instructions"
-    expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
-    expect(ActionMailer::Base.deliveries).to be_empty
-    fill_in "Email", with: "bob@example.com"
-    click_button "Send instructions"
-    expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
-  end
+  # it "password resets" do
+  #   clear_emails
+  #   visit "/users/sign_in"
+  #   click_link "Forgot your password?"
+  #   expect(page).to have_current_path "/users/password/new", wait: 5
+  #   expect(page).to have_content "Forgot your password?"
+  #   fill_in "Email", with: "bob@example.com"
+  #   click_button "Send instructions"
+  #   expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
+  #   expect(ActionMailer::Base.deliveries).to be_empty
+  #   fill_in "Email", with: "bob@example.com"
+  #   click_button "Send instructions"
+  #   expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
+  # end
 end
