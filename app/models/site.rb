@@ -1,12 +1,4 @@
 class Site < ApplicationRecord
-  has_many :documents, dependent: :destroy
-  has_many :users
-
-  validates :name, presence: true, uniqueness: true
-  validates :location, presence: true
-  validates :primary_url, presence: true, uniqueness: true
-  validate :ensure_safe_url
-
   DEPARTMENT_MAPPING = {
     "Information Management Services" => ["https://www.slc.gov/ims/"],
     "Finance" => ["https://www.slc.gov/finance/"],
@@ -53,6 +45,14 @@ class Site < ApplicationRecord
     "Fire" => ["https://fire.slc.gov", "https://www.slc.gov/fire/"],
     "Census" => ["https://www.slc.gov/census"]
   }
+
+  has_many :documents, dependent: :destroy
+  has_many :users
+
+  validates :name, presence: true, uniqueness: true
+  validates :location, presence: true
+  validates :primary_url, presence: true, uniqueness: true
+  validate :ensure_safe_url
 
   def has_departments?
     documents.where.not(department: [nil, ""]).any?
@@ -201,6 +201,33 @@ class Site < ApplicationRecord
         documents = nil
         puts "Skipped #{skipped} documents due to invalid URLs" if skipped > 0
       end
+    end
+  end
+
+  def process_archive_or_csv(file_path, is_archive)
+    if is_archive
+      archive_path = File.dirname(file_path) + ".zip"
+      file_name = File.basename(file_path)
+      Zip::File.open(archive_path) do |zipfile|
+        match = false
+        zipfile.each do |entry|
+          if File.basename(entry.name) == file_name
+            match = true
+            puts "\nImporting documents from #{entry.name} in archive #{archive_path} into #{name}"
+            tmp_path = "/tmp/#{file_name}"
+            File.delete(tmp_path) if File.exist? tmp_path
+            entry.extract(tmp_path)
+            process_csv_documents(tmp_path)
+            File.delete(tmp_path) if File.exist? tmp_path
+          end
+        end
+        unless match
+          raise Errno::ENOENT, "File, #{file_path} not found inside archive #{archive_path}"
+        end
+      end
+    else
+      puts "\nImporting documents from #{file_path} into #{name}"
+      process_csv_documents(file_path)
     end
   end
 
