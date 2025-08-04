@@ -344,7 +344,7 @@ class Document < ApplicationRecord
   end
 
   def set_complexity
-    self.complexity = if document_category == "Form" || number_of_tables > 0 || number_of_images > 0
+    self.complexity = if document_category == "Form" || (number_of_tables || 0) > 0 || (number_of_images || 0) > 0
       COMPLEX_STATUS
     else
       SIMPLE_STATUS
