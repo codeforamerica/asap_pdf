@@ -1,6 +1,6 @@
 import datetime
 import os
-import urllib
+import shutil
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, List
@@ -8,6 +8,7 @@ from typing import Any, List
 import boto3
 import fitz
 import pandas as pd
+import requests
 from deepeval.models import DeepEvalBaseMLLM
 from deepeval.test_case import MLLMImage
 from evaluation.utility.helpers import logger
@@ -81,7 +82,19 @@ def add_images_to_document(
 def get_file(url: str, output_path: str) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
-    urllib.request.urlretrieve(url, local_path)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "application/pdf,application/octet-stream,*/*",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate",
+        "DNT": "1",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+    with requests.get(url, headers=headers, stream=True) as response:
+        response.raise_for_status()
+        with open(f"{output_path}/{file_name}", "wb") as file:
+            shutil.copyfileobj(response.raw, file)
     return local_path
 
 

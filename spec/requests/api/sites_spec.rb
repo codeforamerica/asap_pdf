@@ -13,7 +13,7 @@ RSpec.describe AsapPdf::API do
     {"HTTP_AUTHORIZATION" => encoded_credentials}
   end
 
-  let!(:user) { create(:user, :admin) }
+  let!(:user) { create(:user, :site_admin) }
 
   describe "GET /sites" do
     let!(:sites) { create_list(:site, 3) }

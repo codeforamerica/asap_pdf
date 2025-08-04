@@ -8,7 +8,7 @@
     </div>
     <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
       <div class="form-control w-full">
-        <%= f.label :email, class: "label label-text text-black" %>
+        <%= f.label :email, class: "label label-text text-black font-semibold" %>
         <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full " + (resource.errors[:base].any? ? " input-error " : " border-black ") %>
         <% if resource.errors[:base].any? %>
           <div class="field-error label-text mt-2 text-red-700">
@@ -18,7 +18,7 @@
       </div>
 
       <div class="form-control w-full mt-4">
-        <%= f.label :password, class: "label label-text text-black" %>
+        <%= f.label :password, class: "label label-text text-black font-semibold" %>
         <%= f.password_field :password, autocomplete: "current-password", class: "input input-bordered w-full "  + (resource.errors[:base].any? ? " input-error " : " border-black ") %>
         <% if resource.errors[:base].any? %>
           <div class="field-error label-text mt-2 text-red-700">
@@ -40,6 +40,11 @@
           Log in
         <% end %>
       </div>
-    <% end %>
+      <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+        <div class="mt-6 hidden">
+          <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-primary" %>
+        </div>
+      <% end %>
+  <% end %>
   </div>
 </div>

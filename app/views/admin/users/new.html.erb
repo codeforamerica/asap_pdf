@@ -1,0 +1,71 @@
+<div class="card ml-4 mr-4 lg:w-1/3 lg:mr-auto lg:ml-auto bg-gray-50 shadow-xl mt-12">
+  <div class="card-body">
+    <h1 class="text-lg font-medium">Add New User</h1>
+
+    <%= form_for(@user, url: admin_users_path) do |f| %>
+      <div class="form-control w-full mt-4">
+        <%= f.label :email, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full" + (@user.errors[:email].any? ? " input-error " : " border-black ")  %>
+        <% if @user.errors[:email].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= @user.errors.full_message(:email, @user.errors[:email].first)%>
+          </div>
+        <% end %>
+      </div>
+      <div class="w-full mt-4">
+        <%= f.check_box :is_invited %>
+        <%= f.label :is_invited, "Send invitation email", class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">Send the user an invitation email, which includes a link to set password (skip password fields below).</div>
+      </div>
+      <div class="form-control w-full mt-4">
+        <%= f.label :password, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" + (@user.errors[:password].any? ? " input-error " : " border-black ")  %>
+        <% if @minimum_password_length %>
+          <span class="label-text text-black mt-2"><%= @minimum_password_length %> characters minimum.</span>
+        <% end %>
+        <% if @user.errors[:password].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= @user.errors.full_message(:password, @user.errors[:password].first)%>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="form-control w-full mt-4">
+        <%= f.label :password_confirmation, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" + (@user.errors[:password_confirmation].any? ? " input-error " : " border-black ")  %>
+        <% if @user.errors[:password_confirmation].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= @user.errors.full_message(:password_confirmation, @user.errors[:password_confirmation].first)%>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="w-full mt-4">
+        <%= f.check_box :is_site_admin %>
+        <%= f.label :is_site_admin, class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">User should be able to see and edit all sites and documents.</div>
+      </div>
+
+      <div class="w-full mt-4">
+        <%= f.check_box :is_user_admin %>
+        <%= f.label :is_user_admin, class: "label-text text-black mb-2 font-semibold" %>
+        <div class="label-text text-black mt-2">User should be able to edit other users and create admins.</div>
+      </div>
+
+      <div class="w-full mt-4">
+        <%= f.label :site_id, "Site", class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.select :site_id, grouped_options_for_select(@sites, @user.site_id),
+                     { include_blank: "None" },
+                     { class: "input input-bordered w-full select border-black" } %>
+      </div>
+
+      <div class="actions flex gap-4 items-center mt-6">
+        <%= button_tag type: "submit", class: "btn btn-primary text-white", id: "submit-user-form" do %>
+          <i class="fas fa-check mr-2"></i>
+          Save
+        <% end %>
+        <%= link_to "Back", :back %>
+      </div>
+    <% end %>
+  </div>
+</div>

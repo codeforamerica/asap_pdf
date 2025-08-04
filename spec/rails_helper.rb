@@ -8,6 +8,7 @@ require "rails-controller-testing"
 require "shoulda/matchers"
 require "capybara/rails"
 require "helpers/user"
+require "helpers/mail"
 
 # Capybara.default_driver = :selenium_chrome
 

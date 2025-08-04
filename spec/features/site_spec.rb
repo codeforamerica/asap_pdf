@@ -9,7 +9,7 @@ describe "sites function as expected", type: :feature do
   it "admins can create and see sites" do
     visit "/"
     expect(page).to have_no_content("Add New Site")
-    @current_user.is_admin = true
+    @current_user.is_site_admin = true
     @current_user.save
     visit "/"
     click_button "Add Site", id: "add-site-modal"

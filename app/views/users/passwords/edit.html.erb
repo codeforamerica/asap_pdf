@@ -1,25 +1,45 @@
-<h2>Change your password</h2>
+<div class="card w-96 bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h1 class="text-lg"><%= @is_invitation ? "Set" : "Change" %> your password</h1>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+      <%= f.hidden_field :reset_password_token %>
+      <% if resource.errors[:reset_password_token].any? %>
+        <div class="field-error label-text mt-2 text-red-700">
+          Reset password token has expired,
+          please <%= link_to "request a new one", new_password_path(resource_name), class: "text-black" %>
+        </div>
+      <% end %>
+      <div class="form-control w-full mt-4">
+        <%= f.label :password, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered w-full" + (resource.errors[:password].any? ? " input-error " : " border-black ") %>
+        <% if @minimum_password_length %>
+          <span class="label-text text-black mt-2">
+            <% if @minimum_password_length %><%= @minimum_password_length %> characters minimum.
+            <% end %> Leave blank if you don't want to change it.</span>
+        <% end %>
+        <% if resource.errors[:password].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_message(:password, resource.errors[:password].first) %>
+          </div>
+        <% end %>
+      </div>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "users/shared/error_messages", resource: resource %>
-  <%= f.hidden_field :reset_password_token %>
+      <div class="form-control w-full mt-4">
+        <%= f.label :password_confirmation, class: "label-text text-black mb-2 font-semibold" %>
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered w-full" + (resource.errors[:password_confirmation].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:password_confirmation].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_message(:password_confirmation, resource.errors[:password_confirmation].first) %>
+          </div>
+        <% end %>
+      </div>
 
-  <div class="field">
-    <%= f.label :password, "New password" %><br />
-    <% if @minimum_password_length %>
-      <em>(<%= @minimum_password_length %> characters minimum)</em><br />
+      <div class="actions mt-6">
+        <%= button_tag type: "submit", class: "btn btn-primary text-white", id: "submit-session-form" do %>
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          <%= @is_invitation ? "Set" : "Change"%> my password
+        <% end %>
+      </div>
     <% end %>
-    <%= f.password_field :password, autofocus: true, autocomplete: "new-password" %>
   </div>
-
-  <div class="field">
-    <%= f.label :password_confirmation, "Confirm new password" %><br />
-    <%= f.password_field :password_confirmation, autocomplete: "new-password" %>
-  </div>
-
-  <div class="actions">
-    <%= f.submit "Change my password" %>
-  </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>

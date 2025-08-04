@@ -36,12 +36,20 @@
         </button>
         <div data-dropdown-target="menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
           <div class="py-1">
+            <%= link_to edit_user_registration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+              <i class="fas fa-person mr-2"></i>My Account
+            <% end %>
             <%= link_to sites_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
               <i class="fas fa-globe mr-2"></i>My Sites
             <% end %>
-            <% if current_user.present? && current_user.is_admin? %>
+            <% if current_user.present? && current_user.is_site_admin? %>
               <%= link_to edit_configuration_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
                 <i class="fas fa-wand-magic-sparkles mr-2"></i>AI Settings
+              <% end %>
+            <% end %>
+            <% if current_user.present? && current_user.is_user_admin? %>
+              <%= link_to admin_users_path, class: "block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
+                <i class="fas fa-users mr-2"></i>Admin Users
               <% end %>
             <% end %>
             <%= button_to destroy_user_session_path, method: :delete, class: "w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" do %>
@@ -77,7 +85,7 @@
   <% end %>
 </div>
 <!-- Main Content -->
-<main class="mt-6">
+<main class="mt-6 pb-6">
   <%= yield %>
 </main>
 </body>

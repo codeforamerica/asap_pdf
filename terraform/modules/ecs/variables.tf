@@ -44,6 +44,21 @@ variable "rails_master_key_secret_arn" {
   type        = string
 }
 
+variable "smtp_endpoint_secret_arn" {
+  description = "ARN of the SMTP endpoint"
+  type        = string
+}
+
+variable "smtp_user_secret_arn" {
+  description = "ARN of the SMTP user name"
+  type        = string
+}
+
+variable "smtp_password_secret_arn" {
+  description = "ARN of the SMTP password"
+  type        = string
+}
+
 variable "redis_url_secret_arn" {
   description = "ARN of the Redis URL secret in Secrets Manager"
   type        = string

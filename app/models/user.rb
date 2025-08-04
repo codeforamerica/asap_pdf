@@ -1,14 +1,15 @@
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-    :recoverable, :rememberable, :validatable
+    :recoverable, :rememberable, :validatable, :trackable
 
-  # has_many :sessions, dependent: :destroy
   belongs_to :site, optional: true
   delegate :documents, to: :site, allow_nil: true
 
-  # normalizes :email_address, with: ->(e) { e.strip.downcase }
+  def send_new_account_instructions?
+    return false unless is_invited?
 
-  # validates :email_address, presence: true, uniqueness: {case_sensitive: false}, format: {with: URI::MailTo::EMAIL_REGEXP}
+    token = set_reset_password_token
+    ApplicationMailer.new_account_instructions(self, token).deliver_now
+    true
+  end
 end

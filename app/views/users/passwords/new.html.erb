@@ -1,16 +1,26 @@
-<h2>Forgot your password?</h2>
+<div class="card w-96 bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h1 class="text-lg">Forgot your password?</h1>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <div class="form-control w-full">
+        <%= f.label :email, class: "label label-text text-black font-semibold" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full " + (resource.errors[:base].any? ? " input-error " : " border-black ") %>
+        <% if resource.errors[:base].any? %>
+          <div class="field-error label-text mt-2 text-red-700">
+            <%= resource.errors.full_messages.first %>
+          </div>
+        <% end %>
+      </div>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "users/shared/error_messages", resource: resource %>
-
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+      <div class="actions mt-6">
+        <%= button_tag type: "submit", class: "btn btn-primary text-white", id: "submit-session-form" do %>
+          <i class="fas fa-sign-in-alt mr-2"></i>
+          Send instructions
+        <% end %>
+      </div>
+      <div class="mt-6">
+        <%= link_to "Back to log in", session_path(resource_name), class: "text-primary"  %>
+      </div>
+    <% end %>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>
