@@ -15,6 +15,15 @@ module "backend" {
   environment = var.environment
 }
 
+module "cloudfront" {
+  source = "./modules/cloudfront"
+
+  destination = "https://${var.domain_name}"
+  source_domain = var.redirect_domain
+  logging_bucket = module.logging.bucket
+}
+
+
 module "secrets" {
   source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.0.0"
 
