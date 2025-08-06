@@ -2,7 +2,7 @@ backports.tarfile==1.2.0
 beautifulsoup4==4.13.3
 black==25.1.0
 boto3==1.38.30
-deepeval==3.1.4
+deepeval==3.3.6
 flake8==7.1.2
 google-api-python-client==2.171.0
 google-auth-oauthlib==1.2.2
