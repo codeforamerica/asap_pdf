@@ -5,11 +5,31 @@ function handler(event) {
 
   const request = event.request;
 
+  var queryString = '';
+  if (request.querystring && Object.keys(request.querystring).length > 0) {
+    var params = [];
+    var queryKeys = Object.keys(request.querystring);
+
+    for (var i = 0; i < queryKeys.length; i++) {
+      var key = queryKeys[i];
+      var value = request.querystring[key];
+
+      if (value.multiValue) {
+        for (var j = 0; j < value.multiValue.length; j++) {
+          params.push(key + '=' + value.multiValue[j].value);
+        }
+      } else {
+        params.push(key + '=' + value.value);
+      }
+    }
+    queryString = '?' + params.join('&');
+  }
+
   return {
     statusCode: STATUS_CODE,
     statusDescription: 'Moved Permanently',
     headers: {
-      "location": { "value": DESTINATION + (STATIC ? '' : request.uri) }
+      "location": { "value": DESTINATION + (STATIC ? '' : request.uri) + queryString }
     }
   };
 }
