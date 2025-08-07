@@ -22,6 +22,7 @@ class DocumentInference < ApplicationRecord
   }.freeze
 
   belongs_to :document
+  has_many :feedback
 
   validates :inference_type, inclusion: {in: INFERENCE_TYPES.keys.map(&:to_s)}, presence: true
   validates :inference_value, presence: true

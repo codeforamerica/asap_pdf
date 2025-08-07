@@ -37,6 +37,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :feedback_items do
+    collection do
+      patch :update_feedback_items
+    end
+  end
+
   mount AsapPdf::API => "/api"
   get "api-docs", to: "api_docs#index"
 
