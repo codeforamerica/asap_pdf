@@ -1,0 +1,39 @@
+<div class="feedback-wrapper">
+  <div class="join mt-4">
+    <div class="join-item mr-1">Feedback on AI Response:</div>
+    <div class="join-item"><i class="fas fa-thumbs-up w-5 p-1 text-black"></i></div>
+    <div class="join-item"><i class="fas fa-thumbs-down w-5 p-1 text-gray-400"></i></div>
+  </div>
+  <div class="mt-4">
+    <label class="label-text text-black">
+      Thank you for your feedback
+    </label>
+    <br/>
+    <div class="inferences">
+      <% if document_inferences.length > 1 %>
+        <% document_inferences.each do |document_inference| %>
+          <% input_id = "inference-#{document_inference.id}" %>
+          <div class="inference">
+            <input type="checkbox" id="<%= input_id %>" name="<%= input_id %>>">
+            <label for="<%= input_id %>"><%= DocumentInference::INFERENCE_TYPES[document_inference.inference_type.to_sym][:label] %></label>
+          </div>
+        <% end %>
+      <% else %>
+        <% inference = document_inferences.first %>
+        <input type="hidden" value="1">
+      <% end %>
+    </div>
+    <label>
+      Comment
+      <textarea
+        data-modal-notes-target="textarea"
+        class="w-full h-16 p-2 text-sm border rounded-lg focus:border-primary-500 focus:ring-primary-500 mt-2"
+        aria-labelledby="notes-label"
+      ></textarea>
+    </label>
+    <button class="btn btn-primary btn-sm mt-2" data-action="modal-notes#updateNotes">
+      <i class="fas fa-check mr-1"></i>
+      Submit
+    </button>
+  </div>
+</div>
