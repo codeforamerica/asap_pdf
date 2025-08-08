@@ -40,6 +40,7 @@ Rails.application.routes.draw do
   resources :feedback_items do
     collection do
       patch :update_feedback_items
+      delete :delete_items
     end
   end
 

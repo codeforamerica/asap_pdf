@@ -1,8 +1,8 @@
-<div class="feedback-wrapper" data-controller="feedback">
+<div class="feedback-wrapper" data-controller="feedback" data-feedback-user-id-value="<%= current_user.id %>">
   <div class="border-t border-base-200 mt-2 pb-2"></div>
   <div class="feedback-interface">
-    <% first_document_inference = document_inferences.count > 1 ? document_inferences.find { |item| item.feedback_item.present? } || document_inferences.first : document_inferences.first %>
-    <% feedback_item = first_document_inference.present? ? first_document_inference.feedback_item : nil %>
+    <% first_document_inference = document_inferences.count > 1 ? document_inferences.find { |item| item.get_user_feedback_items(current_user.id).present? } || document_inferences.first : document_inferences.first %>
+    <% feedback_item = first_document_inference.present? ? first_document_inference.get_user_feedback_items(current_user.id) : nil %>
     <div class="join sentiment-wrapper">
       <div class="join-item mr-1">Feedback on AI Response:</div>
       <div class="join-item">
@@ -23,7 +23,13 @@
             <% document_inferences.each do |document_inference| %>
               <% input_id = "inference-#{document_inference.id}" %>
               <div class="inference">
-                <input type="checkbox" id="<%= input_id %>" name="<%= input_id %>>" data-inference-id="<%= document_inference.id %>" data-action="click->feedback#handleInferenceCheck" data-feedback-target="inference" <%= document_inference.feedback_item.present? ? "checked" : "" %>
+                <input type="checkbox"
+                       id="<%= input_id %>"
+                       name="<%= input_id %>>"
+                       data-inference-id="<%= document_inference.id %>"
+                       data-action="click->feedback#handleInferenceCheck"
+                       data-feedback-target="inference"
+                <%= feedback_item.nil? || document_inference.get_user_feedback_items(current_user.id).present? ? "checked" : "" %>
                 ">
                 <label for="<%= input_id %>"><%= DocumentInference::INFERENCE_TYPES[document_inference.inference_type.to_sym][:label] %></label>
               </div>
