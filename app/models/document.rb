@@ -146,9 +146,9 @@ class Document < ApplicationRecord
   def exceptions(include_value_check = true)
     selected_inferences = document_inferences.select do |inference|
       base_condition = inference.inference_type.include?("exception")
+      active_condition = inference.is_active
       value_condition = inference.inference_value.to_s.downcase == "true"
-
-      include_value_check ? (base_condition && value_condition) : base_condition
+      include_value_check ? (base_condition && value_condition && active_condition) : (base_condition && active_condition)
     end
 
     # Create an array of the keys to determine their position

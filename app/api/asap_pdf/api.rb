@@ -96,18 +96,20 @@ module AsapPdf
     post "/documents/:id/inference" do
       status 201
       if params[:inference_type] == "summary"
-        inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "summary")
+        inference = DocumentInference.create(document_id: params[:id], inference_type: "summary")
         inference.inference_value = params[:result]["summary"]
+        inference.is_active = true
         inference.save!
       end
       if params[:inference_type] == "exception"
         ["individualized", "archival", "application", "third_party"].each do |type|
           result_boolean = "is_#{type}"
           unless params[:result][result_boolean].nil?
-            inference = DocumentInference.find_or_create_by(document_id: params[:id], inference_type: "exception:#{result_boolean}")
+            inference = DocumentInference.create(document_id: params[:id], inference_type: "exception:#{result_boolean}")
             inference.inference_value = params[:result][result_boolean] ? "True" : "False"
             inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
             inference.inference_reason = params[:result]["why_#{type}"]
+            inference.is_active = true
             inference.save!
           end
         end
