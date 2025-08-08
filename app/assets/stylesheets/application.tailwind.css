@@ -136,3 +136,28 @@
     @apply m-0 p-2 text-sm h-10;
   }
 }
+
+
+.feedback-wrapper {
+  .sentiment-wrapper {
+    .sentiment:hover,
+    .sentiment.active {
+      @apply text-gray-500;
+    }
+  }
+
+  .additional-feedback {
+    transition: max-height 0.25s ease;
+    max-height: 200px;
+
+    &.collapsed {
+      max-height: 0;
+      overflow: hidden;
+    }
+  }
+
+  .input-error {
+    @apply border-red-500 text-red-500 focus:ring-red-500
+  }
+
+}

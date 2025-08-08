@@ -1,7 +1,7 @@
 class FeedbackItem < ApplicationRecord
-  SENTIMENT_TYPES = %w[Positive Negative]
+  SENTIMENT_TYPES = %w[positive negative]
 
   belongs_to :document_inference
 
-  validates sentiment: {in: SENTIMENT_TYPES}, presence: true
+  validates :sentiment, inclusion: {in: SENTIMENT_TYPES}, presence: true
 end

@@ -1,20 +1,22 @@
 class FeedbackItemsController < ApplicationController
+  wrap_parameters false
   def update_feedback_items
     begin
-      batch_params["feedback_items"].each { |patched_item|
-        if patched_item["id"].nil?
-          item = FeedbackItem.where(patched_item["document_inference_id"]).first_or_initialize
-        else
-          item = FeedbackItem.find(patched_item["id"])
-        end
-        item.sentiment = patched_item["sentiment"]
-        item.comment = patched_item["comment"]
+      batch_params["feedback_items"].each do |patched_item|
+        item = FeedbackItem.where(document_inference_id: patched_item["document_inference_id"]).first_or_create
+        item.assign_attributes(patched_item)
         item.save!
-      }
+      end
     rescue
-      return render json: { error: "Error updating feedback items." }, status: :unprocessable_entity
+      return render json: {error: "Error updating feedback items."}, status: :unprocessable_entity
     end
-    render json: { success: true }
+    render json: {success: true}
+  end
+
+  def delete_items
+    batch_params["feedback_items"].each do |patched_item|
+      FeedbackItem.where(document_inference_id: patched_item["document_inference_id"]).destroy_all
+    end
   end
 
   private

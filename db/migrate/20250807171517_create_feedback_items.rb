@@ -5,7 +5,7 @@ class CreateFeedbackItems < ActiveRecord::Migration[8.0]
       t.datetime :modification_date
       t.text :sentiment
       t.text :comment
-      t.references :document_inferences, null: true, foreign_key: { on_delete: :cascade }
+      t.references :document_inference, null: true, foreign_key: {on_delete: :cascade}
     end
   end
 
