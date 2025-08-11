@@ -186,8 +186,8 @@ RSpec.describe AsapPdf::API do
         expect(document.document_inferences.count).to eq(1)
         expect {
           post "/documents/#{document.id}/inference", inference_update, auth_headers
-        }.to change(DocumentInference, :count).by(1)
-        expect(document.document_inferences.count).to eq(2)
+        }.to change(DocumentInference, :count).by(2)
+        expect(document.document_inferences.count).to eq(3)
       end
     end
   end
