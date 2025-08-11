@@ -1,42 +1,44 @@
 <div class="feedback-wrapper" data-controller="feedback" data-feedback-user-id-value="<%= current_user.id %>">
-  <div class="border-t border-base-200 mt-2 pb-2"></div>
-  <div class="feedback-interface">
-    <% first_document_inference = document_inferences.count > 1 ? document_inferences.find { |item| item.get_user_feedback_items(current_user.id).present? } || document_inferences.first : document_inferences.first %>
-    <% feedback_item = first_document_inference.present? ? first_document_inference.get_user_feedback_items(current_user.id) : nil %>
-    <div class="join sentiment-wrapper">
-      <div class="join-item mr-1">Feedback on AI Response:</div>
-      <div class="join-item">
-        <i class="sentiment fas fa-thumbs-up w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "positive" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentPositive" data-sentiment="positive"></i>
+  <% first_document_inference = document_inferences.count > 1 ? document_inferences.find { |item| item.get_user_feedback_items(current_user.id).present? } || document_inferences.first : document_inferences.first %>
+  <% feedback_item = first_document_inference.present? ? first_document_inference.get_user_feedback_items(current_user.id) : nil %>
+  <form id="<%= "feedback-form-#{first_document_inference.id}" %>">
+    <div class="border-t border-base-200 mt-2 pb-2"></div>
+    <div class="feedback-interface">
+      <div class="join sentiment-wrapper">
+        <div class="join-item mr-1">Feedback on AI Response:</div>
+        <div class="join-item">
+          <i class="sentiment fas fa-thumbs-up w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "positive" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentPositive" data-sentiment="positive"></i>
+        </div>
+        <div class="join-item">
+          <i class="sentiment fas fa-thumbs-down w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "negative" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentNegative" data-sentiment="negative"></i>
+        </div>
+        <div class="join-item <%= feedback_item.nil? ? "hidden" : "" %>" data-feedback-target="status">
+          <i class="fas fa-check w-5 p-1 text-success"></i>
+        </div>
       </div>
-      <div class="join-item">
-        <i class="sentiment fas fa-thumbs-down w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "negative" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentNegative" data-sentiment="negative"></i>
-      </div>
-      <div class="join-item <%= feedback_item.nil? ? "hidden" : "" %>" data-feedback-target="status">
-        <i class="fas fa-check w-5 p-1 text-success"></i>
-      </div>
-    </div>
-    <% document_inferences.each do |document_inference| %>
-      <input type="hidden" data-inference-id="<%= document_inference.id %>" data-feedback-target="inference">
-    <% end %>
-    <div class="additional-feedback <%= feedback_item.nil? || feedback_item.sentiment == "positive" ? "collapsed" : "" %>" data-feedback-target="additionalFeedback">
-      <div class="mt-4">
-        <div class="comment mt-4">
-          <% input_id = "comment-#{first_document_inference.id}" %>
-          <label for="<%= input_id %>" class="label-text text-black font-semibold">Please provide details:
-            (optional)</label>
-          <textarea
-            id="<%= input_id %>"
-            data-feedback-target="comment"
-            class="w-full h-16 p-2 text-sm border rounded-lg focus:border-primary-500 focus:ring-primary-500 mt-2"
-            aria-labelledby="notes-label"
-            placeholder="What was unsatisfactory about this response?"
-          ><%= feedback_item.present? ? feedback_item.comment : "" %></textarea>
-          <button class="btn btn-primary btn-sm mt-2" data-action="feedback#handleSubmit">
-            <i class="fas fa-check mr-1"></i>
-            Submit
-          </button>
+      <% document_inferences.each do |document_inference| %>
+        <input type="hidden" data-inference-id="<%= document_inference.id %>" data-feedback-target="inference">
+      <% end %>
+      <div class="additional-feedback <%= feedback_item.nil? || feedback_item.sentiment == "positive" ? "collapsed" : "" %>" data-feedback-target="additionalFeedback">
+        <div class="mt-4">
+          <div class="comment mt-4">
+            <% input_id = "comment-#{first_document_inference.id}" %>
+            <label for="<%= input_id %>" class="label-text text-black font-semibold">Please provide details:
+              (optional)</label>
+            <textarea
+              id="<%= input_id %>"
+              data-feedback-target="comment"
+              class="w-full h-16 p-2 text-sm border rounded-lg focus:border-primary-500 focus:ring-primary-500 mt-2"
+              aria-labelledby="notes-label"
+              placeholder="What was unsatisfactory about this response?"
+            ><%= feedback_item.present? ? feedback_item.comment : "" %></textarea>
+            <button class="btn btn-primary btn-sm mt-2" data-action="feedback#handleSubmit">
+              <i class="fas fa-check mr-1"></i>
+              Submit
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 </div>

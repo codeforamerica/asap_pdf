@@ -29,7 +29,8 @@ export default class extends Controller {
         this.patchFeedback();
     }
 
-    handleSubmit() {
+    handleSubmit(e) {
+        e.preventDefault();
         this.store.comment = this.commentTarget.value;
         this.patchFeedback();
     }
