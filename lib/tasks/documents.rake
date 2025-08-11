@@ -110,21 +110,21 @@ namespace :documents do
   end
 
   desc "Add document inference"
-  task :add_document_inference, [:document_id, :inference_type, :inference_value, :inference_reason] => :environment do |t, args|
+  task :add_document_inference, [:document_id, :inference_type, :inference_value, :inference_reason, :include_feedback] => :environment do |t, args|
     doc = Document.find(args.document_id)
     if doc.nil?
       raise ActiveRecord::RecordNotFound
     end
-    begin
-      inference = DocumentInference.new(
-        inference_type: args.inference_type,
-        inference_value: args.inference_value,
-        inference_reason: args.inference_reason,
-        document: doc
-      )
-      inference.save!
-    rescue ActiveRecord::RecordNotUnique
-      p "Inference #{args.inference_type} already exists for document #{args.document_id}. Skipping creation."
+    inference = DocumentInference.new(
+      inference_type: args.inference_type,
+      inference_value: args.inference_value,
+      inference_reason: args.inference_reason,
+      document: doc
+    )
+    inference.save!
+    if args.include_feedback.to_s.strip.downcase == "true"
+      FeedbackItem.create!(document_inference: inference, sentiment: "negative", "comment": "This is a negative comment.", user_id: 1)
     end
   end
+
 end
