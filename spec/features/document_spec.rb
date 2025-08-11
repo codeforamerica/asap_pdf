@@ -562,4 +562,92 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "200-rtd_contract.pdf"
     end
   end
+
+  it "collects feedback on LLM features" do
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    doc = Document.create(url: "http://denvergov.org/docs/ex.ample.pdf", file_name: "ex.ample.pdf", document_category: "Agenda", site_id: site.id)
+    second_user = User.create(email: "seconduser@example.com", password: "password1231231232wordpass", site: site)
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list") do
+      click_button "ex.ample.pdf"
+    end
+    # Wait for modal to open.
+    expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
+    within("#document-list .modal") do
+      # Test default state.
+      expect(page).to have_content "ex.ample.pdf"
+      expect(page).to have_no_content "Feedback on AI Response:"
+      click_button "AI Exception Check"
+      expect(page).to have_no_content "Feedback on AI Response:"
+    end
+    DocumentInference.new(document_id: doc.id, inference_type: "summary", inference_value: "A lovely example of accessible PDF practices.").save
+    DocumentInference.create(inference_type: "exception:is_application", inference_value: "True", inference_reason: "This is not used as an application or means of participation in government services.", document_id: doc.id)
+    DocumentInference.create(inference_type: "exception:is_archival", inference_value: "True", inference_reason: "This thing was made in 1988 and hasn't been opened since then.", document_id: doc.id)
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list") do
+      # Test leaving some feedback.
+      click_button "ex.ample.pdf"
+      expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
+      expect(page).to have_content "Feedback on AI Response:"
+      expect(page).to have_content "A lovely example of accessible PDF practices."
+      click_button "AI Exception Check"
+      expect(page).to have_content "Feedback on AI Response:"
+      expect(FeedbackItem.count).to eq 0
+      click_button "Summary"
+      page.find("[data-sentiment='positive']").click
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
+      expect(page).to have_selector "[data-sentiment='positive'].active"
+      expect(page).to have_no_selector "[data-sentiment='negative'].active"
+      expect(FeedbackItem.count).to eq 1
+      click_button "AI Exception Check"
+      page.find("[data-sentiment='negative']").click
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
+      expect(page).to have_selector "[data-sentiment='negative'].active"
+      expect(page).to have_no_selector "[data-sentiment='positive'].active"
+      expect(FeedbackItem.count).to eq 3
+      fill_in "Please provide details: (optional)", with: "just bad content"
+      click_button "Submit"
+      expect(FeedbackItem.count).to eq 3
+    end
+    # Make sure user see's previous feedback.
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list") do
+      click_button "ex.ample.pdf"
+      expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
+      expect(page).to have_selector "[data-sentiment='positive'].active"
+      expect(page).to have_no_selector "[data-sentiment='negative'].active"
+      click_button "AI Exception Check"
+      expect(page).to have_selector "[data-sentiment='negative'].active"
+      expect(page).to have_no_selector "[data-sentiment='positive'].active"
+      expect(page).to have_field "Please provide details: (optional)", with: "just bad content"
+      # Make sure changing feedback doesn't duplicate records.
+      page.find("[data-sentiment='positive']").click
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
+      expect(FeedbackItem.count).to eq 3
+    end
+    # Log out and try another user.
+    Session.last.destroy
+    login_user(second_user)
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list") do
+      click_button "ex.ample.pdf"
+      expect(page).to have_selector("#document-list .modal", visible: true, wait: 5)
+      expect(page).to have_content "Feedback on AI Response:"
+      expect(page).to have_content "A lovely example of accessible PDF practices."
+      expect(page).to have_no_selector "[data-sentiment='positive'].active"
+      expect(page).to have_no_selector "[data-sentiment='negative'].active"
+      click_button "AI Exception Check"
+      expect(page).to have_no_selector "[data-sentiment='positive'].active"
+      expect(page).to have_no_selector "[data-sentiment='negative'].active"
+      page.find("[data-sentiment='positive']").click
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
+      expect(FeedbackItem.count).to eq 5
+    end
+  end
 end
