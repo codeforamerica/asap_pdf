@@ -6,12 +6,14 @@
     <div class="feedback-interface">
       <div class="join sentiment-wrapper">
         <div class="join-item mr-1">Feedback on AI Response:</div>
-        <div class="join-item">
-          <i class="sentiment fas fa-thumbs-up w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "positive" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentPositive" data-sentiment="positive"></i>
-        </div>
-        <div class="join-item">
-          <i class="sentiment fas fa-thumbs-down w-5 p-1 text-black cursor-pointer <%= feedback_item.present? && feedback_item.sentiment == "negative" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentNegative" data-sentiment="negative"></i>
-        </div>
+        <button class="join-item sentiment w-5 px-1 <%= feedback_item.present? && feedback_item.sentiment == "positive" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentPositive" data-sentiment="positive">
+          <i class="fas fa-thumbs-up  text-black"></i>
+          <span class="hidden">Positive</span>
+        </button>
+        <button class="join-item sentiment w-5 <%= feedback_item.present? && feedback_item.sentiment == "negative" ? "active" : "" %>" data-action="click->feedback#handleFeedback" data-feedback-target="sentimentNegative" data-sentiment="negative">
+          <i class="fas fa-thumbs-down w-5 text-black cursor-pointer"></i>
+          <span class="hidden">Negative</span>
+        </button>
         <div class="join-item <%= feedback_item.nil? ? "hidden" : "" %>" data-feedback-target="status">
           <i class="fas fa-check w-5 p-1 text-success"></i>
         </div>

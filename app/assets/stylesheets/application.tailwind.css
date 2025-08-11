@@ -140,8 +140,8 @@
 
 .feedback-wrapper {
   .sentiment-wrapper {
-    .sentiment:hover,
-    .sentiment.active {
+    .sentiment:hover i,
+    .sentiment.active i {
       @apply text-gray-500;
     }
   }

@@ -23,7 +23,11 @@ export default class extends Controller {
     }
 
     handleFeedback(e) {
-        let feedbackEl = e.target
+        e.preventDefault();
+        let feedbackEl = e.target;
+        if (feedbackEl.tagName === "I") {
+            feedbackEl = feedbackEl.parentElement
+        }
         this.store.sentiment = feedbackEl.dataset.sentiment;
         this.setWidgetDisplay();
         this.patchFeedback();
