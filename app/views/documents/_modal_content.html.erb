@@ -48,6 +48,10 @@
               <div class="text-sm text-gray-900 break-words whitespace-normal"><%= document.file_name %></div>
             </div>
             <div class="border-t pt-4">
+              <div class="text-sm font-medium text-gray-500 mb-1">Document Url</div>
+              <div class="text-sm text-gray-900"><%= document.url %></div>
+            </div>
+            <div class="border-t pt-4">
               <div class="text-sm font-medium text-gray-500 mb-1">Last Modified</div>
               <div class="text-sm text-gray-900"><%= document.modification_date&.strftime("%B %d, %Y") %></div>
             </div>
@@ -92,6 +96,18 @@
               <div class="text-sm font-medium text-gray-500 mb-1">Author</div>
               <div class="text-sm text-gray-900">
                 <%= format_metadata(document.author) %>
+              </div>
+            </div>
+            <div class="border-t pt-4 overflow-scroll">
+              <div class="text-sm font-medium text-gray-500 mb-1">Found on Pages</div>
+              <div class="text-sm text-gray-900">
+                <% if document.source.present? %>
+                  <ul>
+                    <% document.source.each do | source | %>
+                      <li class="whitespace-nowrap"><%= source %></li>
+                    <% end %>
+                  </ul>
+                <% end %>
               </div>
             </div>
             <div class="border-t pt-4">

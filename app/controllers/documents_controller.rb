@@ -30,26 +30,19 @@ class DocumentsController < AuthenticatedController
   end
 
   def serve_document_url
-    # Stash document's raw url.
-    document_url = @document.normalized_url
-    response = HTTParty.get(document_url)
+    response = HTTParty.get(@document.normalized_url)
     if response.success?
       send_data response.body,
-        type: "application/pdf",
-        disposition: "inline; filename=\"#{@document.file_name}\"",
-        filename: @document.file_name
+                type: "application/pdf",
+                disposition: "inline; filename=\"#{@document.file_name}\"",
+                filename: @document.file_name
     else
-      # Handle unsuccessful response
-      Rails.logger.error("PDF fetch error: #{response.code} - #{response.message}")
-      render plain: "Failed to retrieve the PDF document: #{response.code} - #{response.message}",
-        status: response.code
+      handle_pdf_error("#{response.code} - #{response.message}")
     end
-  rescue HTTParty::Error => e
-    Rails.logger.error("PDF fetch error: #{e.message}")
-    render plain: "Failed to retrieve the PDF document: #{e.message}", status: e.http_code || 500
-  rescue => e
-    Rails.logger.error("General error: #{e.message}")
-    render plain: "An error occurred: #{e.message}", status: 500
+    rescue HTTParty::Error => e
+      handle_pdf_error("#{e.http_code} - #{e.message}")
+    rescue => e
+      handle_pdf_error(e.message)
   end
 
   def update_document_category
@@ -143,6 +136,11 @@ class DocumentsController < AuthenticatedController
     else
       %w[file_name modification_date accessibility_recommendation].include?(params[:sort]) ? params[:sort] : "document_category_confidence"
     end
+  end
+
+  def handle_pdf_error(error_message)
+    Rails.logger.error("PDF fetch error: #{error_message}")
+    render 'shared/iframe_error', layout: 'simple', locals: {document: @document, error: error_message}
   end
 
   def sort_direction
