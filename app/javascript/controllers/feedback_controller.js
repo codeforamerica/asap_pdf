@@ -29,29 +29,9 @@ export default class extends Controller {
         this.patchFeedback();
     }
 
-    handleInferenceCheck() {
-        this.element.querySelector(".inferences p").classList.remove("input-error");
-        this.element.querySelectorAll(".inferences .inference *").forEach((item) => {
-            item.classList.remove("input-error");
-        })
-        let validationMessage = this.element.querySelector(".inferences .validation-message")
-        validationMessage.innerText = ""
-        validationMessage.classList.add("hidden")
-    }
-
     handleSubmit() {
-        if (this.getInferences(true).length > 0) {
-            this.store.comment = this.commentTarget.value;
-            this.patchFeedback()
-        } else {
-            this.element.querySelector(".inferences p").classList.add("input-error");
-            this.element.querySelectorAll(".inferences .inference *").forEach((item) => {
-                item.classList.add("input-error");
-            })
-            let validationMessage = this.element.querySelector(".inferences .validation-message")
-            validationMessage.innerText = "You must select at least one AI response to provide feedback."
-            validationMessage.classList.remove("hidden")
-        }
+        this.store.comment = this.commentTarget.value;
+        this.patchFeedback();
     }
 
     setWidgetDisplay() {
@@ -69,17 +49,11 @@ export default class extends Controller {
         }
     }
 
-    getInferences(only_checked = true) {
+    getInferences() {
         let selections = [];
-        if (this.inferenceTargets.length > 1) {
-            this.inferenceTargets.forEach((inferenceTarget) => {
-                if (!only_checked || inferenceTarget.checked || this.store.sentiment === "positive") {
-                    selections.push(inferenceTarget.dataset.inferenceId)
-                }
-            });
-        } else {
-            selections.push(this.inferenceTarget.dataset.inferenceId)
-        }
+        this.inferenceTargets.forEach((inferenceTarget) => {
+            selections.push(inferenceTarget.dataset.inferenceId);
+        });
         return selections;
     }
 

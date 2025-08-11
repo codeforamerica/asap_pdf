@@ -17,28 +17,9 @@
     </div>
     <div class="additional-feedback <%= feedback_item.nil? || feedback_item.sentiment == "positive" ? "collapsed" : "" %>" data-feedback-target="additionalFeedback">
       <div class="mt-4">
-        <div class="inferences">
-          <p class="text-black font-semibold">Responses:</p>
-          <% if document_inferences.length > 1 %>
-            <% document_inferences.each do |document_inference| %>
-              <% input_id = "inference-#{document_inference.id}" %>
-              <div class="inference">
-                <input type="checkbox"
-                       id="<%= input_id %>"
-                       name="<%= input_id %>>"
-                       data-inference-id="<%= document_inference.id %>"
-                       data-action="click->feedback#handleInferenceCheck"
-                       data-feedback-target="inference"
-                <%= feedback_item.nil? || document_inference.get_user_feedback_items(current_user.id).present? ? "checked" : "" %>
-                ">
-                <label for="<%= input_id %>"><%= DocumentInference::INFERENCE_TYPES[document_inference.inference_type.to_sym][:label] %></label>
-              </div>
-            <% end %>
-            <div class="hidden validation-message input-error mt-2"></div>
-          <% else %>
-            <input type="hidden" data-inference-id="<%= first_document_inference.id %>" data-feedback-target="inference">
-          <% end %>
-        </div>
+        <% document_inferences.each do |document_inference| %>
+          <input type="hidden" data-inference-id="<%= document_inference.id %>" data-feedback-target="inference">
+        <% end %>
         <div class="comment mt-4">
           <% input_id = "comment-#{first_document_inference.id}" %>
           <label for="<%= input_id %>" class="label-text text-black font-semibold">Please provide details:
