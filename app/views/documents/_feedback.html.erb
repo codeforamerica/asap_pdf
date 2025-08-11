@@ -15,11 +15,11 @@
         <i class="fas fa-check w-5 p-1 text-success"></i>
       </div>
     </div>
+    <% document_inferences.each do |document_inference| %>
+      <input type="hidden" data-inference-id="<%= document_inference.id %>" data-feedback-target="inference">
+    <% end %>
     <div class="additional-feedback <%= feedback_item.nil? || feedback_item.sentiment == "positive" ? "collapsed" : "" %>" data-feedback-target="additionalFeedback">
       <div class="mt-4">
-        <% document_inferences.each do |document_inference| %>
-          <input type="hidden" data-inference-id="<%= document_inference.id %>" data-feedback-target="inference">
-        <% end %>
         <div class="comment mt-4">
           <% input_id = "comment-#{first_document_inference.id}" %>
           <label for="<%= input_id %>" class="label-text text-black font-semibold">Please provide details:
