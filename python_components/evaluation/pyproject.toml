@@ -11,6 +11,9 @@ dynamic = ["version"]
 [tool.setuptools]
 packages = ["evaluation"]
 
+[tool.setuptools_scm]
+fallback_version = "0.0.0"
+
 [tool.pytest.ini_options]
 pythonpath = [
   "."
