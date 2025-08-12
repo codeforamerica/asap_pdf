@@ -47,9 +47,11 @@
               <div class="text-sm font-medium text-gray-500 mb-1">File Name</div>
               <div class="text-sm text-gray-900 break-words whitespace-normal"><%= document.file_name %></div>
             </div>
-            <div class="border-t pt-4">
+            <div class="border-t pt-4 overflow-scroll">
               <div class="text-sm font-medium text-gray-500 mb-1">Document Url</div>
-              <div class="text-sm text-gray-900"><%= document.url %></div>
+              <div class="text-sm text-gray-900 whitespace-nowrap">
+                <a class="text-primary" href="<%= document.url %>" target="_blank"><%= document.url %></a>
+              </div>
             </div>
             <div class="border-t pt-4">
               <div class="text-sm font-medium text-gray-500 mb-1">Last Modified</div>
@@ -104,7 +106,9 @@
                 <% if document.source.present? %>
                   <ul>
                     <% document.source.each do | source | %>
-                      <li class="whitespace-nowrap"><%= source %></li>
+                      <li class="whitespace-nowrap">
+                        <a class="text-primary" href="<%= source %>" target="_blank"><%= source %></a>
+                      </li>
                     <% end %>
                   </ul>
                 <% end %>
