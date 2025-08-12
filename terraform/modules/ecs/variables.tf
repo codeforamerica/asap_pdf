@@ -59,6 +59,11 @@ variable "smtp_password_secret_arn" {
   type        = string
 }
 
+variable "google_analytics_key_arn" {
+  description = "ARN of the Google Analytics key"
+  type        = string
+}
+
 variable "redis_url_secret_arn" {
   description = "ARN of the Redis URL secret in Secrets Manager"
   type        = string
