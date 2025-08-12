@@ -123,8 +123,7 @@ namespace :documents do
     )
     inference.save!
     if args.include_feedback.to_s.strip.downcase == "true"
-      FeedbackItem.create!(document_inference: inference, sentiment: "negative", "comment": "This is a negative comment.", user_id: 1)
+      FeedbackItem.create!(document_inference: inference, sentiment: "negative", comment: "This is a negative comment.", user_id: 1)
     end
   end
-
 end
