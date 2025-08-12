@@ -140,7 +140,7 @@ class DocumentsController < AuthenticatedController
 
   def handle_pdf_error(error_code, error_message)
     Rails.logger.error("PDF fetch error: #{error_code} - #{error_message}")
-    render "shared/iframe_error", layout: "simple", locals: {document: @document, error_code: error_code, error_message: error_message}
+    render "shared/iframe_error", layout: "simple", locals: {document: @document, error_code: error_code, error_message: error_message}, formats: [:html]
   end
 
   def sort_direction
