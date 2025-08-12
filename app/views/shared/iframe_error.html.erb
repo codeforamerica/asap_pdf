@@ -1,9 +1,13 @@
+<h3 class="mb-4 text-md font-semibold">ASAP Document <%= error_code %></h3>
 <div class="text-sm">
-  <p class="mb-4 font-semibold">The document, "<%= document.file_name %>" produced the following error: <%= error %></p>
-  <p class="mb-4">We can't be sure, but one of the following is likely true:</p>
-  <ul class="list-disc ml-4">
-    <li>The document has been moved, removed or unpublished.</li>
-    <li>Your document server or a related firewall has blocked this app.</li>
-    <li>You or your document server are experiencing netowrk issues.</li>
+  <p class="mb-4 font-semibold">Something's not right.</p>
+  <p class="mb-4">We couldn't open your document because of the following error: <%= error_code %>
+    - <%= error_message %></p>
+  <ul class="ml-4 mb-4 list-disc">
+    <li>The document might have been <span class="font-semibold">moved or deleted.</span></li>
+    <li>Your <span class="font-semibold">firewall or document server is blocking</span> our app.</li>
+    <li>There could be a <span class="font-semibold">temporary network problem</span> on your end.</li>
   </ul>
+  <p>To troubleshoot this error, please contact the document owner for access, check your permissions for this document,
+    or verify your login status.</p>
 </div>
