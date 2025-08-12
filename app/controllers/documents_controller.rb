@@ -42,7 +42,7 @@ class DocumentsController < AuthenticatedController
   rescue HTTParty::Error => e
     handle_pdf_error(e.http_code, e.message)
   rescue => e
-    handle_pdf_error("Unknown Error", e.message)
+    handle_pdf_error(nil, e.message)
   end
 
   def update_document_category
@@ -139,6 +139,7 @@ class DocumentsController < AuthenticatedController
   end
 
   def handle_pdf_error(error_code, error_message)
+    error_code ||= "unknown"
     Rails.logger.error("PDF fetch error: #{error_code} - #{error_message}")
     render "shared/iframe_error", layout: "simple", locals: {document: @document, error_code: error_code, error_message: error_message}, formats: [:html]
   end
