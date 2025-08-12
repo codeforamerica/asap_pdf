@@ -33,16 +33,16 @@ class DocumentsController < AuthenticatedController
     response = HTTParty.get(@document.normalized_url)
     if response.success?
       send_data response.body,
-                type: "application/pdf",
-                disposition: "inline; filename=\"#{@document.file_name}\"",
-                filename: @document.file_name
+        type: "application/pdf",
+        disposition: "inline; filename=\"#{@document.file_name}\"",
+        filename: @document.file_name
     else
       handle_pdf_error(response.code, response.message)
     end
-    rescue HTTParty::Error => e
-      handle_pdf_error(e.http_code, e.message)
-    rescue => e
-      handle_pdf_error("Unknown Error", e.message)
+  rescue HTTParty::Error => e
+    handle_pdf_error(e.http_code, e.message)
+  rescue => e
+    handle_pdf_error("Unknown Error", e.message)
   end
 
   def update_document_category
@@ -140,7 +140,7 @@ class DocumentsController < AuthenticatedController
 
   def handle_pdf_error(error_code, error_message)
     Rails.logger.error("PDF fetch error: #{error_code} - #{error_message}")
-    render 'shared/iframe_error', layout: 'simple', locals: {document: @document, error_code: error_code, error_message: error_message}
+    render "shared/iframe_error", layout: "simple", locals: {document: @document, error_code: error_code, error_message: error_message}
   end
 
   def sort_direction
