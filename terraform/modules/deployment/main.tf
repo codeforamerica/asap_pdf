@@ -250,6 +250,7 @@ resource "aws_iam_role_policy" "github_actions" {
         Effect = "Allow"
         Action = [
           "secretsmanager:GetSecretValue",
+          "secretsmanager:CreateSecret",
         ]
         Resource = [
           "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:/${var.project_name}/${var.environment}/*"
