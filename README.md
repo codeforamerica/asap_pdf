@@ -75,7 +75,7 @@ The application includes several Python components for PDF processing:
 
 To set up the Python components, follow [these instructions](python_components/README.md).
 
-Also see "Setting API credentials" below.
+**Required: Also see "Setting API credentials" below.**
 
 ## Testing
 

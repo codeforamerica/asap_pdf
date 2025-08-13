@@ -21,7 +21,7 @@ module AsapPdf
     config.autoload_lib(ignore: %w[assets tasks])
     config.paths.add "app/api", glob: "**/*.rb"
     config.autoload_paths += Dir["#{Rails.root}/app/api/*"]
-    config.view_component.preview_paths << "#{Rails.root}/spec/components/previews" if Rails.env.development?
+    config.view_component.preview_paths = ["#{Rails.root}/spec/components/previews"] if Rails.env.development?
     config.active_record.yaml_column_permitted_classes = [Symbol, Date, Time, ActiveSupport::TimeWithZone, ActiveSupport::TimeZone]
 
     config.action_controller.per_form_csrf_tokens = false
