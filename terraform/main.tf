@@ -68,6 +68,9 @@ module "secrets" {
     google_analytics = {
       description = "Optional Google Analytics key."
       name        = "/asap-pdf/production/GOOGLE_ANALYTICS_KEY"
+      start_value = jsonencode({
+        key = ""
+      })
     }
     google = {
       description = "Optional Google API key."
@@ -165,7 +168,7 @@ module "ecs" {
   smtp_user_secret_arn        = "${module.secrets.secrets["smtp"].secret_arn}:user"
   smtp_password_secret_arn    = "${module.secrets.secrets["smtp"].secret_arn}:password"
   redis_url_secret_arn        = "${module.secrets.secrets["redis"].secret_arn}:url"
-  google_analytics_key_arn    = module.secrets.secrets["google_analytics"].secret_arn
+  google_analytics_key_arn    = "${module.secrets.secrets["google_analytics"].secret_arn}:key"
 
   vpc_id            = module.networking.vpc_id
   private_subnets   = module.networking.private_subnet_ids
