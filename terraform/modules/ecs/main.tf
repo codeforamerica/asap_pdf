@@ -45,6 +45,7 @@ module "fargate_service" {
     SMTP_ENDPOINT : var.smtp_endpoint_secret_arn,
     SMTP_USER : var.smtp_user_secret_arn,
     SMTP_PASSWORD : var.smtp_password_secret_arn,
+    GOOGLE_ANALYTICS_KEY : var.google_analytics_key_arn,
   }
 }
 
@@ -71,6 +72,7 @@ resource "aws_iam_policy" "ecs_task_secrets_policy" {
           var.smtp_endpoint_secret_arn,
           var.smtp_user_secret_arn,
           var.smtp_password_secret_arn,
+          var.google_analytics_key_arn,
         ]
       }
     ]

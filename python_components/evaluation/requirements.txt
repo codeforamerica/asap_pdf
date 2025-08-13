@@ -3,7 +3,7 @@ backports.tarfile==1.2.0
 black==25.1.0
 boto3==1.38.3
 coverage==7.8.2
-deepeval @ git+https://github.com/codeforamerica/deepeval.git@fix/support-read-only-file-systems
+deepeval==3.3.6
 dotenv==0.9.9
 evaluate==0.4.3
 google-api-python-client==2.171.0

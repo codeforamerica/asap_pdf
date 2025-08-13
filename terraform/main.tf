@@ -15,6 +15,15 @@ module "backend" {
   environment = var.environment
 }
 
+module "cloudfront" {
+  source = "./modules/cloudfront"
+
+  destination = "https://${var.domain_name}"
+  source_domain = var.redirect_domain
+  logging_bucket = module.logging.bucket
+}
+
+
 module "secrets" {
   source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.0.0"
 
@@ -55,6 +64,10 @@ module "secrets" {
         user     = ""
         password = ""
       })
+    }
+    google_analytics = {
+      description = "Optional Google Analytics key."
+      name        = "/asap-pdf/production/GOOGLE_ANALYTICS_KEY"
     }
     google = {
       description = "Optional Google API key."
@@ -152,6 +165,7 @@ module "ecs" {
   smtp_user_secret_arn        = "${module.secrets.secrets["smtp"].secret_arn}:user"
   smtp_password_secret_arn    = "${module.secrets.secrets["smtp"].secret_arn}:password"
   redis_url_secret_arn        = "${module.secrets.secrets["redis"].secret_arn}:url"
+  google_analytics_key_arn    = module.secrets.secrets["google_analytics"].secret_arn
 
   vpc_id            = module.networking.vpc_id
   private_subnets   = module.networking.private_subnet_ids

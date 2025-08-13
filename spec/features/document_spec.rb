@@ -15,9 +15,9 @@ describe "documents function as expected", js: true, type: :feature do
     Document.create(url: "http://denvergov.org/docs/example.pdf", file_name: "example.pdf", document_category: "Agenda", site: site)
     site = Site.create(name: "City of Boulder", location: "Colorado", primary_url: "https://bouldercolorado.gov")
     boulder_user = User.create(email: "boulder@example.com", password: "password1231231232wordpass", site: site)
-    rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, site: site)
-    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, site: site, modification_date: "2024-10-01")
-    market_doc = Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", site: site, modification_date: "2024-10-01")
+    rtd_contract_doc = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf", file_name: "rtd_contract.pdf", document_category: "Agreement", document_category_confidence: 0.73, site: site, number_of_images: 0, number_of_tables: 0)
+    teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf", file_name: "teahouse_rules.pdf", document_category: "Notice", document_category_confidence: 0.71, site: site, modification_date: "2024-10-01", number_of_images: 7)
+    market_doc = Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf", file_name: "farmers_market_2023.pdf", document_category: "Notice", site: site, modification_date: "2024-10-01", number_of_images: 17)
     # Test single document and document editing.
     visit "/"
     click_link("City of Denver")
@@ -132,14 +132,6 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "farmers_market_2023.pdf"
     end
     # Test complexity filter.
-    within("#sidebar") do
-      expect(page).to have_no_content "Complexity"
-      expect(page).to have_no_content "#complexity"
-    end
-    rtd_contract_doc.complexity = Document::SIMPLE_STATUS
-    rtd_contract_doc.save!
-    teahouse_doc.complexity = Document::COMPLEX_STATUS
-    teahouse_doc.save!
     visit "/"
     click_link("City of Boulder")
     within("#sidebar") do
@@ -168,9 +160,12 @@ describe "documents function as expected", js: true, type: :feature do
       click_link "Clear"
       find("#category", wait: 5).find("[value='Notice']").click
       click_button "Apply Filters"
+      expect(page).to have_current_path(/category=Notice/, wait: 5)
     end
     within("#document-list thead") do
       click_link "Type"
+      expect(page).to have_current_path(/category=Notice/, wait: 5)
+      expect(page).to have_current_path(/(?=.*sort=document_category)(?=.*direction=asc)/, wait: 5)
     end
     within("#document-list") do
       expect(page).to have_no_selector("tbody tr:nth-child(3)", wait: 10)
@@ -414,6 +409,7 @@ describe "documents function as expected", js: true, type: :feature do
     within("#bulk_edit_modal") do
       click_button "Confirm"
     end
+    expect(page).to have_selector("#sidebar", wait: 5)
     within("#sidebar") do
       expect(page).to have_content "Needs Decision\n0"
       expect(page).to have_content "In Review\n2"

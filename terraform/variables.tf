@@ -16,6 +16,12 @@ variable "domain_name" {
   default     = "demo.codeforamerica.ai"
 }
 
+variable "redirect_domain" {
+  description = "Optional domain for redirection."
+  type        = string
+  default     = "ada.codeforamerica.ai"
+}
+
 variable "aws_region" {
   description = "AWS Region"
   type        = string

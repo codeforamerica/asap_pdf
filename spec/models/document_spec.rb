@@ -73,4 +73,23 @@ RSpec.describe Document, type: :model do
       end
     end
   end
+
+  describe "#complexity" do
+    let(:simple_document) { create(:document, document_category: "Brochure") }
+    let(:complex_document) { create(:document, document_category: "Form") }
+    let(:complex_document_images) { create(:document, document_category: "Brochure", number_of_images: 2) }
+    let(:complex_document_tables) { create(:document, document_category: "Brochure", number_of_tables: 7) }
+
+    it "is flagged as simple when not a form and there are no tables or images" do
+      expect(simple_document.complexity).to eq(Document::SIMPLE_STATUS)
+      simple_document.number_of_tables = 47
+      simple_document.save
+      expect(simple_document.complexity).to eq(Document::COMPLEX_STATUS)
+    end
+    it "is flagged as complex when it is a form" do
+      expect(complex_document.complexity).to eq(Document::COMPLEX_STATUS)
+      expect(complex_document_images.complexity).to eq(Document::COMPLEX_STATUS)
+      expect(complex_document_tables.complexity).to eq(Document::COMPLEX_STATUS)
+    end
+  end
 end
