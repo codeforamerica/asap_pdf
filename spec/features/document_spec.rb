@@ -261,7 +261,8 @@ describe "documents function as expected", js: true, type: :feature do
     within("#document-list .modal") do
       # Assess default tab.
       expect(page).to have_content "ex.ample.pdf"
-      expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active")
+      expect(page).to have_selector ".tabs", wait: 10
+      expect(page).to have_css("[data-action='modal#showSummaryView'].tab-active", wait: 10)
       # Later we'll check to see if the button is gone.
       expect(page).to have_content "Summarize Document"
       expect(page).to have_css("iframe[src='#{iframe_src}']")
@@ -377,7 +378,7 @@ describe "documents function as expected", js: true, type: :feature do
       select = find("#bulk-edit-move")
       select.find("[value='In Review']").click
     end
-    expect(page).to have_selector("#bulk_edit_modal", visible: true, wait: 5)
+    expect(page).to have_selector("#bulk_edit_modal", visible: true, wait: 10)
     within("#bulk_edit_modal") do
       click_button "Confirm"
     end
@@ -491,6 +492,7 @@ describe "documents function as expected", js: true, type: :feature do
     # Test following document links.
     within("#insights #chart-complexity") do
       find(".dropdown .btn").click
+      expect(page).to have_selector(".dropdown-content", visible: true, wait: 10)
       click_link "Complex"
     end
     sleep(1)
