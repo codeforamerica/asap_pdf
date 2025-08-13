@@ -1,3 +1,5 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: "users/sessions",
@@ -36,6 +38,8 @@ Rails.application.routes.draw do
       get "serve_content/:filename", to: "documents#serve_document_url", as: "serve_file_content", constraints: {filename: /[^\/]+/}
     end
   end
+
+  mount Sidekiq::Web => "/sidekiq"
 
   mount AsapPdf::API => "/api"
   get "api-docs", to: "api_docs#index"

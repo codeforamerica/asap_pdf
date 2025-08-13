@@ -231,6 +231,19 @@ class Site < ApplicationRecord
     end
   end
 
+  def export_document_audit
+    report_name = "audit_export_#{site.name.downcase}"
+    # Tempfile.create(['large_data', '.csv']) do |temp_file|
+    #   CSV.open(temp_file.path, 'wb') do |csv|
+    #     csv << ['Header1', 'Header2', 'Header3'] # Add your CSV headers
+    #
+    #     # Fetch data in batches to avoid loading everything into memory
+    #     YourModel.find_each do |record| # Use find_each for large datasets
+    #       csv << [record.attribute1, record.attribute2, record.attribute3] # Populate CSV rows
+    #     end
+    #   end
+  end
+
   private
 
   def attributes_from(data)
