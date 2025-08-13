@@ -4,6 +4,8 @@ FactoryBot.define do
     url { "http://example.com/example.pdf" }
     document_status { "discovered" }
     document_category { "Brochure" }
+    number_of_images { 0 }
+    number_of_tables { 0 }
     site
   end
 end
