@@ -3,11 +3,11 @@ module "vpc" {
 
   project        = var.project_name
   environment    = var.environment
-  cidr           = "10.0.0.0/16"
+  cidr           = var.vpc_cidr
   logging_key_id = var.logging_key_id
 
-  private_subnets = ["10.0.3.0/24", "10.0.4.0/24"]
-  public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
+  private_subnets = var.private_subnet_cidrs
+  public_subnets  = var.public_subnet_cidrs
 
   single_nat_gateway = true
 }
