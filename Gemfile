@@ -50,12 +50,12 @@ group :test do
   gem "rspec-rails", "~> 8.0"
   gem "shoulda", "~> 4.0"
   gem "shoulda-matchers", "~> 4.5"
-  gem "simplecov", require: false # Optional: for code coverage
+  gem "simplecov", require: false
   gem "rails-controller-testing"
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "webdrivers"
+  gem "selenium-webdriver", "~> 4.11"
 end
 
 gem "bcrypt", "~> 3.1"
