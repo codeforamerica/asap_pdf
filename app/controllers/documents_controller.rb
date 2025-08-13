@@ -91,7 +91,8 @@ class DocumentsController < AuthenticatedController
     exceptions = @document.exceptions(false)
     if exceptions.present?
       exceptions.each do |exception|
-        exception.destroy
+        exception.is_active = false
+        exception.save!
       end
     end
     @document.inference_recommendation!
