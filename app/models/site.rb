@@ -216,7 +216,7 @@ class Site < ApplicationRecord
             puts "\nImporting documents from #{entry.name} in archive #{archive_path} into #{name}"
             tmp_path = "/tmp/#{file_name}"
             File.delete(tmp_path) if File.exist? tmp_path
-            entry.extract(tmp_path)
+            entry.extract(file_name, destination_directory: "/tmp/")
             process_csv_documents(tmp_path)
             File.delete(tmp_path) if File.exist? tmp_path
           end

@@ -23,7 +23,7 @@ gem "thruster", require: false
 gem "redis", "~> 5.4.1"
 gem "sidekiq", "~> 8.0"
 
-gem "view_component", "~> 3.23"
+gem "view_component", "~> 4.0"
 gem "kaminari", "~> 1.2"
 
 gem "devise", "~> 4.9.4"
@@ -50,16 +50,16 @@ group :test do
   gem "rspec-rails", "~> 8.0"
   gem "shoulda", "~> 4.0"
   gem "shoulda-matchers", "~> 4.5"
-  gem "simplecov", require: false # Optional: for code coverage
+  gem "simplecov", require: false
   gem "rails-controller-testing"
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "webdrivers"
+  gem "selenium-webdriver", "~> 4.11"
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.194"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.196"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"
