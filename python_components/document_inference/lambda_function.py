@@ -4,9 +4,9 @@ import os
 import llm
 from document_inference import helpers
 
-API_USER_NAME_SECRET = "/asap-pdf/production/RAILS_API_USER-20250613220933079900000001"
+API_USER_NAME_SECRET = "/asap-pdf/production/RAILS_API_USER-20250813211406164500000014"
 API_PASSWORD_SECRET = (
-    "/asap-pdf/production/RAILS_API_PASSWORD-20250613220933080000000003"
+    "/asap-pdf/production/RAILS_API_PASSWORD-20250813211406036600000010"
 )
 
 
