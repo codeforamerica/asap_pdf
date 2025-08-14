@@ -34,3 +34,8 @@ variable "vpc_cidr" {
   description = "The VPC's CIDR"
   type        = string
 }
+
+variable "bastion_key_pair_name" {
+  description = "The bastion service key pair name."
+  type        = string
+}

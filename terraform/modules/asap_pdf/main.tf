@@ -177,6 +177,16 @@ module "lambda" {
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
 }
 
+module "bastion" {
+  source = "github.com/codeforamerica/tofu-modules-aws-ssm-bastion?ref=1.0.0"
+
+  project = var.project_name
+  environment  = var.environment
+  key_pair_name      = var.bastion_key_pair_name
+  private_subnet_ids = module.networking.private_subnet_ids
+  vpc_id             = module.networking.vpc_id
+}
+
 module "ses" {
   source = "../ses"
 
