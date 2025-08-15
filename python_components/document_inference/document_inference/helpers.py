@@ -8,8 +8,18 @@ import fitz
 import llm
 import pypdf
 import requests
-from document_inference.prompts import RECOMMENDATION, SUMMARY
-from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
+from document_inference.prompts import (
+    RECOMMENDATION,
+    RECOMMENDATION_APPLICATION,
+    RECOMMENDATION_ARCHIVAL,
+    SUMMARY,
+)
+from document_inference.schemas import (
+    DocumentRecommendation,
+    DocumentRecommendationApplication,
+    DocumentRecommendationArchival,
+    DocumentSummarySchema,
+)
 
 # Create and provide a very simple logger implementation.
 logger = logging.getLogger("experiment_utility")
@@ -175,14 +185,32 @@ def document_inference_recommendation(
         attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
         num_attachments = len(attachments)
         logger.info(f"Created {num_attachments} images.")
-        populated_prompt = RECOMMENDATION.format(**document)
-        response = model.prompt(
+
+        # populated_prompt = RECOMMENDATION.format(**document)
+        # response = model.prompt(
+        #     populated_prompt,
+        #     attachments=attachments,
+        #     schema=DocumentRecommendation.model_json_schema(),
+        # )
+
+        populated_prompt = RECOMMENDATION_ARCHIVAL.format(**document)
+        response_archival = model.prompt(
             populated_prompt,
             attachments=attachments,
-            schema=DocumentRecommendation.model_json_schema(),
+            schema=DocumentRecommendationArchival.model_json_schema(),
         )
-        response_json = json.loads(response.text())
-        logger.info("Inference complete. Validating response.")
+        response_archival_json = json.loads(response_archival.text())
+
+        populated_prompt = RECOMMENDATION_APPLICATION.format(**document)
+        response_application = model.prompt(
+            populated_prompt,
+            attachments=attachments,
+            schema=DocumentRecommendationApplication.model_json_schema(),
+        )
+        response_application_json = json.loads(response_application.text())
+
+        response_json = {**response_archival_json, **response_application_json}
+        logger.info(f"Inference complete. Validating response. {response_json}")
         DocumentRecommendation.model_validate(response_json)
         logger.info("Validation complete.")
     else:
