@@ -41,7 +41,7 @@ jobs:
       name: ${{ needs.determine_environment.outputs.env_name }}
     steps:
       - name: Deploy to environment
-        run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }} AWS_ACCOUNT_ID ${{ env.AWS_ACCOUNT_ID }}"
+        run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }} AWS_ACCOUNT_ID ${{ vars.AWS_ACCOUNT_ID }}"
 #permissions:
 #  contents: read
 #  id-token: write
