@@ -50,3 +50,13 @@ variable "backend_kms_arn" {
   type        = string
 }
 
+variable "github_branch" {
+  description = "The branch that Github should be able to trigger deployments with."
+  type        = string
+}
+
+variable "github_environment" {
+  description = "The environment that Github should be able to trigger deployments from."
+  type        = string
+}
+

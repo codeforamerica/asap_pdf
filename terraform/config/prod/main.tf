@@ -27,6 +27,9 @@ module "asap_pdf" {
   public_subnet_cidrs = ["10.0.52.0/26", "10.0.52.64/26", "10.0.52.128/26"]
   private_subnet_cidrs = ["10.0.54.0/26", "10.0.54.64/26", "10.0.54.128/26"]
   bastion_key_pair_name = "asap-migration"
+
+  github_branch = "main"
+  github_environment = "production"
 }
 
 module "cloudfront" {
