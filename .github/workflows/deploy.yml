@@ -85,7 +85,7 @@ jobs:
         id: build-document-inference-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_DOCUMENT_INFERENCE_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
@@ -142,7 +142,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-Debug-${{ github.run_id }}"
           mask-aws-account-id: false
