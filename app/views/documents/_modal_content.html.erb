@@ -22,18 +22,8 @@
     <!-- Summary View (Previously PDF View) -->
     <div data-modal-target="summaryView">
       <!-- Summary Input Area -->
-      <div data-controller="summarize" data-summarize-document-id-value="<%= document.id %>" class="flex space-x-2 items-start mb-4 text-wrap">
-        <p data-summarize-target="display"><%= document.summary %></p>
-        <% if document.summary.nil? %>
-          <button data-action="click->summarize#getSummary" data-summarize-target="button" class="btn btn-primary btn-sm">
-            <i class="fas fa-wand-magic-sparkles mr-1"></i>
-            Summarize Document
-          </button>
-          <button class="btn btn-primary btn-sm hidden opacity-75" data-summarize-target="preloader">
-            <span class="loading loading-spinner"></span>
-            Summarizing...
-          </button>
-        <% end %>
+      <div data-controller="summarize" data-summarize-document-id-value="<%= document.id %>" class="mb-4 text-wrap">
+        <%= render partial: "documents/summary", locals: { document: document } %>
       </div>
       <iframe title="Embedded PDF: <%= @document.file_name %>" src="<%= serve_file_content_document_path(@document.id, @document.file_name) %>?pagemode=none&toolbar=1" class="w-full h-[calc(90vh-8rem)]" type="application/pdf"></iframe>
     </div>
@@ -185,7 +175,7 @@
                   <%= version.created_at.strftime("%B %d, %Y %I:%M %p") %>
                   <br>
                   <% if version.whodunnit.present? %>
-                  <% user=User.find(version.whodunnit) %>
+                    <% user = User.find(version.whodunnit) %>
                     <% if user.present? %>
                       Author: <%= user.email %>
                     <% end %>
