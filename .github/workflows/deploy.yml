@@ -85,7 +85,7 @@ jobs:
         id: build-document-inference-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ vars.ECR_DOCUMENT_INFERENCE_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
