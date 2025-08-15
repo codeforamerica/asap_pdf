@@ -136,6 +136,7 @@ module "ecs" {
 
   project_name = var.project_name
   environment  = var.environment
+  rails_environment = var.rails_environment
 
   db_host_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:host"
   db_name_secret_arn          = "${module.secrets.secrets["database"].secret_arn}:name"

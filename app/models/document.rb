@@ -227,7 +227,7 @@ class Document < ApplicationRecord
         lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
-        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-prod")
       end
       payload = {
         model_name: "gemini-2.0-flash",
@@ -237,6 +237,7 @@ class Document < ApplicationRecord
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
       }
       begin
+        # @todo make url name env config.
         response = lambda_manager.invoke_lambda!(payload)
         begin
           json_body = JSON.parse(response.body)
@@ -258,7 +259,8 @@ class Document < ApplicationRecord
       lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
-      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
+      # @todo make url name env config.
+      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-prod")
     end
     payload = {
       model_name: "gemini-2.5-pro-preview-03-25",

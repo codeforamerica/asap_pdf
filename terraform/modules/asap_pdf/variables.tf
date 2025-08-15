@@ -15,6 +15,11 @@ variable "domain_name" {
   type        = string
 }
 
+variable "rails_environment" {
+  description = "The rails environment (test or production)."
+  type        = string
+}
+
 variable "backend_kms_key" {
   description = "KMS key for deployment decryption"
   type        = string

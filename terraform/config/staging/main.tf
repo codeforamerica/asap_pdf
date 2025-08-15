@@ -19,6 +19,8 @@ module "asap_pdf" {
   domain_name = "demo.codeforamerica.ai"
   project_name = var.project_name
   environment  = var.environment
+  # todo change this to test.
+  rails_environment = "production"
   backend_kms_key = module.backend.kms_key
 
   vpc_cidr = "10.0.0.0/16"

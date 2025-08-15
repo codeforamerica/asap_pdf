@@ -20,6 +20,7 @@ module "asap_pdf" {
   domain_name = "ada.codeforamerica.ai"
   project_name = var.project_name
   environment  = var.environment
+  rails_environment = "production"
   backend_kms_key = module.backend.kms_key
 
   vpc_cidr = "10.0.52.0/22"
@@ -28,10 +29,10 @@ module "asap_pdf" {
   bastion_key_pair_name = "asap-migration"
 }
 
-# module "cloudfront" {
-#   source = "../../modules/cloudfront"
-#
-#   destination = "https://${var.domain_name}"
-#   source_domain = var.redirect_domain
-#   logging_bucket = module.asap_pdf.logging_bucket
-# }
+module "cloudfront" {
+  source = "../../modules/cloudfront"
+
+  destination = "https://ada.codeforamerica.ai"
+  source_domain = var.redirect_domain
+  logging_bucket = module.asap_pdf.logging_bucket
+}
