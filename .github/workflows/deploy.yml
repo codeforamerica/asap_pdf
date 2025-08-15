@@ -71,7 +71,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ var.AWS_REGION }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-${{ github.run_id }}"
           mask-aws-account-id: false
@@ -97,9 +97,9 @@ jobs:
         id: update-document-inference-lambda
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ var.ECR_REPOSITORY_LAMBDA_DOCUMENT_INFERENCE }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: ${{ var.FUNCTION_NAME_LAMBDA_DOCUMENT_INFERENCE }}
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_DOCUMENT_INFERENCE }}
         run: |
           aws lambda update-function-code \
              --function-name  $FUNCTION_NAME \
@@ -141,7 +141,7 @@ jobs:
         if: failure() && steps.deploy.outcome == 'failure'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ var.AWS_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-Debug-${{ github.run_id }}"
