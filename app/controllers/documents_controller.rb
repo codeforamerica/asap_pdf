@@ -79,7 +79,7 @@ class DocumentsController < AuthenticatedController
 
   def update_summary_inference
     if @document.summary.nil?
-      @document.inference_summary!
+      @document.inference_summary! request.base_url
       @document.reload
     end
     render json: {
@@ -95,7 +95,7 @@ class DocumentsController < AuthenticatedController
         exception.save!
       end
     end
-    @document.inference_recommendation!
+    @document.inference_recommendation! request.base_url
     @document.reload
     render json: {html: render_to_string(partial: "documents/recommendation_list", formats: [:html], locals: {document: @document})}
   end

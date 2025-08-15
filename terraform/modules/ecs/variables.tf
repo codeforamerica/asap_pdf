@@ -14,6 +14,11 @@ variable "container_port" {
   default     = 3000
 }
 
+variable "rails_environment" {
+  description = "The rails environment (test or production)."
+  type        = string
+}
+
 variable "db_host_secret_arn" {
   description = "ARN of the database host secret in Secrets Manager"
   type        = string

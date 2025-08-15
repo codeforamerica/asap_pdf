@@ -221,14 +221,13 @@ class Document < ApplicationRecord
     }
   end
 
-  def inference_summary!
+  def inference_summary!(api_host = nil)
     if summary.nil?
       if Rails.env.to_s != "production"
         lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
-        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-        api_host = "https://demo.codeforamerica.ai"
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-prod")
       end
       payload = {
         model_name: "gemini-2.0-flash",
@@ -238,6 +237,7 @@ class Document < ApplicationRecord
         asap_endpoint: "#{api_host}/api/documents/#{id}/inference"
       }
       begin
+        # @todo make url name env config.
         response = lambda_manager.invoke_lambda!(payload)
         begin
           json_body = JSON.parse(response.body)
@@ -254,13 +254,13 @@ class Document < ApplicationRecord
     end
   end
 
-  def inference_recommendation!
+  def inference_recommendation!(api_host = nil)
     if Rails.env.to_s != "production"
       lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
-      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-      api_host = "https://demo.codeforamerica.ai"
+      # @todo make url name env config.
+      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-prod")
     end
     payload = {
       model_name: "gemini-2.5-pro-preview-03-25",
