@@ -131,11 +131,11 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Initialize OpenTofu
-        working-directory: ./config/${{ needs.determine_environment.outputs.env_name }}
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu init
 
       - name: Apply changes
-        working-directory: ./config/${{ needs.determine_environment.outputs.env_name }}
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu apply --auto-approve
 
       - name: Debug deployment failure
