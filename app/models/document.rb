@@ -224,7 +224,7 @@ class Document < ApplicationRecord
   def inference_summary!
     if summary.nil?
       if Rails.env.to_s != "production"
-        lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+        lambda_manager = AwsLambdaManager.new(function_url: "http://lambda_document_inference:8080/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
         lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
@@ -256,7 +256,7 @@ class Document < ApplicationRecord
 
   def inference_recommendation!
     if Rails.env.to_s != "production"
-      lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
+      lambda_manager = AwsLambdaManager.new(function_url: "http://lambda_document_inference:8080/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
       lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")

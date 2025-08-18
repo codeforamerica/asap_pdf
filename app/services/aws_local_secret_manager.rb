@@ -1,7 +1,7 @@
 class AwsLocalSecretManager
   def initialize
     @secret_manager = Aws::SecretsManager::Client.new(
-      endpoint: "http://localhost:4566",
+      endpoint: "http://localstack:4566",
       account_id: "none",
       access_key_id: "none",
       secret_access_key: "none",
