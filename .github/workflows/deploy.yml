@@ -24,10 +24,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       env_name: ${{ steps.set_env.outputs.environment_name }}
+      ssm_param: ${{ steps.set_env.outputs.ssm_parameter }}
     steps:
       - name: Set environment name
         id: set_env
         run: |
+          # Set environment based on branch or workflow_dispatch selection.
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "environment_name=${{ github.event.inputs.environment }}" >> "$GITHUB_OUTPUT"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
@@ -38,6 +40,15 @@ jobs:
             echo "Unsupported branch for deployment: ${{ github.ref }}"
             exit 1
           fi
+          # Set SSM parameter based on environment
+          if [[ "$env_name" == "staging" ]]; then
+            echo "ssm_parameter=/asap-pdf/production/app/version" >> "$GITHUB_OUTPUT"
+          elif [[ "$env_name" == "prod" ]]; then
+            echo "ssm_parameter=/asap-pdf/prod/app/version" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown environment for SSM parameter: $env_name"
+            exit 1
+          fi    
 
   deploy:
     needs: [ determine_environment ]
@@ -120,10 +131,11 @@ jobs:
       - name: Update SSM Version Parameter
         env:
           IMAGE_TAG: ${{ github.sha }}
+          SSM_PARAM_NAME: ${{ needs.determine_environment.outputs.ssm_param }}
         run: |
           echo "tag:$IMAGE_TAG"
           aws ssm put-parameter \
-            --name /asap-pdf/production/app/version \
+            --name $SSM_PARAM_NAME \
             --value "$IMAGE_TAG" \
             --overwrite
 
