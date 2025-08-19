@@ -21,7 +21,7 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.event.inputs.environment }}"
+      name: ${{ github.event.inputs.environment }}
     steps:
       - name: Deploy to environment
         run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }}"
