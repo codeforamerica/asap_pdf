@@ -23,9 +23,6 @@ jobs:
     environment:
       name: ${{ github.event.inputs.environment }}
     steps:
-      - name: Deploy to environment
-        run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }}"
-
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -53,10 +50,6 @@ jobs:
       - name: Get OpenTofu version
         working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu --version
-
-      - name: List out state
-        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
-        run: tofu state list
 
       - name: Apply tofu plan
         working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
