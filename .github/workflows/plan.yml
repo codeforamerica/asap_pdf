@@ -18,13 +18,36 @@ permissions:
   id-token: write
 
 jobs:
+  determine_environment:
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.set_env.outputs.environment_name }}
+      ssm_param: ${{ steps.set_env.outputs.ssm_parameter }}
+    steps:
+      - name: Set environment name
+        id: set_env
+        run: |
+          # Set environment based on branch or workflow_dispatch selection.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            env_name="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            env_name="prod"
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            env_name="staging"
+          else
+            echo "Unsupported branch for deployment: ${{ github.ref }}"
+            exit 1
+          fi
+          echo "environment_name=$env_name" >> "$GITHUB_OUTPUT"
+
   plan:
+    needs: [ determine_environment ]
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.event.inputs.environment }}
+      name: ${{ needs.determine_environment.outputs.env_name }}
     steps:
       - name: Config Directory
-        run: echo "Tofu config directory ./terraform/config/${{ github.event.inputs.environment }}" 
+        run: echo "Tofu config directory ./terraform/config/${{ needs.determine_environment.outputs.env_name }}"
         
       - name: Checkout
         uses: actions/checkout@v5
@@ -47,15 +70,15 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Initialize OpenTofu
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu init
 
       - name: Get OpenTofu version
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu --version
 
       - name: Apply tofu plan
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu plan -input=false
 
       - name: Output stderr
