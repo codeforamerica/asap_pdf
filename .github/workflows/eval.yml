@@ -33,15 +33,6 @@ on:
         required: false
         default: true
 
-env:
-  AWS_REGION: us-east-1
-  ECR_EVAL_REPOSITORY: asap-pdf-evaluation-production
-  ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY: asap-pdf-document-inference-evaluation-production
-  AWS_ACCOUNT_ID: 073165201938
-  AWS_MAX_ATTEMPTS: 1
-  AWS_RETRY_MODE: standard
-
-
 permissions:
   contents: read
   id-token: write
@@ -49,6 +40,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: staging
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       runs: ${{ steps.set-runs.outputs.runs }}
@@ -76,8 +68,8 @@ jobs:
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-${{ github.run_id }}"
           mask-aws-account-id: false
@@ -93,7 +85,7 @@ jobs:
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_EVAL }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/evaluation/.
@@ -106,9 +98,9 @@ jobs:
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_EVAL_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_EVAL }}
           IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: "asap-pdf-evaluation-production"
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL }}
         run: |
           aws lambda update-function-code \
              --function-name  $FUNCTION_NAME \
@@ -119,7 +111,7 @@ jobs:
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_EVAL_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
@@ -132,9 +124,9 @@ jobs:
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_EVAL_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_EVAL_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: "asap-pdf-document-inference-evaluation-production"
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL_DOCUMENT_INFERENCE }}
         run: |
           aws lambda update-function-code \
              --function-name $FUNCTION_NAME \
@@ -159,6 +151,7 @@ jobs:
   invoke:
     needs: build
     runs-on: ubuntu-latest
+    environment: staging
     strategy:
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
@@ -169,8 +162,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-${{ github.run_id }}"
           mask-aws-account-id: false
@@ -183,7 +176,7 @@ jobs:
       - name: Invoke Evaluation Lambda
         id: invoke-evaluation-lambda
         env:
-          REGION: ${{ env.AWS_REGION }}
+          REGION: ${{ vars.AWS_REGION }}
           FUNCTION_NAME: "asap-pdf-evaluation-production"
           EVALUATION_MODEL: ${{ github.event.inputs.evaluation_model_name }}
           INFERENCE_MODEL: ${{ github.event.inputs.inference_model_name }}
