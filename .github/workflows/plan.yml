@@ -25,7 +25,7 @@ jobs:
     steps:
       - name: Config Directory
         run: echo "Tofu config directory ./terraform/config/${{ github.event.inputs.environment }}"
-        
+
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -47,15 +47,15 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Initialize OpenTofu
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu init
 
       - name: Get OpenTofu version
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu --version
 
       - name: Apply tofu plan
-        working-directory: ./terraform/config/${{ github.event.inputs.environment  }}
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu plan -input=false
 
       - name: Output stderr
