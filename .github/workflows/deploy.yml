@@ -31,15 +31,16 @@ jobs:
         run: |
           # Set environment based on branch or workflow_dispatch selection.
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "environment_name=${{ github.event.inputs.environment }}" >> "$GITHUB_OUTPUT"
+            env_name="${{ github.event.inputs.environment }}"
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            echo "environment_name=prod" >> "$GITHUB_OUTPUT"
+            env_name="prod"
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            echo "environment_name=staging" >> "$GITHUB_OUTPUT"
+            env_name="staging"
           else
             echo "Unsupported branch for deployment: ${{ github.ref }}"
             exit 1
           fi
+          echo "environment_name=$env_name" >> "$GITHUB_OUTPUT"
           # Set SSM parameter based on environment
           if [[ "$env_name" == "staging" ]]; then
             echo "ssm_parameter=/asap-pdf/production/app/version" >> "$GITHUB_OUTPUT"
