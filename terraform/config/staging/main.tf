@@ -1,16 +1,16 @@
 terraform {
   backend "s3" {
-    bucket         = "${var.project_name}-${var.environment}-tfstate"
-    key            = "${var.project_name}.tfstate"
-    region         = var.aws_region
-    dynamodb_table = "${var.environment}.tfstate"
+    bucket         = "asap-pdf-staging-tfstate"
+    key            = "asap-pdf.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "staging.tfstate"
   }
 }
 module "backend" {
   source = "github.com/codeforamerica/tofu-modules-aws-backend?ref=1.1.1"
 
-  project     = var.project_name
-  environment = var.environment
+  project     = "asap-pdf"
+  environment = "staging"
 }
 
 module "asap_pdf" {
@@ -23,8 +23,8 @@ module "asap_pdf" {
 
   # AWS Environment related variables.
   domain_name = "staging.ada.codeforamerica.ai"
-  project_name = var.project_name
-  environment  = var.environment
+  project_name = "asap-pdf"
+  environment  = "staging"
   # todo change this to test.
   rails_environment = "production"
   backend_kms_key = module.backend.kms_key

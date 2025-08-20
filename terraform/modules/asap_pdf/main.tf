@@ -9,98 +9,63 @@ module "secrets" {
 
   secrets = {
     # Database credentials
-    database_host = {
+    DB_HOST = {
       description = "Database host"
-      name        = "/${var.project_name}/${var.environment}/database/host"
-      start_value = ""
     }
-    database_name = {
+    DB_NAME = {
       description = "Database name"
-      name        = "/${var.project_name}/${var.environment}/database/name"
-      start_value = ""
     }
-    database_username = {
+    DB_USERNAME = {
       description = "Database username"
-      name        = "/${var.project_name}/${var.environment}/database/username"
-      start_value = ""
     }
-    database_password = {
+    DB_PASSWORD = {
       description = "Database password"
-      name        = "/${var.project_name}/${var.environment}/database/password"
-      start_value = ""
     }
 
     # Redis credentials
-    rails_master_key = {
+    RAILS_MASTER_KEY = {
       description = "Rails master key"
-      name        = "/${var.project_name}/${var.environment}/rails/master_key"
-      start_value = ""
     }
-    rails_secret_key = {
+    SECRET_KEY_BASE = {
       description = "Rails secret key"
-      name        = "/${var.project_name}/${var.environment}/rails/secret_key"
-      start_value = ""
     }
-    redis_url = {
+    REDIS_URL = {
       description = "Redis/Elasticache URL"
-      name        = "/${var.project_name}/${var.environment}/redis/url"
-      start_value = ""
     }
 
     # SMTP credentials
-    smtp_endpoint = {
+    SMTP_ENDPOINT = {
       description = "SMTP endpoint"
-      name        = "/${var.project_name}/${var.environment}/smtp/endpoint"
-      start_value = ""
     }
-    smtp_user = {
+    SMTP_USER = {
       description = "SMTP user"
-      name        = "/${var.project_name}/${var.environment}/smtp/user"
-      start_value = ""
     }
-    smtp_password = {
+    SMTP_PASSWORD = {
       description = "SMTP password"
-      name        = "/${var.project_name}/${var.environment}/smtp/password"
-      start_value = ""
     }
 
     # Google Analytics
-    google_analytics_key = {
+    GOOGLE_ANALYTICS_KEY = {
       description = "Google Analytics key"
-      name        = "/${var.project_name}/${var.environment}/google_analytics/key"
-      start_value = ""
     }
 
-    # Single-value secrets
-    google_api_key = {
+    GOOGLE_AI_KEY = {
       description = "Optional Google API key"
-      name        = "/${var.project_name}/${var.environment}/GOOGLE_AI_KEY"
-      start_value = ""
     }
-    anthropic_api_key = {
+    ANTHROPIC_KEY = {
       description = "Optional Anthropic API key"
-      name        = "/${var.project_name}/${var.environment}/ANTHROPIC_KEY"
-      start_value = ""
     }
-    rails_api_user = {
+    RAILS_API_USER = {
       description = "The Rails API user to pass to our python components"
-      name        = "/${var.project_name}/${var.environment}/RAILS_API_USER"
-      start_value = ""
     }
-    rails_api_password = {
+    RAILS_API_PASSWORD = {
       description = "The Rails API password to pass to our python components"
-      name        = "/${var.project_name}/${var.environment}/RAILS_API_PASSWORD"
-      start_value = ""
     }
-    google_service_account = {
+    GOOGLE_SERVICE_ACCOUNT = {
       description = "Service account credentials for evaluation tasks only"
-      name        = "/${var.project_name}/${var.environment}/GOOGLE_SERVICE_ACCOUNT"
-      start_value = ""
     }
-    google_sheet_id_evaluation = {
+    GOOGLE_SHEET_ID_EVALUATION = {
       description = "The Google sheet id for evaluation tasks only"
-      name        = "/${var.project_name}/${var.environment}/GOOGLE_SHEET_ID_EVALUATION"
-      start_value = ""
     }
   }
 }
@@ -171,17 +136,17 @@ module "ecs" {
   environment       = var.environment
   rails_environment = var.rails_environment
 
-  db_host_secret_arn          = module.secrets.secrets["database_host"].secret_arn
-  db_name_secret_arn          = module.secrets.secrets["database_name"].secret_arn
-  db_username_secret_arn      = module.secrets.secrets["database_username"].secret_arn
-  db_password_secret_arn      = module.secrets.secrets["database_password"].secret_arn
-  secret_key_base_secret_arn  = module.secrets.secrets["rails_secret_key"].secret_arn
-  rails_master_key_secret_arn = module.secrets.secrets["rails_master_key"].secret_arn
-  smtp_endpoint_secret_arn    = module.secrets.secrets["smtp_endpoint"].secret_arn
-  smtp_user_secret_arn        = module.secrets.secrets["smtp_user"].secret_arn
-  smtp_password_secret_arn    = module.secrets.secrets["smtp_password"].secret_arn
-  redis_url_secret_arn        = module.secrets.secrets["redis_url"].secret_arn
-  google_analytics_key_arn    = module.secrets.secrets["google_analytics_key"].secret_arn
+  db_host_secret_arn          = module.secrets.secrets["DB_HOST"].secret_arn
+  db_name_secret_arn          = module.secrets.secrets["DB_NAME"].secret_arn
+  db_username_secret_arn      = module.secrets.secrets["DB_USERNAME"].secret_arn
+  db_password_secret_arn      = module.secrets.secrets["DB_PASSWORD"].secret_arn
+  secret_key_base_secret_arn  = module.secrets.secrets["SECRET_KEY_BASE"].secret_arn
+  rails_master_key_secret_arn = module.secrets.secrets["RAILS_MASTER_KEY"].secret_arn
+  smtp_endpoint_secret_arn    = module.secrets.secrets["SMTP_ENDPOINT"].secret_arn
+  smtp_user_secret_arn        = module.secrets.secrets["SMTP_USER"].secret_arn
+  smtp_password_secret_arn    = module.secrets.secrets["SMTP_PASSWORD"].secret_arn
+  redis_url_secret_arn        = module.secrets.secrets["REDIS_URL"].secret_arn
+  google_analytics_key_arn    = module.secrets.secrets["GOOGLE_ANALYTICS_KEY"].secret_arn
 
   vpc_id            = module.networking.vpc_id
   private_subnets   = module.networking.private_subnet_ids
@@ -202,12 +167,12 @@ module "lambda" {
   document_inference_ecr_repository_url            = module.deployment.document_inference_ecr_repository_url
   evaluation_ecr_repository_url                    = module.deployment.evaluation_ecr_repository_url
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
-  secret_google_ai_key_arn                         = module.secrets.secrets["google_api_key"].secret_arn
-  secret_anthropic_key_arn                         = module.secrets.secrets["anthropic_api_key"].secret_arn
-  secret_rails_api_user                            = module.secrets.secrets["rails_api_user"].secret_arn
-  secret_rails_api_password                        = module.secrets.secrets["rails_api_password"].secret_arn
-  secret_google_service_account_evals_key_arn      = module.secrets.secrets["google_service_account"].secret_arn
-  secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["google_sheet_id_evaluation"].secret_arn
+  secret_google_ai_key_arn                         = module.secrets.secrets["GOOGLE_AI_KEY"].secret_arn
+  secret_anthropic_key_arn                         = module.secrets.secrets["ANTHROPIC_KEY"].secret_arn
+  secret_rails_api_user                            = module.secrets.secrets["RAILS_API_USER"].secret_arn
+  secret_rails_api_password                        = module.secrets.secrets["RAILS_API_PASSWORD"].secret_arn
+  secret_google_service_account_evals_key_arn      = module.secrets.secrets["GOOGLE_SERVICE_ACCOUNT"].secret_arn
+  secret_google_sheet_id_evals_key_arn             = module.secrets.secrets["GOOGLE_SHEET_ID_EVALUATION"].secret_arn
   s3_document_bucket_arn                           = aws_s3_bucket.documents.arn
 }
 

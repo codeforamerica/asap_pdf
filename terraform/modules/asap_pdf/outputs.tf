@@ -30,7 +30,7 @@ output "db_username" {
 
 output "db_password_secret_arn" {
   description = "ARN of the secret containing the database password"
-  value       = module.secrets.secrets["database_password"].secret_arn
+  value       = module.secrets.secrets["DB_PASSWORD"].secret_arn
   sensitive   = true
 }
 
@@ -69,7 +69,7 @@ output "database_url" {
   description = "Database connection URL"
   value = format("postgres://%s:%s@%s/%s",
     module.database.db_instance_username,
-    module.secrets.secrets["database_password"].secret_arn,
+    module.secrets.secrets["DB_PASSWORD"].secret_arn,
     module.database.db_instance_endpoint,
     module.database.db_instance_name
   )
