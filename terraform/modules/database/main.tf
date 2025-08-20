@@ -60,7 +60,7 @@ resource "aws_db_instance" "main" {
   final_snapshot_identifier = "${var.project_name}-${var.environment}-final-snapshot"
 
   storage_encrypted = true
-  multi_az          = false
+  multi_az          = var.multi_az
   apply_immediately = true
 
   auto_minor_version_upgrade  = true

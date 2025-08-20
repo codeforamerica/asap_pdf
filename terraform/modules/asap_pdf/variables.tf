@@ -49,3 +49,13 @@ variable "github_environment" {
   description = "The environment that Github should be able to trigger deployments from."
   type        = string
 }
+
+variable "single_nat_gateway" {
+  description = "Whether to create multiple NAT gateways or just one"
+  type        = string
+}
+
+variable "rds_multi_az" {
+  description = "Whether or not the RDS instance should have multiple availability zones"
+  type        = bool
+}

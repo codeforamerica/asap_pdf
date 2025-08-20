@@ -29,6 +29,11 @@ variable "private_subnet_cidrs" {
   type        = list(string)
 }
 
+variable "single_nat_gateway" {
+  description = "Whether to create multiple NAT gateways or just one"
+  type        = bool
+}
+
 variable "vpc_cidr" {
   description = "The VPC's CIDR"
   type        = string
