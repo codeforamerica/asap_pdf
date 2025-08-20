@@ -8,98 +8,98 @@ module "secrets" {
   add_suffix  = false
 
   secrets = {
-    # Database credentials - flattened
+    # Database credentials
     database_host = {
       description = "Database host"
-      name        = "/asap-pdf/database/host"
+      name        = "/${var.project_name}/${var.environment}/database/host"
       start_value = ""
     }
     database_name = {
       description = "Database name"
-      name        = "/asap-pdf/database/name"
+      name        = "/${var.project_name}/${var.environment}/database/name"
       start_value = ""
     }
     database_username = {
       description = "Database username"
-      name        = "/asap-pdf/database/username"
+      name        = "/${var.project_name}/${var.environment}/database/username"
       start_value = ""
     }
     database_password = {
       description = "Database password"
-      name        = "/asap-pdf/database/password"
+      name        = "/${var.project_name}/${var.environment}/database/password"
       start_value = ""
     }
 
-    # Redis credentials - flattened
+    # Redis credentials
     rails_master_key = {
       description = "Rails master key"
-      name        = "/asap-pdf/rails/master_key"
+      name        = "/${var.project_name}/${var.environment}/rails/master_key"
       start_value = ""
     }
     rails_secret_key = {
       description = "Rails secret key"
-      name        = "/asap-pdf/rails/secret_key"
+      name        = "/${var.project_name}/${var.environment}/rails/secret_key"
       start_value = ""
     }
     redis_url = {
       description = "Redis/Elasticache URL"
-      name        = "/asap-pdf/redis/url"
+      name        = "/${var.project_name}/${var.environment}/redis/url"
       start_value = ""
     }
 
-    # SMTP credentials - flattened
+    # SMTP credentials
     smtp_endpoint = {
       description = "SMTP endpoint"
-      name        = "/asap-pdf/smtp/endpoint"
+      name        = "/${var.project_name}/${var.environment}/smtp/endpoint"
       start_value = ""
     }
     smtp_user = {
       description = "SMTP user"
-      name        = "/asap-pdf/smtp/user"
+      name        = "/${var.project_name}/${var.environment}/smtp/user"
       start_value = ""
     }
     smtp_password = {
       description = "SMTP password"
-      name        = "/asap-pdf/smtp/password"
+      name        = "/${var.project_name}/${var.environment}/smtp/password"
       start_value = ""
     }
 
-    # Google Analytics - flattened
+    # Google Analytics
     google_analytics_key = {
       description = "Google Analytics key"
-      name        = "/asap-pdf/google_analytics/key"
+      name        = "/${var.project_name}/${var.environment}/google_analytics/key"
       start_value = ""
     }
 
-    # Single-value secrets (already flat)
+    # Single-value secrets
     google_api_key = {
       description = "Optional Google API key"
-      name        = "/asap-pdf/GOOGLE_AI_KEY"
+      name        = "/${var.project_name}/${var.environment}/GOOGLE_AI_KEY"
       start_value = ""
     }
     anthropic_api_key = {
       description = "Optional Anthropic API key"
-      name        = "/asap-pdf/ANTHROPIC_KEY"
+      name        = "/${var.project_name}/${var.environment}/ANTHROPIC_KEY"
       start_value = ""
     }
     rails_api_user = {
       description = "The Rails API user to pass to our python components"
-      name        = "/asap-pdf/RAILS_API_USER"
+      name        = "/${var.project_name}/${var.environment}/RAILS_API_USER"
       start_value = ""
     }
     rails_api_password = {
       description = "The Rails API password to pass to our python components"
-      name        = "/asap-pdf/RAILS_API_PASSWORD"
+      name        = "/${var.project_name}/${var.environment}/RAILS_API_PASSWORD"
       start_value = ""
     }
     google_service_account = {
       description = "Service account credentials for evaluation tasks only"
-      name        = "/asap-pdf/GOOGLE_SERVICE_ACCOUNT"
+      name        = "/${var.project_name}/${var.environment}/GOOGLE_SERVICE_ACCOUNT"
       start_value = ""
     }
     google_sheet_id_evaluation = {
       description = "The Google sheet id for evaluation tasks only"
-      name        = "/asap-pdf/GOOGLE_SHEET_ID_EVALUATION"
+      name        = "/${var.project_name}/${var.environment}/GOOGLE_SHEET_ID_EVALUATION"
       start_value = ""
     }
   }
