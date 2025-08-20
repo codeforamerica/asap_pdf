@@ -10,12 +10,6 @@ variable "environment" {
   default     = "production"
 }
 
-variable "redirect_domain" {
-  description = "Optional domain for redirection."
-  type        = string
-  default     = "ada.codeforamerica.ai"
-}
-
 variable "aws_region" {
   description = "AWS Region"
   type        = string

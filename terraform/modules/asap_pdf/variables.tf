@@ -40,11 +40,6 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "bastion_key_pair_name" {
-  description = "The bastion service key pair name."
-  type        = string
-}
-
 variable "github_branch" {
   description = "The branch that Github should be able to trigger deployments with."
   type        = string

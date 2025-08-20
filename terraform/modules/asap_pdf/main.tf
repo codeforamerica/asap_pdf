@@ -1,15 +1,16 @@
 data "aws_caller_identity" "identity" {}
 
 module "secrets" {
-  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=1.0.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-secrets?ref=2.0.0"
 
   project     = var.project_name
   environment = var.environment
+  add_suffix = false
 
   secrets = {
     database = {
       description = "Credentials for our Database."
-      name        = "/asap-pdf/production/database"
+      name        = "/asap-pdf/database"
       start_value = jsonencode({
         host     = ""
         name     = ""
@@ -19,14 +20,14 @@ module "secrets" {
     }
     redis = {
       description = "The Redis/Elasticache url."
-      name        = "/asap-pdf/production/redis"
+      name        = "/asap-pdf/redis"
       start_value = jsonencode({
         url = ""
       })
     }
     rails = {
       description = "The Rails master key."
-      name        = "/asap-pdf/production/rails"
+      name        = "/asap-pdf/rails"
       start_value = jsonencode({
         master_key = ""
         secret_key = ""
@@ -34,7 +35,7 @@ module "secrets" {
     }
     smtp = {
       description = "The SMTP credentials."
-      name        = "/asap-pdf/production/smtp"
+      name        = "/asap-pdf/smtp"
       start_value = jsonencode({
         endpoint = ""
         user     = ""
@@ -43,34 +44,34 @@ module "secrets" {
     }
     google_analytics = {
       description = "Optional Google Analytics key."
-      name        = "/asap-pdf/production/GOOGLE_ANALYTICS_KEY"
+      name        = "/asap-pdf/GOOGLE_ANALYTICS_KEY"
       start_value = jsonencode({
         key = ""
       })
     }
     google = {
       description = "Optional Google API key."
-      name        = "/asap-pdf/production/GOOGLE_AI_KEY"
+      name        = "/asap-pdf/GOOGLE_AI_KEY"
     }
     anthropic = {
       description = "Optional Anthropic API key."
-      name        = "/asap-pdf/production/ANTHROPIC_KEY"
+      name        = "/asap-pdf/ANTHROPIC_KEY"
     }
     rails_api_user = {
       description = "The Rails API user to pass to our python components."
-      name        = "/asap-pdf/production/RAILS_API_USER"
+      name        = "/asap-pdf/RAILS_API_USER"
     }
     rails_api_password = {
       description = "The Rails API password to pass to our python components."
-      name        = "/asap-pdf/production/RAILS_API_PASSWORD"
+      name        = "/asap-pdf/RAILS_API_PASSWORD"
     }
     google_service_account = {
       description = "Service account credentials for evaluation tasks only."
-      name        = "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT"
+      name        = "/asap-pdf/GOOGLE_SERVICE_ACCOUNT"
     },
     google_sheet_id_evaluation = {
       description = "The Google sheet id for evaluation tasks only."
-      name        = "/asap-pdf/production/GOOGLE_SHEET_ID_EVALUATION"
+      name        = "/asap-pdf/GOOGLE_SHEET_ID_EVALUATION"
     },
   }
 }

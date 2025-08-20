@@ -17,22 +17,23 @@ module "backend" {
 
 module "asap_pdf" {
   source = "../../modules/asap_pdf"
+  # Github actions deployment-related variables.
+  # Should match the branch and environment name setup in Github settings.
+  github_branch = "main"
+  github_environment = "prod"
+
+  # AWS Environment related variables.
   domain_name = "ada.codeforamerica.ai"
   project_name = var.project_name
   environment  = var.environment
   rails_environment = "production"
   backend_kms_key = module.backend.kms_key
-
   vpc_cidr = "10.0.52.0/22"
   public_subnet_cidrs = ["10.0.52.0/26", "10.0.52.64/26", "10.0.52.128/26"]
   private_subnet_cidrs = ["10.0.54.0/26", "10.0.54.64/26", "10.0.54.128/26"]
-  # @todo remove bastion key_pair name.
-  bastion_key_pair_name = "asap-migration"
-
-  github_branch = "main"
-  github_environment = "prod"
 }
 
+# Optional, comment out to have no additional domains.
 module "cloudfront" {
   source = "../../modules/cloudfront"
 
