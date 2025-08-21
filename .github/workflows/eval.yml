@@ -177,7 +177,7 @@ jobs:
         id: invoke-evaluation-lambda
         env:
           REGION: ${{ vars.AWS_REGION }}
-          FUNCTION_NAME: "asap-pdf-evaluation-production"
+          FUNCTION_NAME: "asap-pdf-evaluation-staging"
           EVALUATION_MODEL: ${{ github.event.inputs.evaluation_model_name }}
           INFERENCE_MODEL: ${{ github.event.inputs.inference_model_name }}
           EVALUATION_COMPONENT: ${{ github.event.inputs.evaluation_component }}
