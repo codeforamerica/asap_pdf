@@ -26,6 +26,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.inference_model_name,
             "summary",
             self.local_mode,
+            self.aws_env,
             self.page_limit,
         )
         logger.info("Summarization complete. Performing related evaluations.")

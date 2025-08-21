@@ -27,9 +27,13 @@ def handler(event, context):
         all_models = helpers.get_models("models.json")
         helpers.validate_model(all_models, event["model_name"])
         helpers.logger.info("Model is valid")
-        api_key = helpers.get_secret(all_models[event["model_name"]]["key"], local_mode, aws_env)
+        api_key = helpers.get_secret(
+            all_models[event["model_name"]]["key"], local_mode, aws_env
+        )
         asap_creds_user = helpers.get_secret(API_USER_NAME_SECRET, local_mode, aws_env)
-        asap_creds_password = helpers.get_secret(API_PASSWORD_SECRET, local_mode, aws_env)
+        asap_creds_password = helpers.get_secret(
+            API_PASSWORD_SECRET, local_mode, aws_env
+        )
         page_limit_label = (
             "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         )

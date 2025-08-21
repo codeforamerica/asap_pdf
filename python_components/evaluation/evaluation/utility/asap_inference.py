@@ -24,6 +24,7 @@ def get_inference_for_document(
     inference_model_name: str,
     inference_type: str,
     local_mode: bool,
+    aws_env: str,
     page_number: int,
 ) -> None:
     logger.info(f"Performing inference type {inference_type} for {document.url}...")
@@ -40,7 +41,7 @@ def get_inference_for_document(
         session = boto3.Session()
         client = session.client("lambda")
         response = client.get_function_url_config(
-            FunctionName="asap-pdf-document-inference-evaluation-staging",
+            FunctionName=f"asap-pdf-document-inference-evaluation-{aws_env}",
         )
         if "FunctionArn" not in response.keys():
             raise RuntimeError(

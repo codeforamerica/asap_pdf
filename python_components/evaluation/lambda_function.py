@@ -48,6 +48,7 @@ def handler(event, context):
             event["commit_sha"],
             delta,
             local_mode=local_mode,
+            aws_env=aws_env,
         )
         exception_eval_wrapper = exception.EvaluationWrapper(
             eval_model,
@@ -56,6 +57,7 @@ def handler(event, context):
             event["commit_sha"],
             delta,
             local_mode=local_mode,
+            aws_env=aws_env,
         )
         output = []
         for document_dict in event["documents"]:
@@ -78,7 +80,7 @@ def handler(event, context):
                 output.extend(results)
         if "output_google_sheet" in event.keys():
             utility.helpers.logger.info("Writing eval results to Google Sheet")
-            utility.google_sheet.append_to_google_sheet(output, local_mode)
+            utility.google_sheet.append_to_google_sheet(output, local_mode, aws_env)
             return {
                 "statusCode": 200,
                 "body": "Wrote evaluation results to Google Sheet.",
