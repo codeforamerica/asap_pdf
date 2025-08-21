@@ -41,15 +41,6 @@ jobs:
             exit 1
           fi
           echo "environment_name=$env_name" >> "$GITHUB_OUTPUT"
-          # Set SSM parameter based on environment
-          if [[ "$env_name" == "staging" ]]; then
-            echo "ssm_parameter=/asap-pdf/production/app/version" >> "$GITHUB_OUTPUT"
-          elif [[ "$env_name" == "prod" ]]; then
-            echo "ssm_parameter=/asap-pdf/prod/app/version" >> "$GITHUB_OUTPUT"
-          else
-            echo "Unknown environment for SSM parameter: $env_name"
-            exit 1
-          fi    
 
   deploy:
     needs: [ determine_environment ]
@@ -132,11 +123,11 @@ jobs:
       - name: Update SSM Version Parameter
         env:
           IMAGE_TAG: ${{ github.sha }}
-          SSM_PARAM_NAME: ${{ needs.determine_environment.outputs.ssm_param }}
+          AWS_ENV: ${{ needs.determine_environment.outputs.env_name }}
         run: |
           echo "tag:$IMAGE_TAG"
           aws ssm put-parameter \
-            --name $SSM_PARAM_NAME \
+            --name "/asap-pdf/$AWS_ENV/app/version" \
             --value "$IMAGE_TAG" \
             --overwrite
 
