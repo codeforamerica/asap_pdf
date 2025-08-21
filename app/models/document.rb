@@ -246,7 +246,7 @@ class Document < ApplicationRecord
           body = response.body
           status = response.code
         end
-        if Integer(status) != 200
+        if status.nil? || Integer(status) != 200
           raise StandardError, "Inference failed: #{body}"
         end
       end
@@ -277,7 +277,7 @@ class Document < ApplicationRecord
         body = response.body
         status = response.code
       end
-      if Integer(status) != 200
+      if status.nil? || Integer(status) != 200
         raise StandardError, "Inference failed: #{body}"
       end
     end
