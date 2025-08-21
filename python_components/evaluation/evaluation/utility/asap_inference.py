@@ -40,7 +40,7 @@ def get_inference_for_document(
         session = boto3.Session()
         client = session.client("lambda")
         response = client.get_function_url_config(
-            FunctionName="asap-pdf-document-inference-evaluation-production",
+            FunctionName="asap-pdf-document-inference-evaluation-staging",
         )
         if "FunctionArn" not in response.keys():
             raise RuntimeError(
