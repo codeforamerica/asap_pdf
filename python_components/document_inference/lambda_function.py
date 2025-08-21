@@ -4,8 +4,8 @@ import os
 import llm
 from document_inference import helpers
 
-API_USER_NAME_SECRET = "/asap-pdf/RAILS_API_USER"
-API_PASSWORD_SECRET = "/asap-pdf/RAILS_API_PASSWORD"
+API_USER_NAME_SECRET = "asap-pdf/{AWS_ENV}/RAILS_API_USER"
+API_PASSWORD_SECRET = "asap-pdf/{AWS_ENV}/RAILS_API_PASSWORD"
 
 
 def handler(event, context):
@@ -21,13 +21,15 @@ def handler(event, context):
         helpers.validate_event(event)
         helpers.logger.info("Event is valid")
         local_mode = os.environ.get("ASAP_LOCAL_MODE", False)
+        aws_env = os.environ.get("AWS_ENV", "staging")
+        helpers.logger.info(f"AWS environment: {aws_env}")
         helpers.logger.info("Validating model")
         all_models = helpers.get_models("models.json")
         helpers.validate_model(all_models, event["model_name"])
         helpers.logger.info("Model is valid")
-        api_key = helpers.get_secret(all_models[event["model_name"]]["key"], local_mode)
-        asap_creds_user = helpers.get_secret(API_USER_NAME_SECRET, local_mode)
-        asap_creds_password = helpers.get_secret(API_PASSWORD_SECRET, local_mode)
+        api_key = helpers.get_secret(all_models[event["model_name"]]["key"], local_mode, aws_env)
+        asap_creds_user = helpers.get_secret(API_USER_NAME_SECRET, local_mode, aws_env)
+        asap_creds_password = helpers.get_secret(API_PASSWORD_SECRET, local_mode, aws_env)
         page_limit_label = (
             "unlimited" if event["page_limit"] == 0 else event["page_limit"]
         )

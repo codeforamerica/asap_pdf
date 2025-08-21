@@ -31,6 +31,8 @@ services:
   lambda_document_inference:
     build:
       context: ./python_components/document_inference
+      args:
+        AWS_ENV: "staging"
     container_name: lambda_document_inference
     extra_hosts:
       - "host.docker.internal:host-gateway"
