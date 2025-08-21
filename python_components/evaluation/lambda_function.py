@@ -22,12 +22,14 @@ def handler(event, context):
         utility.helpers.validate_event(event)
         utility.helpers.logger.info("Event is valid")
         utility.helpers.logger.info(f"Local mode set to: {local_mode}")
+        aws_env = os.environ.get("AWS_ENV", "staging")
+        utility.helpers.logger.info(f"AWS environment: {aws_env}")
         utility.helpers.logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
         utility.helpers.validate_model(all_models, event["evaluation_model"])
         utility.helpers.logger.info("LLM Judge model is valid")
         api_key = utility.helpers.get_secret(
-            all_models[event["evaluation_model"]]["key"], local_mode
+            all_models[event["evaluation_model"]]["key"], local_mode, aws_env
         )
         # todo Abstract: create a utility helper for this.
         eval_model = MultimodalGeminiModel(

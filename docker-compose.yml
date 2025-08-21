@@ -46,6 +46,8 @@ services:
     container_name: lambda_evaluation
     build:
       context: ./python_components/evaluation
+      args:
+        AWS_ENV: "staging"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
