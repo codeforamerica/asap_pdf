@@ -227,7 +227,8 @@ class Document < ApplicationRecord
         lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
-        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{Rails.env}")
+        aws_env = (Rails.env == "production") ? "prod" : Rails.env
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
       end
       payload = {
         model_name: "gemini-2.0-flash",
@@ -258,7 +259,8 @@ class Document < ApplicationRecord
       lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
-      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{Rails.env}")
+      aws_env = (Rails.env == "production") ? "prod" : Rails.env
+      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
     end
     payload = {
       model_name: "gemini-2.5-pro-preview-03-25",
