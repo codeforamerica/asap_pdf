@@ -11,6 +11,11 @@ development:
 
 test:
   <<: *default
+  host: localhost
+  database: access_pdf_test
+
+staging:
+  <<: *default
   host: <%= ENV['DB_HOST'] %>
   port: 5432
   database: <%= ENV['DB_NAME'] %>
