@@ -11,8 +11,15 @@ development:
 
 test:
   <<: *default
-  host: localhost
-  database: access_pdf_test
+  host: <%= ENV['DB_HOST'] %>
+  port: 5432
+  database: <%= ENV['DB_NAME'] %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  connect_timeout: 5
+  checkout_timeout: 10
+  variables:
+    statement_timeout: 10000 # 10 seconds
 
 production:
   <<: *default
