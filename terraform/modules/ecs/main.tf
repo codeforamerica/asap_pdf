@@ -1,5 +1,5 @@
 module "fargate_service" {
-  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.3.0"
+  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.1"
 
   project       = var.project_name
   project_short = var.project_name
@@ -25,7 +25,7 @@ module "fargate_service" {
   health_check_path        = "/up"
 
   environment_variables = {
-    RAILS_ENV           = var.environment
+    RAILS_ENV           = var.rails_environment
     PORT = tostring(var.container_port)
     WEB_CONCURRENCY     = "2"
     MALLOC_ARENA_MAX    = "2"

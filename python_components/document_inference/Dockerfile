@@ -1,5 +1,9 @@
 FROM public.ecr.aws/lambda/python:3.12
 
+# Set AWS environment.
+ARG AWS_ENV=staging
+ENV AWS_ENV=${AWS_ENV}
+
 # Prevent LLM module from writing (?) to a directory Lambda doesn't like.
 ENV LLM_USER_PATH=/tmp
 

@@ -18,3 +18,23 @@ variable "logging_key_id" {
   description = "KMS key id to encrypt logs."
   type = string
 }
+
+variable "public_subnet_cidrs" {
+  description = "Public CIDR blocks"
+  type        = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  description = "Private CIDR blocks"
+  type        = list(string)
+}
+
+variable "single_nat_gateway" {
+  description = "Whether to create multiple NAT gateways or just one"
+  type        = bool
+}
+
+variable "vpc_cidr" {
+  description = "The VPC's CIDR"
+  type        = string
+}

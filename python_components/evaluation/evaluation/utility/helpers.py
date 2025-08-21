@@ -18,7 +18,8 @@ def get_models(model_file: str):
         return json.load(f)
 
 
-def get_secret(secret_name: str, local_mode: bool) -> str:
+def get_secret(secret_name: str, local_mode: bool, aws_env: str) -> str:
+    secret_name = secret_name.format(AWS_ENV=aws_env)
     if local_mode:
         session = boto3.session.Session()
         client = session.client(

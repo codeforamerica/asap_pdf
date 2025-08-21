@@ -42,6 +42,7 @@ class EvaluationWrapperBase(ABC):
         self.commit_sha = commit_sha
         self.page_limit = kwargs.get("page_limit", 7)
         self.local_mode = kwargs.get("local_mode", False)
+        self.aws_env = kwargs.get("aws_env", "staging")
         now = datetime.datetime.now()
         metric_run_date = (
             now.strftime("%Y-%m-%d %H:%M:%S") + f".{now.microsecond // 1000:03d}"

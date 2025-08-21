@@ -130,7 +130,8 @@ Some basic API endpoints are currently provided.
 
 
 ## Adding Sites, Documents and Users
-When the database is set up (bin/rails db:setup), it is populated with a few sample sites, sandbox documents and an admin user. See [documents.rake](lib/tasks/documents.rake) for details. Currently, the easiest way to create your own sites, documents and users would be via [a custom rake task](https://guides.rubyonrails.org/command_line.html#custom-rake-tasks) or by modifying the one provided. To scrape a list of your website's PDFs, check out the documentation in [the python_components directory](python_components/README.md).
+
+When the database is set up (bin/rails db:setup), it is populated with a few sample sites, sandbox documents and an admin user.  To scrape a list of your website's PDFs, check out the documentation in [the python_components directory](python_components/README.md). Once you have a list of documents you'd like to import, create a site via the app's UI, noting the site id. Then run the document import rake task. Something like `bin/rake 'documents:import_documents[<site id>, <document id>, false]'`.
 
 ## Contributing
 

@@ -4,28 +4,53 @@ name: Deploy to AWS
 
 on:
   push:
-    branches: [ "main" ]
-
-env:
-  AWS_REGION: us-east-1
-  ECR_APP_REPOSITORY: asap-pdf-production-app
-  ECR_DOCUMENT_INFERENCE_REPOSITORY: asap-pdf-lambda-document-inference-production
-  ECS_CLUSTER: asap-pdf-production-app
-  ECS_SERVICE: asap-pdf-production-app
-  ECS_TASK_DEFINITION: .aws/task-definition.json
-  AWS_ACCOUNT_ID: 073165201938
+    branches: [ "main", "dev" ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        options:
+          - staging
+          - prod
 
 permissions:
   contents: read
   id-token: write
 
 jobs:
-  deploy:
-    name: Deploy
+  determine_environment:
     runs-on: ubuntu-latest
-    environment: production
-
+    outputs:
+      env_name: ${{ steps.set_env.outputs.environment_name }}
+      ssm_param: ${{ steps.set_env.outputs.ssm_parameter }}
     steps:
+      - name: Set environment name
+        id: set_env
+        run: |
+          # Set environment based on branch or workflow_dispatch selection.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            env_name="${{ github.event.inputs.environment }}"
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            env_name="prod"
+          elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            env_name="staging"
+          else
+            echo "Unsupported branch for deployment: ${{ github.ref }}"
+            exit 1
+          fi
+          echo "environment_name=$env_name" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: [ determine_environment ]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ needs.determine_environment.outputs.env_name }}
+    steps:
+      - name: Deploy to environment
+        run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }}"
+
       - name: Checkout
         uses: actions/checkout@v5
 
@@ -49,8 +74,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-${{ github.run_id }}"
           mask-aws-account-id: false
@@ -64,10 +89,11 @@ jobs:
         id: build-document-inference-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
+          AWS_ENV: ${{ needs.determine_environment.outputs.env_name }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
+          docker build --build-arg AWS_ENV=$AWS_ENV -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest python_components/document_inference/.
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -76,9 +102,9 @@ jobs:
         id: update-document-inference-lambda
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_DOCUMENT_INFERENCE_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_LAMBDA_DOCUMENT_INFERENCE }}
           IMAGE_TAG: ${{ github.sha }}
-          FUNCTION_NAME: "asap-pdf-document-inference-production"
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_DOCUMENT_INFERENCE }}
         run: |
           aws lambda update-function-code \
              --function-name  $FUNCTION_NAME \
@@ -88,7 +114,7 @@ jobs:
         id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ env.ECR_APP_REPOSITORY }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_RAILS_APP }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -98,10 +124,11 @@ jobs:
       - name: Update SSM Version Parameter
         env:
           IMAGE_TAG: ${{ github.sha }}
+          AWS_ENV: ${{ needs.determine_environment.outputs.env_name }}
         run: |
           echo "tag:$IMAGE_TAG"
           aws ssm put-parameter \
-            --name /asap-pdf/production/app/version \
+            --name "/asap-pdf/$AWS_ENV/app/version" \
             --value "$IMAGE_TAG" \
             --overwrite
 
@@ -109,19 +136,19 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Initialize OpenTofu
-        working-directory: ./terraform
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu init
 
       - name: Apply changes
-        working-directory: ./terraform
+        working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
         run: tofu apply --auto-approve
 
       - name: Debug deployment failure
         if: failure() && steps.deploy.outcome == 'failure'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-Debug-${{ github.run_id }}"
           mask-aws-account-id: false
