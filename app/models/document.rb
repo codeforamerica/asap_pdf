@@ -221,14 +221,13 @@ class Document < ApplicationRecord
     }
   end
 
-  def inference_summary!
+  def inference_summary!(api_host = nil)
     if summary.nil?
-      if Rails.env.to_s != "production"
+      if Rails.env.to_s == "development" || Rails.env.to_s == "test"
         lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
-        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-        api_host = "https://demo.codeforamerica.ai"
+        lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{Rails.env}")
       end
       payload = {
         model_name: "gemini-2.0-flash",
@@ -247,20 +246,19 @@ class Document < ApplicationRecord
           body = response.body
           status = response.code
         end
-        if Integer(status) != 200
+        if status.nil? || Integer(status) != 200
           raise StandardError, "Inference failed: #{body}"
         end
       end
     end
   end
 
-  def inference_recommendation!
-    if Rails.env.to_s != "production"
+  def inference_recommendation!(api_host = nil)
+    if Rails.env.to_s == "development" || Rails.env.to_s == "test"
       lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
-      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-production")
-      api_host = "https://demo.codeforamerica.ai"
+      lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{Rails.env}")
     end
     payload = {
       model_name: "gemini-2.5-pro-preview-03-25",
@@ -279,7 +277,7 @@ class Document < ApplicationRecord
         body = response.body
         status = response.code
       end
-      if Integer(status) != 200
+      if status.nil? || Integer(status) != 200
         raise StandardError, "Inference failed: #{body}"
       end
     end
