@@ -223,7 +223,7 @@ class Document < ApplicationRecord
 
   def inference_summary!(api_host = nil)
     if summary.nil?
-      if Rails.env.to_s != "production"
+      if Rails.env.to_s == "development" || Rails.env.to_s == "test"
         lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
         api_host = "http://host.docker.internal:3000"
       else
@@ -255,7 +255,7 @@ class Document < ApplicationRecord
   end
 
   def inference_recommendation!(api_host = nil)
-    if Rails.env.to_s != "production"
+    if Rails.env.to_s == "development" || Rails.env.to_s == "test"
       lambda_manager = AwsLambdaManager.new(function_url: "http://localhost:9002/2015-03-31/functions/function/invocations")
       api_host = "http://host.docker.internal:3000"
     else
