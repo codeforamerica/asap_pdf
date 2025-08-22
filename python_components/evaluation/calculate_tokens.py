@@ -29,8 +29,8 @@ def get_truthset(path: str) -> list:
 
 def make_inferences(truthset: list[Document]) -> None:
     inference_modes = (
-        ("gemini-2.0-flash", "summary"),
-        ("gemini-2.5-pro-preview-03-25", "exception")
+        #("gemini-2.0-flash", "summary"),
+        ("gemini-2.5-pro-preview-03-25", "exception"),
     )
     output = []
     for document in truthset:
