@@ -1,0 +1,19 @@
+<div class="summary-wrapper">
+  <% summary_inference = document.summary(return_model: true) %>
+  <p data-summarize-target="summaryValue"><%= summary_inference.present? ? summary_inference.inference_value : "" %></p>
+  <% if summary_inference.nil? %>
+    <button data-action="click->summarize#getSummary" data-summarize-target="button" class="btn btn-primary btn-sm">
+      <i class="fas fa-wand-magic-sparkles mr-1"></i>
+      Summarize Document
+    </button>
+    <button class="btn btn-primary btn-sm hidden opacity-75" data-summarize-target="preloader">
+      <span class="loading loading-spinner"></span>
+      Summarizing...
+    </button>
+  <% end %>
+  <% if summary_inference.present? %>
+    <div class="mb-4">
+      <%= render partial: "documents/feedback", locals: { document_inferences: [summary_inference] } %>
+    </div>
+  <% end %>
+</div>
