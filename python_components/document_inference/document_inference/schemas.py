@@ -1,8 +1,8 @@
 from typing import Optional
 
+from llm.models import Usage
 from pydantic import BaseModel, Field
 from pydantic.json_schema import SkipJsonSchema
-from llm.models import Usage
 
 
 class DocumentSummarySchema(BaseModel):
@@ -27,4 +27,4 @@ class DocumentRecommendation(BaseModel):
         description="An explanation of why the document meets or does not meet exception 2: Preexisting Conventional Electronic Documents Exception"
     )
     inference_model: SkipJsonSchema[str] = ""
-    usage: SkipJsonSchema[Optional[Usage]]  = None
+    usage: SkipJsonSchema[Optional[Usage]] = None
