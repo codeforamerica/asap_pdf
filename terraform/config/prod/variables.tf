@@ -7,19 +7,13 @@ variable "project_name" {
 variable "environment" {
   description = "Environment name"
   type        = string
-  default     = "production"
-}
-
-variable "domain_name" {
-  description = "Name of the project"
-  type        = string
-  default     = "demo.codeforamerica.ai"
+  default     = "prod"
 }
 
 variable "redirect_domain" {
   description = "Optional domain for redirection."
   type        = string
-  default     = "ada.codeforamerica.ai"
+  default     = "demo.codeforamerica.ai"
 }
 
 variable "aws_region" {

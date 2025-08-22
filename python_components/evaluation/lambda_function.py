@@ -22,12 +22,14 @@ def handler(event, context):
         utility.helpers.validate_event(event)
         utility.helpers.logger.info("Event is valid")
         utility.helpers.logger.info(f"Local mode set to: {local_mode}")
+        aws_env = os.environ.get("AWS_ENV", "staging")
+        utility.helpers.logger.info(f"AWS environment: {aws_env}")
         utility.helpers.logger.info("Validating LLM Judge model")
         all_models = utility.helpers.get_models("models.json")
         utility.helpers.validate_model(all_models, event["evaluation_model"])
         utility.helpers.logger.info("LLM Judge model is valid")
         api_key = utility.helpers.get_secret(
-            all_models[event["evaluation_model"]]["key"], local_mode
+            all_models[event["evaluation_model"]]["key"], local_mode, aws_env
         )
         # todo Abstract: create a utility helper for this.
         eval_model = MultimodalGeminiModel(
@@ -46,6 +48,7 @@ def handler(event, context):
             event["commit_sha"],
             delta,
             local_mode=local_mode,
+            aws_env=aws_env,
         )
         exception_eval_wrapper = exception.EvaluationWrapper(
             eval_model,
@@ -54,6 +57,7 @@ def handler(event, context):
             event["commit_sha"],
             delta,
             local_mode=local_mode,
+            aws_env=aws_env,
         )
         output = []
         for document_dict in event["documents"]:
@@ -76,7 +80,7 @@ def handler(event, context):
                 output.extend(results)
         if "output_google_sheet" in event.keys():
             utility.helpers.logger.info("Writing eval results to Google Sheet")
-            utility.google_sheet.append_to_google_sheet(output, local_mode)
+            utility.google_sheet.append_to_google_sheet(output, local_mode, aws_env)
             return {
                 "statusCode": 200,
                 "body": "Wrote evaluation results to Google Sheet.",

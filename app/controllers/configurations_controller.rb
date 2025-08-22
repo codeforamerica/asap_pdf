@@ -3,12 +3,14 @@ class ConfigurationsController < AuthenticatedController
 
   before_action :ensure_user_site_admin
 
-  ASAP_API_USER = "/asap-pdf/production/RAILS_API_USER-20250613220933079900000001"
-  ASAP_API_PASSWORD = "/asap-pdf/production/RAILS_API_PASSWORD-20250613220933080000000003"
-  GOOGLE_API_SECRET_NAME = "/asap-pdf/production/GOOGLE_AI_KEY-20250521205655769000000003"
-  ANTHROPIC_API_SECRET_NAME = "/asap-pdf/production/ANTHROPIC_KEY-20250521205655572700000001"
-  GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT-20250605155250934400000001"
-  GOOGLE_EVAL_SHEET_ID = "/asap-pdf/production/GOOGLE_SHEET_ID_EVALUATION-20250605155250934400000003"
+  # This form is only for local development.
+  # Python components expect to use staging keys for local development.
+  ASAP_API_USER = "asap-pdf/staging/RAILS_API_USER"
+  ASAP_API_PASSWORD = "asap-pdf/staging/RAILS_API_PASSWORD"
+  GOOGLE_API_SECRET_NAME = "asap-pdf/staging/GOOGLE_AI_KEY"
+  ANTHROPIC_API_SECRET_NAME = "asap-pdf/staging/ANTHROPIC_KEY"
+  GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = "asap-pdf/staging/GOOGLE_SERVICE_ACCOUNT"
+  GOOGLE_EVAL_SHEET_ID = "asap-pdf/staging/GOOGLE_SHEET_ID_EVALUATION"
 
   def initialize
     super

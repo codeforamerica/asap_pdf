@@ -14,11 +14,6 @@ variable "github_repository" {
   default = "codeforamerica/asap_pdf"
 }
 
-variable "db_password_secret_arn" {
-  description = "ARN of the secret containing the database password"
-  type        = string
-}
-
 variable "aws_account_id" {
   description = "AWS Account ID"
   type        = string
@@ -47,6 +42,16 @@ variable "evaluation_lambda_arn" {
 
 variable "backend_kms_arn" {
   description = "Backend module's KMS key."
+  type        = string
+}
+
+variable "github_branch" {
+  description = "The branch that Github should be able to trigger deployments with."
+  type        = string
+}
+
+variable "github_environment" {
+  description = "The environment that Github should be able to trigger deployments from."
   type        = string
 }
 

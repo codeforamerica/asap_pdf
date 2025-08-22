@@ -46,6 +46,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.inference_model_name,
             "exception",
             self.local_mode,
+            self.aws_env,
             self.page_limit,
         )
         logger.info("Exception check complete. Performing related evaluations.")

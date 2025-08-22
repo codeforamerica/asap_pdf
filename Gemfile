@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.0.1"
+gem "rails", "~> 8.0.2"
 gem "propshaft"
 gem "pg"
 gem "puma", ">= 5.0"
@@ -59,7 +59,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.196"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.197"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"

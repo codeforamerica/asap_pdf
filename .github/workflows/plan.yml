@@ -4,15 +4,14 @@ name: Tofu Plan
 
 on:
   workflow_dispatch:
-
-env:
-  AWS_REGION: us-east-1
-  ECR_APP_REPOSITORY: asap-pdf-production-app
-  ECR_DOCUMENT_INFERENCE_REPOSITORY: asap-pdf-lambda-document-inference-production
-  ECS_CLUSTER: asap-pdf-production-app
-  ECS_SERVICE: asap-pdf-production-app
-  ECS_TASK_DEFINITION: .aws/task-definition.json
-  AWS_ACCOUNT_ID: 073165201938
+    inputs:
+      environment:
+        type: choice
+        description: Environment
+        required: true
+        options:
+          - staging
+          - prod
 
 permissions:
   contents: read
@@ -20,36 +19,21 @@ permissions:
 
 jobs:
   plan:
-    name: Plan
     runs-on: ubuntu-latest
-    environment: production
-
+    environment:
+      name: ${{ github.event.inputs.environment }}
     steps:
+      - name: Config Directory
+        run: echo "Tofu config directory ./terraform/config/${{ github.event.inputs.environment }}"
+
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Debug OIDC claims
-        run: |
-          echo "GitHub repository: ${{ github.repository }}"
-          echo "GitHub ref: ${{ github.ref }}"
-          echo "GitHub SHA: ${{ github.sha }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Event name: ${{ github.event_name }}"
-          echo "Workflow ref: ${{ github.workflow_ref }}"
-          echo "Environment: ${{ github.environment }}"
-          echo "Job: ${{ github.job }}"
-
-      - name: Debug AWS role
-        run: |
-          echo "Attempting to assume role with:"
-          echo "Repository: repo:${{ github.repository }}:*"
-          echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
           audience: "sts.amazonaws.com"
           role-session-name: "GitHubActions-${{ github.run_id }}"
           mask-aws-account-id: false
@@ -63,21 +47,15 @@ jobs:
         uses: opentofu/setup-opentofu@v1
 
       - name: Initialize OpenTofu
-        working-directory: ./terraform
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu init
 
       - name: Get OpenTofu version
-        working-directory: ./terraform
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu --version
 
-      - name: List out state
-        working-directory: ./terraform
-        run: tofu state list
-
-      - name: Run tofu plan
-        id: plan
-        timeout-minutes: 5
-        working-directory: ./terraform
+      - name: Apply tofu plan
+        working-directory: ./terraform/config/${{ github.event.inputs.environment }}
         run: tofu plan -input=false
 
       - name: Output stderr

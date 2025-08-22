@@ -124,8 +124,8 @@ resource "aws_iam_role" "github_actions" {
           StringLike = {
             "token.actions.githubusercontent.com:sub" = [
               "repo:${var.github_repository}:*",
-              "repo:${var.github_repository}:ref:refs/heads/main",
-              "repo:${var.github_repository}:environment:production"
+              "repo:${var.github_repository}:ref:refs/heads/${var.github_branch}",
+              "repo:${var.github_repository}:environment:${var.github_environment}"
             ]
           }
         }
@@ -251,9 +251,11 @@ resource "aws_iam_role_policy" "github_actions" {
         Action = [
           "secretsmanager:GetSecretValue",
           "secretsmanager:CreateSecret",
+          "secretsmanager:TagResource",
         ]
+        # @todo use prod and staging some day.
         Resource = [
-          "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:/${var.project_name}/${var.environment}/*"
+          "arn:aws:secretsmanager:${var.aws_region}:${var.aws_account_id}:secret:${var.project_name}/${var.environment}/*"
         ]
       }
     ]

@@ -5,20 +5,18 @@ from evaluation.utility.helpers import get_secret, logger
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 
-GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = (
-    "/asap-pdf/production/GOOGLE_SERVICE_ACCOUNT-20250605155250934400000001"
-)
-GOOGLE_EVAL_SHEET_ID = (
-    "/asap-pdf/production/GOOGLE_SHEET_ID_EVALUATION-20250605155250934400000003"
-)
+GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = "asap-pdf/{AWS_ENV}/GOOGLE_SERVICE_ACCOUNT"
+GOOGLE_EVAL_SHEET_ID = "asap-pdf/{AWS_ENV}/GOOGLE_SHEET_ID_EVALUATION"
 RANGE_NAME = "Results!A:L"
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 
-def append_to_google_sheet(results: List[dict], local_mode: bool) -> None:
+def append_to_google_sheet(results: List[dict], local_mode: bool, aws_env: str) -> None:
 
-    creds_json = json.loads(get_secret(GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS, local_mode))
-    sheet_id = get_secret(GOOGLE_EVAL_SHEET_ID, local_mode)
+    creds_json = json.loads(
+        get_secret(GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS, local_mode, aws_env)
+    )
+    sheet_id = get_secret(GOOGLE_EVAL_SHEET_ID, local_mode, aws_env)
 
     logger.info(f"Appending results to {sheet_id} range {RANGE_NAME}...")
 
