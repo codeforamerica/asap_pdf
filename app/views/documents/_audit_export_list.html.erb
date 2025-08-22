@@ -1,0 +1,13 @@
+<ul class="mt-4" data-audit-export-target="documentList">
+  <% report_data = site.get_document_audit_exports %>
+  <% if report_data[:files].present? %>
+    <% report_data[:files].each do |s3_object| %>
+      <li>
+        <%= link_to workflow_audit_report_site_path(site, report_data[:bucket_name], s3_object.key), class: "text-primary" do %>
+          <i class="fa fa-file"></i>
+          <%= File.basename(s3_object.key) %>
+        <% end %>
+      </li>
+    <% end %>
+  <% end %>
+</ul>

@@ -235,7 +235,7 @@ class Site < ApplicationRecord
     s3_manager = AwsS3Manager.new
     bucket_name = Rails.application.config.default_s3_bucket
     machine_site_name = name.downcase.gsub(/\W+/, '_')
-    report_name = "audit_export_#{machine_site_name}_#{Time.now}"
+    report_name = "audit_export_#{machine_site_name}_#{Time.now.strftime("%Y-%m-%dT%H-%M-%S")}"
     Tempfile.create([report_name, '.csv']) do |temp_file|
       CSV.open(temp_file.path, 'wb') do |csv|
         csv << Document.column_names
@@ -251,7 +251,10 @@ class Site < ApplicationRecord
     s3_manager = AwsS3Manager.new
     bucket_name = Rails.application.config.default_s3_bucket
     machine_site_name = name.downcase.gsub(/\W+/, '_')
-    s3_manager.get_files(bucket_name, machine_site_name)
+    {
+      "bucket_name": bucket_name,
+      "files": s3_manager.get_files(bucket_name, "/reports/#{machine_site_name}")
+    }
   end
 
   private

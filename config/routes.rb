@@ -14,6 +14,10 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", :as => :rails_health_check
 
   resources :sites do
+    member do
+      get "workflow_audit_report/:bucket_name/*key", to: "sites#workflow_audit_report", format: false, as: :workflow_audit_report
+      post :create_workflow_audit_report
+    end
     resources :documents do
       member do
         patch :update_status

@@ -13,6 +13,7 @@ class AwsS3Manager
     else
       @s3_client = Aws::S3::Client.new
     end
+
   end
 
   def write_file(bucket_name, key, file_path, content_type = nil)
@@ -28,8 +29,16 @@ class AwsS3Manager
 
   def get_files(bucket_name, key)
     prefix = key.end_with?('/') ? key : "#{key}/"
-    bucket = @s3_client.bucket(bucket_name)
-    objects = bucket.objects(prefix: prefix)
-    objects.map(&:key)
+    params = {
+      bucket: bucket_name,
+      prefix: prefix,
+      max_keys: 100
+    }
+    response = @s3_client.list_objects_v2(params)
+    response.contents.sort_by(&:last_modified).reverse
+  end
+
+  def get_object(bucket_name, key)
+    @s3_client.get_object(bucket: bucket_name, key: key)
   end
 end

@@ -24,9 +24,33 @@
             </div>
           </div>
         </div>
-        <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll">
+        <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll ">
           <div class="px-6 py-4">
             <h2 class="text-lg font-medium">Audit Exports</h2>
+            <div class="border-b-gray-200 border-b pb-4" data-controller="audit-export" data-audit-export-site-id-value="<%= @site.id %>" >
+              <p class="mt-4">Create a downloadable CSV export of your audit progress.</p>
+              <button data-action="click->audit-export#createReport" data-audit-export-target="button" class="btn btn-primary btn-sm mt-4">
+                <i class="fas fa-wand-magic-sparkles mr-1"></i>
+                Create Audit Export
+              </button>
+              <button class="btn btn-primary btn-sm hidden opacity-75 mt-4" data-audit-export-target="preloader">
+                <span class="loading loading-spinner"></span>
+                Creating Audit Export...
+              </button>
+              <%= render partial: "documents/audit_export_list", locals: { site: @site } %>
+            </div>
+            <div class="mt-4">
+              <h2 class="text-lg font-medium">Use the API</h2>
+              <p class="mt-4">Use the following RESTful endpoint to get your audit history.</p>
+              <div class="mockup-code w-full mt-4">
+                <pre data-prefix="$"><code>curl -X GET \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -u "username:password" \
+  "https://api.example.com/api/sites/1/documents"</code></pre>
+              </div>
+              <p class="mt-4">Read the <a href="#" class="text-primary">full API documentation.</a></p>
+            </div>
           </div>
         </div>
       </div>

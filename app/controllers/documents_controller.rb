@@ -123,10 +123,6 @@ class DocumentsController < AuthenticatedController
     }
   end
 
-  def audit_exports
-
-  end
-
   def serve_document_url
     response = HTTParty.get(@document.normalized_url)
     if response.success?
