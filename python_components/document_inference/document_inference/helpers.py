@@ -161,9 +161,11 @@ def document_inference_summary(
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
-    DocumentSummarySchema.model_validate(response_json)
+    structured_output_model = DocumentSummarySchema.model_validate(response_json)
+    structured_output_model.inference_model = model.model_id
+    structured_output_model.usage = response.usage()
     logger.info("Validation complete.")
-    return response_json
+    return structured_output_model.model_dump()
 
 
 def document_inference_recommendation(
@@ -184,8 +186,10 @@ def document_inference_recommendation(
         )
         response_json = json.loads(response.text())
         logger.info("Inference complete. Validating response.")
-        DocumentRecommendation.model_validate(response_json)
+        structured_output_model = DocumentRecommendation.model_validate(response_json)
+        structured_output_model.inference_model = model.model_id
+        structured_output_model.usage = response.usage()
         logger.info("Validation complete.")
     else:
         raise RuntimeError("Document was encrypted! Could not proceed.")
-    return response_json
+    return structured_output_model.model_dump()
