@@ -2,23 +2,26 @@
 
 # Wait for LocalStack to be ready
 echo "Waiting for LocalStack to be ready..."
-while ! curl -s "http://localhost:4566/_localstack/health" | grep -q '"s3": "running"'; do
-  sleep 1
+while ! curl -s "http://localstack:4566/_localstack/health" | grep -q '"s3".*"available"'; do
+  echo "S3 not ready yet, waiting..."
+  sleep 2
 done
+echo "LocalStack S3 is ready!"
 
 # Create the bucket if it doesn't exist
+# Must match value in config/environments/development.rb, config.default_s3_bucket.
 echo "Creating S3 bucket..."
-aws --endpoint-url=http://localhost:4566 s3 mb s3://cfa-aistudio-asap-pdf
+aws --endpoint-url=http://localstack:4566 s3 mb s3://cfa-aistudio-asap-pdf
 
 # Enable versioning on the bucket
 echo "Enabling bucket versioning..."
-aws --endpoint-url=http://localhost:4566 s3api put-bucket-versioning \
+aws --endpoint-url=http://localstack:4566 s3api put-bucket-versioning \
   --bucket cfa-aistudio-asap-pdf \
   --versioning-configuration Status=Enabled
 
 # Set bucket policy to allow public access (for development only)
 echo "Setting bucket policy..."
-aws --endpoint-url=http://localhost:4566 s3api put-bucket-policy \
+aws --endpoint-url=http://localstack:4566 s3api put-bucket-policy \
   --bucket cfa-aistudio-asap-pdf \
   --policy '{
     "Version": "2012-10-17",

@@ -38,4 +38,6 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.hosts = nil
+
+  config.default_s3_bucket = "cfa-aistudio-asap-pdf"
 end

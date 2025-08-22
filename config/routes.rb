@@ -14,9 +14,6 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", :as => :rails_health_check
 
   resources :sites do
-    member do
-      get :insights
-    end
     resources :documents do
       member do
         patch :update_status
@@ -24,6 +21,8 @@ Rails.application.routes.draw do
       end
       collection do
         patch :batch_update
+        get :insights
+        get :audit_exports
       end
     end
   end

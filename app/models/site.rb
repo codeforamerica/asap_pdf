@@ -232,16 +232,26 @@ class Site < ApplicationRecord
   end
 
   def export_document_audit
-    report_name = "audit_export_#{site.name.downcase}"
-    # Tempfile.create(['large_data', '.csv']) do |temp_file|
-    #   CSV.open(temp_file.path, 'wb') do |csv|
-    #     csv << ['Header1', 'Header2', 'Header3'] # Add your CSV headers
-    #
-    #     # Fetch data in batches to avoid loading everything into memory
-    #     YourModel.find_each do |record| # Use find_each for large datasets
-    #       csv << [record.attribute1, record.attribute2, record.attribute3] # Populate CSV rows
-    #     end
-    #   end
+    s3_manager = AwsS3Manager.new
+    bucket_name = Rails.application.config.default_s3_bucket
+    machine_site_name = name.downcase.gsub(/\W+/, '_')
+    report_name = "audit_export_#{machine_site_name}_#{Time.now}"
+    Tempfile.create([report_name, '.csv']) do |temp_file|
+      CSV.open(temp_file.path, 'wb') do |csv|
+        csv << Document.column_names
+        documents.find_each do |record|
+          csv << record.attributes.values
+        end
+      end
+      s3_manager.write_file(bucket_name, "/reports/#{machine_site_name}/#{report_name}.csv", temp_file.path, "text/csv")
+    end
+  end
+
+  def get_document_audit_exports
+    s3_manager = AwsS3Manager.new
+    bucket_name = Rails.application.config.default_s3_bucket
+    machine_site_name = name.downcase.gsub(/\W+/, '_')
+    s3_manager.get_files(bucket_name, machine_site_name)
   end
 
   private
