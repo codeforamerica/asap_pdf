@@ -48,8 +48,15 @@ class SitesController < AuthenticatedController
   end
 
   def create_workflow_audit_report
-    @site.export_document_audit
-    render json: {html: render_to_string(partial: "documents/audit_export_list", formats: [:html], locals: {site: @site})}
+    export_links = []
+    error_message = nil
+    begin
+      @site.export_document_audit!(current_user)
+      export_links = @site.get_document_audit_link_hashes!
+    rescue => e
+      error_message = e.message
+    end
+    render json: {html: render_to_string(partial: "documents/audit_export_list", formats: [:html], locals: {export_links: export_links, error: error_message})}
   end
 
   def workflow_audit_report
@@ -57,16 +64,16 @@ class SitesController < AuthenticatedController
     begin
       key = params[:key]
       key = key.start_with?("/") ? key : "/#{key}"
-      response = s3_manager.get_object(params[:bucket_name], key)
+      response = s3_manager.get_object!(params[:bucket_name], key)
       send_data response[:body].read,
-                filename: File.basename(key),
-                type: response[:content_type] || 'application/octet-stream',
-                disposition: 'inline'
+        filename: File.basename(key),
+        type: response[:content_type] || "application/octet-stream",
+        disposition: "inline"
     rescue Aws::S3::Errors::NoSuchKey
-      render plain: 'File not found', status: 404
+      render plain: "File not found", status: 404
     rescue => e
       Rails.logger.error "S3 error: #{e.message}"
-      render plain: 'Error retrieving file', status: 500
+      render plain: "Error retrieving file", status: 500
     end
   end
 

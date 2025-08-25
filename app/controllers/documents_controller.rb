@@ -32,8 +32,8 @@ class DocumentsController < AuthenticatedController
   def insights
     # Build document list.
     @documents = @site.documents
-                      .by_category(params[:category])
-                      .by_department(params[:department])
+      .by_category(params[:category])
+      .by_department(params[:department])
     # Create binned date data for visualization.
     # First, gather all documents by year
     year_groups = @documents.group_by(&:modification_year).map { |label, year_documents| [label, year_documents.size] }
@@ -121,6 +121,16 @@ class DocumentsController < AuthenticatedController
         }
       end
     }
+  end
+
+  def audit_exports
+    @export_links = []
+    @error_message = nil
+    begin
+      @export_links = @site.get_document_audit_link_hashes!
+    rescue => e
+      @error_message = e.message
+    end
   end
 
   def serve_document_url

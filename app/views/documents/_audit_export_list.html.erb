@@ -1,13 +1,30 @@
-<ul class="mt-4" data-audit-export-target="documentList">
-  <% report_data = site.get_document_audit_exports %>
-  <% if report_data[:files].present? %>
-    <% report_data[:files].each do |s3_object| %>
-      <li>
-        <%= link_to workflow_audit_report_site_path(site, report_data[:bucket_name], s3_object.key), class: "text-primary" do %>
-          <i class="fa fa-file"></i>
-          <%= File.basename(s3_object.key) %>
-        <% end %>
-      </li>
+<% if error %>
+  <div class="mt-4">
+    There was an error retrieving your audit exports. Here are the details:<br/><%= error %>
+  </div>
+<% else %>
+  <table data-audit-export-target="documentList" class="mt-4">
+    <thead>
+    <tr class="text-left text-xs font-medium text-gray-500 uppercase">
+      <th class="tracking-wider py-1 px-3">Link to Export</th>
+      <th class="tracking-wider py-1 px-3">Date Created</th>
+      <th class="tracking-wider py-1 px-3">Author</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% export_links.each do |link| %>
+      <tr>
+        <td class="py-1 px-3">
+          <a href="<%= link[:url] %>" class="text-primary">
+            <i class="fa fa-file"></i>
+            Download Report
+          </a>
+        </td>
+        <td class="py-1 px-3"><%= link[:created] %></td>
+        <td class="py-1 px-3"><%= link[:author] %></td>
+      <tr>
+      </tr>
     <% end %>
-  <% end %>
-</ul>
+    </tbody>
+  </table>
+<% end %>

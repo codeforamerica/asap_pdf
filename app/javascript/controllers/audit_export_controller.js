@@ -6,15 +6,6 @@ export default class extends Controller {
     static values = {
         siteId: Number,
     }
-
-    connect() {
-        super.connect();
-        console.log(this.buttonTarget);
-        console.log(this.preloaderTarget);
-        console.log(this.documentListTarget);
-        console.log(this.siteIdValue);
-    }
-
     async createReport() {
         try {
             this.buttonTarget.classList.add("hidden");

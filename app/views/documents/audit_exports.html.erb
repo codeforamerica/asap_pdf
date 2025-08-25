@@ -37,12 +37,12 @@
                 <span class="loading loading-spinner"></span>
                 Creating Audit Export...
               </button>
-              <%= render partial: "documents/audit_export_list", locals: { site: @site } %>
+              <%= render partial: "documents/audit_export_list", locals: { export_links: @export_links, error: @error_message } %>
             </div>
             <div class="mt-4">
               <h2 class="text-lg font-medium">Use the API</h2>
               <p class="mt-4">Use the following RESTful endpoint to get your audit history.</p>
-              <div class="mockup-code w-full mt-4">
+              <div class="mockup-code w-full mt-4 active-highlight text-black">
                 <pre data-prefix="$"><code>curl -X GET \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
