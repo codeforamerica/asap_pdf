@@ -6,6 +6,7 @@ export default class extends Controller {
     static values = {
         siteId: Number,
     }
+
     async createReport() {
         try {
             this.buttonTarget.classList.add("hidden");
@@ -24,7 +25,6 @@ export default class extends Controller {
                 this.preloaderTarget.classList.add('hidden')
                 this.buttonTarget.classList.remove("hidden");
             } else {
-                this.displayTarget.textContent = 'An error occurred summarizing this document. Please try again later.';
                 throw new Error("Response was not OK")
             }
         } catch (error) {
