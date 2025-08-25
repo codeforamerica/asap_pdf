@@ -3,15 +3,6 @@ class ConfigurationsController < AuthenticatedController
 
   before_action :ensure_user_site_admin
 
-  # This form is only for local development.
-  # Python components expect to use staging keys for local development.
-  ASAP_API_USER = "asap-pdf/staging/RAILS_API_USER"
-  ASAP_API_PASSWORD = "asap-pdf/staging/RAILS_API_PASSWORD"
-  GOOGLE_API_SECRET_NAME = "asap-pdf/staging/GOOGLE_AI_KEY"
-  ANTHROPIC_API_SECRET_NAME = "asap-pdf/staging/ANTHROPIC_KEY"
-  GOOGLE_EVAL_SERVICE_ACCOUNT_CREDS = "asap-pdf/staging/GOOGLE_SERVICE_ACCOUNT"
-  GOOGLE_EVAL_SHEET_ID = "asap-pdf/staging/GOOGLE_SHEET_ID_EVALUATION"
-
   def initialize
     super
     @secret_manager = AwsLocalSecretManager.new
