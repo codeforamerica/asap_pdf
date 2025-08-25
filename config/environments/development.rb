@@ -39,7 +39,7 @@ Rails.application.configure do
 
   config.hosts = nil
 
-  config.default_s3_bucket = "cfa-aistudio-asap-pdf"
+  config.default_s3_bucket = "asap-pdf-staging-documents"
 
   config.local_secret_names = {
     asap_api_user: "asap-pdf/staging/RAILS_API_USER",

@@ -18,7 +18,7 @@ Rails.application.configure do
 
   config.action_controller.raise_on_missing_callback_actions = true
 
-  config.default_s3_bucket = "cfa-aistudio-asap-pdf"
+  config.default_s3_bucket = "asap-pdf-staging-documents"
 
   config.local_secret_names = {
     asap_api_user: "asap-pdf/staging/RAILS_API_USER",
