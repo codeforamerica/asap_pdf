@@ -240,6 +240,7 @@ class Site < ApplicationRecord
   end
 
   def export_document_audit!(current_user)
+    assert_s3_manager
     bucket_name = Rails.application.config.default_s3_bucket
     machine_site_name = name.downcase.gsub(/\W+/, "_")
     report_name = "audit_export_#{machine_site_name}_#{Time.now.strftime("%Y-%m-%dT%H-%M-%S")}"
@@ -259,6 +260,7 @@ class Site < ApplicationRecord
   end
 
   def get_document_audit_exports!
+    assert_s3_manager
     bucket_name = Rails.application.config.default_s3_bucket
     machine_site_name = name.downcase.gsub(/\W+/, "_")
     {
@@ -268,6 +270,7 @@ class Site < ApplicationRecord
   end
 
   def get_document_audit_link_hashes!
+    assert_s3_manager
     export_links = []
     report_data = get_document_audit_exports!
     if report_data[:files].present?
@@ -284,6 +287,12 @@ class Site < ApplicationRecord
   end
 
   private
+
+  def assert_s3_manager
+    if @s3_manager.nil?
+      raise StandardError.new("Failed to connect to AWS environment (AwsS3Manager failed to initialize).")
+    end
+  end
 
   def attributes_from(data)
     {
