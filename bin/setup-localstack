@@ -11,18 +11,18 @@ echo "LocalStack S3 is ready!"
 # Create the bucket if it doesn't exist
 # Must match value in config/environments/development.rb, config.default_s3_bucket.
 echo "Creating S3 bucket..."
-aws --endpoint-url=http://localstack:4566 s3 mb s3://cfa-aistudio-asap-pdf
+aws --endpoint-url=http://localstack:4566 s3 mb s3://asap-pdf-staging-documents
 
 # Enable versioning on the bucket
 echo "Enabling bucket versioning..."
 aws --endpoint-url=http://localstack:4566 s3api put-bucket-versioning \
-  --bucket cfa-aistudio-asap-pdf \
+  --bucket asap-pdf-staging-documents \
   --versioning-configuration Status=Enabled
 
 # Set bucket policy to allow public access (for development only)
 echo "Setting bucket policy..."
 aws --endpoint-url=http://localstack:4566 s3api put-bucket-policy \
-  --bucket cfa-aistudio-asap-pdf \
+  --bucket asap-pdf-staging-documents \
   --policy '{
     "Version": "2012-10-17",
     "Statement": [
@@ -31,7 +31,7 @@ aws --endpoint-url=http://localstack:4566 s3api put-bucket-policy \
         "Effect": "Allow",
         "Principal": "*",
         "Action": "s3:*",
-        "Resource": "arn:aws:s3:::cfa-aistudio-asap-pdf/*"
+        "Resource": "arn:aws:s3:::asap-pdf-staging-documents/*"
       }
     ]
   }'
