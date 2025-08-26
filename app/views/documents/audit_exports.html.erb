@@ -43,13 +43,12 @@
               <h2 class="text-lg font-medium">Use the API</h2>
               <p class="mt-4">Use the following RESTful endpoint to get your audit history.</p>
               <div class="mockup-code w-full mt-4 active-highlight text-black">
-                <pre data-prefix="$"><code>curl -X GET \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  -u "username:password" \
-  "https://api.example.com/api/sites/1/documents"</code></pre>
+                <pre data-prefix="$"><code>curl -X 'GET' \
+          '<%= request.base_url %>/api/sites/1/documents?page=0&items_per_page=100' \
+          -H 'accept: application/json' \
+          -H 'authorization: Basic [Your base64 encoded credentials]'</code></pre>
               </div>
-              <p class="mt-4">Read the <a href="#" class="text-primary">full API documentation.</a></p>
+              <p class="mt-4">Read the <%= link_to api_docs_path, class: "text-primary" do %>full API documentation.<% end %></p>
             </div>
           </div>
         </div>
