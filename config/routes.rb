@@ -45,7 +45,8 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq"
 
   mount AsapPdf::API => "/api"
-  get "api-docs", to: "api_docs#index"
+
+  get "/api-docs", to: "swagger#ui"
 
   resource :configuration, only: [:edit, :update]
 
