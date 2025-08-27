@@ -666,4 +666,21 @@ describe "documents function as expected", js: true, type: :feature do
       expect(FeedbackItem.count).to eq 5
     end
   end
+
+  it "exports documents" do
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "http://denvergov.org/docs/ex.ample.pdf", file_name: "ex.ample.pdf", document_category: "Agenda", site_id: site.id)
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list #document-tabs") do
+      click_link "Audit Exports"
+      sleep(1)
+    end
+    assert_match "sites/#{site.id}/documents/audit_exports", current_url
+    expect(page).to have_content "Create Audit Export"
+    expect(page).to have_content "Use the following RESTful endpoint to get your audit history."
+    expect(page).to have_content "authorization: Basic [Your base64 encoded credentials]"
+  end
 end
