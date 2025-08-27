@@ -120,9 +120,12 @@ class Document < ApplicationRecord
     end
   end
 
-  def summary
+  def summary(return_model = false)
     summary = document_inferences.find_by(inference_type: "summary")
-    summary.present? ? summary.inference_value : nil
+    unless return_model
+      return summary.present? ? summary.inference_value : nil
+    end
+    summary
   end
 
   def last_changed_by_human?(field)
