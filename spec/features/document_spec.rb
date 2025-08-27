@@ -310,25 +310,23 @@ describe "documents function as expected", js: true, type: :feature do
     end
     # Add some inferences.
     DocumentInference.create(inference_type: "exception:is_application",
-                             inference_value: "True",
-                             inference_reason: "This is not used as an application or means of participation in government services.",
-                             document_id: doc.id,
-                             is_active: true,
-                             inference_model_name: "anthropic-friend"
-    )
+      inference_value: "True",
+      inference_reason: "This is not used as an application or means of participation in government services.",
+      document_id: doc.id,
+      is_active: true,
+      inference_model_name: "anthropic-friend")
     DocumentInference.create(inference_type: "exception:is_archival",
-                             inference_value: "True",
-                             inference_reason: "This thing was made in 1988 and hasn't been opened since then.",
-                             document_id: doc.id,
-                             is_active: true,
-                             inference_model_name: "anthropic-friend")
+      inference_value: "True",
+      inference_reason: "This thing was made in 1988 and hasn't been opened since then.",
+      document_id: doc.id,
+      is_active: true,
+      inference_model_name: "anthropic-friend")
     DocumentInference.create(inference_type: "exception:is_archival",
-                             inference_value: "True",
-                             inference_reason: "Old archival value.",
-                             document_id: doc.id,
-                             is_active: false,
-                             inference_model_name: "anthropic-friend"
-    )
+      inference_value: "True",
+      inference_reason: "Old archival value.",
+      document_id: doc.id,
+      is_active: false,
+      inference_model_name: "anthropic-friend")
     visit "/"
     click_link("City of Denver")
     within("#document-list") do
