@@ -11,7 +11,7 @@
             <h2 class="text-gray-600 font-semibold text-sm w-full flex justify-between items-center px-4 py-4">Filter
               View</h2>
           </div>
-          <%= form_tag insights_site_path(@site), method: :get, class: "px-4 py-4", data: { action: "submit->filter#submitForm" } do %>
+          <%= form_tag insights_site_documents_path(@site), method: :get, class: "px-4 py-4", data: { action: "submit->filter#submitForm" } do %>
             <div>
               <label for="category" class="label">
                 <span class="label-text">Document Type</span>
@@ -32,7 +32,7 @@
             <% end %>
             <div class="flex justify-end pt-4">
               <div>
-                <%= link_to 'Clear', insights_site_path(@site), class: "btn btn-sm btn-ghost", data: { action: "filter#clearFilters" } %>
+                <%= link_to 'Clear', insights_site_documents_path(@site), class: "btn btn-sm btn-ghost", data: { action: "filter#clearFilters" } %>
                 <%= submit_tag 'Apply Filters', class: "btn btn-sm btn-primary" %>
               </div>
             </div>
@@ -47,8 +47,11 @@
               <%= link_to site_documents_path(@site), role: "tab", class: "tab" do %>
                 Documents
               <% end %>
-              <%= link_to insights_site_path(@site), role: "tab", class: "tab tab-active" do %>
+              <%= link_to insights_site_documents_path(@site), role: "tab", class: "tab tab-active" do %>
                 Insights
+              <% end %>
+              <%= link_to audit_exports_site_documents_path(@site), role: "tab", class: "tab" do %>
+                Audit Exports
               <% end %>
             </div>
           </div>

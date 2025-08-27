@@ -16,8 +16,8 @@ module "fargate_service" {
   memory          = 2048
   container_port  = 3000
 
-  execution_policies = [aws_iam_policy.ecs_task_secrets_policy.arn, aws_iam_policy.ecs_s3_access.arn]
-  task_policies = [aws_iam_policy.ecs_task_lambda_invoke_policy.arn]
+  execution_policies = [aws_iam_policy.ecs_task_secrets_policy.arn]
+  task_policies = [aws_iam_policy.ecs_task_lambda_invoke_policy.arn, aws_iam_policy.ecs_s3_access.arn]
 
   enable_execute_command   = true
   create_version_parameter = true

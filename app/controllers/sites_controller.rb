@@ -2,8 +2,8 @@ class SitesController < AuthenticatedController
   include Access
   include ParamsHelper
 
-  before_action :find_site, only: [:insights, :show, :edit, :update, :destroy]
-  before_action :ensure_user_site_access, only: [:insights, :show, :edit, :update, :destroy]
+  before_action :find_site, only: [:show, :edit, :update, :destroy, :create_workflow_audit_report]
+  before_action :ensure_user_site_access, only: [:show, :edit, :update, :destroy, :workflow_audit_report]
 
   def index
     @sites = if current_user.is_site_admin?
@@ -11,100 +11,6 @@ class SitesController < AuthenticatedController
     else
       current_user.site.nil? ? [] : [current_user.site]
     end
-  end
-
-  def insights
-    # Build document list.
-    @documents = @site.documents
-      .by_category(params[:category])
-      .by_department(params[:department])
-    # Create binned date data for visualization.
-    # First, gather all documents by year
-    year_groups = @documents.group_by(&:modification_year).map { |label, year_documents| [label, year_documents.size] }
-    # Extract and remove "Unknown" to handle separately
-    unknown_group = year_groups.find { |item| item[0] == "Unknown" }
-    year_groups = year_groups.reject { |item| item[0] == "Unknown" }
-    year_groups = year_groups.select do |item|
-      Integer(item[0])
-      true
-    rescue
-      if unknown_group.nil?
-        unknown_group = ["Unknown", 0]
-      end
-      unknown_group[1] += 1
-      false
-    end
-    # Convert to integers for sorting and calculations
-    year_groups = year_groups.map { |year, count| [Integer(year), count] }
-    # Create bins based on specific year ranges
-    binned_data = []
-    bins = [
-      ["< 2000", -Float::INFINITY..1999],
-      ["2000-2005", 2000..2005],
-      ["2006-2011", 2006..2011],
-      ["2012-2017", 2012..2017],
-      ["2018-2023", 2018..2023],
-      ["> 2023", 2024..Float::INFINITY]
-    ]
-    bins.each do |label, range|
-      count = year_groups.filter_map { |year, count| count if range.cover?(year) }.sum
-      binned_data << [label, count]
-    end
-    # Add the "Unknown" group if it exists (placing it at the end)
-    binned_data << unknown_group if unknown_group
-    @document_years = binned_data
-    # Create table data.
-    default_group = Document::DECISION_TYPES.keys.map { |status| [status, 0] }.to_h
-    @category_groups = {}
-    @documents.group([:document_category, :accessibility_recommendation]).count.each do |groups, group_count|
-      @category_groups[groups[0]] = default_group.clone if @category_groups[groups[0]].nil?
-      if Document::DECISION_TYPES.keys.exclude? groups[1]
-        parent = Document::DECISION_TYPES.keys.find do |key|
-          if Document::DECISION_TYPES[key]["children"].present? && Document::DECISION_TYPES[key]["children"].key?(groups[1])
-            key
-          end
-        end
-        if parent.present?
-          groups[1] = parent
-        end
-      end
-      @category_groups[groups[0]][groups[1]] += group_count
-    end
-    @category_groups.each do |key, child_hash|
-      sum = child_hash.values.sum
-      child_hash["Total"] = sum
-    end
-    @category_groups = @category_groups.sort.to_h
-    # Work on document links.
-    @document_links = {
-      complexity: [
-        {title: Document::SIMPLE_STATUS, params: query_params.merge({complexity: Document::SIMPLE_STATUS})},
-        {title: Document::COMPLEX_STATUS, params: query_params.merge({complexity: Document::COMPLEX_STATUS})}
-      ],
-      years: bins.map do |label, range|
-        document_count = @document_years.find { |item| item[0] == label }
-        if document_count[1] == 0
-          next
-        end
-        start_date = (range.begin == -Float::INFINITY) ? nil : "#{range.begin}-01-01"
-        end_date = (range.end == Float::INFINITY) ? nil : "#{range.end}-12-31"
-        {
-          title: label,
-          params: query_params.merge(
-            start_date: start_date,
-            end_date: end_date
-          ).compact
-        }
-      end.compact,
-      decision: @documents.pluck(:accessibility_recommendation).uniq.map do |decision|
-        {
-          title: decision,
-          params: query_params.merge(
-            accessibility_recommendation: decision
-          )
-        }
-      end
-    }
   end
 
   def show
@@ -139,6 +45,36 @@ class SitesController < AuthenticatedController
   def destroy
     @site.destroy
     redirect_to sites_path, notice: "Site was successfully deleted.", status: :see_other
+  end
+
+  def create_workflow_audit_report
+    export_links = []
+    error_message = nil
+    begin
+      @site.export_document_audit!(current_user)
+      export_links = @site.get_document_audit_link_hashes!
+    rescue => e
+      error_message = e.message
+    end
+    render json: {html: render_to_string(partial: "documents/audit_export_list", formats: [:html], locals: {export_links: export_links, error: error_message})}
+  end
+
+  def workflow_audit_report
+    s3_manager = AwsS3Manager.new
+    begin
+      key = params[:key]
+      key = key.start_with?("/") ? key : "/#{key}"
+      response = s3_manager.get_object!(params[:bucket_name], key)
+      send_data response[:body].read,
+        filename: File.basename(key),
+        type: response[:content_type] || "application/octet-stream",
+        disposition: "inline"
+    rescue Aws::S3::Errors::NoSuchKey
+      render plain: "File not found", status: 404
+    rescue => e
+      Rails.logger.error "S3 error: #{e.message}"
+      render plain: "Error retrieving file", status: 500
+    end
   end
 
   private

@@ -16,8 +16,11 @@
               <%= link_to site_documents_path(@site), role: "tab", class: "tab tab-active" do %>
                 Documents
               <% end %>
-              <%= link_to insights_site_path(@site), role: "tab", class: "tab" do %>
+              <%= link_to insights_site_documents_path(@site), role: "tab", class: "tab" do %>
                 Insights
+              <% end %>
+              <%= link_to audit_exports_site_documents_path(@site), role: "tab", class: "tab" do %>
+                Audit Exports
               <% end %>
             </div>
           </div>

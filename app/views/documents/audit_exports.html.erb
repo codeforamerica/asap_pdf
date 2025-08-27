@@ -1,0 +1,58 @@
+<% content_for :head do %>
+  <%= tag.meta name: "site-id", content: @site.id %>
+<% end %>
+<div class="py-6">
+  <div class="mx-auto px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-[250px_1fr] lg:gap-6">
+      <div id="sidebar" class="space-y-6 mb-6">
+        <%= render partial: "shared/site_navigation", locals: { site: @site } %>
+      </div>
+      <div id="document-list" class="px-0 space-y-0 md:overflow-x-scroll">
+        <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
+          <div class="flex justify-between items-center">
+            <h1 class="text-lg font-medium"><%= @site.location %>: <%= @site.name %></h1>
+            <div role="tablist" id="document-tabs" class="tabs tabs-boxed">
+              <%= link_to site_documents_path(@site), role: "tab", class: "tab" do %>
+                Documents
+              <% end %>
+              <%= link_to insights_site_documents_path(@site), role: "tab", class: "tab" do %>
+                Insights
+              <% end %>
+              <%= link_to audit_exports_site_documents_path(@site), role: "tab", class: "tab tab-active" do %>
+                Audit Exports
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll ">
+          <div class="px-6 py-4">
+            <h2 class="text-lg font-medium">Audit Exports</h2>
+            <div class="border-b-gray-200 border-b pb-4" data-controller="audit-export" data-audit-export-site-id-value="<%= @site.id %>" >
+              <p class="mt-4">Create a downloadable CSV export of your audit progress.</p>
+              <button data-action="click->audit-export#createReport" data-audit-export-target="button" class="btn btn-primary btn-sm mt-4">
+                <i class="fas fa-wand-magic-sparkles mr-1"></i>
+                Create Audit Export
+              </button>
+              <button class="btn btn-primary btn-sm hidden opacity-75 mt-4" data-audit-export-target="preloader">
+                <span class="loading loading-spinner"></span>
+                Creating Audit Export...
+              </button>
+              <%= render partial: "documents/audit_export_list", locals: { export_links: @export_links, error: @error_message } %>
+            </div>
+            <div class="mt-4">
+              <h2 class="text-lg font-medium">Use the API</h2>
+              <p class="mt-4">Use the following RESTful endpoint to get your audit history.</p>
+              <div class="mockup-code w-full mt-4 active-highlight text-black">
+                <pre data-prefix="$"><code>curl -X 'GET' \
+          '<%= request.base_url %>/api/sites/1/documents?page=0&items_per_page=100' \
+          -H 'accept: application/json' \
+          -H 'authorization: Basic [Your base64 encoded credentials]'</code></pre>
+              </div>
+              <p class="mt-4">Read the <%= link_to api_docs_path, class: "text-primary" do %>full API documentation.<% end %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

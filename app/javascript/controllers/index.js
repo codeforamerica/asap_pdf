@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import AuditExportController from "./audit_export_controller"
+application.register("audit-export", AuditExportController)
+
 import BulkEditController from "./bulk_edit_controller"
 application.register("bulk-edit", BulkEditController)
 
