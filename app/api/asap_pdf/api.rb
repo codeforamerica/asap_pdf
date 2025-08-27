@@ -108,7 +108,7 @@ module AsapPdf
         error!("Unauthorized", 401)
       end
       if params[:inference_type] == "summary"
-        inference = document.document_inferences.create(inference_type: "summary")
+        inference = document.document_inferences.new(inference_type: "summary")
         inference.inference_value = params[:result]["summary"]
         inference.is_active = true
         inference.save!
@@ -117,7 +117,7 @@ module AsapPdf
         ["individualized", "archival", "application", "third_party"].each do |type|
           result_boolean = "is_#{type}"
           unless params[:result][result_boolean].nil?
-            inference = document.document_inferences.create(inference_type: "exception:#{result_boolean}")
+            inference = document.document_inferences.new(inference_type: "exception:#{result_boolean}")
             inference.inference_value = params[:result][result_boolean] ? "True" : "False"
             inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
             inference.inference_reason = params[:result]["why_#{type}"]

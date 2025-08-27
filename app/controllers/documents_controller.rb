@@ -7,7 +7,7 @@ class DocumentsController < AuthenticatedController
   before_action :set_site, only: [:index, :insights, :audit_exports, :modal_content, :batch_update]
   before_action :set_document, except: [:index, :insights, :audit_exports, :batch_update]
   before_action :ensure_user_site_access, only: [:index, :insights, :audit_exports, :modal_content, :batch_update]
-  before_action :ensure_user_document_access, except: [:index, :modal_content, :batch_update]
+  before_action :ensure_user_document_access, except: [:index, :insights, :audit_exports, :modal_content, :batch_update]
 
   def modal_content
     render partial: "modal_content", locals: {document: @document}
