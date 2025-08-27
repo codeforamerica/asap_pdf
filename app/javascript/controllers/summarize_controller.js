@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["display", "button", "preloader"]
+    static targets = ["summaryValue", "button", "preloader"]
 
     static values = {
         documentId: Number,
@@ -20,11 +20,11 @@ export default class extends Controller {
                 },
             })
             if (response.ok) {
-                const jsonSummary = await response.json()
-                this.displayTarget.textContent = jsonSummary.display_text;
+                const replacementSummary = await response.json()
                 this.preloaderTarget.classList.add('hidden')
+                this.element.innerHTML = replacementSummary.html
             } else {
-                this.displayTarget.textContent = 'An error occurred summarizing this document. Please try again later.';
+                this.summaryValueTarget.textContent = 'An error occurred summarizing this document. Please try again later.';
                 throw new Error("Response was not OK")
             }
         } catch (error) {

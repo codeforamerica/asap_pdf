@@ -82,9 +82,7 @@ class DocumentsController < AuthenticatedController
       @document.inference_summary! request.base_url
       @document.reload
     end
-    render json: {
-      display_text: @document.summary
-    }
+    render json: {html: render_to_string(partial: "documents/summary", formats: [:html], locals: {document: @document})}
   end
 
   def update_recommendation_inference
