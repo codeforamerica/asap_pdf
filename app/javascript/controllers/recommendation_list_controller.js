@@ -25,8 +25,8 @@ export default class extends Controller {
                 },
             })
             if (response.ok) {
-                const jsonSummary = await response.json()
-                this.displayTarget.innerHTML = jsonSummary.html;
+                const jsonRecommendationList = await response.json()
+                this.displayTarget.innerHTML = jsonRecommendationList.html;
             } else {
                 this.displayTarget.textContent = 'An error occurred getting the recommendation list for this document. Please try again later.';
                 throw new Error("Response was not OK")

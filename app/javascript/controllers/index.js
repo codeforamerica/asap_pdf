@@ -13,6 +13,9 @@ application.register("dropdown", DropdownController)
 import DropdownEditController from "./dropdown_edit_controller"
 application.register("dropdown-edit", DropdownEditController)
 
+import FeedbackController from "./feedback_controller"
+application.register("feedback", FeedbackController)
+
 import FilterController from "./filter_controller"
 application.register("filter", FilterController)
 
