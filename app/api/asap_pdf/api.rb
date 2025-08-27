@@ -22,7 +22,11 @@ module AsapPdf
       security [{ basic_auth: [] }]
     end
     get "/sites" do
-      @user.is_site_admin ? Site.all : [@user.site]
+      if @user.is_site_admin
+        Site.all
+      else
+        @user.site.present? ? [@user.site] : []
+      end
     end
 
     desc "List documents related to site." do
@@ -47,7 +51,7 @@ module AsapPdf
       items_per_page = params[:items_per_page].nil? ? 25 : params[:items_per_page].to_i
       page = params[:page].nil? ? 0 : params[:page].to_i
       unless @user.is_site_admin || params[:id] == @user.site_id
-        { documents: [] }
+        error!("Unauthorized", 401)
       end
       site = Site.find(params[:id])
       { documents: site.documents.limit(items_per_page).offset(page * items_per_page).order(id: :asc) }
@@ -68,9 +72,11 @@ module AsapPdf
     params do
       requires :id, type: Integer, desc: "Document ID"
     end
-    get "/documents/:id/inference" do
-      status 201
+    get "/documents/:id/document_inference" do
       document = Document.find(params[:id])
+      unless @user.is_site_admin || document.site_id == @user.site_id
+        error!('Unauthorized', 401)
+      end
       { document_inferences: document.document_inferences.order(id: :asc) }
     end
 
@@ -97,8 +103,12 @@ module AsapPdf
     end
     post "/documents/:id/inference" do
       status 201
+      document = Document.find(params[:id])
+      unless @user.is_site_admin || document.site_id == @user.site_id
+        error!('Unauthorized', 401)
+      end
       if params[:inference_type] == "summary"
-        inference = DocumentInference.create(document_id: params[:id], inference_type: "summary")
+        inference = document.document_inferences.create(inference_type: "summary")
         inference.inference_value = params[:result]["summary"]
         inference.is_active = true
         inference.save!
@@ -107,7 +117,7 @@ module AsapPdf
         ["individualized", "archival", "application", "third_party"].each do |type|
           result_boolean = "is_#{type}"
           unless params[:result][result_boolean].nil?
-            inference = DocumentInference.create(document_id: params[:id], inference_type: "exception:#{result_boolean}")
+            inference = document.document_inferences.create(inference_type: "exception:#{result_boolean}")
             inference.inference_value = params[:result][result_boolean] ? "True" : "False"
             inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
             inference.inference_reason = params[:result]["why_#{type}"]
