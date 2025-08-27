@@ -26,7 +26,7 @@ def get_inference_for_document(
     local_mode: bool,
     aws_env: str,
     page_number: int,
-) -> None:
+) -> dict:
     logger.info(f"Performing inference type {inference_type} for {document.url}...")
     if local_mode:
         url = (

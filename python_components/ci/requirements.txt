@@ -14,7 +14,6 @@ llm==0.26
 pandas==2.2.3
 pip-chill==1.0.3
 pymupdf==1.25.5
-pypdf==6.0.0
 pysocks==1.7.1
 pytest-httpserver==1.1.3
 requests-aws4auth==1.3.1

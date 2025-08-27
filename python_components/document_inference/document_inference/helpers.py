@@ -6,7 +6,6 @@ import shutil
 import boto3
 import fitz
 import llm
-import pypdf
 import requests
 from document_inference.prompts import RECOMMENDATION, SUMMARY
 from document_inference.schemas import DocumentRecommendation, DocumentSummarySchema
@@ -161,31 +160,32 @@ def document_inference_summary(
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
-    DocumentSummarySchema.model_validate(response_json)
+    structured_output_model = DocumentSummarySchema.model_validate(response_json)
+    structured_output_model.inference_model = model.model_id
+    structured_output_model.usage = response.usage()
     logger.info("Validation complete.")
-    return response_json
+    return structured_output_model.model_dump()
 
 
 def document_inference_recommendation(
     model, document: dict, local_path: str, page_limit: int
 ) -> dict:
     logger.info("Beginning recommendation process.")
-    if not pypdf.PdfReader(local_path).is_encrypted:
-        # Convert to images.
-        logger.info("Converting to images!")
-        attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
-        num_attachments = len(attachments)
-        logger.info(f"Created {num_attachments} images.")
-        populated_prompt = RECOMMENDATION.format(**document)
-        response = model.prompt(
-            populated_prompt,
-            attachments=attachments,
-            schema=DocumentRecommendation.model_json_schema(),
-        )
-        response_json = json.loads(response.text())
-        logger.info("Inference complete. Validating response.")
-        DocumentRecommendation.model_validate(response_json)
-        logger.info("Validation complete.")
-    else:
-        raise RuntimeError("Document was encrypted! Could not proceed.")
-    return response_json
+    # Convert to images.
+    logger.info("Converting to images!")
+    attachments = pdf_to_attachments(local_path, "/tmp/data", page_limit)
+    num_attachments = len(attachments)
+    logger.info(f"Created {num_attachments} images.")
+    populated_prompt = RECOMMENDATION.format(**document)
+    response = model.prompt(
+        populated_prompt,
+        attachments=attachments,
+        schema=DocumentRecommendation.model_json_schema(),
+    )
+    response_json = json.loads(response.text())
+    logger.info("Inference complete. Validating response.")
+    structured_output_model = DocumentRecommendation.model_validate(response_json)
+    structured_output_model.inference_model = model.model_id
+    structured_output_model.usage = response.usage()
+    logger.info("Validation complete.")
+    return structured_output_model.model_dump()
