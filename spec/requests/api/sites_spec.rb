@@ -9,7 +9,7 @@ RSpec.describe AsapPdf::API do
 
   def auth_headers user
     encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email, "password")
-    { "HTTP_AUTHORIZATION" => encoded_credentials }
+    {"HTTP_AUTHORIZATION" => encoded_credentials}
   end
 
   let!(:admin_user) { create(:user, :site_admin) }
@@ -45,11 +45,11 @@ RSpec.describe AsapPdf::API do
       first_site = json_response.first
 
       expect(first_site).to include(
-                              "id",
-                              "name",
-                              "location",
-                              "primary_url"
-                            )
+        "id",
+        "name",
+        "location",
+        "primary_url"
+      )
     end
   end
 
@@ -79,13 +79,13 @@ RSpec.describe AsapPdf::API do
     end
 
     it "paginates" do
-      get "/sites/#{site.id}/documents", { "page": 0, "items_per_page": 2 }, auth_headers(admin_user)
+      get "/sites/#{site.id}/documents", {page: 0, items_per_page: 2}, auth_headers(admin_user)
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body)["documents"].length).to eq(2)
-      get "/sites/#{site.id}/documents", { "page": 4, "items_per_page": 2 }, auth_headers(admin_user)
+      get "/sites/#{site.id}/documents", {page: 4, items_per_page: 2}, auth_headers(admin_user)
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body)["documents"].length).to eq(2)
-      get "/sites/#{site.id}/documents", { "page": 5, "items_per_page": 2 }, auth_headers(admin_user)
+      get "/sites/#{site.id}/documents", {page: 5, items_per_page: 2}, auth_headers(admin_user)
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body)["documents"].length).to eq(0)
     end
@@ -116,15 +116,14 @@ RSpec.describe AsapPdf::API do
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body)["document_inferences"].length).to eq(4)
     end
-
   end
 
   describe "POST /documents/:id/inference" do
     let(:timestamp) { Time.current }
     let!(:site) { create(:site) }
     let!(:document) { create(:document, site: site) }
-    let(:inference) { { inference_type: "exception", result: { is_archival: "True", why_archival: "This document is in a special archival section." } } }
-    let(:inference_update) { { inference_type: "exception", result: { is_archival: "True", why_archival: "This document is in a special archival section.", is_application: "True", why_application: "Test 123" } } }
+    let(:inference) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section."}} }
+    let(:inference_update) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section.", is_application: "True", why_application: "Test 123"}} }
 
     context "when the document receives inferences" do
       it "blocks access to anonymous users" do

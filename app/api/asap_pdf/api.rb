@@ -11,7 +11,7 @@ module AsapPdf
     end
 
     rescue_from ActiveRecord::RecordNotFound do |e|
-      error!({ error: e.message }, 404)
+      error!({error: e.message}, 404)
     end
 
     desc "Return list of sites" do
@@ -19,7 +19,7 @@ module AsapPdf
       tags ["Sites"]
       produces ["application/json"]
       failure [[401, "Unauthorized"], [403, "Forbidden"]]
-      security [{ basic_auth: [] }]
+      security [{basic_auth: []}]
     end
     get "/sites" do
       if @user.is_site_admin
@@ -35,17 +35,17 @@ module AsapPdf
       produces ["application/json"]
       consumes ["application/json"]
       failure [
-                [400, "Bad Request - Invalid parameters"],
-                [401, "Unauthorized"],
-                [403, "Forbidden"],
-                [404, "Site not found"]
-              ]
+        [400, "Bad Request - Invalid parameters"],
+        [401, "Unauthorized"],
+        [403, "Forbidden"],
+        [404, "Site not found"]
+      ]
       named "List documents"
     end
     params do
       requires :id, type: Integer, desc: "Site ID"
-      optional :page, type: Integer, desc: 'Page number for pagination', default: 0
-      optional :items_per_page, type: Integer, desc: 'Items per page', default: 25
+      optional :page, type: Integer, desc: "Page number for pagination", default: 0
+      optional :items_per_page, type: Integer, desc: "Items per page", default: 25
     end
     get "/sites/:id/documents" do
       items_per_page = params[:items_per_page].nil? ? 25 : params[:items_per_page].to_i
@@ -54,7 +54,7 @@ module AsapPdf
         error!("Unauthorized", 401)
       end
       site = Site.find(params[:id])
-      { documents: site.documents.limit(items_per_page).offset(page * items_per_page).order(id: :asc) }
+      {documents: site.documents.limit(items_per_page).offset(page * items_per_page).order(id: :asc)}
     end
 
     desc "List document inferences for a document." do
@@ -63,11 +63,11 @@ module AsapPdf
       produces ["application/json"]
       consumes ["application/json"]
       failure [
-                [400, "Bad Request - Invalid parameters"],
-                [401, "Unauthorized"],
-                [403, "Forbidden"],
-                [404, "Site not found"]
-              ]
+        [400, "Bad Request - Invalid parameters"],
+        [401, "Unauthorized"],
+        [403, "Forbidden"],
+        [404, "Site not found"]
+      ]
     end
     params do
       requires :id, type: Integer, desc: "Document ID"
@@ -75,9 +75,9 @@ module AsapPdf
     get "/documents/:id/document_inference" do
       document = Document.find(params[:id])
       unless @user.is_site_admin || document.site_id == @user.site_id
-        error!('Unauthorized', 401)
+        error!("Unauthorized", 401)
       end
-      { document_inferences: document.document_inferences.order(id: :asc) }
+      {document_inferences: document.document_inferences.order(id: :asc)}
     end
 
     desc "Adds or updates a document inference with type" do
@@ -86,11 +86,11 @@ module AsapPdf
       produces ["application/json"]
       consumes ["application/json"]
       failure [
-                [400, "Bad Request - Invalid parameters"],
-                [401, "Unauthorized"],
-                [403, "Forbidden"],
-                [404, "Site not found"]
-              ]
+        [400, "Bad Request - Invalid parameters"],
+        [401, "Unauthorized"],
+        [403, "Forbidden"],
+        [404, "Site not found"]
+      ]
     end
     params do
       requires :id, type: Integer, desc: "Document ID"
@@ -105,7 +105,7 @@ module AsapPdf
       status 201
       document = Document.find(params[:id])
       unless @user.is_site_admin || document.site_id == @user.site_id
-        error!('Unauthorized', 401)
+        error!("Unauthorized", 401)
       end
       if params[:inference_type] == "summary"
         inference = document.document_inferences.create(inference_type: "summary")
@@ -137,11 +137,11 @@ module AsapPdf
         version: "1.0.0"
       },
       tags: [
-        { name: "Sites", description: "Site operations" },
-        { name: "Documents", description: "Document operations" },
-        { name: "Document Inferences", description: "Document Inference operations" }
+        {name: "Sites", description: "Site operations"},
+        {name: "Documents", description: "Document operations"},
+        {name: "Document Inferences", description: "Document Inference operations"}
       ],
-      models: [],
+      models: []
     )
   end
 end
