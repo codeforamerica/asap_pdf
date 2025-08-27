@@ -609,9 +609,9 @@ describe "documents function as expected", js: true, type: :feature do
       click_button "AI Exception Check"
       expect(page).to have_no_content "Feedback on AI Response:"
     end
-    DocumentInference.new(document_id: doc.id, inference_type: "summary", inference_value: "A lovely example of accessible PDF practices.").save
-    DocumentInference.create(inference_type: "exception:is_application", inference_value: "True", inference_reason: "This is not used as an application or means of participation in government services.", document_id: doc.id)
-    DocumentInference.create(inference_type: "exception:is_archival", inference_value: "True", inference_reason: "This thing was made in 1988 and hasn't been opened since then.", document_id: doc.id)
+    DocumentInference.create(document_id: doc.id, inference_type: "summary", inference_value: "A lovely example of accessible PDF practices.", is_active: true)
+    DocumentInference.create(inference_type: "exception:is_application", inference_value: "True", inference_reason: "This is not used as an application or means of participation in government services.", document_id: doc.id, is_active: true)
+    DocumentInference.create(inference_type: "exception:is_archival", inference_value: "True", inference_reason: "This thing was made in 1988 and hasn't been opened since then.", document_id: doc.id, is_active: true)
     visit "/"
     click_link "City of Denver"
     within("#document-list") do
