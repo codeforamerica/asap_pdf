@@ -99,6 +99,8 @@ module AsapPdf
         inference = DocumentInference.create(document_id: params[:id], inference_type: "summary")
         inference.inference_value = params[:result]["summary"]
         inference.is_active = true
+        inference.inference_model_name = params[:result]["inference_model"]
+        inference.token_details = params[:result]["usage"]
         inference.save!
       end
       if params[:inference_type] == "exception"
@@ -110,6 +112,8 @@ module AsapPdf
             inference.inference_confidence = params[:result]["#{result_boolean}_confidence"]
             inference.inference_reason = params[:result]["why_#{type}"]
             inference.is_active = true
+            inference.inference_model_name = params[:result]["inference_model"]
+            inference.token_details = params[:result]["usage"]
             inference.save!
           end
         end
