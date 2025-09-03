@@ -507,7 +507,7 @@ describe "documents function as expected", js: true, type: :feature do
       click_button "Apply Filters"
     end
     sleep(1)
-    assert_match "sites/#{site.id}/insights?category=Agreement&department=Public+Transportation", current_url
+    assert_match "sites/#{site.id}/documents/insights?category=Agreement&department=Public+Transportation", current_url
     # Look for general content.
     within("#insights") do
       expect(page).to have_content "\nTYPE NEEDS DECISION IN REVIEW DONE TOTAL\nAgreement 1 0 0 1"
@@ -527,7 +527,7 @@ describe "documents function as expected", js: true, type: :feature do
     teahouse_doc.save
     market_doc.accessibility_recommendation = Document::ARCHIVE_DECISION
     market_doc.save
-    visit "/sites/#{site.id}/insights?category=Agreement&department=Public+Transportation&accessibility_decision=Remediate"
+    visit "/sites/#{site.id}/documents/insights?category=Agreement&department=Public+Transportation&accessibility_decision=Remediate"
     within("#insights #chart-modification-year") do
       find(".dropdown .btn").click
       click_link "2018-2023"
@@ -535,7 +535,7 @@ describe "documents function as expected", js: true, type: :feature do
     sleep(1)
     assert_match "sites/#{site.id}/documents?accessibility_decision=Remediate&category=Agreement&department=Public+Transportation&end_date=2023-12-31&start_date=2018-01-01", current_url
 
-    visit "/sites/#{site.id}/insights?category=Notice&department=Parks+and+Recreation&status=Archive"
+    visit "/sites/#{site.id}/documents/insights?category=Notice&department=Parks+and+Recreation&status=Archive"
     within("#insights #chart-decision") do
       find(".dropdown .btn").click
       click_link "Archive"
@@ -609,9 +609,21 @@ describe "documents function as expected", js: true, type: :feature do
       click_button "AI Exception Check"
       expect(page).to have_no_content "Feedback on AI Response:"
     end
-    DocumentInference.create(document_id: doc.id, inference_type: "summary", inference_value: "A lovely example of accessible PDF practices.", is_active: true)
-    DocumentInference.create(inference_type: "exception:is_application", inference_value: "True", inference_reason: "This is not used as an application or means of participation in government services.", document_id: doc.id, is_active: true)
-    DocumentInference.create(inference_type: "exception:is_archival", inference_value: "True", inference_reason: "This thing was made in 1988 and hasn't been opened since then.", document_id: doc.id, is_active: true)
+    DocumentInference.new(document_id: doc.id, inference_type: "summary", inference_value: "A lovely example of accessible PDF practices.").save
+    DocumentInference.create(
+      inference_type: "exception:is_application",
+      inference_value: "True",
+      inference_reason: "This is not used as an application or means of participation in government services.",
+      document_id: doc.id,
+      is_active: true
+    )
+    DocumentInference.create(
+      inference_type: "exception:is_archival",
+      inference_value: "True",
+      inference_reason: "This thing was made in 1988 and hasn't been opened since then.",
+      document_id: doc.id,
+      is_active: true
+    )
     visit "/"
     click_link "City of Denver"
     within("#document-list") do
@@ -675,5 +687,22 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
       expect(FeedbackItem.count).to eq 5
     end
+  end
+
+  it "exports documents" do
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    Document.create(url: "http://denvergov.org/docs/ex.ample.pdf", file_name: "ex.ample.pdf", document_category: "Agenda", site_id: site.id)
+    visit "/"
+    click_link "City of Denver"
+    within("#document-list #document-tabs") do
+      click_link "Audit Exports"
+      sleep(1)
+    end
+    assert_match "sites/#{site.id}/documents/audit_exports", current_url
+    expect(page).to have_content "Create Audit Export"
+    expect(page).to have_content "Use the following RESTful endpoint to get your audit history."
+    expect(page).to have_content "authorization: Basic [Your base64 encoded credentials]"
   end
 end
