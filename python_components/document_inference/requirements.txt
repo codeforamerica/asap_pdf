@@ -7,11 +7,12 @@ flake8==7.1.2
 importlib-metadata==8.0.0
 inflect==7.3.1
 isort==6.0.1
+jaraco-functools==4.3.0
 jaraco.collections==5.1.0
-llm-anthropic==0.15.1
-llm-gemini==0.19.1
-pillow>=11.3.0
+llm-anthropic==0.18
+llm-gemini==0.25
+pillow==11.3.0
 pip-chill==1.0.3
 pymupdf==1.25.5
-requests>=2.32.4
+requests==2.32.5
 tomli==2.0.1

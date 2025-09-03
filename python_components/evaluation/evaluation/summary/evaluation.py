@@ -1,4 +1,5 @@
 from typing import List
+import time
 
 from deepeval.test_case import MLLMTestCase
 from evaluation.summary.rouge_score import METRIC_VERSION as ROUGE_VERSION
@@ -20,6 +21,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
     def evaluate(self, document: Document) -> List[Result]:
         output = []
         # Perform any inference required for evaluation.
+        start = time.time()
         logger.info("Beginning summarization.")
         result = get_inference_for_document(
             document,
@@ -29,6 +31,15 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.aws_env,
             self.page_limit,
         )
+        duration = time.time() - start
+        output.append(dict(self.result_factory.new({
+            "metric_name": f"inference_duration",
+            "metric_version": 0,
+            "score": duration,
+            "file_name": document.file_name,
+            "inference_model": self.inference_model_name,
+        })))
+
         logger.info("Summarization complete. Performing related evaluations.")
         document.ai_summary = result["summary"]
         # Begin the DeepEval summary evaluation.

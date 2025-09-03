@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import List
 
 from deepeval.metrics.multimodal_metrics import MultimodalFaithfulnessMetric
@@ -41,6 +42,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
     async def evaluate(self, document: Document) -> List[Result]:
         output = []
         # Perform inferences that we want to evaluate.
+        start = time.time()
         result = get_inference_for_document(
             document,
             self.inference_model_name,
@@ -49,6 +51,16 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.aws_env,
             self.page_limit,
         )
+        duration = time.time() - start
+
+        output.append(dict(self.result_factory.new({
+            "metric_name": f"inference_duration",
+            "metric_version": 0,
+            "score": duration,
+            "file_name": document.file_name,
+            "inference_model": self.inference_model_name,
+        })))
+
         logger.info("Exception check complete. Performing related evaluations.")
         document.ai_exception = result
 
