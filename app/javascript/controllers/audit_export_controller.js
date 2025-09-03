@@ -1,18 +1,18 @@
-import { Controller } from "@hotwired/stimulus"
+import {Controller} from "@hotwired/stimulus"
 
 export default class extends Controller {
-    static targets = ["summaryValue", "button", "preloader"]
+    static targets = ["button", "preloader", "documentList"]
 
     static values = {
-        documentId: Number,
+        siteId: Number,
     }
 
-    async getSummary() {
+    async createReport() {
         try {
-            this.buttonTarget.classList.add('hidden');
-            this.preloaderTarget.classList.remove('hidden')
-            const response = await fetch(`/documents/${this.documentIdValue}/update_summary_inference`, {
-                method: "PATCH",
+            this.buttonTarget.classList.add("hidden");
+            this.preloaderTarget.classList.remove("hidden");
+            const response = await fetch(`/sites/${this.siteIdValue}/create_workflow_audit_report`, {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
@@ -20,11 +20,11 @@ export default class extends Controller {
                 },
             })
             if (response.ok) {
-                const replacementSummary = await response.json()
+                const jsonSummary = await response.json()
+                this.documentListTarget.outerHTML = jsonSummary.html;
                 this.preloaderTarget.classList.add('hidden')
-                this.element.innerHTML = replacementSummary.html
+                this.buttonTarget.classList.remove("hidden");
             } else {
-                this.summaryValueTarget.textContent = 'An error occurred summarizing this document. Please try again later.';
                 throw new Error("Response was not OK")
             }
         } catch (error) {

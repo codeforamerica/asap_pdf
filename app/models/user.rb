@@ -3,6 +3,7 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable, :trackable
 
   belongs_to :site, optional: true
+  has_many :feedback_item
   delegate :documents, to: :site, allow_nil: true
 
   def send_new_account_instructions?

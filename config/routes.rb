@@ -1,3 +1,5 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
   devise_for :users, controllers: {
     sessions: "users/sessions",
@@ -13,7 +15,8 @@ Rails.application.routes.draw do
 
   resources :sites do
     member do
-      get :insights
+      get "workflow_audit_report/:bucket_name/*key", to: "sites#workflow_audit_report", format: false, as: :workflow_audit_report
+      post :create_workflow_audit_report
     end
     resources :documents do
       member do
@@ -22,6 +25,8 @@ Rails.application.routes.draw do
       end
       collection do
         patch :batch_update
+        get :insights
+        get :audit_exports
       end
     end
   end
@@ -37,8 +42,16 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :feedback_items do
+    collection do
+      patch :update_feedback_items
+      delete :delete_items
+    end
+  end
+
   mount AsapPdf::API => "/api"
-  get "api-docs", to: "api_docs#index"
+
+  get "/api-docs", to: "swagger#ui"
 
   resource :configuration, only: [:edit, :update]
 

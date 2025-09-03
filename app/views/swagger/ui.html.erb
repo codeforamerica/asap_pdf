@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ASAP PDF API Documentation</title>
+  <%= javascript_include_tag "swagger", "data-turbo-track": "reload", defer: true %>
+  <%= stylesheet_link_tag "swagger", "data-turbo-track": "reload" %>
+  <style>
+      html {
+          box-sizing: border-box;
+          overflow: -moz-scrollbars-vertical;
+          overflow-y: scroll;
+      }
+
+      *, *:before, *:after {
+          box-sizing: inherit;
+      }
+
+      body {
+          margin: 0;
+          background: #fafafa;
+      }
+
+      .swagger-ui .topbar {
+          display: none;
+      }
+  </style>
+</head>
+<body>
+<div id="swagger-ui"></div>
+</body>
+</html>

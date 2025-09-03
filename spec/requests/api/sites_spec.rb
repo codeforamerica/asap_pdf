@@ -7,13 +7,13 @@ RSpec.describe AsapPdf::API do
     AsapPdf::API
   end
 
-  def auth_headers
-    user = User.last
+  def auth_headers user
     encoded_credentials = ActionController::HttpAuthentication::Basic.encode_credentials(user.email, "password")
     {"HTTP_AUTHORIZATION" => encoded_credentials}
   end
 
-  let!(:user) { create(:user, :site_admin) }
+  let!(:admin_user) { create(:user, :site_admin) }
+  let!(:user) { create(:user) }
 
   describe "GET /sites" do
     let!(:sites) { create_list(:site, 3) }
@@ -22,14 +22,25 @@ RSpec.describe AsapPdf::API do
       expect(last_response.status).to eq(401)
     end
 
-    it "returns all sites" do
-      get "/sites", {}, auth_headers
+    it "returns all accessible sites" do
+      get "/sites", {}, auth_headers(admin_user)
       expect(last_response.status).to eq(200)
       expect(JSON.parse(last_response.body).length).to eq(3)
+
+      get "/sites", {}, auth_headers(user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body).length).to eq(0)
+
+      user.site = sites[0]
+      user.save!
+
+      get "/sites", {}, auth_headers(user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body).length).to eq(1)
     end
 
     it "returns sites with correct structure" do
-      get "/sites", {}, auth_headers
+      get "/sites", {}, auth_headers(admin_user)
       json_response = JSON.parse(last_response.body)
       first_site = json_response.first
 
@@ -42,135 +53,75 @@ RSpec.describe AsapPdf::API do
     end
   end
 
-  describe "GET /sites/:id" do
+  describe "GET /sites/:id/documents" do
     let!(:site) { create(:site) }
-    context "when the site exists" do
-      it "returns the requested site" do
-        get "/sites/#{site.id}", {}, auth_headers
-        expect(last_response.status).to eq(200)
+    let!(:document) { create_list(:document, 10, site: site) }
 
-        json_response = JSON.parse(last_response.body)
-        expect(json_response["id"]).to eq(site.id)
-        expect(json_response["name"]).to eq(site.name)
-        expect(json_response["location"]).to eq(site.location)
-        expect(json_response["primary_url"]).to eq(site.primary_url)
-      end
+    it "blocks access to anonymous users" do
+      get "/sites/#{site.id}/documents"
+      expect(last_response.status).to eq(401)
     end
 
-    context "when the site does not exist" do
-      it "returns 404 not found" do
-        get "/sites/0", {}, auth_headers
-        expect(last_response.status).to eq(404)
-      end
+    it "returns all accessible documents" do
+      get "/sites/#{site.id}/documents", {}, auth_headers(admin_user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["documents"].length).to eq(10)
+
+      get "/sites/#{site.id}/documents", {}, auth_headers(user)
+      expect(last_response.status).to eq(401)
+
+      user.site = site
+      user.save!
+
+      get "/sites/#{site.id}/documents", {}, auth_headers(user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["documents"].length).to eq(10)
+    end
+
+    it "paginates" do
+      get "/sites/#{site.id}/documents", {page: 0, items_per_page: 2}, auth_headers(admin_user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["documents"].length).to eq(2)
+      get "/sites/#{site.id}/documents", {page: 4, items_per_page: 2}, auth_headers(admin_user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["documents"].length).to eq(2)
+      get "/sites/#{site.id}/documents", {page: 5, items_per_page: 2}, auth_headers(admin_user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["documents"].length).to eq(0)
     end
   end
 
-  describe "POST /sites/:id/documents" do
+  describe "GET /documents/:id/document_inference" do
     let!(:site) { create(:site) }
-    let(:timestamp) { Time.current }
-    let(:valid_documents) do
-      [
-        {url: "https://example.com/doc1.pdf", modification_date: timestamp, document_category: "Brochure"},
-        {url: "https://example.com/doc2.pdf", modification_date: timestamp, document_category: "Brochure"}
-      ]
+    let!(:document) { create(:document, site: site) }
+    let!(:document_inference) { create_list(:document_inference, 4, document: document) }
+
+    it "blocks access to anonymous users" do
+      get "/documents/#{document.id}/document_inference"
+      expect(last_response.status).to eq(401)
     end
 
-    context "when the site exists" do
-      it "blocks access to anonymous users" do
-        post "/sites/#{site.id}/documents", {documents: valid_documents}
-        expect(last_response.status).to eq(401)
-      end
+    it "returns all accessible document inferences" do
+      get "/documents/#{document.id}/document_inference", {}, auth_headers(admin_user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["document_inferences"].length).to eq(4)
 
-      it "creates new documents for new URLs" do
-        expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
-        }.to change(Document, :count).by(2)
+      get "/documents/#{document.id}/document_inference", {}, auth_headers(user)
+      expect(last_response.status).to eq(401)
 
-        expect(last_response.status).to eq(201)
+      user.site = site
+      user.save!
 
-        json_response = JSON.parse(last_response.body)
-        expect(json_response["documents"].length).to eq(2)
-
-        first_doc = json_response["documents"].first
-        expect(first_doc).to include(
-          "id",
-          "url",
-          "document_status",
-          "s3_path"
-        )
-        expect(first_doc["url"]).to eq(valid_documents.first[:url])
-        expect(first_doc["document_status"]).to eq("discovered")
-        expect(first_doc["s3_path"]).to include(site.s3_endpoint_prefix)
-      end
-
-      it "updates existing documents when modification_date changes" do
-        existing_doc = site.documents.create!(
-          url: valid_documents.first[:url],
-          modification_date: 1.day.ago,
-          file_name: "doc1.pdf",
-          document_status: "discovered",
-          document_category: "Brochure"
-        )
-
-        expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
-        }.to change(Document, :count).by(1) # Only creates one new document
-
-        expect(last_response.status).to eq(201)
-
-        existing_doc.reload
-        expect(existing_doc.document_status).to eq("discovered")
-        expect(existing_doc.modification_date).to be_within(1.second).of(timestamp)
-      end
-
-      it "doesn't modify existing documents when modification_date hasn't changed" do
-        existing_doc = site.documents.create!(
-          url: valid_documents.first[:url],
-          modification_date: timestamp,
-          file_name: "doc1.pdf",
-          document_status: "discovered",
-          document_category: "Brochure"
-        )
-
-        expect {
-          post "/sites/#{site.id}/documents", {documents: valid_documents}, auth_headers
-        }.to change(Document, :count).by(1) # Only creates one new document
-
-        expect(last_response.status).to eq(201)
-
-        existing_doc.reload
-        expect(existing_doc.document_status).to eq("discovered")
-      end
-    end
-
-    context "when the site does not exist" do
-      it "returns 404 not found" do
-        post "/sites/0/documents", {documents: valid_documents}, auth_headers
-        expect(last_response.status).to eq(404)
-      end
-    end
-
-    context "with invalid parameters" do
-      it "returns 400 bad request when documents is missing" do
-        post "/sites/#{site.id}/documents", {}, auth_headers
-        expect(last_response.status).to eq(400)
-      end
-
-      it "returns 400 bad request when documents is not an array" do
-        post "/sites/#{site.id}/documents", {documents: "not_an_array"}, auth_headers
-        expect(last_response.status).to eq(400)
-      end
-
-      it "returns 400 bad request when document is missing required fields" do
-        post "/sites/#{site.id}/documents", {documents: [{url: "https://example.com/doc.pdf"}]}, auth_headers
-        expect(last_response.status).to eq(400)
-      end
+      get "/documents/#{document.id}/document_inference", {}, auth_headers(user)
+      expect(last_response.status).to eq(200)
+      expect(JSON.parse(last_response.body)["document_inferences"].length).to eq(4)
     end
   end
 
   describe "POST /documents/:id/inference" do
     let(:timestamp) { Time.current }
-    let!(:document) { create(:document) }
+    let!(:site) { create(:site) }
+    let!(:document) { create(:document, site: site) }
     let(:inference) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section."}} }
     let(:inference_update) { {inference_type: "exception", result: {is_archival: "True", why_archival: "This document is in a special archival section.", is_application: "True", why_application: "Test 123"}} }
 
@@ -181,13 +132,24 @@ RSpec.describe AsapPdf::API do
       end
       it "creates new inferences" do
         expect {
-          post "/documents/#{document.id}/inference", inference, auth_headers
+          post "/documents/#{document.id}/inference", inference, auth_headers(admin_user)
         }.to change(DocumentInference, :count).by(1)
         expect(document.document_inferences.count).to eq(1)
         expect {
-          post "/documents/#{document.id}/inference", inference_update, auth_headers
+          post "/documents/#{document.id}/inference", inference_update, auth_headers(admin_user)
         }.to change(DocumentInference, :count).by(2)
         expect(document.document_inferences.count).to eq(3)
+
+        post "/documents/#{document.id}/inference", inference_update, auth_headers(user)
+        expect(last_response.status).to eq(401)
+        expect(document.document_inferences.count).to eq(3)
+
+        user.site = site
+        user.save!
+
+        post "/documents/#{document.id}/inference", inference_update, auth_headers(user)
+        expect(last_response.status).to eq(201)
+        expect(document.document_inferences.count).to eq(5)
       end
     end
   end

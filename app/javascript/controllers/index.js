@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import AuditExportController from "./audit_export_controller"
+application.register("audit-export", AuditExportController)
+
 import BulkEditController from "./bulk_edit_controller"
 application.register("bulk-edit", BulkEditController)
 
@@ -12,6 +15,9 @@ application.register("dropdown", DropdownController)
 
 import DropdownEditController from "./dropdown_edit_controller"
 application.register("dropdown-edit", DropdownEditController)
+
+import FeedbackController from "./feedback_controller"
+application.register("feedback", FeedbackController)
 
 import FilterController from "./filter_controller"
 application.register("filter", FilterController)
