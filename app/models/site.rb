@@ -54,6 +54,14 @@ class Site < ApplicationRecord
   validates :primary_url, presence: true, uniqueness: true
   validate :ensure_safe_url
 
+  after_initialize :after_initialize
+
+  def after_initialize
+    @s3_manager = AwsS3Manager.new
+  rescue
+    @s3_manager = nil
+  end
+
   def has_departments?
     documents.where.not(department: [nil, ""]).any?
   end
@@ -231,7 +239,60 @@ class Site < ApplicationRecord
     end
   end
 
+  def export_document_audit!(current_user)
+    assert_s3_manager
+    bucket_name = Rails.application.config.default_s3_bucket
+    machine_site_name = name.downcase.gsub(/\W+/, "_")
+    report_name = "audit_export_#{machine_site_name}_#{Time.now.strftime("%Y-%m-%dT%H-%M-%S")}"
+    Tempfile.create([report_name, ".csv"]) do |temp_file|
+      CSV.open(temp_file.path, "wb") do |csv|
+        csv << Document.column_names
+        documents.find_each do |record|
+          csv << record.attributes.values
+        end
+      end
+      metadata = {
+        "created" => Time.now.iso8601,
+        "author" => current_user.email
+      }
+      @s3_manager.write_file!(bucket_name, "/reports/#{machine_site_name}/#{report_name}.csv", temp_file.path, "text/csv", metadata)
+    end
+  end
+
+  def get_document_audit_exports!
+    assert_s3_manager
+    bucket_name = Rails.application.config.default_s3_bucket
+    machine_site_name = name.downcase.gsub(/\W+/, "_")
+    {
+      bucket_name: bucket_name,
+      files: @s3_manager.get_files!(bucket_name, "/reports/#{machine_site_name}")
+    }
+  end
+
+  def get_document_audit_link_hashes!
+    assert_s3_manager
+    export_links = []
+    report_data = get_document_audit_exports!
+    if report_data[:files].present?
+      report_data[:files].each do |s3_object|
+        metadata = @s3_manager.get_metadata!(report_data[:bucket_name], s3_object.key)
+        export_links << {
+          url: Rails.application.routes.url_helpers.workflow_audit_report_site_path(self, report_data[:bucket_name], s3_object.key),
+          created: metadata.has_key?("created") ? metadata["created"] : "",
+          author: metadata.has_key?("author") ? metadata["author"] : ""
+        }
+      end
+    end
+    export_links
+  end
+
   private
+
+  def assert_s3_manager
+    if @s3_manager.nil?
+      raise StandardError.new("Failed to connect to AWS environment (AwsS3Manager failed to initialize).")
+    end
+  end
 
   def attributes_from(data)
     {

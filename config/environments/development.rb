@@ -38,4 +38,15 @@ Rails.application.configure do
   config.action_controller.raise_on_missing_callback_actions = true
 
   config.hosts = nil
+
+  config.default_s3_bucket = "asap-pdf-staging-documents"
+
+  config.local_secret_names = {
+    asap_api_user: "asap-pdf/staging/RAILS_API_USER",
+    asap_api_password: "asap-pdf/staging/RAILS_API_PASSWORD",
+    google_api: "asap-pdf/staging/GOOGLE_AI_KEY",
+    anthropic_api: "asap-pdf/staging/ANTHROPIC_KEY",
+    google_eval_service_account: "asap-pdf/staging/GOOGLE_SERVICE_ACCOUNT",
+    google_eval_sheet_id: "asap-pdf/staging/GOOGLE_SHEET_ID_EVALUATION"
+  }
 end
