@@ -13,15 +13,17 @@ on:
         type: choice
         description: Inference Model
         options:
-          - gemini-2.5-pro-preview-03-25
-          - gemini-2.0-flash
-          - gemini-2.0-flash-lite
+          - gemini-2.5-pro
+          - gemini-2.5-flash
+          - gemini-2.5-flash-lite
+          - anthropic/claude-3-5-haiku-latest
+          - anthropic/claude-sonnet-4-0
       evaluation_model_name:
         type: choice
         description: Evaluation Model
         options:
           - gemini-2.5-flash
-          - gemini-2.5-pro-preview-03-25
+          - gemini-2.5-pro
       runs_per_document:
         description: 'Number of times generate evaluations per document'
         required: false
