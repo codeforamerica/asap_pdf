@@ -28,6 +28,11 @@ on:
         required: false
         default: '1'
         type: string
+      limit_to_document:
+        description: 'Optional document name from truthset file to limit by'
+        required: false
+        default: '1'
+        type: string
       should_rebuild_images:
         description: 'Rebuild and push images'
         type: boolean
@@ -135,10 +140,19 @@ jobs:
 
       - name: Read JSON file and set matrix
         id: set-matrix
+        if: ${{ github.events.inputs.limit_to_document == '' }}
         run: |
           matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
           echo "Matrix data: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+      - name: Read JSON file and set matrix for specific file
+        id: set-matrix
+        if: ${{ github.events.inputs.limit_to_document != '' }}
+        run: |
+          matrix=$(jq -c '.[] | select(.file_name == "${{ github.event.inputs.runs_per_document}}")' ./python_components/evaluation/truthset.json)
+          echo "Matrix data: $matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT          
 
       - name: Generate run matrix
         id: set-runs
