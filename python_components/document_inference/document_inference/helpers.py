@@ -158,6 +158,7 @@ def document_inference_summary(
         attachments=attachments,
         schema=DocumentSummarySchema.model_json_schema(),
         stream=False,
+        reasoning_effort="minimal"
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
@@ -183,6 +184,7 @@ def document_inference_recommendation(
         attachments=attachments,
         schema=DocumentRecommendation.model_json_schema(),
         stream=False,
+        reasoning_effort="minimal"
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
