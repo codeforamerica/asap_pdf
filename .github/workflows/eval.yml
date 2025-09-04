@@ -140,19 +140,14 @@ jobs:
 
       - name: Read JSON file and set matrix
         id: set-matrix
-        if: ${{ github.events.inputs.limit_to_document == '' }}
         run: |
-          matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
+          if [ -z "${{ github.event.inputs.limit_to_document }}" ]; then
+            matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
+          else
+            matrix=$(jq -c '.[] | select(.file_name == "${{ github.event.inputs.limit_to_document }}")' ./python_components/evaluation/truthset.json)
+          fi
           echo "Matrix data: $matrix"
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
-
-      - name: Read JSON file and set matrix for specific file
-        id: set-matrix
-        if: ${{ github.events.inputs.limit_to_document != '' }}
-        run: |
-          matrix=$(jq -c '.[] | select(.file_name == "${{ github.event.inputs.runs_per_document}}")' ./python_components/evaluation/truthset.json)
-          echo "Matrix data: $matrix"
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT          
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT      
 
       - name: Generate run matrix
         id: set-runs
