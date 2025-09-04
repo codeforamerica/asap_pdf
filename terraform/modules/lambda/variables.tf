@@ -43,6 +43,11 @@ variable "secret_anthropic_key_arn" {
   type        = string
 }
 
+variable "secret_openai_key_arn" {
+  description = "Secret arn for our OpenAI creds."
+  type        = string
+}
+
 variable "s3_document_bucket_arn" {
   description = "Secret arn for our Anthropic creds."
   type        = string
