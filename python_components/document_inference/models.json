@@ -1,4 +1,10 @@
 {
+  "gpt-5": {
+    "key": "asap-pdf/{AWS_ENV}/OPENAI_KEY"
+  },
+  "gpt-5-mini": {
+    "key": "asap-pdf/{AWS_ENV}/OPENAI_KEY"
+  },
   "anthropic/claude-3-5-haiku-latest": {
     "key": "asap-pdf/{AWS_ENV}/ANTHROPIC_KEY"
   },
