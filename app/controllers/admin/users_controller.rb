@@ -8,7 +8,8 @@ class Admin::UsersController < ApplicationController
   before_action :set_minimum_password_length, only: [:new, :edit, :update]
 
   def index
-    @users = User.all
+    @users = User.all.page(params[:page])
+    @user_count = @users.total_count
   end
 
   def new
