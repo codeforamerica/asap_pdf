@@ -143,6 +143,8 @@ class EvaluationWrapper(EvaluationWrapperBase):
             input="\n\n".join(details),
         )
         metric.measure(test_case)
+        if type(metric) is None or metric.verdicts is None:
+            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting.")
         details = {
             "verdicts": convert_model_list(metric.verdicts),
             "response": response,
@@ -175,6 +177,8 @@ class EvaluationWrapper(EvaluationWrapperBase):
             actual_output=[response],
         )
         metric.measure(test_case)
+        if type(metric) is None or metric.truths is None or metric.claims is None or metric.verdicts is None:
+            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting.")
         details = {
             "truths": metric.truths,
             "claims": metric.claims,
