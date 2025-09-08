@@ -123,6 +123,15 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Wait for Evaluation Lambda to be Active
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
+        env:
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL }}
+        run: |
+          echo "Waiting for Lambda function to be active..."
+          aws lambda wait function-updated-v2 --function-name $FUNCTION_NAME
+          echo "Lambda function is now active"
+
       - name: Update Document Inference Evaluation Lambda
         id: update-document-inference-evaluation-lambda
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
@@ -135,6 +144,15 @@ jobs:
           aws lambda update-function-code \
              --function-name $FUNCTION_NAME \
              --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Wait for Evaluation Lambda to be Active
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
+        env:
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL_DOCUMENT_INFERENCE }}
+        run: |
+          echo "Waiting for Lambda function to be active..."
+          aws lambda wait function-updated-v2 --function-name $FUNCTION_NAME
+          echo "Lambda function is now active"
 
       - name: Read JSON file and set matrix
         id: set-matrix
