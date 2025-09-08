@@ -71,13 +71,30 @@ namespace :documents do
   desc "Update departments."
   task :update_department, [:site_id] => :environment do |t, args|
     Document.where(site_id: args.site_id).each do |document|
+      match = false
       Site::DEPARTMENT_MAPPING.each do |department, urls|
-        urls.each { |url|
-          if document.url.downcase.start_with?(url)
+        urls.each do |url|
+          if document.url.include? url
+            p "Assigning #{department} to #{document.url}\n"
+            match = true
             document.department = department
-            document.save
+            document.save!
           end
-        }
+          unless match
+            document.source.each do | source |
+              if source.include? url
+                p "Assigning #{department} to #{document.url} from source url #{source}\n"
+                match = true
+                document.department = department
+                document.save!
+              end
+            end
+          end
+        end
+        break if match
+      end
+      unless match
+        p "Found no department for #{document.url}\n"
       end
     end
   end
