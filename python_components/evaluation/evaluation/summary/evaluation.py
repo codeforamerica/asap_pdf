@@ -41,20 +41,15 @@ class EvaluationWrapper(EvaluationWrapperBase):
         })))
         logger.info("Summarization complete. Performing related evaluations.")
         document.ai_summary = result["summary"]
-        # Begin the DeepEval summary evaluation.
-        metric = MultimodalInputSummarization(model=self.evaluation_model)
-        test_case = MLLMTestCase(
-            input=document.images, actual_output=document.ai_summary
-        )
-        metric.measure(test_case)
-        if (type(metric) is None
-                or metric.truths is None
-                or metric.claims is None
-                or metric.assessment_questions is None
-                or metric.coverage_verdicts is None
-                or metric.alignment_verdicts is None
-        ):
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting.")
+        try:
+            # Begin the DeepEval summary evaluation.
+            metric = MultimodalInputSummarization(model=self.evaluation_model)
+            test_case = MLLMTestCase(
+                input=document.images, actual_output=document.ai_summary
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
         details = {
             "truths": metric.truths,
             "claims": metric.claims,

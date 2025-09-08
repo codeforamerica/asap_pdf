@@ -137,14 +137,15 @@ class EvaluationWrapper(EvaluationWrapperBase):
         )
         details = document.llm_context()
         details.append(decision)
-        test_case = LLMTestCase(
-            actual_output=[response],
-            retrieval_context=context,
-            input="\n\n".join(details),
-        )
-        metric.measure(test_case)
-        if type(metric) is None or metric.verdicts is None:
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting.")
+        try:
+            test_case = LLMTestCase(
+                actual_output=[response],
+                retrieval_context=context,
+                input="\n\n".join(details),
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
         details = {
             "verdicts": convert_model_list(metric.verdicts),
             "response": response,
@@ -169,16 +170,16 @@ class EvaluationWrapper(EvaluationWrapperBase):
         elif exception == "application":
             response = document.ai_exception["why_application"]
             context = APPLICATION_EXCEPTION_CONTEXT
-
-        metric = MultimodalFaithfulnessMetric(model=self.evaluation_model)
-        test_case = MLLMTestCase(
-            input=[],
-            retrieval_context=context + document.images,
-            actual_output=[response],
-        )
-        metric.measure(test_case)
-        if type(metric) is None or metric.truths is None or metric.claims is None or metric.verdicts is None:
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting.")
+        try:
+            metric = MultimodalFaithfulnessMetric(model=self.evaluation_model)
+            test_case = MLLMTestCase(
+                input=[],
+                retrieval_context=context + document.images,
+                actual_output=[response],
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
         details = {
             "truths": metric.truths,
             "claims": metric.claims,
