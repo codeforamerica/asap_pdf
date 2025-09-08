@@ -6,6 +6,8 @@ class User < ApplicationRecord
   has_many :feedback_item
   delegate :documents, to: :site, allow_nil: true
 
+  attr_accessor :resend_invitation
+
   scope :by_email, ->(email) {
     return all if email.blank?
     where("email LIKE ?", "%#{email}%")

@@ -57,7 +57,18 @@ class Admin::UsersController < ApplicationController
       success = @user.update(user_params)
     end
     if success
-      redirect_to admin_users_path, notice: "User updated successfully"
+      if @user.resend_invitation
+        @user.is_invited = true
+        begin
+          if @user.send_new_account_instructions?
+            redirect_to admin_users_path, notice: "User updated successfully. Instructions were resent to the users's email."
+          end
+        rescue Net::SMTPFatalError => e
+          redirect_to admin_users_path, alert: e.message
+        end
+      else
+        redirect_to admin_users_path, notice: "User updated successfully"
+      end
     else
       render :edit, status: 422
     end
@@ -76,7 +87,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id, :is_invited)
+    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id, :is_invited, :resend_invitation)
   end
 
   def set_minimum_password_length
