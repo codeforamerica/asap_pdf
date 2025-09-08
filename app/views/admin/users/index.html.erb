@@ -29,6 +29,7 @@
             <tr>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Email</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Site</th>
+              <th scope="col" class="tracking-wider text-left py-4 px-3">Last Access</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Site Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">User Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Actions</th>
@@ -39,6 +40,7 @@
               <tr>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.email %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.site.present? ? user.site.name : "None" %></td>
+                <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.last_sign_in_at? ? user.last_sign_in_at.strftime("%Y-%m-%d %H:%M") : "Never" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_site_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_user_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3">
