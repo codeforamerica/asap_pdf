@@ -18,6 +18,7 @@ def handler(event, context):
         utility.helpers.logger.info(event)
         if not isinstance(event, dict):
             raise RuntimeError("Event is not a dictionary, please investigate.")
+        raise RuntimeError("Let's simulate the bad thing!")
         utility.helpers.logger.info("Validating event")
         utility.helpers.validate_event(event)
         utility.helpers.logger.info("Event is valid")
