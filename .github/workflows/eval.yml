@@ -179,6 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     strategy:
+      fail-fast: false
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
         run: ${{ fromJson(needs.build.outputs.runs) }}
