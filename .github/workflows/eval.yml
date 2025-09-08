@@ -31,7 +31,7 @@ on:
       limit_to_document:
         description: 'Optional document name from truthset file to limit by'
         required: false
-        default: '1'
+        default: ''
         type: string
       should_rebuild_images:
         description: 'Rebuild and push images'
