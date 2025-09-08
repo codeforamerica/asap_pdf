@@ -13,8 +13,6 @@ on:
         type: choice
         description: Inference Model
         options:
-          - gpt-5
-          - gpt-5-mini
           - gemini-2.5-pro
           - gemini-2.5-flash
       evaluation_model_name:
