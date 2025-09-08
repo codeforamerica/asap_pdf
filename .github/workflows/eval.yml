@@ -144,7 +144,7 @@ jobs:
           if [ -z "${{ github.event.inputs.limit_to_document }}" ]; then
             matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
           else
-            matrix=$(jq -c '.[] | select(.file_name == "${{ github.event.inputs.limit_to_document }}")' ./python_components/evaluation/truthset.json)
+            matrix=$(jq -c '[.[] | select(.file_name == "${{ github.event.inputs.limit_to_document }}")]' ./python_components/evaluation/truthset.json)
           fi
           echo "Matrix data: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT      
