@@ -46,6 +46,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             )
         )
         logger.info("Summarization complete. Performing related evaluations.")
+        logger.info(result["summary"])
         document.ai_summary = result["summary"]
         try:
             # Begin the DeepEval summary evaluation.
