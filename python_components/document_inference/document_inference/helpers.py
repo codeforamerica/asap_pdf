@@ -153,11 +153,20 @@ def document_inference_summary(
     num_attachments = len(attachments)
     logger.info(f"Created {num_attachments} images.")
     populated_prompt = SUMMARY.format(**document)
-    response = model.prompt(
-        populated_prompt,
-        attachments=attachments,
-        schema=DocumentSummarySchema.model_json_schema(),
-    )
+    if "gpt" in model.model_id:
+        response = model.prompt(
+            populated_prompt,
+            attachments=attachments,
+            schema=DocumentSummarySchema.model_json_schema(),
+            stream=False,
+            reasoning_effort="minimal"
+        )
+    else:
+        response = model.prompt(
+            populated_prompt,
+            attachments=attachments,
+            schema=DocumentSummarySchema.model_json_schema(),
+        )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
     structured_output_model = DocumentSummarySchema.model_validate(response_json)
@@ -177,11 +186,20 @@ def document_inference_recommendation(
     num_attachments = len(attachments)
     logger.info(f"Created {num_attachments} images.")
     populated_prompt = RECOMMENDATION.format(**document)
-    response = model.prompt(
-        populated_prompt,
-        attachments=attachments,
-        schema=DocumentRecommendation.model_json_schema(),
-    )
+    if "gpt" in model.model_id:
+        response = model.prompt(
+            populated_prompt,
+            attachments=attachments,
+            schema=DocumentRecommendation.model_json_schema(),
+            stream=False,
+            reasoning_effort="minimal"
+        )
+    else:
+        response = model.prompt(
+            populated_prompt,
+            attachments=attachments,
+            schema=DocumentRecommendation.model_json_schema(),
+        )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
     structured_output_model = DocumentRecommendation.model_validate(response_json)
