@@ -53,13 +53,19 @@ class EvaluationWrapper(EvaluationWrapperBase):
         )
         duration = time.time() - start
 
-        output.append(dict(self.result_factory.new({
-            "metric_name": f"inference_duration",
-            "metric_version": 0,
-            "score": duration,
-            "file_name": document.file_name,
-            "inference_model": self.inference_model_name,
-        })))
+        output.append(
+            dict(
+                self.result_factory.new(
+                    {
+                        "metric_name": f"inference_duration",
+                        "metric_version": 0,
+                        "score": duration,
+                        "file_name": document.file_name,
+                        "inference_model": self.inference_model_name,
+                    }
+                )
+            )
+        )
 
         logger.info("Exception check complete. Performing related evaluations.")
         document.ai_exception = result
@@ -145,7 +151,9 @@ class EvaluationWrapper(EvaluationWrapperBase):
             )
             metric.measure(test_case)
         except AttributeError:
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "verdicts": convert_model_list(metric.verdicts),
             "response": response,
@@ -179,7 +187,9 @@ class EvaluationWrapper(EvaluationWrapperBase):
             )
             metric.measure(test_case)
         except AttributeError:
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "truths": metric.truths,
             "claims": metric.claims,

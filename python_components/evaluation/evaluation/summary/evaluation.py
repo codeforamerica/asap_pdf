@@ -1,5 +1,5 @@
-from typing import List
 import time
+from typing import List
 
 from deepeval.test_case import MLLMTestCase
 from evaluation.summary.rouge_score import METRIC_VERSION as ROUGE_VERSION
@@ -32,13 +32,19 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.page_limit,
         )
         duration = time.time() - start
-        output.append(dict(self.result_factory.new({
-            "metric_name": f"inference_duration",
-            "metric_version": 0,
-            "score": duration,
-            "file_name": document.file_name,
-            "inference_model": self.inference_model_name,
-        })))
+        output.append(
+            dict(
+                self.result_factory.new(
+                    {
+                        "metric_name": f"inference_duration",
+                        "metric_version": 0,
+                        "score": duration,
+                        "file_name": document.file_name,
+                        "inference_model": self.inference_model_name,
+                    }
+                )
+            )
+        )
         logger.info("Summarization complete. Performing related evaluations.")
         document.ai_summary = result["summary"]
         try:
@@ -49,7 +55,9 @@ class EvaluationWrapper(EvaluationWrapperBase):
             )
             metric.measure(test_case)
         except AttributeError:
-            raise RuntimeError("Metric measurement failed. This is likely due to rate limiting or metric performance.")
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "truths": metric.truths,
             "claims": metric.claims,

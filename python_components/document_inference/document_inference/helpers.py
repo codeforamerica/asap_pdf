@@ -156,7 +156,7 @@ def document_inference_summary(
     response = model.prompt(
         populated_prompt,
         attachments=attachments,
-        schema=DocumentSummarySchema.model_json_schema()
+        schema=DocumentSummarySchema.model_json_schema(),
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
@@ -180,7 +180,7 @@ def document_inference_recommendation(
     response = model.prompt(
         populated_prompt,
         attachments=attachments,
-        schema=DocumentRecommendation.model_json_schema()
+        schema=DocumentRecommendation.model_json_schema(),
     )
     response_json = json.loads(response.text())
     logger.info("Inference complete. Validating response.")
