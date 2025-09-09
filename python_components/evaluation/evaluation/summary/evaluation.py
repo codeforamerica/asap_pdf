@@ -36,7 +36,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
             dict(
                 self.result_factory.new(
                     {
-                        "metric_name": f"inference_duration",
+                        "metric_name": "inference_duration",
                         "metric_version": 0,
                         "score": duration,
                         "file_name": document.file_name,

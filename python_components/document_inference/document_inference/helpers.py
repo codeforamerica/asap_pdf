@@ -159,7 +159,7 @@ def document_inference_summary(
             attachments=attachments,
             schema=DocumentSummarySchema.model_json_schema(),
             stream=False,
-            reasoning_effort="minimal"
+            reasoning_effort="minimal",
         )
     else:
         response = model.prompt(
@@ -192,7 +192,7 @@ def document_inference_recommendation(
             attachments=attachments,
             schema=DocumentRecommendation.model_json_schema(),
             stream=False,
-            reasoning_effort="minimal"
+            reasoning_effort="minimal",
         )
     else:
         response = model.prompt(
