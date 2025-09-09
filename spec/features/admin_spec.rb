@@ -58,7 +58,7 @@ describe "admins can see admin pages", js: true, type: :feature do
       @current_user.save
       visit "/admin/users"
       expect(page).to have_content "Manage Users"
-      expect(page).to have_content /user\d{2}@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never No No Edit/, count: 25
+      expect(page).to have_content(/user\d{2}@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never No No Edit/, count: 25)
       within("#user-list") do
         click_link "Add User"
       end
@@ -76,7 +76,7 @@ describe "admins can see admin pages", js: true, type: :feature do
       select "City and County of Denver", from: "Site"
       click_button "Save"
       expect(page).to have_current_path("/admin/users")
-      expect(page).to have_content /bob@example\.com City and County of Denver \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never No Yes Edit/
+      expect(page).to have_content(/bob@example\.com City and County of Denver \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never No Yes Edit/)
       within("#user-list tbody tr:nth-child(1)") do
         click_link("Edit")
       end
@@ -85,28 +85,28 @@ describe "admins can see admin pages", js: true, type: :feature do
       check "Is site admin"
       click_button "Update"
       expect(page).to have_current_path("/admin/users")
-      expect(page).to have_content /bob@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never Yes Yes Edit/
+      expect(page).to have_content(/bob@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never Yes Yes Edit/)
       # Test pagination and search.
       visit "/admin/users"
       expect(page).to have_content "Manage Users"
-      expect(page).to have_content /(bob|user\d{2})@example\.com/, count: 25
+      expect(page).to have_content(/(bob|user\d{2})@example\.com/, count: 25)
       within("#user-list #pager") do
         click_link("2")
       end
       expect(page).to have_content "Manage Users"
-      expect(page).to have_current_path /admin\/users\?page=2/
-      expect(page).to have_content /user\d{1,2}@example\.com/, count: 25
+      expect(page).to have_current_path(/admin\/users\?page=2/)
+      expect(page).to have_content(/user\d{1,2}@example\.com/, count: 25)
       visit "/admin/users?page=3"
       expect(page).to have_content "Manage Users"
-      expect(page).to have_current_path /admin\/users\?page=3/
-      expect(page).to have_content /user\d{0,2}@example\.com/, count: 2
+      expect(page).to have_current_path(/admin\/users\?page=3/)
+      expect(page).to have_content(/user\d{0,2}@example\.com/, count: 2)
       within("#user-list") do
         fill_in id: "email", with: "bob"
         click_button "Apply"
       end
-      expect(page).to have_current_path /admin\/users\?email=bob/
-      expect(page).to have_content /bob@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never Yes Yes Edit/
-      expect(page).to have_no_content /user\d{1,2}@example\.com/
+      expect(page).to have_current_path(/admin\/users\?email=bob/)
+      expect(page).to have_content(/bob@example\.com None \d{4}-\d{2}-\d{2} \d{2}:\d{2} Never Yes Yes Edit/)
+      expect(page).to have_no_content(/user\d{1,2}@example\.com/)
     end
 
     it "invite users" do

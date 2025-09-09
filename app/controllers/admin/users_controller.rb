@@ -9,8 +9,8 @@ class Admin::UsersController < ApplicationController
 
   def index
     @users = User.by_email(params[:email])
-                 .order(created_at: :desc)
-                 .page(params[:page])
+      .order(created_at: :desc)
+      .page(params[:page])
     @user_count = @users.total_count
   end
 
