@@ -9,7 +9,8 @@ class Admin::UsersController < ApplicationController
 
   def index
     @users = User.by_email(params[:email])
-      .page(params[:page])
+                 .order(created_at: :desc)
+                 .page(params[:page])
     @user_count = @users.total_count
   end
 
@@ -57,7 +58,7 @@ class Admin::UsersController < ApplicationController
       success = @user.update(user_params)
     end
     if success
-      if @user.resend_invitation
+      if @user.resend_invitation.to_i == 1
         @user.is_invited = true
         begin
           if @user.send_new_account_instructions?

@@ -19,7 +19,7 @@
         <%= f.label :resend_invitation, "Resend invitation email", class: "label-text text-black mb-2 font-semibold" %>
         <div class="label-text text-black mt-2">Resend the user an invitation email, which includes a link to set password (skip password fields below).</div>
       </div>
-      
+
       <% if @user.id == current_user.id %>
         <div class="form-control w-full mt-4">
           <%= f.label :current_password, class: "label-text text-black mb-2 font-semibold" %>
