@@ -11,6 +11,9 @@
   "anthropic/claude-sonnet-4-0": {
     "key": "asap-pdf/{AWS_ENV}/ANTHROPIC_KEY"
   },
+  "gemini-2.5-flash-lite": {
+    "key": "asap-pdf/{AWS_ENV}/GOOGLE_AI_KEY"
+  },
   "gemini-2.5-flash": {
     "key": "asap-pdf/{AWS_ENV}/GOOGLE_AI_KEY"
   },
