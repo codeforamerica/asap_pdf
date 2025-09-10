@@ -1,125 +1,125 @@
 class Site < ApplicationRecord
   DEPARTMENT_MAPPING = {
-      "Information management Services" => [
-        "slc.gov/ims/",
-        "slcdocs.com/ims"
-      ],
-      "Finance" => [
-        "slc.gov/Finance",
-        "slcdocs.com/finance"
-      ],
-      "City Attorney's Office" => [
-        "slc.gov/attorney",
-        "slcdocs.com/attorney"
-      ],
-      "Justice Courts" => [
-        "slc.gov/courts",
-        "slcdocs.com/courts"
-      ],
-      "Community and Neighborhoods (CAN)" => [
-        "slc.gov/can",
-        "slcdocs.com/can"
-      ],
-      "Building Services" => [
-        "slc.gov/Buildingservices",
-        "slcdocs.com/buildingservices"
-      ],
-      "Transportation" => [
-        "slc.gov/transportation",
-        "slcdocs.com/transportation"
-      ],
-      "Planning Division" => [
-        "slc.gov/planningdivision",
-        "slcdocs.com/planningdivision"
-      ],
-      "Public Services" => [
-        "slc.gov/publicservices",
-        "slcdocs.com/publicservices"
-      ],
-      "Public Lands Department" => [
-        "slc.gov/parks",
-        "slcdocs.com/parks"
-      ],
-      "MyStreet" => [
-        "slc.gov/mystreet",
-        "slcdocs.com/mystreet"
-      ],
-      "Sustainability" => [
-        "slc.gov/sustainability",
-        "slcdocs.com/slcgreen"
-      ],
-      "Department of Economic Development (EconDev)" => [
-        "slc.gov/ed",
-        "slcdocs.com/ed"
-      ],
-      "Public Utilities" => [
-        "slc.gov/utilities",
-        "slcdocs.com/utilities"
-      ],
-      "Human Resources" => [
-        "slc.gov/hr",
-        "slcdocs.com/hr"
-      ],
-      "Engineering" => [
-        "slc.gov/engineering",
-        "slcdocs.com/engineering"
-      ],
-      "Council District 1" => [
-        "slc.gov/district1"
-      ],
-      "Council District 2" => [
-        "slc.gov/district2"
-      ],
-      "Council District 3" => [
-        "slc.gov/district3"
-      ],
-      "Council District 4" => [
-        "slc.gov/district4"
-      ],
-      "Council District 5" => [
-        "slc.gov/district5"
-      ],
-      "Council District 6" => [
-        "slc.gov/district6"
-      ],
-      "Council District 7" => [
-        "slc.gov/district7"
-      ],
-      "City Council Office" => [
-        "slc.gov/council",
-        "slcdocs.com/council"
-      ],
-      "Boards and Commissions" => [
-        "slc.gov/boards",
-        "slcdocs.com/boards"
-      ],
-      "Division of Youth and Family" => [
-        "slc.gov/youthandfamily",
-        "slcdocs.com/youthandfamily"
-      ],
-      "Emergency Management" => [
-        "slc.gov/em",
-        "slcdocs.com/em"
-      ],
-      "Historic Preservation" => [
-        "slc.gov/histroic-preservation",
-        "slcdocs.com/histroicpreservation"
-      ],
-      "Mayor's Office" => [
-        "slc.gov/mayor",
-        "slcdocs.com/mayor"
-      ],
-      "Mayor's Office of Access & Belonging" => [
-        "slc.gov/access-belonging"
-      ],
-      "Housing Stability" => [
-        "slc.gov/housingstability",
-        "slcdocs.com/housingstability"
-      ],
-      "Homelessness" => [
-        "slc.gov/homelessness",
-        "slcdocs.com/homelessness"
-      ]
+    "Information management Services" => [
+      "slc.gov/ims/",
+      "slcdocs.com/ims"
+    ],
+    "Finance" => [
+      "slc.gov/Finance",
+      "slcdocs.com/finance"
+    ],
+    "City Attorney's Office" => [
+      "slc.gov/attorney",
+      "slcdocs.com/attorney"
+    ],
+    "Justice Courts" => [
+      "slc.gov/courts",
+      "slcdocs.com/courts"
+    ],
+    "Community and Neighborhoods (CAN)" => [
+      "slc.gov/can",
+      "slcdocs.com/can"
+    ],
+    "Building Services" => [
+      "slc.gov/Buildingservices",
+      "slcdocs.com/buildingservices"
+    ],
+    "Transportation" => [
+      "slc.gov/transportation",
+      "slcdocs.com/transportation"
+    ],
+    "Planning Division" => [
+      "slc.gov/planningdivision",
+      "slcdocs.com/planningdivision"
+    ],
+    "Public Services" => [
+      "slc.gov/publicservices",
+      "slcdocs.com/publicservices"
+    ],
+    "Public Lands Department" => [
+      "slc.gov/parks",
+      "slcdocs.com/parks"
+    ],
+    "MyStreet" => [
+      "slc.gov/mystreet",
+      "slcdocs.com/mystreet"
+    ],
+    "Sustainability" => [
+      "slc.gov/sustainability",
+      "slcdocs.com/slcgreen"
+    ],
+    "Department of Economic Development (EconDev)" => [
+      "slc.gov/ed",
+      "slcdocs.com/ed"
+    ],
+    "Public Utilities" => [
+      "slc.gov/utilities",
+      "slcdocs.com/utilities"
+    ],
+    "Human Resources" => [
+      "slc.gov/hr",
+      "slcdocs.com/hr"
+    ],
+    "Engineering" => [
+      "slc.gov/engineering",
+      "slcdocs.com/engineering"
+    ],
+    "Council District 1" => [
+      "slc.gov/district1"
+    ],
+    "Council District 2" => [
+      "slc.gov/district2"
+    ],
+    "Council District 3" => [
+      "slc.gov/district3"
+    ],
+    "Council District 4" => [
+      "slc.gov/district4"
+    ],
+    "Council District 5" => [
+      "slc.gov/district5"
+    ],
+    "Council District 6" => [
+      "slc.gov/district6"
+    ],
+    "Council District 7" => [
+      "slc.gov/district7"
+    ],
+    "City Council Office" => [
+      "slc.gov/council",
+      "slcdocs.com/council"
+    ],
+    "Boards and Commissions" => [
+      "slc.gov/boards",
+      "slcdocs.com/boards"
+    ],
+    "Division of Youth and Family" => [
+      "slc.gov/youthandfamily",
+      "slcdocs.com/youthandfamily"
+    ],
+    "Emergency Management" => [
+      "slc.gov/em",
+      "slcdocs.com/em"
+    ],
+    "Historic Preservation" => [
+      "slc.gov/histroic-preservation",
+      "slcdocs.com/histroicpreservation"
+    ],
+    "Mayor's Office" => [
+      "slc.gov/mayor",
+      "slcdocs.com/mayor"
+    ],
+    "Mayor's Office of Access & Belonging" => [
+      "slc.gov/access-belonging"
+    ],
+    "Housing Stability" => [
+      "slc.gov/housingstability",
+      "slcdocs.com/housingstability"
+    ],
+    "Homelessness" => [
+      "slc.gov/homelessness",
+      "slcdocs.com/homelessness"
+    ]
   }
 
   has_many :documents, dependent: :destroy
