@@ -25,7 +25,7 @@ class Site < ApplicationRecord
         "slcdocs.com/buildingservices"
       ],
       "Transportation" => [
-        "https//slc.gov/transportation",
+        "slc.gov/transportation",
         "slcdocs.com/transportation"
       ],
       "Planning Division" => [
