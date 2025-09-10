@@ -1,5 +1,4 @@
 import argparse
-import csv
 import io
 import json
 import re
@@ -9,6 +8,7 @@ import urllib.robotparser
 from collections import defaultdict, deque
 from datetime import datetime
 
+import pandas as pd
 import pymupdf
 import requests
 import tldextract
@@ -253,98 +253,96 @@ def parse_pdf_date(date_string):
     return datetime.strptime(date_string[:16], "%Y%m%d%H%M%S")
 
 
-def get_pdf_metadata(pdfs, output_path):
-    with open(output_path, "w", newline="") as csv_file:
-        csv_writer = csv.DictWriter(
-            csv_file,
-            fieldnames=[
-                "file_name",
-                "url",
-                "file_size",
-                "file_size_kilobytes",
-                "last_modified_date",
-                "author",
-                "subject",
-                "keywords",
-                "creation_date",
-                "producer",
-                "number_of_pages",
-                "number_of_tables",
-                "number_of_images",
-                "version",
-                "source",
-                "text_around_link",
-            ],
-        )
-        csv_writer.writeheader()
-        for pdf_url in tqdm(pdfs.keys(), ncols=100):
-            source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
-            texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
+def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
+    output = []
+    for pdf_url in tqdm(pdfs.keys(), ncols=100):
+        source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
+        texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
 
-            url_parsed = urllib.parse.urlparse(pdf_url)
-            default_file_name = url_parsed.path.split("/")[-1]
-            if len(default_file_name) == 0:
-                default_file_name = url_parsed.netloc.split("\\")[-1]
+        url_parsed = urllib.parse.urlparse(pdf_url)
+        default_file_name = url_parsed.path.split("/")[-1]
+        if len(default_file_name) == 0:
+            default_file_name = url_parsed.netloc.split("\\")[-1]
 
-            try:
-                headers = {
-                    "Content-Type": "application/pdf",
-                    "Content-Disposition": "inline",
-                }
-                response = requests.get(
-                    url=pdf_url, timeout=90, headers=headers, allow_redirects=True
-                )
-                if response.status_code < 400:
-                    with io.BytesIO(response.content) as mem_obj:
-                        try:
-                            pdf_file = pymupdf.Document(stream=mem_obj)
-                            # tqdm.write(f"Reading: {pdf_url}")
-                            file_name = default_file_name
-                            pdf_title = pdf_file.metadata.get("title")
-                            if pdf_title and (len(pdf_title.strip()) > 0):
-                                file_name = pdf_title
-                            file_bytes = mem_obj.getbuffer().nbytes
-                            n_images, n_tables = get_images_and_tables(pdf_file.pages())
-                            modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
-                            created = parse_pdf_date(
-                                pdf_file.metadata.get("creationDate")
-                            )
+        try:
+            headers = {
+                "Content-Type": "application/pdf",
+                "Content-Disposition": "inline",
+            }
+            response = requests.get(
+                url=pdf_url, timeout=90, headers=headers, allow_redirects=True
+            )
+            if response.status_code < 400:
+                with io.BytesIO(response.content) as mem_obj:
+                    try:
+                        pdf_file = pymupdf.Document(stream=mem_obj)
+                        # tqdm.write(f"Reading: {pdf_url}")
+                        file_name = default_file_name
+                        pdf_title = pdf_file.metadata.get("title")
+                        if pdf_title and (len(pdf_title.strip()) > 0):
+                            file_name = pdf_title
+                        file_bytes = mem_obj.getbuffer().nbytes
+                        n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                        modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
+                        created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
 
-                            row = {
-                                "file_name": file_name,
-                                "url": pdf_url,
-                                "file_size": convert_bytes(file_bytes),
-                                "file_size_kilobytes": file_bytes / 1024,
-                                "last_modified_date": modified,
-                                "author": pdf_file.metadata.get("author"),
-                                "subject": pdf_file.metadata.get("subject"),
-                                "keywords": pdf_file.metadata.get("keywords"),
-                                "creation_date": created,
-                                "producer": pdf_file.metadata.get("producer"),
-                                "number_of_pages": pdf_file.page_count,
-                                "number_of_tables": n_tables,
-                                "number_of_images": n_images,
-                                # TODO: This is consistent with current behavior, but
-                                # pdf_file.version_count might be more appropriate
-                                "version": pdf_file.metadata.get("format"),
-                                "source": source,
-                                "text_around_link": texts,
-                            }
-                            csv_writer.writerow(row)
-                        except pymupdf.FileDataError:  # noqa:
-                            tqdm.write(f"Document isn't a PDF: {pdf_url}")
-                            continue
-            except:  # noqa
-                tqdm.write(f"Error reading: {pdf_url}")
-                continue
+                        row = {
+                            "file_name": file_name,
+                            "url": pdf_url,
+                            "file_size": convert_bytes(file_bytes),
+                            "file_size_kilobytes": file_bytes / 1024,
+                            "last_modified_date": modified,
+                            "author": pdf_file.metadata.get("author"),
+                            "subject": pdf_file.metadata.get("subject"),
+                            "keywords": pdf_file.metadata.get("keywords"),
+                            "creation_date": created,
+                            "producer": pdf_file.metadata.get("producer"),
+                            "number_of_pages": pdf_file.page_count,
+                            "number_of_tables": n_tables,
+                            "number_of_images": n_images,
+                            # TODO: This is consistent with current behavior, but
+                            # pdf_file.version_count might be more appropriate
+                            "version": pdf_file.metadata.get("format"),
+                            "source": source,
+                            "text_around_link": texts,
+                        }
+                        output.append(row)
+                    except pymupdf.FileDataError:  # noqa:
+                        tqdm.write(f"Document isn't a PDF: {pdf_url}")
+                        continue
+        except:  # noqa
+            tqdm.write(f"Error reading: {pdf_url}")
+            continue
+    return pd.DataFrame(output)
 
-    return None
+
+def compare_crawled_documents(pdf_df: pd.DataFrame, comparison_crawl_df: pd.DataFrame):
+    pdf_df = pdf_df.merge(comparison_crawl_df, how="outer", on="url", indicator=True)
+    # We don't care about the right side, suffixed columns.
+    pdf_df = pdf_df.filter(regex="^(?!.*_y$)")
+    # Return our left side, suffixed columns to normal.
+    pdf_df.columns = pdf_df.columns.str.rstrip("_x")
+    if "crawl_status" in pdf_df.columns:
+        pdf_df = pdf_df.drop("crawl_status", axis=1)
+    # Reformat the crawl status.
+    pdf_df = pdf_df.rename(columns={"_merge": "crawl_status"})
+    pdf_df["crawl_status"] = pdf_df["crawl_status"].cat.rename_categories(
+        {"left_only": "new", "right_only": "removed", "both": "active"}
+    )
+    return pdf_df
+
+
+def output_pdfs(pdf_df: pd.DataFrame, output_path: str) -> None:
+    pdf_df.to_csv(output_path, index=False)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Starts crawl from provided URL")
     parser.add_argument("url", help="Starting URL")
     parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
+    parser.add_argument(
+        "--comparison_crawl", help="A previous crawl to compare results against."
+    )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
     )
@@ -366,11 +364,11 @@ if __name__ == "__main__":
         all_pages = parse_sitemap(sitemap)
         tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
 
-        pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
+        crawled_pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
         tqdm.write("Visited all pages on the sitemap.")
     else:
         tqdm.write("Doing recursive search instead.")
-        pdfs, visited = bfs_search_pdfs(
+        crawled_pdfs, visited = bfs_search_pdfs(
             args.url,
             allowable_domains,
             allowable_subdomains=allowable_subdomains,
@@ -378,8 +376,11 @@ if __name__ == "__main__":
             max_depth=depth,
             use_webdriver=use_webdriver,
         )
-
-    tqdm.write(f"PDFs found: {len(pdfs)}")
+    tqdm.write(f"PDFs found: {len(crawled_pdfs)}")
     with open(args.output_path.replace(".csv", ".json"), "w") as f:
-        json.dump(dict(pdfs), f, indent=4)
-    get_pdf_metadata(pdfs, args.output_path)
+        json.dump(dict(crawled_pdfs), f, indent=4)
+    crawled_pdfs = add_pdf_metadata(crawled_pdfs)
+    if args.comparison_crawl is not None:
+        comparison_df = pd.read_csv(args.comparison_crawl)
+        crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
+    output_pdfs(crawled_pdfs, args.output_path)
