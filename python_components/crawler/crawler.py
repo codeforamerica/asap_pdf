@@ -341,7 +341,7 @@ if __name__ == "__main__":
     parser.add_argument("url", help="Starting URL")
     parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
     parser.add_argument(
-        "--comparison_crawl", help="A previous crawl to compare results against."
+        "--comparison_crawl", default=None, help="A previous crawl to compare results against."
     )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"

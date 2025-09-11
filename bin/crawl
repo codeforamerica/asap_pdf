@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # Script to crawl a website and extract PDF information
-# Usage: bin/crawl <site_url> <output_dir> [previous_crawl]
+# Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory]
 # Site site_url must exist in python_components/crawler/config.json.
 
 # Check if site_url parameter is provided
 if [ $# -eq 0 ]; then
     echo "Error: site_url parameter is required"
-    echo "Usage: bin/crawl <site_url> <output_dir> [previous_crawl]"
+    echo "Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory]"
     echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09"
-    echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl/"
-    echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl.zip"
+    echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl_directory/"
+    echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl_directory.zip"
     exit 1
 fi
 
@@ -41,9 +41,6 @@ OUTPUT_FILE=$(jq -r --arg site_url "$SITE_URL" '
     end
 ' "$CONFIG_FILE" 2>/dev/null || echo "output.csv")
 
-COMPARISON_VOLUME=""
-COMPARISON_FLAG=""
-
 if [ -n "$PREVIOUS_CRAWL" ]; then
     if [ ! -e "$PREVIOUS_CRAWL" ]; then
         echo "Error: Previous crawl path '$PREVIOUS_CRAWL' does not exist"
@@ -66,35 +63,45 @@ if [ -n "$PREVIOUS_CRAWL" ]; then
           exit 1
       fi
     else
-      mv "$PREVIOUS_CRAWL/*.csv" "$PREVIOUS_CRAWL_DIR"
+      cp -r "$PREVIOUS_CRAWL"/* "$PREVIOUS_CRAWL_DIR"
     fi
   COMPARISON_VOLUME="-v $PREVIOUS_CRAWL_DIR:/comparison"
   COMPARISON_FLAG="--comparison_crawl=/comparison/$OUTPUT_FILE"
 fi
 
-
 TMP_OUTPUT=$(mktemp -d)
 mkdir -p $OUTPUT_DIR
 echo "$OUTPUT_DIR"
 
-echo "python /workspace/crawler.py $SITE_URL /output $COMPARISON_FLAG"
-
+set -x
+if [ -n "$COMPARISON_VOLUME" ]; then
 docker run --rm \
   -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
   -v "$TMP_OUTPUT:/output" \
   $COMPARISON_VOLUME \
   asap_pdf:crawler \
   python /workspace/crawler.py "$SITE_URL" "/output/$OUTPUT_FILE" "$COMPARISON_FLAG"
+else
+  docker run --rm \
+  -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
+  -v "$TMP_OUTPUT:/output" \
+  asap_pdf:crawler \
+  python /workspace/crawler.py "$SITE_URL" "/output/$OUTPUT_FILE"
+fi
 
+set +x
 
 mv "$TMP_OUTPUT/$OUTPUT_FILE" "$TMP_OUTPUT/$OUTPUT_FILE-crawled"
-ls -al $TMP_OUTPUT/*
+
+set -x
 
 docker run --rm \
   -v "$PROJECT_ROOT/python_components/classifier:/workspace" \
   -v "$TMP_OUTPUT:/output" \
   asap_pdf:classifier \
   python /workspace/classifier.py "/output/$OUTPUT_FILE-crawled" "/output/$OUTPUT_FILE"
+
+set +x
 
 mv "$TMP_OUTPUT/$OUTPUT_FILE" "$OUTPUT_DIR"
 
