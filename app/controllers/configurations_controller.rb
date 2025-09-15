@@ -17,6 +17,8 @@ class ConfigurationsController < AuthenticatedController
     @config["google_ai_api_key"] = response.secret_string if response.present?
     response = @secret_manager.get_secret!(@secret_names[:anthropic_api])
     @config["anthropic_api_key"] = response.secret_string if response.present?
+    response = @secret_manager.get_secret!(@secret_names[:openai_api])
+    @config["openai_api"] = response.secret_string if response.present?
     response = @secret_manager.get_secret!(@secret_names[:google_eval_service_account])
     @config["google_evaluation_service_account_credentials"] = response.secret_string if response.present?
     response = @secret_manager.get_secret!(@secret_names[:google_eval_sheet_id])
@@ -28,6 +30,7 @@ class ConfigurationsController < AuthenticatedController
   def update
     @secret_manager.set_secret!(@secret_names[:google_api], params.dig(:config, :google_ai_api_key))
     @secret_manager.set_secret!(@secret_names[:anthropic_api], params.dig(:config, :anthropic_api_key))
+    @secret_manager.set_secret!(@secret_names[:openai_api], params.dig(:config, :openai_api))
     @secret_manager.set_secret!(@secret_names[:asap_api_user], Rails.application.credentials.config[:api_user])
     @secret_manager.set_secret!(@secret_names[:asap_api_password], Rails.application.credentials.config[:api_password])
     @secret_manager.set_secret!(@secret_names[:google_eval_service_account], params.dig(:config, :google_evaluation_service_account_credentials))

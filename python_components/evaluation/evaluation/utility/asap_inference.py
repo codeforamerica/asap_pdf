@@ -51,18 +51,18 @@ def get_inference_for_document(
     signature = get_signature(session)
     logger.info(f"Created signature. Url is: {url}")
     headers = {
-        "Content-Type": "application/json",  # Changed from application/x-amz-json-1.1
+        "Content-Type": "application/json",
         "Accept": "application/json",
     }
     payload = json.dumps(
         {
             "inference_type": inference_type,
-            "model_name": inference_model_name,  # "gemini-1.5-pro-latest"
+            "model_name": inference_model_name,
             "page_limit": page_number,
             "documents": [
                 {
                     "title": document.file_name,
-                    "id": "000",  # Does this matter?
+                    "id": "000",
                     "creation_date": document.created_date,
                     "purpose": document.category,
                     "url": document.url,

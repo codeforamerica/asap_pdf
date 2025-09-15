@@ -234,7 +234,7 @@ class Document < ApplicationRecord
         lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
       end
       payload = {
-        model_name: "gemini-2.0-flash",
+        model_name: "gemini-2.5-flash",
         documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "summary",
@@ -266,7 +266,7 @@ class Document < ApplicationRecord
       lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
     end
     payload = {
-      model_name: "gemini-2.5-pro-preview-03-25",
+      model_name: "gemini-2.5-pro",
       documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category, creation_date: creation_date}],
       page_limit: 7,
       inference_type: "exception",

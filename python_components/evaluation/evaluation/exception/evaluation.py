@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import List
 
 from deepeval.metrics.multimodal_metrics import MultimodalFaithfulnessMetric
@@ -41,6 +42,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
     async def evaluate(self, document: Document) -> List[Result]:
         output = []
         # Perform inferences that we want to evaluate.
+        start = time.time()
         result = get_inference_for_document(
             document,
             self.inference_model_name,
@@ -49,6 +51,22 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.aws_env,
             self.page_limit,
         )
+        duration = time.time() - start
+
+        output.append(
+            dict(
+                self.result_factory.new(
+                    {
+                        "metric_name": "inference_duration",
+                        "metric_version": 0,
+                        "score": duration,
+                        "file_name": document.file_name,
+                        "inference_model": self.inference_model_name,
+                    }
+                )
+            )
+        )
+
         logger.info("Exception check complete. Performing related evaluations.")
         document.ai_exception = result
 
@@ -125,12 +143,17 @@ class EvaluationWrapper(EvaluationWrapperBase):
         )
         details = document.llm_context()
         details.append(decision)
-        test_case = LLMTestCase(
-            actual_output=[response],
-            retrieval_context=context,
-            input="\n\n".join(details),
-        )
-        metric.measure(test_case)
+        try:
+            test_case = LLMTestCase(
+                actual_output=[response],
+                retrieval_context=context,
+                input="\n\n".join(details),
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "verdicts": convert_model_list(metric.verdicts),
             "response": response,
@@ -155,14 +178,18 @@ class EvaluationWrapper(EvaluationWrapperBase):
         elif exception == "application":
             response = document.ai_exception["why_application"]
             context = APPLICATION_EXCEPTION_CONTEXT
-
-        metric = MultimodalFaithfulnessMetric(model=self.evaluation_model)
-        test_case = MLLMTestCase(
-            input=[],
-            retrieval_context=context + document.images,
-            actual_output=[response],
-        )
-        metric.measure(test_case)
+        try:
+            metric = MultimodalFaithfulnessMetric(model=self.evaluation_model)
+            test_case = MLLMTestCase(
+                input=[],
+                retrieval_context=context + document.images,
+                actual_output=[response],
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "truths": metric.truths,
             "claims": metric.claims,

@@ -55,6 +55,9 @@ module "secrets" {
     ANTHROPIC_KEY = {
       description = "Optional Anthropic API key"
     }
+    OPENAI_KEY = {
+      description = "Optional OpenAI API key"
+    }
     RAILS_API_USER = {
       description = "The Rails API user to pass to our python components"
     }
@@ -169,6 +172,7 @@ module "lambda" {
   document_inference_evaluation_ecr_repository_url = module.deployment.document_inference_evaluation_ecr_repository_url
   secret_google_ai_key_arn                         = module.secrets.secrets["GOOGLE_AI_KEY"].secret_arn
   secret_anthropic_key_arn                         = module.secrets.secrets["ANTHROPIC_KEY"].secret_arn
+  secret_openai_key_arn                            = module.secrets.secrets["OPENAI_KEY"].secret_arn
   secret_rails_api_user                            = module.secrets.secrets["RAILS_API_USER"].secret_arn
   secret_rails_api_password                        = module.secrets.secrets["RAILS_API_PASSWORD"].secret_arn
   secret_google_service_account_evals_key_arn      = module.secrets.secrets["GOOGLE_SERVICE_ACCOUNT"].secret_arn
