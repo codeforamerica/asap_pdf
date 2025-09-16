@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import io
 import json
 import re
@@ -6,12 +7,13 @@ import time
 import urllib.parse
 import urllib.robotparser
 from collections import defaultdict, deque
-from datetime import datetime
 
+import numpy as np
 import pandas as pd
 import pymupdf
 import requests
 import tldextract
+import urllib3
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -21,6 +23,10 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from tqdm import tqdm
+
+# Some gov websites, have unusual certificate handling.
+# To enforce SSL verification remove this line.
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def get_url(url, timeout=90, use_webdriver=False):
@@ -249,34 +255,43 @@ def parse_pdf_date(date_string):
     if len(date_string) == 0:
         return None
     if date_string.startswith("D:"):
-        return datetime.strptime(date_string[2:16], "%Y%m%d%H%M%S")
-    return datetime.strptime(date_string[:16], "%Y%m%d%H%M%S")
+        return datetime.datetime.strptime(date_string[2:16], "%Y%m%d%H%M%S")
+    return datetime.datetime.strptime(date_string[:16], "%Y%m%d%H%M%S")
 
 
 def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
     output = []
+    crawl_date = datetime.date.today().strftime("%Y-%m-%d")
     for pdf_url in tqdm(pdfs.keys(), ncols=100):
         source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
         texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
-
-        url_parsed = urllib.parse.urlparse(pdf_url)
-        default_file_name = url_parsed.path.split("/")[-1]
-        if len(default_file_name) == 0:
-            default_file_name = url_parsed.netloc.split("\\")[-1]
-
         try:
+            url_parsed = urllib.parse.urlparse(pdf_url)
+            default_file_name = url_parsed.path.split("/")[-1]
+            if len(default_file_name) == 0:
+                default_file_name = url_parsed.netloc.split("\\")[-1]
             headers = {
                 "Content-Type": "application/pdf",
                 "Content-Disposition": "inline",
             }
+            # Since we control domain lists, it feels safe enough to disable SSL verification.
+            # To enforce SSL cert verification, set verify to True.
             response = requests.get(
-                url=pdf_url, timeout=90, headers=headers, allow_redirects=True
+                url=pdf_url,
+                timeout=90,
+                headers=headers,
+                allow_redirects=True,
+                verify=False,
             )
+            tqdm.write(f"Attempting metadata fetch for: {pdf_url}")
             if response.status_code < 400:
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
-                        # tqdm.write(f"Reading: {pdf_url}")
+                        if pdf_file.page_count is None or pdf_file.page_count == 0:
+                            raise RuntimeError(
+                                "Could not read document metadata to get page count."
+                            )
                         file_name = default_file_name
                         pdf_title = pdf_file.metadata.get("title")
                         if pdf_title and (len(pdf_title.strip()) > 0):
@@ -285,7 +300,6 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                         n_images, n_tables = get_images_and_tables(pdf_file.pages())
                         modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
                         created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
-
                         row = {
                             "file_name": file_name,
                             "url": pdf_url,
@@ -305,23 +319,30 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                             "version": pdf_file.metadata.get("format"),
                             "source": source,
                             "text_around_link": texts,
+                            "crawl_date": crawl_date,
                         }
                         output.append(row)
                     except pymupdf.FileDataError:  # noqa:
                         tqdm.write(f"Document isn't a PDF: {pdf_url}")
-                        continue
-        except:  # noqa
-            tqdm.write(f"Error reading: {pdf_url}")
-            continue
+        except Exception as e:
+            tqdm.write(f"Error reading: {pdf_url} Error: {str(e)}")
     return pd.DataFrame(output)
 
 
 def compare_crawled_documents(pdf_df: pd.DataFrame, comparison_crawl_df: pd.DataFrame):
+    overlapping_columns = [
+        column for column in pdf_df.columns if column in comparison_crawl_df.columns
+    ]
+    overlapping_columns.remove("url")
     pdf_df = pdf_df.merge(comparison_crawl_df, how="outer", on="url", indicator=True)
+    for column in overlapping_columns:
+        pdf_df[column] = np.where(
+            pdf_df["_merge"] == "right_only",
+            pdf_df[f"{column}_y"],
+            pdf_df[f"{column}_x"],
+        )
     # We don't care about the right side, suffixed columns.
-    pdf_df = pdf_df.filter(regex="^(?!.*_y$)")
-    # Return our left side, suffixed columns to normal.
-    pdf_df.columns = pdf_df.columns.str.rstrip("_x")
+    pdf_df = pdf_df.filter(regex="^(?!.*_[yx]$)")
     if "crawl_status" in pdf_df.columns:
         pdf_df = pdf_df.drop("crawl_status", axis=1)
     # Reformat the crawl status.
@@ -341,44 +362,54 @@ if __name__ == "__main__":
     parser.add_argument("url", help="Starting URL")
     parser.add_argument("--delay", type=float, default=0, help="Delay between requests")
     parser.add_argument(
-        "--comparison_crawl", default=None, help="A previous crawl to compare results against."
+        "--comparison_crawl",
+        default=None,
+        help="A previous crawl to compare results against.",
+    )
+    parser.add_argument(
+        "--crawled_links_json",
+        default=None,
+        help="Skip the link gathering process and use a previously created JSON file.",
     )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
     )
     args = parser.parse_args()
+    if args.crawled_links_json is None:
+        config = get_config(args.url)
+        allow_list = config["allow_list"]
+        allowable_subdomains = config.get("allow_subdomains")
+        use_sitemap = config["use_sitemap"]
+        depth = config["depth"]
+        use_webdriver = config.get("use_webdriver", False)
 
-    config = get_config(args.url)
-    allow_list = config["allow_list"]
-    allowable_subdomains = config.get("allow_subdomains")
-    use_sitemap = config["use_sitemap"]
-    depth = config["depth"]
-    use_webdriver = config.get("use_webdriver", False)
+        allowable_domains = [
+            tldextract.extract(link).registered_domain for link in allow_list
+        ]
+        sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
-    allowable_domains = [
-        tldextract.extract(link).registered_domain for link in allow_list
-    ]
-    sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
+        if use_sitemap:
+            all_pages = parse_sitemap(sitemap)
+            tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
 
-    if use_sitemap:
-        all_pages = parse_sitemap(sitemap)
-        tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
-
-        crawled_pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
-        tqdm.write("Visited all pages on the sitemap.")
+            crawled_pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
+            tqdm.write("Visited all pages on the sitemap.")
+        else:
+            tqdm.write("Doing recursive search instead.")
+            crawled_pdfs, visited = bfs_search_pdfs(
+                args.url,
+                allowable_domains,
+                allowable_subdomains=allowable_subdomains,
+                delay=manual_crawl_delay,
+                max_depth=depth,
+                use_webdriver=use_webdriver,
+            )
+        tqdm.write(f"PDFs found: {len(crawled_pdfs)}")
+        with open(args.output_path.replace(".csv", ".json"), "w") as f:
+            json.dump(dict(crawled_pdfs), f, indent=4)
     else:
-        tqdm.write("Doing recursive search instead.")
-        crawled_pdfs, visited = bfs_search_pdfs(
-            args.url,
-            allowable_domains,
-            allowable_subdomains=allowable_subdomains,
-            delay=manual_crawl_delay,
-            max_depth=depth,
-            use_webdriver=use_webdriver,
-        )
-    tqdm.write(f"PDFs found: {len(crawled_pdfs)}")
-    with open(args.output_path.replace(".csv", ".json"), "w") as f:
-        json.dump(dict(crawled_pdfs), f, indent=4)
+        with open(args.crawled_links_json) as f:
+            crawled_pdfs = json.load(f)
     crawled_pdfs = add_pdf_metadata(crawled_pdfs)
     if args.comparison_crawl is not None:
         comparison_df = pd.read_csv(args.comparison_crawl)
