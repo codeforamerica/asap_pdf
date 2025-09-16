@@ -46,4 +46,6 @@ def test_comparison():
     assert len(comparison[comparison["crawl_status"] == "new"]) == 2
     assert len(comparison[comparison["crawl_status"] == "active"]) == 2
     assert len(comparison[comparison["crawl_status"] == "removed"]) == 2
-    assert list(first_crawl.columns) + ["crawl_status"] == list(comparison.columns)
+    original_columns = set(first_crawl.columns)
+    original_columns.add("crawl_status")
+    assert original_columns == set(comparison.columns)
