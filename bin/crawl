@@ -1,22 +1,27 @@
 #!/bin/bash
 
 # Script to crawl a website and extract PDF information
-# Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory]
+# Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory] [previous_link_json]
 # Site site_url must exist in python_components/crawler/config.json.
+# previous_crawl_directory is the path to a previous version of the crawl to compare against.
+# previous_link_json is a list of links and sources produced by the first phase of the crawler.
+#     Useful if metadata fetching failed or to resume an otherwise halted process.
 
 # Check if site_url parameter is provided
 if [ $# -eq 0 ]; then
     echo "Error: site_url parameter is required"
-    echo "Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory]"
+    echo "Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory] [previous_link_json]"
     echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09"
     echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl_directory/"
     echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl_directory.zip"
+    echo "Example: bin/crawl https://georgia.gov /db/seeds/site_documents_2025_09 /path/to/previous_crawl_directory.zip /georgia_files.json"
     exit 1
 fi
 
 SITE_URL="$1"
 OUTPUT_DIR="$2"
 PREVIOUS_CRAWL="$3"
+PREVIOUS_LINK_JSON="$4"
 
 # Find the project root directory by looking for the bin directory
 # This allows the script to work from any subdirectory
@@ -46,7 +51,9 @@ if [ -n "$PREVIOUS_CRAWL" ]; then
         echo "Error: Previous crawl path '$PREVIOUS_CRAWL' does not exist"
         exit 1
     fi
-    PREVIOUS_CRAWL_DIR=$(mktemp -d)
+    CRAWLER_TMP_DIR="$PROJECT_ROOT/crawler_tmp"
+    PREVIOUS_CRAWL_DIR="$CRAWLER_TMP_DIR/previous_crawl"
+    mkdir -p $PREVIOUS_CRAWL_DIR
     if [ -f "$PREVIOUS_CRAWL" ] && [[ "$PREVIOUS_CRAWL" == *.zip ]]; then
         if command -v unzip >/dev/null 2>&1; then
           unzip  -j -q "$PREVIOUS_CRAWL" -d "$PREVIOUS_CRAWL_DIR"
@@ -65,28 +72,34 @@ if [ -n "$PREVIOUS_CRAWL" ]; then
     else
       cp -r "$PREVIOUS_CRAWL"/* "$PREVIOUS_CRAWL_DIR"
     fi
-  COMPARISON_VOLUME="-v $PREVIOUS_CRAWL_DIR:/comparison"
-  COMPARISON_FLAG="--comparison_crawl=/comparison/$OUTPUT_FILE"
+  COMPARISON_FLAG="--comparison_crawl=/data/previous_crawl/$OUTPUT_FILE"
 fi
 
-TMP_OUTPUT=$(mktemp -d)
+PREVIOUS_JSON_LINK_FLAG=""
+if [ -n "$PREVIOUS_LINK_JSON" ]; then
+  mkdir -p "$CRAWLER_TMP_DIR/previous_json_links"
+  mv $PREVIOUS_LINK_JSON "$CRAWLER_TMP_DIR/previous_json_links"
+  PREVIOUS_JSON_LINK_FLAG="--crawled_links_json=/data/previous_json_links/$(basename $PREVIOUS_LINK_JSON)"
+fi
+
+TMP_OUTPUT="$CRAWLER_TMP_DIR/output"
+mkdir -p $TMP_OUTPUT
 mkdir -p $OUTPUT_DIR
 echo "$OUTPUT_DIR"
 
 set -x
-if [ -n "$COMPARISON_VOLUME" ]; then
+if [ -n "$COMPARISON_FLAG" ]; then
 docker run --rm \
   -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
-  -v "$TMP_OUTPUT:/output" \
-  $COMPARISON_VOLUME \
+  -v "$CRAWLER_TMP_DIR:/data" \
   asap_pdf:crawler \
-  python /workspace/crawler.py "$SITE_URL" "/output/$OUTPUT_FILE" "$COMPARISON_FLAG"
+  python /workspace/crawler.py "$SITE_URL" "/data/output/$OUTPUT_FILE" "$COMPARISON_FLAG" "$PREVIOUS_JSON_LINK_FLAG"
 else
   docker run --rm \
   -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
-  -v "$TMP_OUTPUT:/output" \
+  -v "$CRAWLER_TMP_DIR:/data" \
   asap_pdf:crawler \
-  python /workspace/crawler.py "$SITE_URL" "/output/$OUTPUT_FILE"
+  python /workspace/crawler.py "$SITE_URL" "/data/output/$OUTPUT_FILE" "$PREVIOUS_JSON_LINK_FLAG"
 fi
 
 set +x
@@ -105,7 +118,4 @@ set +x
 
 mv "$TMP_OUTPUT/$OUTPUT_FILE" "$OUTPUT_DIR"
 
-rm -rf "$TMP_OUTPUT"
-if [ -n "$PREVIOUS_CRAWL" ]; then
-  rm -rf "$PREVIOUS_CRAWL_DIR"
-fi
+rm -rf "$CRAWLER_TMP_DIR"
