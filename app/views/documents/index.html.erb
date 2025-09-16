@@ -96,6 +96,18 @@
                         <i class="fas fa-file-pdf text-sm"></i> <%= document.file_name&.truncate(80) %>
                         <span class="sr-only">Show Document Modal</span>
                       </button>
+                      <% crawl_status = document.get_crawl_status_display %>
+                      <% if crawl_status.present? %>
+                        <% if crawl_status == Document::DOCUMENT_STATUS_NEW %>
+                          <div class="tooltip tooltip-top tooltip-primary" data-tip="Recently uploaded PDF - <%= document.last_crawl_date.strftime("%Y-%m-%d") %>">
+                            <div class="badge badge-sm badge-primary"><%= crawl_status %></div>
+                          </div>
+                        <% else %>
+                          <div class="tooltip tooltip-top tooltip-neutral" data-tip="PDF removed - <%= document.last_crawl_date.strftime("%Y-%m-%d") %>">
+                            <div class="badge badge-sm badge-neutral"><%= crawl_status %></div>
+                          </div>
+                        <% end %>
+                      <% end %>
                     </div>
                     <% source = document_source(document.primary_source) %>
                     <div class="text-gray-400">

@@ -32,6 +32,11 @@ class Document < ApplicationRecord
 
   COMPLEXITIES = [SIMPLE_STATUS, COMPLEX_STATUS].freeze
 
+  DOCUMENT_STATUS_NEW = "New".freeze
+  DOCUMENT_STATUS_ACTIVE = "Active".freeze
+  DOCUMENT_STATUS_REMOVED = "Removed".freeze
+  DOCUMENT_STATUSES = [DOCUMENT_STATUS_NEW, DOCUMENT_STATUS_ACTIVE, DOCUMENT_STATUS_REMOVED].freeze
+
   belongs_to :site
 
   has_many :document_inferences
@@ -42,7 +47,7 @@ class Document < ApplicationRecord
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
-  validates :document_status, presence: true, inclusion: {in: %w[discovered downloaded]}
+  validates :document_status, presence: true, inclusion: {in: DOCUMENT_STATUSES}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: -> { get_decision_types }}, presence: true
   validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
@@ -321,6 +326,14 @@ class Document < ApplicationRecord
     return nil if urls.nil?
 
     urls.is_a?(Array) ? urls.first : urls
+  end
+
+  def get_crawl_status_display
+    if document_status == DOCUMENT_STATUS_NEW && last_crawl_date.present? && last_crawl_date.after?(1.week.ago)
+      DOCUMENT_STATUS_NEW
+    elsif document_status == DOCUMENT_STATUS_REMOVED
+      DOCUMENT_STATUS_REMOVED
+    end
   end
 
   private
