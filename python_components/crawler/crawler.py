@@ -261,7 +261,6 @@ def parse_pdf_date(date_string):
 
 def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
     output = []
-    crawl_date = datetime.date.today().strftime("%Y-%m-%d")
     for pdf_url in tqdm(pdfs.keys(), ncols=100):
         source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
         texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
@@ -319,7 +318,6 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                             "version": pdf_file.metadata.get("format"),
                             "source": source,
                             "text_around_link": texts,
-                            "crawl_date": crawl_date,
                         }
                         output.append(row)
                     except pymupdf.FileDataError:  # noqa:
@@ -350,6 +348,12 @@ def compare_crawled_documents(pdf_df: pd.DataFrame, comparison_crawl_df: pd.Data
     pdf_df["crawl_status"] = pdf_df["crawl_status"].cat.rename_categories(
         {"left_only": "new", "right_only": "removed", "both": "active"}
     )
+    return pdf_df
+
+
+def add_crawl_date(pdf_df: pd.DataFrame) -> pd.DataFrame:
+    crawl_date = datetime.date.today().strftime("%Y-%m-%d")
+    pdf_df["crawl_date"] = crawl_date
     return pdf_df
 
 
@@ -414,4 +418,5 @@ if __name__ == "__main__":
     if args.comparison_crawl is not None:
         comparison_df = pd.read_csv(args.comparison_crawl)
         crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
+    crawled_pdfs = add_crawl_date(crawled_pdfs)
     output_pdfs(crawled_pdfs, args.output_path)
