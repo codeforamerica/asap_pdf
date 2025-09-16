@@ -46,6 +46,8 @@ class Site < ApplicationRecord
     "Census" => ["https://www.slc.gov/census"]
   }
 
+  include DateParserHelper
+
   has_many :documents, dependent: :destroy
   has_many :users
 
@@ -179,6 +181,10 @@ class Site < ApplicationRecord
             # Extract URLs from the string
             urls = row["source"].scan(/'([^']+)'/).flatten
             urls.empty? ? nil : urls
+                   end
+
+          if row["crawl_date"].present? and row["crawl_date"].is_a?(String)
+            row["crawl_date"] = Time.parse(row["crawl_date"]).to_i
           end
 
           documents << {
@@ -197,7 +203,9 @@ class Site < ApplicationRecord
             predicted_category_confidence: row["predicted_category_confidence"],
             number_of_pages: row["number_of_pages"]&.to_i,
             number_of_tables: row["number_of_tables"]&.to_i,
-            number_of_images: row["number_of_images"]&.to_i
+            number_of_images: row["number_of_images"]&.to_i,
+            crawl_status: row["crawl_status"].present? ? row["crawl_status"].capitalize : "",
+            crawl_date: row["crawl_date"],
           }
         rescue URI::InvalidURIError => e
           puts "Skipping invalid URL: #{row["url"]}"
@@ -299,12 +307,12 @@ class Site < ApplicationRecord
       document_category: data[:predicted_category] || data[:document_category],
       document_category_confidence: data[:predicted_category_confidence] || data[:document_category_confidence],
       url: data[:url],
-      modification_date: data[:modification_date],
+      modification_date: DateParserHelper.to_time(data[:modification_date]),
       file_size: data[:file_size],
       author: clean_string(data[:author]),
       subject: clean_string(data[:subject]),
       keywords: clean_string(data[:keywords]),
-      creation_date: data[:creation_date],
+      creation_date: DateParserHelper.to_time(data[:creation_date]),
       producer: clean_string(data[:producer]),
       pdf_version: clean_string(data[:pdf_version]),
       source: if data[:source].nil?
@@ -316,7 +324,7 @@ class Site < ApplicationRecord
       number_of_tables: data[:number_of_tables],
       number_of_images: data[:number_of_images],
       document_status: data[:crawl_status],
-      last_crawl_date: data[:crawl_date]
+      last_crawl_date: DateParserHelper.to_time(data[:crawl_date])
     }
   end
 
