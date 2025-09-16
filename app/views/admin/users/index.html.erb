@@ -60,7 +60,7 @@
             </div>
           </div>
         <% end %>
-        <% if @user_count > 25 %>
+        <% if @user_count > User.default_per_page %>
           <div id="pager" class="px-6 py-4 border-t">
             <%= paginate @users %>
           </div>
