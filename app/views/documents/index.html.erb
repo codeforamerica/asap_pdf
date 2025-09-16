@@ -99,11 +99,11 @@
                       <% crawl_status = document.get_crawl_status_display %>
                       <% if crawl_status.present? %>
                         <% if crawl_status == Document::DOCUMENT_STATUS_NEW %>
-                          <div class="tooltip tooltip-top tooltip-primary" data-tip="Recently uploaded PDF - <%= document.last_crawl_date.strftime("%Y-%m-%d") %>">
+                          <div class="tooltip tooltip-top tooltip-primary" data-tip="Recently uploaded PDF - <%= document.last_crawl_date.present? ? document.last_crawl_date.strftime("%Y-%m-%d") : "Date Unknown" %>">
                             <div class="badge badge-sm badge-primary"><%= crawl_status %></div>
                           </div>
                         <% else %>
-                          <div class="tooltip tooltip-top tooltip-neutral" data-tip="PDF removed - <%= document.last_crawl_date.strftime("%Y-%m-%d") %>">
+                          <div class="tooltip tooltip-top tooltip-neutral" data-tip="PDF removed - <%= document.last_crawl_date.present? ? document.last_crawl_date.strftime("%Y-%m-%d") : "Date Unknown"  %>">
                             <div class="badge badge-sm badge-neutral"><%= crawl_status %></div>
                           </div>
                         <% end %>
