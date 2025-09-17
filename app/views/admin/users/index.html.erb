@@ -4,28 +4,45 @@
       <div class="bg-gray-50 shadow-sm rounded-t-lg px-6 py-4  border-b-gray-200 border-b">
         <div class="flex justify-between items-center">
           <h1 class="text-lg font-medium">Manage Users</h1>
-          <a href="<%= new_admin_user_path(@user) %>"  class="btn btn-primary text-white">
+          <a href="<%= new_admin_user_path(@user) %>" class="btn btn-primary btn-sm text-white">
             <i class="fas fa-plus mr-2"></i>
             Add User
           </a>
         </div>
       </div>
       <div class="bg-white shadow-sm rounded-b-lg overflow-x-scroll">
-        <table class="min-w-full divide-y divide-gray-200 table-zebra">
-          <thead>
+        <%= form_tag admin_users_path, method: :get, data: { action: "submit->filter#submitForm" }, class: "py-4 px-3" do %>
+          <div class="inline-block mr-4">
+            <label for="email" class="label">
+              <span class="label-text">Filter by Email</span>
+            </label>
+            <%= text_field_tag "email", value = params[:email] || "", id: "email", class: "input input-sm input-bordered mt-2" %>
+          </div>
+          <%= submit_tag 'Apply', class: "btn btn-sm btn-primary mr-4" %>
+          <% if params[:email].present? %>
+            <%= link_to "Reset", admin_users_path, class: "text-primary" %>
+          <% end %>
+        <% end %>
+        <% if @user_count > 0 %>
+          <table class="min-w-full divide-y divide-gray-200 table-zebra">
+            <thead>
             <tr>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Email</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Site</th>
+              <th scope="col" class="tracking-wider text-left py-4 px-3">Created Date</th>
+              <th scope="col" class="tracking-wider text-left py-4 px-3">Last Access Date</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Site Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">User Admin</th>
               <th scope="col" class="tracking-wider text-left py-4 px-3">Actions</th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             <% @users.each do |user| %>
               <tr>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.email %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.site.present? ? user.site.name : "None" %></td>
+                <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.last_sign_in_at? ? user.last_sign_in_at.strftime("%Y-%m-%d %H:%M") : "Never" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_site_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3"><%= user.is_user_admin? ? "Yes" : "No" %></td>
                 <td class="tracking-wider text-left text-sm py-4 px-3">
@@ -33,8 +50,21 @@
                 </td>
               </tr>
             <% end %>
-          </tbody>
-        </table>
+            </tbody>
+          </table>
+        <% else %>
+          <div class="min-w-full divide-y divide-gray-200 py-4 px-3">
+            <div class="flex items-center justify-center text-gray-500">
+              <i class="fas fa-person mr-2"></i>
+              <span>No users found</span>
+            </div>
+          </div>
+        <% end %>
+        <% if @user_count > User.default_per_page %>
+          <div id="pager" class="px-6 py-4 border-t">
+            <%= paginate @users %>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

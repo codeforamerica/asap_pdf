@@ -2,7 +2,7 @@ require "rails_helper"
 
 describe "users may log into the site", js: true, type: :feature do
   before :each do
-    @current_user = User.create(email: "user@example.com", password: "password")
+    @current_user = User.create(email: "user@example.com", password: "password12345")
   end
 
   it "email and password are authenticated" do
@@ -21,26 +21,25 @@ describe "users may log into the site", js: true, type: :feature do
       assert_match "/users/sign_in", current_url
       # Test out success.
       fill_in "Email", with: "user@example.com"
-      fill_in "Password", with: "password"
+      fill_in "Password", with: "password12345"
       click_button "Log in"
     end
     expect(page).to have_selector "#sites-grid", wait: 5
     expect(page).to have_content "Signed in successfully"
     expect(page).to have_no_selector "#new_user"
   end
-  # clear_emails
-  # it "password resets" do
-  #   clear_emails
-  #   visit "/users/sign_in"
-  #   click_link "Forgot your password?"
-  #   expect(page).to have_current_path "/users/password/new", wait: 5
-  #   expect(page).to have_content "Forgot your password?"
-  #   fill_in "Email", with: "bob@example.com"
-  #   click_button "Send instructions"
-  #   expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
-  #   expect(ActionMailer::Base.deliveries).to be_empty
-  #   fill_in "Email", with: "bob@example.com"
-  #   click_button "Send instructions"
-  #   expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes."
-  # end
+  it "password resets" do
+    clear_emails
+    visit "/users/sign_in"
+    click_link "Forgot your password?"
+    expect(page).to have_current_path "/users/password/new", wait: 5
+    expect(page).to have_content "Forgot your password?"
+    fill_in "Email", with: "bob@example.com"
+    click_button "Send instructions"
+    expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.", wait: 5
+    expect(ActionMailer::Base.deliveries).to be_empty
+    fill_in "Email", with: "bob@example.com"
+    click_button "Send instructions"
+    expect(page).to have_content "If your email address exists in our database, you will receive a password recovery link at your email address in a few minutes.", wait: 5
+  end
 end
