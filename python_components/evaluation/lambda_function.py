@@ -106,10 +106,11 @@ def handler(event, context):
             return {"statusCode": 200, "body": output}
     except ValidationError as e:
         message = f"Invalid document supplied to event: {str(e)}"
-        return {"statusCode": 500, "body": message}
+        utility.helpers.logger.error(message)
+        raise
     except Exception as e:
         output = str(e)
         if local_mode:
             output = traceback.format_exc()
         utility.helpers.logger.error(f"Error during execution: {output}")
-        return {"statusCode": 500, "body": output}
+        raise

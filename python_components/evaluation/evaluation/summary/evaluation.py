@@ -1,3 +1,4 @@
+import time
 from typing import List
 
 from deepeval.test_case import MLLMTestCase
@@ -20,6 +21,7 @@ class EvaluationWrapper(EvaluationWrapperBase):
     def evaluate(self, document: Document) -> List[Result]:
         output = []
         # Perform any inference required for evaluation.
+        start = time.time()
         logger.info("Beginning summarization.")
         result = get_inference_for_document(
             document,
@@ -29,14 +31,34 @@ class EvaluationWrapper(EvaluationWrapperBase):
             self.aws_env,
             self.page_limit,
         )
-        logger.info("Summarization complete. Performing related evaluations.")
-        document.ai_summary = result["summary"]
-        # Begin the DeepEval summary evaluation.
-        metric = MultimodalInputSummarization(model=self.evaluation_model)
-        test_case = MLLMTestCase(
-            input=document.images, actual_output=document.ai_summary
+        duration = time.time() - start
+        output.append(
+            dict(
+                self.result_factory.new(
+                    {
+                        "metric_name": "inference_duration",
+                        "metric_version": 0,
+                        "score": duration,
+                        "file_name": document.file_name,
+                        "inference_model": self.inference_model_name,
+                    }
+                )
+            )
         )
-        metric.measure(test_case)
+        logger.info("Summarization complete. Performing related evaluations.")
+        logger.info(result["summary"])
+        document.ai_summary = result["summary"]
+        try:
+            # Begin the DeepEval summary evaluation.
+            metric = MultimodalInputSummarization(model=self.evaluation_model)
+            test_case = MLLMTestCase(
+                input=document.images, actual_output=document.ai_summary
+            )
+            metric.measure(test_case)
+        except AttributeError:
+            raise RuntimeError(
+                "Metric measurement failed. This is likely due to rate limiting or metric performance."
+            )
         details = {
             "truths": metric.truths,
             "claims": metric.claims,

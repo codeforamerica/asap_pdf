@@ -59,6 +59,28 @@
               </div>
             </div>
             <div class="form-control w-full">
+              <%= f.label :openai_api, "OpenAI API Key", class: "label" %>
+              <div class="mt-2">
+                <div class="join w-full" data-controller="password-toggle">
+                  <%= f.password_field :openai_api,
+                                       value: @config["openai_api"],
+                                       autocomplete: "new-password",
+                                       class: "input input-bordered join-item w-full font-mono",
+                                       data: { password_toggle_target: "input" } %>
+                  <button type="button" class="btn join-item" data-action="click->password-toggle#toggle">
+                    <i class="fas fa-eye" data-password-toggle-target="icon"></i>
+                  </button>
+                </div>
+                <div class="mt-2 text-sm text-gray-600">
+                  <p>Need an OpenAI API key?
+                    <%= link_to "Generate one here", "https://openai.com/api/",
+                                target: "_blank",
+                                class: "link link-primary" %>
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="form-control w-full">
               <%= f.label :google_evaluation_service_account_credentials, "Google Credentials JSON (Evaluation)", class: "label" %>
               <div class="mt-2">
                 <%= f.text_area :google_evaluation_service_account_credentials,

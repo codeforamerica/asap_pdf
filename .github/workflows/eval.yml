@@ -13,19 +13,26 @@ on:
         type: choice
         description: Inference Model
         options:
-          - gemini-2.5-pro-preview-03-25
-          - gemini-2.0-flash
-          - gemini-2.0-flash-lite
+          - gemini-2.5-pro
+          - gemini-2.5-flash
+          - gemini-2.5-flash-lite
+          - gpt-5
+          - gpt-5-mini
       evaluation_model_name:
         type: choice
         description: Evaluation Model
         options:
           - gemini-2.5-flash
-          - gemini-2.5-pro-preview-03-25
+          - gemini-2.5-pro
       runs_per_document:
         description: 'Number of times generate evaluations per document'
         required: false
         default: '1'
+        type: string
+      limit_to_document:
+        description: 'Optional document name from truthset file to limit by'
+        required: false
+        default: ''
         type: string
       should_rebuild_images:
         description: 'Rebuild and push images'
@@ -66,7 +73,7 @@ jobs:
 
       - name: Configure AWS credentials
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
@@ -119,6 +126,15 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Wait for Evaluation Lambda to be Active
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
+        env:
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL }}
+        run: |
+          echo "Waiting for Lambda function to be active..."
+          aws lambda wait function-updated-v2 --function-name $FUNCTION_NAME
+          echo "Lambda function is now active"
+
       - name: Update Document Inference Evaluation Lambda
         id: update-document-inference-evaluation-lambda
         if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
@@ -132,12 +148,25 @@ jobs:
              --function-name $FUNCTION_NAME \
              --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
+      - name: Wait for Evaluation Lambda to be Active
+        if: ${{ github.event.inputs.should_rebuild_images == 'true' }}
+        env:
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME_LAMBDA_EVAL_DOCUMENT_INFERENCE }}
+        run: |
+          echo "Waiting for Lambda function to be active..."
+          aws lambda wait function-updated-v2 --function-name $FUNCTION_NAME
+          echo "Lambda function is now active"
+
       - name: Read JSON file and set matrix
         id: set-matrix
         run: |
-          matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
+          if [ -z "${{ github.event.inputs.limit_to_document }}" ]; then
+            matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
+          else
+            matrix=$(jq -c '[.[] | select(.file_name == "${{ github.event.inputs.limit_to_document }}")]' ./python_components/evaluation/truthset.json)
+          fi
           echo "Matrix data: $matrix"
-          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT      
 
       - name: Generate run matrix
         id: set-runs
@@ -153,6 +182,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     strategy:
+      fail-fast: false
       matrix:
         payload: ${{ fromJson(needs.build.outputs.matrix) }}
         run: ${{ fromJson(needs.build.outputs.runs) }}
@@ -160,7 +190,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
