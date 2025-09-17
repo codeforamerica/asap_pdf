@@ -46,8 +46,6 @@ class Site < ApplicationRecord
     "Census" => ["https://www.slc.gov/census"]
   }
 
-  include DateParserHelper
-
   has_many :documents, dependent: :destroy
   has_many :users
 
@@ -118,7 +116,6 @@ class Site < ApplicationRecord
       url = data[:url]
       modification_date = data[:modification_date]
 
-      # Find existing document - one query per document but minimal memory usage
       existing_document = documents.find_by(url: url)
 
       ActiveRecord::Base.transaction do
@@ -181,9 +178,9 @@ class Site < ApplicationRecord
             # Extract URLs from the string
             urls = row["source"].scan(/'([^']+)'/).flatten
             urls.empty? ? nil : urls
-                   end
+          end
 
-          if row["crawl_date"].present? and row["crawl_date"].is_a?(String)
+          if row["crawl_date"].present? && row["crawl_date"].is_a?(String)
             row["crawl_date"] = Time.parse(row["crawl_date"]).to_i
           end
 
@@ -205,7 +202,7 @@ class Site < ApplicationRecord
             number_of_tables: row["number_of_tables"]&.to_i,
             number_of_images: row["number_of_images"]&.to_i,
             crawl_status: row["crawl_status"].present? ? row["crawl_status"].capitalize : "",
-            crawl_date: row["crawl_date"],
+            crawl_date: row["crawl_date"]
           }
         rescue URI::InvalidURIError => e
           puts "Skipping invalid URL: #{row["url"]}"
@@ -307,12 +304,12 @@ class Site < ApplicationRecord
       document_category: data[:predicted_category] || data[:document_category],
       document_category_confidence: data[:predicted_category_confidence] || data[:document_category_confidence],
       url: data[:url],
-      modification_date: DateParserHelper.to_time(data[:modification_date]),
+      modification_date: clean_date(data[:modification_date]),
       file_size: data[:file_size],
       author: clean_string(data[:author]),
       subject: clean_string(data[:subject]),
       keywords: clean_string(data[:keywords]),
-      creation_date: DateParserHelper.to_time(data[:creation_date]),
+      creation_date: clean_date(data[:creation_date]),
       producer: clean_string(data[:producer]),
       pdf_version: clean_string(data[:pdf_version]),
       source: if data[:source].nil?
@@ -324,13 +321,38 @@ class Site < ApplicationRecord
       number_of_tables: data[:number_of_tables],
       number_of_images: data[:number_of_images],
       document_status: data[:crawl_status],
-      last_crawl_date: DateParserHelper.to_time(data[:crawl_date])
+      last_crawl_date: clean_date(data[:crawl_date])
     }
   end
 
   def clean_string(str)
     return nil if str.nil?
     str.to_s.encode("UTF-8", invalid: :replace, undef: :replace, replace: "").strip
+  end
+
+  def clean_date(date)
+    if date.nil?
+      return nil
+    end
+    if date.is_a?(String)
+      return nil if date.empty?
+      Time.parse(date)
+    end
+    if date.is_a?(Integer)
+      case date
+      when 0..9_999_999_999
+        return Time.at(date)
+      when 10_000_000_000..9_999_999_999_999
+        return Time.at(date / 1000)
+      when 10_000_000_000_000..9_999_999_999_999_999
+        return Time.at(date / 1_000_000)
+      when 10_000_000_000_000_000..Float::INFINITY
+        return Time.at(date / 1_000_000_000)
+      else
+        return nil
+      end
+    end
+    date
   end
 
   def ensure_safe_url
