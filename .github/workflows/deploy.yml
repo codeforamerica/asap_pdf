@@ -72,7 +72,7 @@ jobs:
           echo "Repository ref: repo:${{ github.repository }}:ref:${{ github.ref }}"
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
@@ -145,7 +145,7 @@ jobs:
 
       - name: Debug deployment failure
         if: failure() && steps.deploy.outcome == 'failure'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
