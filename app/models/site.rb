@@ -1,49 +1,125 @@
 class Site < ApplicationRecord
   DEPARTMENT_MAPPING = {
-    "Information Management Services" => ["https://www.slc.gov/ims/"],
-    "Finance" => ["https://www.slc.gov/finance/"],
-    "City Attorney's Office" => ["https://www.slc.gov/attorney/"],
-    "Justice Courts" => ["https://www.slc.gov/courts/"],
-    "Community and Neighborhoods (CAN)" => ["https://www.slc.gov/can/"],
-    "Building Services" => ["https://www.slc.gov/buildingservices/"],
-    "Transportation" => ["https://www.slc.gov/transportation/"],
-    "Planning Division" => ["https://www.slc.gov/planningdivision", "https://www.slc.gov/planning"],
-    "Public Services" => ["https://www.slc.gov/publicservice/"],
-    "Public Lands Department" => ["https://www.slc.gov/parks/"],
-    "MyStreet" => ["https://www.slc.gov/mystreet/"],
-    "Sustainability" => ["https://www.slc.gov/sustainability/"],
-    "Department of Economic Development (EconDev)" => ["https://www.slc.gov/ed/"],
-    "Public Utilites" => ["https://www.slc.gov/utilities/"],
-    "Human Resources" => ["https://www.slc.gov/hr/"],
-    "Engineering" => ["https://www.slc.gov/engineering/"],
-    "Events" => ["https://www.slc.gov/events/"],
-    "Council District 1" => ["https://www.slc.gov/district1/"],
-    "Council District 2" => ["https://www.slc.gov/district2/"],
-    "Council District 3" => ["https://www.slc.gov/district3/"],
-    "Council District 4" => ["https://www.slc.gov/district4/"],
-    "Council District 5" => ["https://www.slc.gov/district5/"],
-    "Council District 6" => ["https://www.slc.gov/district6/"],
-    "Council District 7" => ["https://www.slc.gov/district7/"],
-    "City Council Office" => ["https://www.slc.gov/council/"],
-    "SLC Calendar" => ["https://www.slc.gov/calendar/"],
-    "Boards and Commissions" => ["https://www.slc.gov/boards/"],
-    "SLC911" => ["https://www.slc.gov/911/"],
-    "Event Permits" => ["https://www.slc.gov/ev/"],
-    "Division of Youth and Family" => ["https://www.slc.gov/youthandfamily/"],
-    "Emergency Management" => ["https://www.slc.gov/em/"],
-    "Historic Preservation" => ["https://www.slc.gov/histroic-preservation/"],
-    "Mayor's Office" => ["https://www.slc.gov/mayor/"],
-    "Ballpark NEXT" => ["https://www.slc.gov/ballparknext/"],
-    "Mayor's Office of Access & Belonging" => ["https://www.slc.gov/access-belonging/"],
-    "Housing Stability" => ["https://www.slc.gov/housingstability/", "https://www.slc.gov/hand/"],
-    "Workday" => ["https://www.slc.gov/workday/"],
-    "Homelessness" => ["https://www.slc.gov/homelessness/"],
-    "Urban Forestry" => ["https://www.slc.gov/urban-forestry/"],
-    "External" => ["https://www.slcdocs.com"],
-    "Community Reinvestment Agency" => ["https://cra.slc.gov"],
-    "Police" => ["https://police.slc.gov"],
-    "Fire" => ["https://fire.slc.gov", "https://www.slc.gov/fire/"],
-    "Census" => ["https://www.slc.gov/census"]
+    "Information management Services" => [
+      "slc.gov/ims/",
+      "slcdocs.com/ims"
+    ],
+    "Finance" => [
+      "slc.gov/Finance",
+      "slcdocs.com/finance"
+    ],
+    "City Attorney's Office" => [
+      "slc.gov/attorney",
+      "slcdocs.com/attorney"
+    ],
+    "Justice Courts" => [
+      "slc.gov/courts",
+      "slcdocs.com/courts"
+    ],
+    "Community and Neighborhoods (CAN)" => [
+      "slc.gov/can",
+      "slcdocs.com/can"
+    ],
+    "Building Services" => [
+      "slc.gov/Buildingservices",
+      "slcdocs.com/buildingservices"
+    ],
+    "Transportation" => [
+      "slc.gov/transportation",
+      "slcdocs.com/transportation"
+    ],
+    "Planning Division" => [
+      "slc.gov/planningdivision",
+      "slcdocs.com/planningdivision"
+    ],
+    "Public Services" => [
+      "slc.gov/publicservices",
+      "slcdocs.com/publicservices"
+    ],
+    "Public Lands Department" => [
+      "slc.gov/parks",
+      "slcdocs.com/parks"
+    ],
+    "MyStreet" => [
+      "slc.gov/mystreet",
+      "slcdocs.com/mystreet"
+    ],
+    "Sustainability" => [
+      "slc.gov/sustainability",
+      "slcdocs.com/slcgreen"
+    ],
+    "Department of Economic Development (EconDev)" => [
+      "slc.gov/ed",
+      "slcdocs.com/ed"
+    ],
+    "Public Utilities" => [
+      "slc.gov/utilities",
+      "slcdocs.com/utilities"
+    ],
+    "Human Resources" => [
+      "slc.gov/hr",
+      "slcdocs.com/hr"
+    ],
+    "Engineering" => [
+      "slc.gov/engineering",
+      "slcdocs.com/engineering"
+    ],
+    "Council District 1" => [
+      "slc.gov/district1"
+    ],
+    "Council District 2" => [
+      "slc.gov/district2"
+    ],
+    "Council District 3" => [
+      "slc.gov/district3"
+    ],
+    "Council District 4" => [
+      "slc.gov/district4"
+    ],
+    "Council District 5" => [
+      "slc.gov/district5"
+    ],
+    "Council District 6" => [
+      "slc.gov/district6"
+    ],
+    "Council District 7" => [
+      "slc.gov/district7"
+    ],
+    "City Council Office" => [
+      "slc.gov/council",
+      "slcdocs.com/council"
+    ],
+    "Boards and Commissions" => [
+      "slc.gov/boards",
+      "slcdocs.com/boards"
+    ],
+    "Division of Youth and Family" => [
+      "slc.gov/youthandfamily",
+      "slcdocs.com/youthandfamily"
+    ],
+    "Emergency Management" => [
+      "slc.gov/em",
+      "slcdocs.com/em"
+    ],
+    "Historic Preservation" => [
+      "slc.gov/histroic-preservation",
+      "slcdocs.com/histroicpreservation"
+    ],
+    "Mayor's Office" => [
+      "slc.gov/mayor",
+      "slcdocs.com/mayor"
+    ],
+    "Mayor's Office of Access & Belonging" => [
+      "slc.gov/access-belonging"
+    ],
+    "Housing Stability" => [
+      "slc.gov/housingstability",
+      "slcdocs.com/housingstability"
+    ],
+    "Homelessness" => [
+      "slc.gov/homelessness",
+      "slcdocs.com/homelessness"
+    ]
   }
 
   has_many :documents, dependent: :destroy
