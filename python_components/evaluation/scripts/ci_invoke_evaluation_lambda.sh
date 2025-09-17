@@ -34,11 +34,20 @@ aws lambda invoke \
   --function-name $FUNCTION_NAME \
   --cli-binary-format raw-in-base64-out \
   --payload file://"$TMP_PAYLOAD" \
-  "output.json"
+  "output.json" > "aws_response.json"
 
+echo "AWS Response Metadata:"
+cat aws_response.json
+
+echo "Lambda Function Output:"
 cat output.json
 
-if grep -q '"StatusCode": 500' output.json; then
-    echo "Error: Found StatusCode 500 in Lambda responses"
+if grep -q '"FunctionError"' aws_response.json; then
+    echo "Error: Lambda function failed with unhandled exception"
+    exit 1
+fi
+
+if grep -q '"statusCode": 500' output.json; then
+    echo "Error: Found StatusCode 500 in Lambda response"
     exit 1
 fi

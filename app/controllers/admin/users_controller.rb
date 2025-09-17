@@ -8,7 +8,10 @@ class Admin::UsersController < ApplicationController
   before_action :set_minimum_password_length, only: [:new, :edit, :update]
 
   def index
-    @users = User.all
+    @users = User.by_email(params[:email])
+      .order(created_at: :desc)
+      .page(params[:page])
+    @user_count = @users.total_count
   end
 
   def new
@@ -55,7 +58,18 @@ class Admin::UsersController < ApplicationController
       success = @user.update(user_params)
     end
     if success
-      redirect_to admin_users_path, notice: "User updated successfully"
+      if @user.resend_invitation.to_i == 1
+        @user.is_invited = true
+        begin
+          if @user.send_new_account_instructions?
+            redirect_to admin_users_path, notice: "User updated successfully. Instructions were resent to the users's email."
+          end
+        rescue Net::SMTPFatalError => e
+          redirect_to admin_users_path, alert: e.message
+        end
+      else
+        redirect_to admin_users_path, notice: "User updated successfully"
+      end
     else
       render :edit, status: 422
     end
@@ -74,7 +88,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id, :is_invited)
+    params.require(:user).permit(:email, :password, :password_confirmation, :current_password, :is_site_admin, :is_user_admin, :site_id, :is_invited, :resend_invitation)
   end
 
   def set_minimum_password_length
