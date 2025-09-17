@@ -47,7 +47,7 @@ class Document < ApplicationRecord
 
   validates :file_name, presence: true
   validates :url, presence: true, format: {with: URI::DEFAULT_PARSER.make_regexp}
-  validates :document_status, presence: true, inclusion: {in: DOCUMENT_STATUSES}
+  validates :document_status, inclusion: {in: DOCUMENT_STATUSES, allow_blank: true, allow_nil: true}
   validates :document_category, inclusion: {in: CONTENT_TYPES}
   validates :accessibility_recommendation, inclusion: {in: -> { get_decision_types }}, presence: true
   validates :complexity, inclusion: {in: COMPLEXITIES}, allow_nil: true
