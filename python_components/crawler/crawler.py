@@ -2,9 +2,9 @@ import argparse
 import datetime
 import io
 import json
+import os
 import re
 import time
-import os
 import urllib.parse
 import urllib.robotparser
 from collections import defaultdict, deque
