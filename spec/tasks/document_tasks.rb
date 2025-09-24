@@ -31,9 +31,10 @@ describe "rake documents:import_documents", type: :rake do
     expect(test_doc.number_of_images).to eq 0
     expect(test_doc.number_of_tables).to eq 0
     expect(test_doc.document_category).to eq "Slides"
-    expect(test_doc.document_status).to eq "Active"
+    expect(test_doc.document_status).to eq "Removed"
     expect(test_doc.creation_date.strftime("%Y-%m-%d")).to eq "2023-10-24"
     expect(test_doc.modification_date.strftime("%Y-%m-%d")).to eq "2025-10-31"
+    expect(test_doc.last_crawl_date.strftime("%Y-%m-%d")).to eq "2025-09-24"
     expect(test_doc.source).to eq nil
     expect(test_doc.pdf_version).to eq "PDF 1.6"
     expect(test_doc.producer).to eq "Adobe PDF Library 23.6.136"
