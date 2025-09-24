@@ -4,6 +4,7 @@ import io
 import json
 import re
 import time
+import os
 import urllib.parse
 import urllib.robotparser
 from collections import defaultdict, deque
@@ -357,7 +358,9 @@ def add_crawl_date(pdf_df: pd.DataFrame) -> pd.DataFrame:
     return pdf_df
 
 
-def output_pdfs(pdf_df: pd.DataFrame, output_path: str) -> None:
+def output_pdfs(pdf_df: pd.DataFrame, output_path: str, site_config: dict) -> None:
+    if os.path.isdir(output_path):
+        output_path = f"{output_path}/{site_config.get("output_file")}"
     pdf_df.to_csv(output_path, index=False)
 
 
@@ -419,4 +422,4 @@ if __name__ == "__main__":
         comparison_df = pd.read_csv(args.comparison_crawl)
         crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
     crawled_pdfs = add_crawl_date(crawled_pdfs)
-    output_pdfs(crawled_pdfs, args.output_path)
+    output_pdfs(crawled_pdfs, args.output_path, config)

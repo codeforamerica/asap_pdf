@@ -77,6 +77,10 @@ fi
 
 PREVIOUS_JSON_LINK_FLAG=""
 if [ -n "$PREVIOUS_LINK_JSON" ]; then
+  if [ ! -f "$PREVIOUS_LINK_JSON"  ]; then
+    echo "Previous JSON crawl file was specified, but does not exist."
+    exit 1
+  fi
   mkdir -p "$CRAWLER_TMP_DIR/previous_json_links"
   mv $PREVIOUS_LINK_JSON "$CRAWLER_TMP_DIR/previous_json_links"
   PREVIOUS_JSON_LINK_FLAG="--crawled_links_json=/data/previous_json_links/$(basename $PREVIOUS_LINK_JSON)"
@@ -88,19 +92,24 @@ mkdir -p $OUTPUT_DIR
 echo "$OUTPUT_DIR"
 
 set -x
+
+crawler_command=(
+    docker run --rm
+    -v "$PROJECT_ROOT/python_components/crawler:/workspace"
+    -v "$CRAWLER_TMP_DIR:/data"
+    asap_pdf:crawler
+    python /workspace/crawler.py "$SITE_URL" "/data/output/$OUTPUT_FILE"
+)
+
 if [ -n "$COMPARISON_FLAG" ]; then
-docker run --rm \
-  -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
-  -v "$CRAWLER_TMP_DIR:/data" \
-  asap_pdf:crawler \
-  python /workspace/crawler.py "$SITE_URL" "/data/output/$OUTPUT_FILE" "$COMPARISON_FLAG" "$PREVIOUS_JSON_LINK_FLAG"
-else
-  docker run --rm \
-  -v "$PROJECT_ROOT/python_components/crawler:/workspace" \
-  -v "$CRAWLER_TMP_DIR:/data" \
-  asap_pdf:crawler \
-  python /workspace/crawler.py "$SITE_URL" "/data/output/$OUTPUT_FILE" "$PREVIOUS_JSON_LINK_FLAG"
+  crawler_command+=("$COMPARISON_FLAG")
 fi
+
+if [ -n "$PREVIOUS_JSON_LINK_FLAG" ]; then
+     crawler_command+=("$PREVIOUS_JSON_LINK_FLAG")
+fi
+
+"${crawler_command[@]}"
 
 set +x
 
