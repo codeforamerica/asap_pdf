@@ -1,4 +1,4 @@
-require 'rails_helper'
+require "rails_helper"
 
 describe "rake documents:import_documents", type: :rake do
   let(:site) { create(:site, primary_url: "https://www.city.org") }

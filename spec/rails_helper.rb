@@ -9,7 +9,7 @@ require "shoulda/matchers"
 require "capybara/rails"
 require "helpers/user"
 require "helpers/mail"
-require 'rake'
+require "rake"
 
 # Capybara.default_driver = :selenium_chrome
 
