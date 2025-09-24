@@ -355,9 +355,8 @@ class Document < ApplicationRecord
   end
 
   def set_defaults
-    self.document_status = "discovered" unless document_status
     self.accessibility_recommendation = DEFAULT_DECISION unless accessibility_recommendation
-    self.document_status = DOCUMENT_STATUS_ACTIVE
+    self.document_status = DOCUMENT_STATUS_ACTIVE unless document_status.present?
   end
 
   def set_complexity
