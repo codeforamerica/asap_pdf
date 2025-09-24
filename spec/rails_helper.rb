@@ -9,6 +9,7 @@ require "shoulda/matchers"
 require "capybara/rails"
 require "helpers/user"
 require "helpers/mail"
+require 'rake'
 
 # Capybara.default_driver = :selenium_chrome
 
@@ -70,5 +71,15 @@ RSpec.configure do |config|
       with.test_framework :rspec
       with.library :rails
     end
+  end
+end
+
+# Load rake tasks
+Rails.application.load_tasks if Rake::Task.tasks.empty?
+
+RSpec.configure do |config|
+  config.before(:each, type: :rake) do
+    Rake.application.rake_require("lib/tasks/documents", [Rails.root.to_s], [])
+    Rake::Task.define_task(:environment)
   end
 end
