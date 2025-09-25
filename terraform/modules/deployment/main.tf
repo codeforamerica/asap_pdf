@@ -65,7 +65,6 @@ resource "aws_ecr_lifecycle_policy" "document_inference" {
   policy     = data.aws_ecr_lifecycle_policy_document.thirty_day_expiration_policy.json
 }
 
-
 resource "aws_ecr_repository" "evaluation" {
   name                 = "${var.project_name}-evaluation-${var.environment}"
   force_delete         = true
