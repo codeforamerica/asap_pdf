@@ -460,7 +460,7 @@ describe "documents function as expected", js: true, type: :feature do
       complexity: "Simple",
       site: site,
       creation_date: "2022-10-01",
-      modification_date:  "2022-10-01")
+      modification_date: "2022-10-01")
     teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf",
       file_name: "teahouse_rules.pdf",
       document_category: "Notice",
@@ -469,7 +469,7 @@ describe "documents function as expected", js: true, type: :feature do
       complexity: "Complex",
       site: site,
       creation_date: "2022-10-01",
-      modification_date:  "2023-10-01")
+      modification_date: "2023-10-01")
     market_doc = Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf",
       file_name: "farmers_market_2023.pdf",
       document_category: "Notice",
@@ -704,5 +704,54 @@ describe "documents function as expected", js: true, type: :feature do
     expect(page).to have_content "Create Audit Export"
     expect(page).to have_content "Use the following RESTful endpoint to get your audit history."
     expect(page).to have_content "authorization: Basic [Your base64 encoded credentials]"
+  end
+
+  it "tags new or removed documents" do
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    document = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf",
+      file_name: "rtd_contract.pdf",
+      document_category: "Agreement",
+      document_category_confidence: 0.73,
+      department: "Public Transportation",
+      complexity: "Simple",
+      site: site,
+      creation_date: "2022-10-01",
+      modification_date: "2022-10-01")
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.document_status = Document::DOCUMENT_STATUS_REMOVED
+    document.save!
+    visit "sites/#{site.id}/documents"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.last_crawl_date = 9.days.ago
+    document.document_status = Document::DOCUMENT_STATUS_NEW
+    document.save!
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.last_crawl_date = 3.days.ago
+    document.save!
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_content "New"
+    end
   end
 end
