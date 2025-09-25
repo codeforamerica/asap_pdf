@@ -17,6 +17,25 @@ data "aws_iam_policy_document" "lambda_ecr" {
   }
 }
 
+# ECR 30 day expiration policy.
+data "aws_ecr_lifecycle_policy_document" "thirty_day_expiration_policy" {
+  rule {
+    priority    = 1
+    description = "Remove all images older than 30 days old that are not associated with an active service."
+
+    selection {
+      tag_status   = "any"
+      count_type   = "sinceImagePushed"
+      count_unit   = "days"
+      count_number = "30"
+    }
+
+    action {
+      type = "expire"
+    }
+  }
+}
+
 # Document inference ECR repository.
 resource "aws_ecr_repository" "document_inference" {
   name                 = "${var.project_name}-lambda-document-inference-${var.environment}"
@@ -41,6 +60,12 @@ resource "aws_ecr_repository_policy" "document_inference" {
   repository = aws_ecr_repository.document_inference.name
 }
 
+resource "aws_ecr_lifecycle_policy" "document_inference" {
+  repository = aws_ecr_repository.document_inference.name
+  policy     = data.aws_ecr_lifecycle_policy_document.thirty_day_expiration_policy.json
+}
+
+
 resource "aws_ecr_repository" "evaluation" {
   name                 = "${var.project_name}-evaluation-${var.environment}"
   force_delete         = true
@@ -62,6 +87,11 @@ resource "aws_ecr_repository" "evaluation" {
 resource "aws_ecr_repository_policy" "evaluation" {
   policy     = data.aws_iam_policy_document.lambda_ecr.json
   repository = aws_ecr_repository.evaluation.name
+}
+
+resource "aws_ecr_lifecycle_policy" "evaluation" {
+  repository = aws_ecr_repository.evaluation.name
+  policy     = data.aws_ecr_lifecycle_policy_document.thirty_day_expiration_policy.json
 }
 
 resource "aws_ecr_repository" "document_inference_evaluation" {
@@ -87,6 +117,10 @@ resource "aws_ecr_repository_policy" "document_inference_evaluation" {
   repository = aws_ecr_repository.document_inference_evaluation.name
 }
 
+resource "aws_ecr_lifecycle_policy" "document_inference_evaluation" {
+  repository = aws_ecr_repository.document_inference_evaluation.name
+  policy     = data.aws_ecr_lifecycle_policy_document.thirty_day_expiration_policy.json
+}
 
 # GitHub OIDC Provider
 resource "aws_iam_openid_connect_provider" "github" {
