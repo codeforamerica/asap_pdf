@@ -157,3 +157,5 @@ python_components/*/*/.pytest_cache
 db/schema.rb
 
 cline_docs
+
+/config/credentials/staging.key
