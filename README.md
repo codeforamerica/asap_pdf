@@ -81,7 +81,7 @@ To run all the App's features, you will need to run the Rails application and Py
 
 6. A default admin user was created during database setup. See [seeds.rb](db/seeds.rb) for details. To add your own admin user, run the following rake task:
    ```bash
-   rake users:create_admin["<your email>","<your password>"]
+   rake users:create_admin"[<your email>,<your password>]"
    ```
    
 7. Add admin credentials for API usage by Python components. For local development, add admin credentials to the development configuration as `api_user` and `api_password`.
