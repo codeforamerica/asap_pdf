@@ -123,7 +123,7 @@ When the database is set up (`bin/rails db:setup`), it is populated with some sa
 
 ### Adding Documents
 - Documents may be imported via the document import rake task: `bin/rake documents:import_documents"[<site id>, <path to csv>, <archive bool*>]"`
-- Sample csv documents may be found in db/seeds. The format should match the output of the crawl and classification processes. Check out the documentation in [the python_components directory](python_components/README.md) for more details.
+- Sample csv documents may be found in db/seeds. The format should match the output of the crawl and classification processes. Check out the documentation in [the python_components directory](docs/python_components.md) for more details.
 
 *Set to true to import a csv inside a zip archive.
 
