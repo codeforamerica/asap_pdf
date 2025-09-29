@@ -6,12 +6,12 @@ class ConfigurationsController < AuthenticatedController
   def initialize
     super
     @config = {
-      "google_ai_api_key": nil,
-      "anthropic_api_key": nil,
-      "openai_api": nil,
-      "google_evaluation_service_account_credentials": nil,
-      "google_evaluation_sheet_id": nil,
-      "localstack_not_reachable": false
+      google_ai_api_key: nil,
+      anthropic_api_key: nil,
+      openai_api: nil,
+      google_evaluation_service_account_credentials: nil,
+      google_evaluation_sheet_id: nil,
+      localstack_not_reachable: false
     }
 
     @secret_manager = AwsLocalSecretManager.new
