@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed:
 * Node.js 18.17.0 (we recommend using `nvm` for version management)
 * Yarn (latest version)
 * PostgreSQL locally or in a container.
-* Docker and Docker Compose (for LocalStack S3 in development)
+* Docker and Docker Compose (for LocalStack AWS services in development)
 
 ## Rails App Development Setup
 
@@ -53,16 +53,14 @@ This command starts the following processes (defined in `Procfile.dev`):
 - Rails server
 - JavaScript build process (with esbuild)
 - CSS build process (with Tailwind CSS)
-- Sidekiq worker for background jobs
 
 The application will be available at http://localhost:3000
 
-## Architecture Overview
+## Rails Architecture Overview
 
 - **Frontend**: Built with Hotwired (Turbo + Stimulus) and Tailwind CSS
 - **Backend**: Ruby on Rails 7.0
-- **Background Jobs**: Sidekiq with Redis
-- **Testing**: RSpec
+- **Testing**: RSpec, Capybara
 
 ## Python Components
 
