@@ -8,7 +8,7 @@ To set API keys for AI services, visit the application configuration page. API k
 
 ## Prerequisites
 - Docker and Docker Compose
-- Google Cloud account with access to Gemini API or Anthropic account with API access.
+- Optional, to use the LLM features, API credentials for Google, Anthropic or OpenAI
 
 ## Code style
 
