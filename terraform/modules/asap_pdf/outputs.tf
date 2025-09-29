@@ -34,16 +34,6 @@ output "db_password_secret_arn" {
   sensitive   = true
 }
 
-output "redis_endpoint" {
-  description = "Endpoint of the Redis cluster"
-  value       = module.cache.redis_endpoint
-}
-
-output "redis_port" {
-  description = "Port of the Redis cluster"
-  value       = module.cache.redis_port
-}
-
 output "ecs_cluster_name" {
   description = "Name of the ECS cluster"
   value       = module.ecs.cluster_name
@@ -74,14 +64,6 @@ output "database_url" {
     module.database.db_instance_name
   )
   sensitive = true
-}
-
-output "redis_url" {
-  description = "Redis connection URL"
-  value = format("redis://%s:%s",
-    module.cache.redis_endpoint,
-    module.cache.redis_port
-  )
 }
 
 output "github_actions_role_arn" {
