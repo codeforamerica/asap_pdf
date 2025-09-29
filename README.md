@@ -34,7 +34,7 @@ The application includes several Python components for PDF processing:
 For detailed information about the Python components, see the [Python Components documentation](docs/python_components.md). Architectural diagrams are available in the [Architecture documentation](docs/architecture.md).
 
 ## Getting Started
-The following instructions are intended for local development on macOS or Linux environments. To run the app locally on Windows follow [the Windows setup guide](docs/windows_localdev.md) instead. The [staging and production documentation](docs/deployment.md) details running the app on Amazon Web Services, however any cloud hosting platform should be possible.
+The following instructions are intended for local development on macOS or Linux environments. To run the app locally on Windows follow [the Windows setup guide](docs/windows_localdev.md) instead. The [staging and production documentation](docs/deployment.md) details running the app on Amazon Web Services (AWS), however any cloud hosting platform should be possible.
 
 ### Prerequisites
 
