@@ -18,7 +18,7 @@ ASAP has two major architectural realms, a Ruby on Rails powered user interface 
 
 ### Ruby on Rails Application (Audit UI)
 - **Frontend**: Hotwired (Turbo + Stimulus) with Tailwind CSS
-- **Backend**: Ruby on Rails 7.0
+- **Backend**: Ruby on Rails 8.0
 - **Database**: PostgreSQL
 - **Testing**: RSpec and Capybara
 
