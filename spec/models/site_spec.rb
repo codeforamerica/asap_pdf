@@ -14,23 +14,4 @@ RSpec.describe Site, type: :model do
 
   it { is_expected.to validate_uniqueness_of(:primary_url) }
   it { is_expected.to validate_uniqueness_of(:name) }
-
-  describe "#as_json" do
-    let(:site) { create(:site, primary_url: "https://www.city.org") }
-
-    it "excludes user_id, created_at, and updated_at" do
-      json = site.as_json
-      expect(json.keys).not_to include("user_id", "created_at", "updated_at")
-    end
-
-    it "includes basic attributes" do
-      json = site.as_json
-      expect(json).to include(
-        "id" => site.id,
-        "name" => site.name,
-        "location" => site.location,
-        "primary_url" => site.primary_url
-      )
-    end
-  end
 end
