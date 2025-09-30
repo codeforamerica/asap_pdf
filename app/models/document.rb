@@ -190,45 +190,6 @@ class Document < ApplicationRecord
     URI::DEFAULT_PARSER.escape(decoded_url)
   end
 
-  def s3_path
-    "#{site.s3_endpoint_prefix}/#{id}/document.pdf"
-  end
-
-  def s3_bucket
-    @s3_bucket ||= Aws::S3::Resource.new(
-      access_key_id: storage_config[:access_key_id],
-      secret_access_key: storage_config[:secret_access_key],
-      region: storage_config[:region],
-      endpoint: storage_config[:endpoint],
-      force_path_style: storage_config[:force_path_style]
-    ).bucket(storage_config[:bucket])
-  end
-
-  def s3_object
-    s3_bucket.object(s3_path)
-  end
-
-  def file_versions
-    s3_bucket.object_versions(prefix: s3_path)
-  end
-
-  def latest_file
-    file_versions.first
-  end
-
-  def file_version(version_id)
-    s3_object.get(version_id: version_id)
-  end
-
-  def version_metadata(version)
-    {
-      version_id: version.version_id,
-      modification_date: version.modification_date,
-      size: version.size,
-      etag: version.etag
-    }
-  end
-
   def inference_summary!(api_host = nil)
     if summary.nil?
       if Rails.env.to_s == "development" || Rails.env.to_s == "test"
@@ -344,14 +305,6 @@ class Document < ApplicationRecord
       decoded_url = recursive_decode(decoded_url)
     end
     decoded_url
-  end
-
-  def storage_config
-    @storage_config ||= begin
-      config = Rails.application.config.active_storage.service_configurations[Rails.env.to_s]
-      raise "S3 storage configuration not found for #{Rails.env}" unless config
-      config.symbolize_keys
-    end
   end
 
   def set_defaults

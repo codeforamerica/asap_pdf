@@ -20,8 +20,6 @@ gem "solid_cache"
 
 gem "bootsnap", require: false
 gem "thruster", require: false
-gem "redis", "~> 5.4.1"
-gem "sidekiq", "~> 8.0"
 
 gem "view_component", "~> 4.0"
 gem "kaminari", "~> 1.2"

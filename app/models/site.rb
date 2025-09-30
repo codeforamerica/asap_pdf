@@ -161,28 +161,6 @@ class Site < ApplicationRecord
     primary_url.sub(/^https?:\/\//, "").sub(/\/$/, "")
   end
 
-  def s3_endpoint_prefix
-    return nil if primary_url.blank?
-
-    uri = URI.parse(primary_url.strip)
-    host = uri.host.downcase
-    host.gsub(/[^a-z0-9]/, "-").squeeze("-").gsub(/^-|-$/, "")
-  end
-
-  def s3_endpoint
-    return nil if s3_endpoint_prefix.nil?
-    File.join(S3_BUCKET, s3_endpoint_prefix)
-  end
-
-  def s3_key_for(filename)
-    File.join(s3_endpoint_prefix, filename)
-  end
-
-  def as_json(options = {})
-    super.except("created_at", "updated_at")
-      .merge("s3_endpoint" => s3_endpoint)
-  end
-
   def discover_documents!(document_data, collect = false)
     return if document_data.empty?
     collection = []

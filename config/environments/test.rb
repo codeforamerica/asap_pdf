@@ -14,6 +14,9 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :test
   config.action_mailer.default_url_options = {host: "example.com"}
   config.action_mailer.perform_deliveries = true
+  config.action_mailer.default_options = {
+    from: "Code for America <admin@ada.codeforamerica.ai>"
+  }
   config.active_support.deprecation = :stderr
 
   config.action_controller.raise_on_missing_callback_actions = true

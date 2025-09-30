@@ -21,18 +21,13 @@ module "secrets" {
     DB_PASSWORD = {
       description = "Database password"
     }
-
-    # Redis credentials
+    # Rails credentials
     RAILS_MASTER_KEY = {
       description = "Rails master key"
     }
     SECRET_KEY_BASE = {
       description = "Rails secret key"
     }
-    REDIS_URL = {
-      description = "Redis/Elasticache URL"
-    }
-
     # SMTP credentials
     SMTP_ENDPOINT = {
       description = "SMTP endpoint"
@@ -105,16 +100,6 @@ module "database" {
   multi_az          = var.rds_multi_az
 }
 
-# Redis for Sidekiq
-module "cache" {
-  source = "../cache"
-
-  project_name      = var.project_name
-  environment       = var.environment
-  subnet_ids        = module.networking.private_subnet_ids
-  security_group_id = module.networking.redis_security_group_id
-}
-
 # Deployment resources (ECR, GitHub Actions, Secrets)
 module "deployment" {
   source = "../deployment"
@@ -148,7 +133,6 @@ module "ecs" {
   smtp_endpoint_secret_arn    = module.secrets.secrets["SMTP_ENDPOINT"].secret_arn
   smtp_user_secret_arn        = module.secrets.secrets["SMTP_USER"].secret_arn
   smtp_password_secret_arn    = module.secrets.secrets["SMTP_PASSWORD"].secret_arn
-  redis_url_secret_arn        = module.secrets.secrets["REDIS_URL"].secret_arn
   google_analytics_key_arn    = module.secrets.secrets["GOOGLE_ANALYTICS_KEY"].secret_arn
 
   vpc_id            = module.networking.vpc_id

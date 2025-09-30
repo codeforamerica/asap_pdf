@@ -25,7 +25,6 @@ We've tested two approaches for Windows development:
 
 **Prerequisites:**
 - Clone the repository to your WSL home directory (this avoids file permission issues)
-- Install Redis: `apt install redis-server` (required but not actively used yet)
 - Install Yarn: `npm install yarn -g`
 
 **Configuration Steps:**
@@ -151,8 +150,6 @@ services:
 
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
-  redis:
-    image: redis:latest
   db:
     image: postgres:latest
     restart: unless-stopped
