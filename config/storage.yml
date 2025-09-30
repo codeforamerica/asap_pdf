@@ -7,15 +7,9 @@ test:
   root: <%= Rails.root.join("tmp/storage") %>
 
 staging:
-  service: S3
-  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
-  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
-  region: us-east-1
-  bucket: cfa-aistudio-asap-pdf
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>
 
 production:
-  service: S3
-  access_key_id: <%= Rails.application.credentials.dig(:aws, :access_key_id) %>
-  secret_access_key: <%= Rails.application.credentials.dig(:aws, :secret_access_key) %>
-  region: us-east-1
-  bucket: cfa-aistudio-asap-pdf
+  service: Disk
+  root: <%= Rails.root.join("tmp/storage") %>

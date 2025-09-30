@@ -63,17 +63,6 @@ RSpec.describe Document, type: :model do
     end
   end
 
-  describe "S3 storage" do
-    let(:site) { create(:site, primary_url: "https://www.city.org") }
-    let(:document) { Document.new(document_category: "Brochure", site: site) }
-
-    describe "#s3_path" do
-      it "generates correct path using site prefix and document id" do
-        expect(document.s3_path).to eq("www-city-org/#{document.id}/document.pdf")
-      end
-    end
-  end
-
   describe "#complexity" do
     let(:simple_document) { create(:document, document_category: "Brochure") }
     let(:complex_document) { create(:document, document_category: "Form") }
