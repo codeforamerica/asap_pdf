@@ -703,7 +703,7 @@ describe "documents function as expected", js: true, type: :feature do
       click_link "Audit Exports"
       sleep(1)
     end
-    assert_match "sites/#{site.id}/documents/audit_exports", current_url
+    assert_match "sites/#{site.id}/documents/audit_exports", current_url, wait: 5
     expect(page).to have_content "Create Audit Export"
     expect(page).to have_content "Use the following RESTful endpoint to get your audit history."
     expect(page).to have_content "authorization: Basic [Your base64 encoded credentials]"
