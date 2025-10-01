@@ -8,7 +8,7 @@ To set API keys for AI services, visit the application configuration page. API k
 
 ## Prerequisites
 - Docker and Docker Compose
-- Google Cloud account with access to Gemini API or Anthropic account with API access.
+- Optional, to use the LLM features, API credentials for Google, Anthropic or OpenAI
 
 ## Code style
 
@@ -26,7 +26,7 @@ After running these scripts, the output from the classification component can be
 
 ### Helper Script
 
-A shell script has been included that combines the crawling and classification steps. You can find it in [bin/crawl](../bin/crawl). Before running the script add entries to [python_components/crawler/config.json](crawler/config.json).
+A shell script has been included that combines the crawling and classification steps. You can find it in [bin/crawl](../bin/crawl). Before running the script add entries to [../python_components/crawler/config.json](crawler/config.json).
 
 Sample usage:
 

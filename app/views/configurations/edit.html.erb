@@ -5,7 +5,7 @@
         <i class="fas fa-wand-magic-sparkles mr-2"></i>
         AI Configuration Settings
       </h2>
-      <% if Rails.env == "production" %>
+      <% if Rails.env == "production" || Rails.env == "staging" %>
         <p>The configuration items provided on this page are not for the production environment. Please set secrets via
           configuration or directly in AWS.</p>
       <% elsif @config["localstack_not_reachable"] == true %>
@@ -80,22 +80,26 @@
                 </div>
               </div>
             </div>
-            <div class="form-control w-full">
-              <%= f.label :google_evaluation_service_account_credentials, "Google Credentials JSON (Evaluation)", class: "label" %>
-              <div class="mt-2">
-                <%= f.text_area :google_evaluation_service_account_credentials,
-                                value: @config["google_evaluation_service_account_credentials"],
-                                class: "input input-bordered w-full font-mono" %>
+            <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
+              <legend class="fieldset-legend font-semibold">Evaluation Suite</legend>
+              <p class="text-sm mb-2">The following optional settings are only required for running the LLM evaluation suite locally.</p>
+              <div class="form-control w-full">
+                <%= f.label :google_evaluation_service_account_credentials, "Google Credentials JSON", class: "label" %>
+                <div class="mt-2">
+                  <%= f.text_area :google_evaluation_service_account_credentials,
+                                  value: @config["google_evaluation_service_account_credentials"],
+                                  class: "input input-bordered w-full font-mono py-2" %>
+                </div>
               </div>
-            </div>
-            <div class="form-control w-full">
-              <%= f.label :google_evaluation_sheet_id, "Google Sheet ID (Evaluation)", class: "label" %>
-              <div class="mt-2">
-                <%= f.text_field :google_evaluation_sheet_id,
-                                 value: @config["google_evaluation_sheet_id"],
-                                 class: "input input-bordered w-full font-mono" %>
+              <div class="form-control w-full">
+                <%= f.label :google_evaluation_sheet_id, "Google Sheet ID", class: "label" %>
+                <div class="mt-2">
+                  <%= f.text_field :google_evaluation_sheet_id,
+                                   value: @config["google_evaluation_sheet_id"],
+                                   class: "input input-bordered w-full font-mono" %>
+                </div>
               </div>
-            </div>
+            </fieldset>
             <div class="card-actions justify-end mt-6">
               <%= f.submit "Save Changes",
                            class: "btn btn-primary" %>
