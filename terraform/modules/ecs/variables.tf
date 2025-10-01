@@ -69,11 +69,6 @@ variable "google_analytics_key_arn" {
   type        = string
 }
 
-variable "redis_url_secret_arn" {
-  description = "ARN of the Redis URL secret in Secrets Manager"
-  type        = string
-}
-
 variable "vpc_id" {
   description = "The VPC id from our network friend."
   type        = string

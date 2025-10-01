@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed:
 * Node.js 18.17.0 (we recommend using `nvm` for version management)
 * Yarn (latest version)
 * PostgreSQL locally or in a container.
-* Docker and Docker Compose (for LocalStack S3 in development)
+* Docker and Docker Compose (for LocalStack AWS services in development)
 
 ## Rails App Development Setup
 
@@ -53,16 +53,14 @@ This command starts the following processes (defined in `Procfile.dev`):
 - Rails server
 - JavaScript build process (with esbuild)
 - CSS build process (with Tailwind CSS)
-- Sidekiq worker for background jobs
 
 The application will be available at http://localhost:3000
 
-## Architecture Overview
+## Rails Architecture Overview
 
 - **Frontend**: Built with Hotwired (Turbo + Stimulus) and Tailwind CSS
 - **Backend**: Ruby on Rails 7.0
-- **Background Jobs**: Sidekiq with Redis
-- **Testing**: RSpec
+- **Testing**: RSpec, Capybara
 
 ## Python Components
 
@@ -131,7 +129,22 @@ Some basic API endpoints are currently provided.
 
 ## Adding Sites, Documents and Users
 
-When the database is set up (bin/rails db:setup), it is populated with a few sample sites, sandbox documents and an admin user.  To scrape a list of your website's PDFs, check out the documentation in [the python_components directory](python_components/README.md). Once you have a list of documents you'd like to import, create a site via the app's UI, noting the site id. Then run the document import rake task. Something like `bin/rake 'documents:import_documents[<site id>, <document id>, false]'`.
+When the database is set up (`bin/rails db:setup`), it is populated with some sample sites, sandbox documents and an admin user.
+
+### Adding Users
+- Admin users may be created via the admin user rake task: `bin/rake users:create_admin"[<email>, <password>]"`
+- To create non-admin users, log into the app with an admin user and use the administrative user interface at `/admin/users`.
+
+### Adding Sites
+- After logging in, sites may be added by "Site Admin" users through the UI on the `/sites` page.
+
+### Adding Documents
+- Documents may be imported via the document import rake task: `bin/rake documents:import_documents"[<site id>, <path to csv>, <archive bool*>]"`
+- Sample csv documents may be found in db/seeds. The format should match the output of the crawl and classification processes. Check out the documentation in [the python_components directory](python_components/README.md) for more details.
+
+*Set to true to import a csv inside a zip archive.
+
+Users, Sites and Documents may be added manually via the Rails console as well. 
 
 ## Contributing
 
