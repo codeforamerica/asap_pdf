@@ -1,6 +1,6 @@
 class AwsS3Manager
   def initialize
-    @s3_client = if Rails.env.development?
+    @s3_client = if Rails.env.development? || Rails.env.test?
       Aws::S3::Client.new(
         endpoint: "http://localhost:4566",
         account_id: "none",
