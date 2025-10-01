@@ -41,7 +41,6 @@ module "fargate_service" {
     DB_PASSWORD : var.db_password_secret_arn
     SECRET_KEY_BASE : var.secret_key_base_secret_arn
     RAILS_MASTER_KEY : var.rails_master_key_secret_arn
-    REDIS_URL : var.redis_url_secret_arn,
     SMTP_ENDPOINT : var.smtp_endpoint_secret_arn,
     SMTP_USER : var.smtp_user_secret_arn,
     SMTP_PASSWORD : var.smtp_password_secret_arn,
@@ -68,7 +67,6 @@ resource "aws_iam_policy" "ecs_task_secrets_policy" {
           var.db_password_secret_arn,
           var.secret_key_base_secret_arn,
           var.rails_master_key_secret_arn,
-          var.redis_url_secret_arn,
           var.smtp_endpoint_secret_arn,
           var.smtp_user_secret_arn,
           var.smtp_password_secret_arn,

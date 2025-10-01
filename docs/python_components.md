@@ -8,21 +8,31 @@ To set API keys for AI services, visit the application configuration page. API k
 
 ## Prerequisites
 - Docker and Docker Compose
-- Google Cloud account with access to Gemini API or Anthropic account with API access.
+- Optional, to use the LLM features, API credentials for Google, Anthropic or OpenAI
 
-## Codestyle
+## Code style
 
 The Python components should be PEP8 compliant. They are currently linted with isort, black and flake8 with discrete budgets via Github Actions. To reproduce the CI output directly, from the python_components directory build the CI image locally `docker build -t asap_pdf:ci .` and run `docker run --rm -v ./:/workspace asap_pdf:ci scripts/ci_run_linting.sh "**/*.py"`.
 
 Or the `scripts/local_fix_linting.sh` was included to help fix codestyle issues locally.
 
-## Crawling and Classification
+## Crawling and classification
 
 Two python components run as needed, usually when we're onboarding a new partner. The crawling component can be run by initializing the docker container with `docker run --rm -it -v "$(pwd):/workspace" asap_pdf:crawler bash`, adding any new sites to `crawler/config.json`, and running the script with `python crawler.py <site_url> <output_path>`. There is an optional delay argument to add time between requests.
 
 The classification python component can be run by initializing the docker container (`docker run --rm -it -v "$(pwd):/workspace" asap_pdf:classifier bash`), and then running the script with `python crawler.py <input_path> <labeled_output_path>`. The script expects the input CSV to have the same format as the output of the crawling script.
 
 After running these scripts, the output from the classification component can be used to update the production data at `site_documents.zip`. Use the `split_for_dev.py` script to randomly sample among the production data, and update `site_documents_dev.zip` with those sampled datasets.
+
+### Helper Script
+
+A shell script has been included that combines the crawling and classification steps. You can find it in [bin/crawl](../bin/crawl). Before running the script add entries to [../python_components/crawler/config.json](crawler/config.json).
+
+Sample usage:
+
+```
+bin/crawl <url from config.json> <path to csv data> <optional path to previous crawl csv data for comparison>
+```
 
 ## Document Inference
 
@@ -34,7 +44,7 @@ The evaluation component contains a suite of tools for running automated and con
 
 The evaluation suite may be run locally as well. It communicates with the document inference container and requires that environment to be configured and functional.
 
-For local development (3 proceses required):
+For local development (three shell processes are required):
 - From the project root run `docker compose build --no-cache`
 - Then run `docker compose up`
 - In a new process run the rails app `bin/rails`

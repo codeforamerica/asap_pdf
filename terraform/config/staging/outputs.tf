@@ -34,16 +34,6 @@ output "db_password_secret_arn" {
   sensitive   = true
 }
 
-output "redis_endpoint" {
-  description = "Endpoint of the Redis cluster"
-  value       = module.asap_pdf.redis_endpoint
-}
-
-output "redis_port" {
-  description = "Port of the Redis cluster"
-  value       = module.asap_pdf.redis_port
-}
-
 output "ecs_cluster_name" {
   description = "Name of the ECS cluster"
   value       = module.asap_pdf.ecs_cluster_name
@@ -64,11 +54,6 @@ output "database_url" {
   description = "Database connection URL"
   value = module.asap_pdf.database_url
   sensitive = true
-}
-
-output "redis_url" {
-  description = "Redis connection URL"
-  value = module.asap_pdf.redis_url
 }
 
 output "github_actions_role_arn" {

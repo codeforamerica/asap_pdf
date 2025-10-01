@@ -4,8 +4,7 @@ This app deploys to AWS using automated GitHub Actions. Choose either staging or
 
 ## What You Need
 - AWS account
-- Domain name (optional but recommended for security)
-- Fork this repository
+- Domain name 
 
 ## Setup Steps
 

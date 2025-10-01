@@ -53,27 +53,3 @@ resource "aws_security_group" "rds" {
     Name = "${var.project_name}-${var.environment}-rds-sg"
   }
 }
-
-resource "aws_security_group" "redis" {
-  name        = "${var.project_name}-${var.environment}-redis-sg"
-  description = "Security group for Redis cluster"
-  vpc_id      = module.vpc.vpc_id
-
-  ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    cidr_blocks     = module.vpc.private_subnets_cidr_blocks
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-redis-sg"
-  }
-}

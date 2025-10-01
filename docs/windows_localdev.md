@@ -25,8 +25,7 @@ We've tested two approaches for Windows development:
 
 **Prerequisites:**
 - Clone the repository to your WSL home directory (this avoids file permission issues)
-- Install Redis: `apt install redis-server` (required but not actively used yet)
-- Install Yarn: `npm install yarn -y`
+- Install Yarn: `npm install yarn -g`
 
 **Configuration Steps:**
 
@@ -37,7 +36,9 @@ We've tested two approaches for Windows development:
    ```
 
 2. **Update database configuration:**
-    - Make sure Postgres credentials in `config/database.yml` match your Postgres setup
+    - If your Postgres service was set up to allow "trust" authentication for local connections, you may not need to change anything. 
+    - If you created a user with a password during database setup, add a username and password entry to the development section of `config/database.yml`. See the `staging` section for an example.
+
 
 3. **Install dependencies and setup database:**
    ```bash
@@ -149,8 +150,6 @@ services:
 
     # Use "forwardPorts" in **devcontainer.json** to forward an app port locally.
     # (Adding the "ports" property to this file will not forward from a Codespace.)
-  redis:
-    image: redis:latest
   db:
     image: postgres:latest
     restart: unless-stopped

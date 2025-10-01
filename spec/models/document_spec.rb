@@ -39,9 +39,9 @@ RSpec.describe Document, type: :model do
     end
   end
 
-  it { should validate_inclusion_of(:document_status).in_array(%w[discovered downloaded]) }
+  it { should validate_inclusion_of(:document_status).in_array(%w[Active Removed New]) }
   it "defaults document_status to discovered" do
-    expect(Document.new.document_status).to eq("discovered")
+    expect(Document.new.document_status).to eq("Active")
   end
 
   describe "#primary_source" do
@@ -60,17 +60,6 @@ RSpec.describe Document, type: :model do
     it "returns source when it's not an array" do
       document.source = "http://single.com"
       expect(document.primary_source).to eq("http://single.com")
-    end
-  end
-
-  describe "S3 storage" do
-    let(:site) { create(:site, primary_url: "https://www.city.org") }
-    let(:document) { Document.new(document_category: "Brochure", site: site) }
-
-    describe "#s3_path" do
-      it "generates correct path using site prefix and document id" do
-        expect(document.s3_path).to eq("www-city-org/#{document.id}/document.pdf")
-      end
     end
   end
 

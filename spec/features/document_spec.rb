@@ -69,7 +69,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Remediate\n0"
       expect(page).to have_content "Leave\n0"
     end
-    Session.last.destroy
+    sign_out :user
+    sleep(1)
     login_user(boulder_user)
     # Test multiple documents and filtration.
     visit "/"
@@ -460,7 +461,7 @@ describe "documents function as expected", js: true, type: :feature do
       complexity: "Simple",
       site: site,
       creation_date: "2022-10-01",
-      modification_date:  "2022-10-01")
+      modification_date: "2022-10-01")
     teahouse_doc = Document.create(url: "https://bouldercolorado.gov/docs/teahouse_rules.pdf",
       file_name: "teahouse_rules.pdf",
       document_category: "Notice",
@@ -469,7 +470,7 @@ describe "documents function as expected", js: true, type: :feature do
       complexity: "Complex",
       site: site,
       creation_date: "2022-10-01",
-      modification_date:  "2023-10-01")
+      modification_date: "2023-10-01")
     market_doc = Document.create(url: "https://bouldercolorado.gov/docs/farmers_market_2023.pdf",
       file_name: "farmers_market_2023.pdf",
       document_category: "Notice",
@@ -649,6 +650,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(FeedbackItem.count).to eq 3
       fill_in "Please provide details: (optional)", with: "just bad content"
       click_button "Submit"
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
       expect(FeedbackItem.count).to eq 3
     end
     # Make sure user see's previous feedback.
@@ -669,7 +671,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(FeedbackItem.count).to eq 3
     end
     # Log out and try another user.
-    Session.last.destroy
+    sign_out :user
+    sleep(1)
     login_user(second_user)
     visit "/"
     click_link "City of Denver"
@@ -698,11 +701,59 @@ describe "documents function as expected", js: true, type: :feature do
     click_link "City of Denver"
     within("#document-list #document-tabs") do
       click_link "Audit Exports"
-      sleep(1)
     end
-    assert_match "sites/#{site.id}/documents/audit_exports", current_url
-    expect(page).to have_content "Create Audit Export"
+    expect(page).to have_content "Create Audit Export", wait: 5
     expect(page).to have_content "Use the following RESTful endpoint to get your audit history."
     expect(page).to have_content "authorization: Basic [Your base64 encoded credentials]"
+    assert_match "sites/#{site.id}/documents/audit_exports", current_url
+  end
+
+  it "tags new or removed documents" do
+    site = Site.create(name: "City of Denver", location: "Colorado", primary_url: "https://denvergov.org")
+    @current_user.site = site
+    @current_user.save!
+    document = Document.create(url: "https://bouldercolorado.gov/docs/rtd_contract.pdf",
+      file_name: "rtd_contract.pdf",
+      document_category: "Agreement",
+      document_category_confidence: 0.73,
+      department: "Public Transportation",
+      complexity: "Simple",
+      site: site,
+      creation_date: "2022-10-01",
+      modification_date: "2022-10-01")
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.document_status = Document::DOCUMENT_STATUS_REMOVED
+    document.save!
+    visit "sites/#{site.id}/documents"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.last_crawl_date = 9.days.ago
+    document.document_status = Document::DOCUMENT_STATUS_NEW
+    document.save!
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_no_content "New"
+    end
+    document.last_crawl_date = 3.days.ago
+    document.save!
+    visit "sites/#{site.id}/documents"
+    expect(page).to have_content "Colorado: City of Denver"
+    within("#document-list tbody td:nth-child(2)") do
+      expect(page).to have_content "rtd_contract.pdf"
+      expect(page).to have_no_content "Removed"
+      expect(page).to have_content "New"
+    end
   end
 end
