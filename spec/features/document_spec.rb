@@ -69,7 +69,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Remediate\n0"
       expect(page).to have_content "Leave\n0"
     end
-    Session.last.destroy
+    sign_out :user
+    sleep(1)
     login_user(boulder_user)
     # Test multiple documents and filtration.
     visit "/"
@@ -649,6 +650,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(FeedbackItem.count).to eq 3
       fill_in "Please provide details: (optional)", with: "just bad content"
       click_button "Submit"
+      expect(page).to have_selector "[data-feedback-target='status']", wait: 5, visible: true
       expect(FeedbackItem.count).to eq 3
     end
     # Make sure user see's previous feedback.
@@ -669,7 +671,8 @@ describe "documents function as expected", js: true, type: :feature do
       expect(FeedbackItem.count).to eq 3
     end
     # Log out and try another user.
-    Session.last.destroy
+    sign_out :user
+    sleep(1)
     login_user(second_user)
     visit "/"
     click_link "City of Denver"
