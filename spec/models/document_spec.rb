@@ -39,9 +39,9 @@ RSpec.describe Document, type: :model do
     end
   end
 
-  it { should validate_inclusion_of(:document_status).in_array(%w[discovered downloaded]) }
+  it { should validate_inclusion_of(:document_status).in_array(%w[Active Removed New]) }
   it "defaults document_status to discovered" do
-    expect(Document.new.document_status).to eq("discovered")
+    expect(Document.new.document_status).to eq("Active")
   end
 
   describe "#primary_source" do

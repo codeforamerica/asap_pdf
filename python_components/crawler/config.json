@@ -3,561 +3,655 @@
         "allow_list": ["https://ada.georgia.gov"],
         "allow_subdomains": ["ada"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "ada_georgia.csv"
     },
     "https://adoptastream.georgia.gov": {
         "allow_list": ["https://adoptastream.georgia.gov"],
         "allow_subdomains": ["adoptastream"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "adoptastream_georgia.csv"
     },
     "https://aging.georgia.gov": {
         "allow_list": ["https://aging.georgia.gov"],
         "allow_subdomains": ["aging"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "aging_georgia.csv"
     },
     "https://ai.georgia.gov": {
         "allow_list": ["https://ai.georgia.gov"],
         "allow_subdomains": ["ai"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "ai_georgia.csv"
     },
     "https://apcd.georgia.gov": {
         "allow_list": ["https://apcd.georgia.gov"],
         "allow_subdomains": ["apcd"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "apcd_georgia.csv"
     },
     "https://www.audits2.ga.gov": {
         "allow_list": ["https://www.audits2.ga.gov", "https://audits2.ga.gov", "http://www.audits2.ga.gov"],
         "allow_subdomains": ["www.audits2", "www.audits"],
         "depth": 7,
         "use_sitemap": false,
-        "use_webdriver": true
+        "use_webdriver": true,
+        "output_file": "audits_georgia.csv"
     },
     "https://bsitf.georgia.gov": {
         "allow_list": ["https://bsitf.georgia.gov"],
         "allow_subdomains": ["bsitf"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "bsitf_georgia.csv"
     },
     "https://cacj.georgia.gov": {
         "allow_list": ["https://cacj.georgia.gov"],
         "allow_subdomains": ["cacj"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "cacj_georgia.csv"
     },
     "https://childsupport.georgia.gov": {
         "allow_list": ["https://childsupport.georgia.gov"],
         "allow_subdomains": ["childsupport"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "childsupport_georgia.csv"
     },
     "https://cjcc.georgia.gov": {
         "allow_list": ["https://cjcc.georgia.gov"],
         "allow_subdomains": ["cjcc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "cjcc_georgia.csv"
     },
     "https://consumer.georgia.gov": {
         "allow_list": ["https://consumer.georgia.gov"],
         "allow_subdomains": ["consumer"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "consumer_georgia.csv"
     },
     "https://consumered.georgia.gov": {
         "allow_list": ["https://consumered.georgia.gov"],
         "allow_subdomains": ["consumered"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "consumered_georgia.csv"
     },
     "https://dbf.georgia.gov": {
         "allow_list": ["https://dbf.georgia.gov"],
         "allow_subdomains": ["dbf"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dbf_georgia.csv"
     },
     "https://dbhdd.georgia.gov": {
         "allow_list": ["https://dbhdd.georgia.gov"],
         "allow_subdomains": ["dbhdd"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dbhdd_georgia.csv"
     },
     "https://dca.georgia.gov": {
         "allow_list": ["https://dca.georgia.gov"],
         "allow_subdomains": ["dca"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dca_georgia.csv"
     },
     "https://dch.georgia.gov": {
         "allow_list": ["https://dch.georgia.gov"],
         "allow_subdomains": ["dch"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dch_georgia.csv"
     },
     "https://dcs.georgia.gov": {
         "allow_list": ["https://dcs.georgia.gov"],
         "allow_subdomains": ["dcs"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dcs_georgia.csv"
     },
     "https://dds.georgia.gov": {
         "allow_list": ["https://dds.georgia.gov"],
         "allow_subdomains": ["dds"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dds_georgia.csv"
     },
     "https://dfcs.georgia.gov": {
         "allow_list": ["https://dfcs.georgia.gov"],
         "allow_subdomains": ["dfcs"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dfcs_georgia.csv"
     },
     "https://dhhpathways.georgia.gov": {
         "allow_list": ["https://dhhpathways.georgia.gov"],
         "allow_subdomains": ["dhhpathways"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dhhpathways_georgia.csv"
     },
     "https://dhs.georgia.gov": {
         "allow_list": ["https://dhs.georgia.gov"],
         "allow_subdomains": ["dhs"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dhs_georgia.csv"
     },
     "https://digital.georgia.gov": {
         "allow_list": ["https://digital.georgia.gov"],
         "allow_subdomains": ["digital"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "digital_georgia.csv"
     },
     "https://djj.georgia.gov": {
         "allow_list": ["https://djj.georgia.gov"],
         "allow_subdomains": ["djj"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "djj_georgia.csv"
     },
     "https://dofs-gbi.georgia.gov": {
         "allow_list": ["https://dofs-gbi.georgia.gov"],
         "allow_subdomains": ["dofs-gbi"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dofs_gbi_georgia.csv"
     },
     "https://dol.georgia.gov": {
         "allow_list": ["https://dol.georgia.gov"],
         "allow_subdomains": ["dol"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dol_georgia.csv"
     },
     "https://dor.georgia.gov": {
         "allow_list": ["https://dor.georgia.gov"],
         "allow_subdomains": ["dor"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dor_georgia.csv"
     },
     "https://dph.georgia.gov": {
         "allow_list": ["https://dph.georgia.gov"],
         "allow_subdomains": ["dph"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dph_georgia.csv"
     },
     "https://dps.georgia.gov": {
         "allow_list": ["https://dps.georgia.gov"],
         "allow_subdomains": ["dps"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dps_georgia.csv"
     },
     "https://dso.georgia.gov": {
         "allow_list": ["https://dso.georgia.gov"],
         "allow_subdomains": ["dso"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "dso_georgia.csv"
     },
     "https://energyrebates.georgia.gov": {
         "allow_list": ["https://energyrebates.georgia.gov"],
         "allow_subdomains": ["energyrebates"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "energyrebates_georgia.csv"
     },
     "https://epd.georgia.gov": {
         "allow_list": ["https://epd.georgia.gov"],
         "allow_subdomains": ["epd"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "epd_georgia.csv"
     },
     "https://gaa.georgia.gov": {
         "allow_list": ["https://gaa.georgia.gov"],
         "allow_subdomains": ["gaa"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gaa_georgia.csv"
     },
     "https://gaswcc.georgia.gov": {
         "allow_list": ["https://gaswcc.georgia.gov"],
         "allow_subdomains": ["gaswcc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gaswcc_georgia.csv"
     },
     "https://gataxtribunal.georgia.gov": {
         "allow_list": ["https://gataxtribunal.georgia.gov"],
         "allow_subdomains": ["gataxtribunal"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gataxtribunal_georgia.csv"
     },
     "https://gba.georgia.gov": {
         "allow_list": ["https://gba.georgia.gov"],
         "allow_subdomains": ["gba"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gba_georgia.csv"
     },
     "https://gbd.georgia.gov": {
         "allow_list": ["https://gbd.georgia.gov"],
         "allow_subdomains": ["gbd"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gbd_georgia.csv"
     },
     "https://gbi.georgia.gov": {
         "allow_list": ["https://gbi.georgia.gov"],
         "allow_subdomains": ["gbi"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gbi_georgia.csv"
     },
     "https://gbp.georgia.gov": {
         "allow_list": ["https://gbp.georgia.gov"],
         "allow_subdomains": ["gbp"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gbp_georgia.csv"
     },
     "https://gceo.georgia.gov": {
         "allow_list": ["https://gceo.georgia.gov"],
         "allow_subdomains": ["gceo"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gceo_georgia.csv"
     },
     "https://gcfv.georgia.gov": {
         "allow_list": ["https://gcfv.georgia.gov"],
         "allow_subdomains": ["gcfv"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gcfv_georgia.csv"
     },
     "https://gdac.georgia.gov": {
         "allow_list": ["https://gdac.georgia.gov"],
         "allow_subdomains": ["gdac"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gdac_georgia.csv"
     },
     "https://gdc.georgia.gov": {
         "allow_list": ["https://gdc.georgia.gov"],
         "allow_subdomains": ["gdc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gdc_georgia.csv"
     },
     "https://gdna.georgia.gov": {
         "allow_list": ["https://gdna.georgia.gov"],
         "allow_subdomains": ["gdna"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gdna_georgia.csv"
     },
     "https://gefa.georgia.gov": {
         "allow_list": ["https://gefa.georgia.gov"],
         "allow_subdomains": ["gefa"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gefa_georgia.csv"
     },
     "https://gema.georgia.gov": {
         "allow_list": ["https://gema.georgia.gov"],
         "allow_subdomains": ["gema"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gema_georgia.csv"
     },
     "https://georgia.gov": {
         "allow_list": ["https://georgia.gov"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "georgia_georgia.csv"
     },
     "https://georgiansfirst.georgia.gov": {
         "allow_list": ["https://georgiansfirst.georgia.gov"],
         "allow_subdomains": ["georgiansfirst"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "georgiansfirst_georgia.csv"
     },
     "https://gnpec.georgia.gov": {
         "allow_list": ["https://gnpec.georgia.gov"],
         "allow_subdomains": ["gnpec"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gnpec_georgia.csv"
     },
     "https://gosa.georgia.gov": {
         "allow_list": ["https://gosa.georgia.gov"],
         "allow_subdomains": ["gosa"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gosa_georgia.csv"
     },
     "https://gov.georgia.gov": {
         "allow_list": ["https://gov.georgia.gov"],
         "allow_subdomains": ["gov"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gov_georgia.csv"
     },
     "https://gsba.georgia.gov": {
         "allow_list": ["https://gsba.georgia.gov"],
         "allow_subdomains": ["gsba"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gsba_georgia.csv"
     },
     "https://gsfc.georgia.gov": {
         "allow_list": ["https://gsfc.georgia.gov"],
         "allow_subdomains": ["gsfc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gsfc_georgia.csv"
     },
     "https://gsfic.georgia.gov": {
         "allow_list": ["https://gsfic.georgia.gov"],
         "allow_subdomains": ["gsfic"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gsfic_georgia.csv"
     },
     "https://gspc.georgia.gov": {
         "allow_list": ["https://gspc.georgia.gov"],
         "allow_subdomains": ["gspc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gspc_georgia.csv"
     },
     "https://gta-psg.georgia.gov": {
         "allow_list": ["https://gta-psg.georgia.gov"],
         "allow_subdomains": ["gta-psg"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gta_psg_georgia.csv"
     },
     "https://gta.georgia.gov": {
         "allow_list": ["https://gta.georgia.gov"],
         "allow_subdomains": ["gta"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gta_georgia.csv"
     },
     "https://gvs.georgia.gov": {
         "allow_list": ["https://gvs.georgia.gov"],
         "allow_subdomains": ["gvs"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "gvs_georgia.csv"
     },
     "https://healthcareworkforce.georgia.gov": {
         "allow_list": ["https://healthcareworkforce.georgia.gov"],
         "allow_subdomains": ["healthcareworkforce"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "healthcareworkforce_georgia.csv"
     },
     "https://holocaust.georgia.gov": {
         "allow_list": ["https://holocaust.georgia.gov"],
         "allow_subdomains": ["holocaust"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "holocaust_georgia.csv"
     },
     "https://investigative-gbi.georgia.gov": {
         "allow_list": ["https://investigative-gbi.georgia.gov"],
         "allow_subdomains": ["investigative-gbi"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "investigative_gbi_georgia.csv"
     },
     "https://jnc.georgia.gov": {
         "allow_list": ["https://jnc.georgia.gov"],
         "allow_subdomains": ["jnc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "jnc_georgia.csv"
     },
     "https://jpc.georgia.gov": {
         "allow_list": ["https://jpc.georgia.gov"],
         "allow_subdomains": ["jpc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "jpc_georgia.csv"
     },
     "https://law.georgia.gov": {
         "allow_list": ["https://law.georgia.gov"],
         "allow_subdomains": ["law"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "law_georgia.csv"
     },
     "https://llida.georgia.gov": {
         "allow_list": ["https://llida.georgia.gov"],
         "allow_subdomains": ["llida"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "llida_georgia.csv"
     },
     "https://ltgov.georgia.gov": {
         "allow_list": ["https://ltgov.georgia.gov"],
         "allow_subdomains": ["ltgov"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "ltgov_georgia.csv"
     },
     "https://medicaid.georgia.gov": {
         "allow_list": ["https://medicaid.georgia.gov"],
         "allow_subdomains": ["medicaid"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "medicaid_georgia.csv"
     },
     "https://medicalboard.georgia.gov": {
         "allow_list": ["https://medicalboard.georgia.gov"],
         "allow_subdomains": ["medicalboard"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "medicalboard_georgia.csv"
     },
     "https://mrf.georgia.gov": {
         "allow_list": ["https://mrf.georgia.gov"],
         "allow_subdomains": ["mrf"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "mrf_georgia.csv"
     },
     "https://oca.georgia.gov": {
         "allow_list": ["https://oca.georgia.gov"],
         "allow_subdomains": ["oca"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "oca_georgia.csv"
     },
     "https://oci.georgia.gov": {
         "allow_list": ["https://oci.georgia.gov"],
         "allow_subdomains": ["oci"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "oci_georgia.csv"
     },
     "https://oig.georgia.gov": {
         "allow_list": ["https://oig.georgia.gov"],
         "allow_subdomains": ["oig"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "oig_georgia.csv"
     },
     "https://opb.georgia.gov": {
         "allow_list": ["https://opb.georgia.gov"],
         "allow_subdomains": ["opb"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "opb_georgia.csv"
     },
     "https://ost.georgia.gov": {
         "allow_list": ["https://ost.georgia.gov"],
         "allow_subdomains": ["ost"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "ost_georgia.csv"
     },
     "https://pap.georgia.gov": {
         "allow_list": ["https://pap.georgia.gov"],
         "allow_subdomains": ["pap"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "pap_georgia.csv"
     },
     "https://pathways.georgia.gov": {
         "allow_list": ["https://pathways.georgia.gov"],
         "allow_subdomains": ["pathways"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "pathways_georgia.csv"
     },
     "https://poab.georgia.gov": {
         "allow_list": ["https://poab.georgia.gov"],
         "allow_subdomains": ["poab"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "poab_georgia.csv"
     },
     "https://portal.georgia.gov": {
         "allow_list": ["https://portal.georgia.gov"],
         "allow_subdomains": ["ortal"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "portal_georgia.csv"
     },
     "https://projectwet.georgia.gov": {
         "allow_list": ["https://projectwet.georgia.gov"],
         "allow_subdomains": ["projectwet"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "projectwet_georgia.csv"
     },
     "https://riversalive.georgia.gov": {
         "allow_list": ["https://riversalive.georgia.gov"],
         "allow_subdomains": ["riversalive"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "rivers_georgia.csv"
     },
     "https://sao.georgia.gov": {
         "allow_list": ["https://sao.georgia.gov"],
         "allow_subdomains": ["sao"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "sao_georgia.csv"
     },
     "https://sbwc.georgia.gov": {
         "allow_list": ["https://sbwc.georgia.gov"],
         "allow_subdomains": ["sbwc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "sbwc_georgia.csv"
     },
     "https://scc.georgia.gov": {
         "allow_list": ["https://scc.georgia.gov"],
         "allow_subdomains": ["scc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "scc_georgia.csv"
     },
     "https://scsc.georgia.gov": {
         "allow_list": ["https://scsc.georgia.gov"],
         "allow_subdomains": ["scsc"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "scsc_georgia.csv"
     },
     "https://shbp.georgia.gov": {
         "allow_list": ["https://shbp.georgia.gov"],
         "allow_subdomains": ["bp"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "bp_georgia.csv"
     },
     "https://sitf.georgia.gov": {
         "allow_list": ["https://sitf.georgia.gov"],
         "allow_subdomains": ["sitf"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "sitf_georgia.csv"
     },
     "https://sorrb.georgia.gov": {
         "allow_list": ["https://sorrb.georgia.gov"],
         "allow_subdomains": ["sorrb"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "sorrb_georgia.csv"
     },
     "https://sos.ga.gov/": {
         "allow_list": ["https://sos.ga.gov/"],
         "allow_subdomains": ["sos"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "sos_georgia.csv"
     },
     "https://team.georgia.gov": {
         "allow_list": ["https://team.georgia.gov"],
         "allow_subdomains": ["team"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "team_georgia.csv"
     },
     "https://trauma.georgia.gov": {
         "allow_list": ["https://trauma.georgia.gov"],
         "allow_subdomains": ["trauma"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "trauma_georgia.csv"
     },
     "https://veterans.georgia.gov": {
         "allow_list": ["https://veterans.georgia.gov"],
         "allow_subdomains": ["veterans"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "veterans_georgia.csv"
     },
     "https://waterplanning.georgia.gov": {
         "allow_list": ["https://waterplanning.georgia.gov"],
         "allow_subdomains": ["waterplanning"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "waterplanning_georgia.csv"
     },
     "https://www.austintexas.gov": {
         "allow_list": ["https://austintexas.gov"],
         "depth": 5,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "austin.csv"
     },
     "https://www.cityofsanrafael.org": {
         "allow_list": ["https://cityofsanrafael.org"],
         "depth": -1,
-        "use_sitemap": true
+        "use_sitemap": true,
+        "output_file": "san_rafael.csv"
     },
     "https://www.slc.gov": {
         "allow_list": ["https://slc.gov","http://slcdocs.com"],
         "depth": 7,
-        "use_sitemap": false
+        "use_sitemap": false,
+        "output_file": "salt_lake_city.csv"
     }
 }
