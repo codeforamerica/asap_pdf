@@ -9,6 +9,8 @@ Features:
 - Dashboards and audit workflow to help navigate decision-making
 - LLM-powered tools to summarize and perform policy analysis on documents
 
+The feature set is an approach to organize your audit for ADA compliance - the features do not remediate documents or identify which parts of documents are inaccessible.
+
 ## Contact
 Fill out [this Google Form](
 https://docs.google.com/forms/d/e/1FAIpQLSf2C4uKOgCTf-nrBM7bBWRSyNDELhE6c6EaHMN5Or71vyd7fw/viewform) to connect with Code for America and learn more.
