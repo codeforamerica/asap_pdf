@@ -40,4 +40,19 @@ describe "rake documents:import_documents", type: :rake do
     expect(test_doc.producer).to eq "Adobe PDF Library 23.6.136"
     expect(test_doc.author).to eq "Mallard J. Ducksman III"
   end
+
+  it "does not duplicate documents with escaping permutations" do
+    # Test single encoded spaces matching no encoding.
+    create(:document, url: "https://www.slcdocs.com/Planning/Online%20Open%20Houses/2020/09_2020/Verizon%20Cellular%20Monopole%20Conditional%20Use/Narrative%20-%20SAL%20Pepper%20-%20PLNPCM2020-00716.pdf", site: site)
+    # Test single encoded spaces matching single encoded spaces.
+    create(:document, url: "https://www.slcdocs.com/Planning/Applications/best%20test.pdf", site: site)
+    # Test double encoded spaces matching single encoding.
+    create(:document, url: "https://www.slcdocs.com/Planning/Planning%2520Commission/2022/03.%2520March/00740StaffReport_Part2_Attachment%2520K.pdf", site: site)
+    # Test no encoding matching single encoding.
+    create(:document, url: "https://www.slcdocs.com/Planning/Applications/Alley Vacation.pdf", site: site)
+    # Test single encoded spaces matching no encoding.
+    create(:document, url: "https://www.slcdocs.com/Planning/Applications/zoop%20soup.pdf", site: site)
+    expect(Document.count).to eq 5
+    expect { Rake::Task["documents:import_documents"].invoke(site.id, "spec/fixtures/documents/url_escaping.csv", false) }.to change(Document, :count).by(0)
+  end
 end
