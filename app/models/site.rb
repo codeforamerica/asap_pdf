@@ -169,9 +169,7 @@ class Site < ApplicationRecord
     document_data.each_with_index do |data, index|
       url = data[:url]
       modification_date = data[:modification_date]
-
       existing_document = find_document_by_url_variations(url)
-
       ActiveRecord::Base.transaction do
         if existing_document
           if existing_document.modification_date.to_i != modification_date.to_i
@@ -421,34 +419,52 @@ class Site < ApplicationRecord
   end
 
   def url_variations(url)
-    # Since our data is dirty, try loading the same url with different url encodings.
     variations = []
     # Add the original URL as-is
     variations << url
     begin
-      # Unescaped version (decode once)
-      unescaped = CGI.unescape(url)
-      variations << unescaped unless variations.include?(unescaped)
-
-      # Single escaped version
-      single_escaped = CGI.escape(unescaped)
-      variations << single_escaped unless variations.include?(single_escaped)
-
-      # Double escaped version
-      double_escaped = CGI.escape(single_escaped)
-      variations << double_escaped unless variations.include?(double_escaped)
-
-      # Also try decoding twice in case the input is double-escaped
-      double_unescaped = CGI.unescape(CGI.unescape(url))
-      variations << double_unescaped unless variations.include?(double_unescaped)
-
-      # Try with URI encoding as well (slightly different from CGI)
-      uri_encoded = URI.encode_www_form_component(unescaped)
-      variations << uri_encoded unless variations.include?(uri_encoded)
+      # Split URL into base and path manually to avoid URI parsing issues
+      if url =~ %r{^(https?://[^/]+)(.*)$}
+        base_url = $1
+        path = $2
+      else
+        return [url]
+      end
+      # Get fully unescaped path by decoding until stable
+      unescaped_path = path
+      previous = nil
+      10.times do # Limit iterations to prevent infinite loops
+        previous = unescaped_path
+        unescaped_path = CGI.unescape(unescaped_path)
+        break if unescaped_path == previous
+      end
+      # Generate all variations from the unescaped base
+      # Fully unescaped
+      variations << "#{base_url}#{unescaped_path}"
+      # Only spaces as %20 (most common partial encoding)
+      space_encoded = unescaped_path.gsub(" ", "%20")
+      variations << "#{base_url}#{space_encoded}"
+      # Only spaces as +
+      # I don't think we have any of these, but might as well try.
+      plus_encoded = unescaped_path.tr(" ", "+")
+      variations << "#{base_url}#{plus_encoded}"
+      # Fully URL encoded (encode all special chars per segment)
+      fully_encoded = unescaped_path.split("/").map { |segment|
+        segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
+      }.join("/")
+      variations << "#{base_url}#{fully_encoded}"
+      # Double encoded spaces (%20 -> %2520)
+      double_space_encoded = space_encoded.gsub("%20", "%2520")
+      variations << "#{base_url}#{double_space_encoded}"
+      # Fully double encoded (encode the already-encoded version)
+      double_fully_encoded = fully_encoded.split("/").map { |segment|
+        segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
+      }.join("/")
+      variations << "#{base_url}#{double_fully_encoded}"
     rescue => e
       Rails.logger.warn("Error generating URL variations for #{url}: #{e.message}")
     end
-    variations.uniq
+    variations.compact.uniq
   end
 
   def find_document_by_url_variations(url)
