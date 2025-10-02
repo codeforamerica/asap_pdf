@@ -169,9 +169,7 @@ class Site < ApplicationRecord
     document_data.each_with_index do |data, index|
       url = data[:url]
       modification_date = data[:modification_date]
-
-      existing_document = documents.find_by(url: url)
-
+      existing_document = find_document_by_url_variations(url)
       ActiveRecord::Base.transaction do
         if existing_document
           if existing_document.modification_date.to_i != modification_date.to_i
@@ -418,5 +416,60 @@ class Site < ApplicationRecord
     end
   rescue URI::InvalidURIError
     errors.add(:primary_url, "is not a valid URL")
+  end
+
+  def url_variations(url)
+    variations = []
+    # Add the original URL as-is
+    variations << url
+    begin
+      # Split URL into base and path manually to avoid URI parsing issues
+      if url =~ %r{^(https?://[^/]+)(.*)$}
+        base_url = $1
+        path = $2
+      else
+        return [url]
+      end
+      # Get fully unescaped path by decoding until stable
+      unescaped_path = path
+      previous = nil
+      10.times do # Limit iterations to prevent infinite loops
+        previous = unescaped_path
+        unescaped_path = CGI.unescape(unescaped_path)
+        break if unescaped_path == previous
+      end
+      # Generate all variations from the unescaped base
+      # Fully unescaped
+      variations << "#{base_url}#{unescaped_path}"
+      # Only spaces as %20 (most common partial encoding)
+      space_encoded = unescaped_path.gsub(" ", "%20")
+      variations << "#{base_url}#{space_encoded}"
+      # Only spaces as +
+      # I don't think we have any of these, but might as well try.
+      plus_encoded = unescaped_path.tr(" ", "+")
+      variations << "#{base_url}#{plus_encoded}"
+      # Fully URL encoded (encode all special chars per segment)
+      fully_encoded = unescaped_path.split("/").map { |segment|
+        segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
+      }.join("/")
+      variations << "#{base_url}#{fully_encoded}"
+      # Double encoded spaces (%20 -> %2520)
+      double_space_encoded = space_encoded.gsub("%20", "%2520")
+      variations << "#{base_url}#{double_space_encoded}"
+      # Fully double encoded (encode the already-encoded version)
+      double_fully_encoded = fully_encoded.split("/").map { |segment|
+        segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
+      }.join("/")
+      variations << "#{base_url}#{double_fully_encoded}"
+    rescue => e
+      Rails.logger.warn("Error generating URL variations for #{url}: #{e.message}")
+    end
+    variations.compact.uniq
+  end
+
+  def find_document_by_url_variations(url)
+    return nil if url.blank?
+    variations = url_variations(url)
+    documents.where(url: variations).first
   end
 end
