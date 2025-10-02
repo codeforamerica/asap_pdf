@@ -170,7 +170,7 @@ class Site < ApplicationRecord
       url = data[:url]
       modification_date = data[:modification_date]
 
-      existing_document = documents.find_by(url: url)
+      existing_document = find_document_by_url_variations(url)
 
       ActiveRecord::Base.transaction do
         if existing_document
@@ -418,5 +418,42 @@ class Site < ApplicationRecord
     end
   rescue URI::InvalidURIError
     errors.add(:primary_url, "is not a valid URL")
+  end
+
+  def url_variations(url)
+    # Since our data is dirty, try loading the same url with different url encodings.
+    variations = []
+    # Add the original URL as-is
+    variations << url
+    begin
+      # Unescaped version (decode once)
+      unescaped = CGI.unescape(url)
+      variations << unescaped unless variations.include?(unescaped)
+
+      # Single escaped version
+      single_escaped = CGI.escape(unescaped)
+      variations << single_escaped unless variations.include?(single_escaped)
+
+      # Double escaped version
+      double_escaped = CGI.escape(single_escaped)
+      variations << double_escaped unless variations.include?(double_escaped)
+
+      # Also try decoding twice in case the input is double-escaped
+      double_unescaped = CGI.unescape(CGI.unescape(url))
+      variations << double_unescaped unless variations.include?(double_unescaped)
+
+      # Try with URI encoding as well (slightly different from CGI)
+      uri_encoded = URI.encode_www_form_component(unescaped)
+      variations << uri_encoded unless variations.include?(uri_encoded)
+    rescue => e
+      Rails.logger.warn("Error generating URL variations for #{url}: #{e.message}")
+    end
+    variations.uniq
+  end
+
+  def find_document_by_url_variations(url)
+    return nil if url.blank?
+    variations = url_variations(url)
+    documents.where(url: variations).first
   end
 end
