@@ -424,12 +424,16 @@ class Site < ApplicationRecord
     variations << url
     begin
       # Split URL into base and path manually to avoid URI parsing issues
-      if url =~ %r{^(https?://[^/]+)(.*)$}
-        base_url = $1
-        path = $2
+      if url =~ %r{^(https?://)([^/]+)(.*)$}
+        $1
+        host = $2
+        path = $3
       else
+        # Abort if we can't parse at all.
         return [url]
       end
+      # Generate variations for both http and https
+      protocols = ["http://", "https://"]
       # Get fully unescaped path by decoding until stable
       unescaped_path = path
       previous = nil
@@ -438,29 +442,35 @@ class Site < ApplicationRecord
         unescaped_path = CGI.unescape(unescaped_path)
         break if unescaped_path == previous
       end
-      # Generate all variations from the unescaped base
+      # Generate all path encoding variations
+      path_variations = []
       # Fully unescaped
-      variations << "#{base_url}#{unescaped_path}"
+      path_variations << unescaped_path
       # Only spaces as %20 (most common partial encoding)
       space_encoded = unescaped_path.gsub(" ", "%20")
-      variations << "#{base_url}#{space_encoded}"
+      path_variations << space_encoded
       # Only spaces as +
-      # I don't think we have any of these, but might as well try.
       plus_encoded = unescaped_path.tr(" ", "+")
-      variations << "#{base_url}#{plus_encoded}"
+      path_variations << plus_encoded
       # Fully URL encoded (encode all special chars per segment)
       fully_encoded = unescaped_path.split("/").map { |segment|
         segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
       }.join("/")
-      variations << "#{base_url}#{fully_encoded}"
+      path_variations << fully_encoded
       # Double encoded spaces (%20 -> %2520)
       double_space_encoded = space_encoded.gsub("%20", "%2520")
-      variations << "#{base_url}#{double_space_encoded}"
+      path_variations << double_space_encoded
       # Fully double encoded (encode the already-encoded version)
       double_fully_encoded = fully_encoded.split("/").map { |segment|
         segment.empty? ? "" : CGI.escape(segment).gsub("+", "%20")
       }.join("/")
-      variations << "#{base_url}#{double_fully_encoded}"
+      path_variations << double_fully_encoded
+      # Combine all protocols with all path variations
+      protocols.each do |proto|
+        path_variations.each do |path_var|
+          variations << "#{proto}#{host}#{path_var}"
+        end
+      end
     rescue => e
       Rails.logger.warn("Error generating URL variations for #{url}: #{e.message}")
     end
