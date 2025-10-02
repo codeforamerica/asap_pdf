@@ -170,11 +170,6 @@ class Site < ApplicationRecord
       url = data[:url]
       modification_date = data[:modification_date]
       existing_document = find_document_by_url_variations(url)
-      if existing_document
-        p "Match found #{url}"
-      else
-        p "NO match found #{url}"
-      end
       ActiveRecord::Base.transaction do
         if existing_document
           if existing_document.modification_date.to_i != modification_date.to_i
@@ -485,7 +480,6 @@ class Site < ApplicationRecord
   def find_document_by_url_variations(url)
     return nil if url.blank?
     variations = url_variations(url)
-    p variations
     documents.where(url: variations).first
   end
 end
