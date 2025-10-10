@@ -328,19 +328,33 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
     return pd.DataFrame(output)
 
 
+def _normalize_url(url: str) -> str:
+    url = re.sub(r"^https?://", "", str(url).lower())
+    url = urllib.parse.unquote(url)
+    return url
+
+
 def compare_crawled_documents(pdf_df: pd.DataFrame, comparison_crawl_df: pd.DataFrame):
     overlapping_columns = [
         column for column in pdf_df.columns if column in comparison_crawl_df.columns
     ]
-    overlapping_columns.remove("url")
-    pdf_df = pdf_df.merge(comparison_crawl_df, how="outer", on="url", indicator=True)
+    pdf_df["_normalized_url"] = pdf_df["url"].apply(_normalize_url)
+    comparison_crawl_df["_normalized_url"] = comparison_crawl_df["url"].apply(
+        _normalize_url
+    )
+    pdf_df = pdf_df.merge(
+        comparison_crawl_df, how="outer", on="_normalized_url", indicator=True
+    )
+    pdf_df = pdf_df.drop_duplicates(subset=["_normalized_url"])
+
+    pdf_df = pdf_df.drop("_normalized_url", axis=1)
     for column in overlapping_columns:
         pdf_df[column] = np.where(
             pdf_df["_merge"] == "right_only",
             pdf_df[f"{column}_y"],
             pdf_df[f"{column}_x"],
         )
-    # We don't care about the right side, suffixed columns.
+    # We don't care about the suffixed columns anymore.
     pdf_df = pdf_df.filter(regex="^(?!.*_[yx]$)")
     if "crawl_status" in pdf_df.columns:
         pdf_df = pdf_df.drop("crawl_status", axis=1)
@@ -382,14 +396,13 @@ if __name__ == "__main__":
         "output_path", help="Path where a CSV with PDF information will be saved"
     )
     args = parser.parse_args()
+    config = get_config(args.url)
     if args.crawled_links_json is None:
-        config = get_config(args.url)
         allow_list = config["allow_list"]
         allowable_subdomains = config.get("allow_subdomains")
         use_sitemap = config["use_sitemap"]
         depth = config["depth"]
         use_webdriver = config.get("use_webdriver", False)
-
         allowable_domains = [
             tldextract.extract(link).registered_domain for link in allow_list
         ]
