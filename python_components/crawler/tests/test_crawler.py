@@ -38,7 +38,7 @@ def test_comparison():
     first_crawl = pd.read_csv(f"{test_dir}/fixtures/first_crawl.csv")
     second_crawl = pd.read_csv(f"{test_dir}/fixtures/second_crawl.csv")
     third_crawl = pd.read_csv(f"{test_dir}/fixtures/third_crawl.csv")
-    comparison = compare_crawled_documents(second_crawl, first_crawl)
+    comparison = compare_crawled_documents(second_crawl, first_crawl.copy())
     assert len(comparison[comparison["crawl_status"] == "new"]) == 2
     assert len(comparison[comparison["crawl_status"] == "active"]) == 2
     assert len(comparison[comparison["crawl_status"] == "removed"]) == 0
