@@ -15,4 +15,4 @@ BASE_COMMAND="docker run --rm -v $SCRIPT_DIR/../../../:/workspace $LOCAL_CI_IMAG
 docker build -t $LOCAL_CI_IMAGE $SCRIPT_DIR/../.
 
 # Run our pytests.
-$BASE_COMMAND pytest -W ignore::DeprecationWarning python_components
+$BASE_COMMAND pytest -s -W ignore::DeprecationWarning python_components
