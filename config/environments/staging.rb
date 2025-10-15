@@ -47,4 +47,6 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [:id]
 
   config.default_s3_bucket = "asap-pdf-staging-documents"
+
+  config.asset_host = "https://staging.ada.codeforamerica.ai"
 end

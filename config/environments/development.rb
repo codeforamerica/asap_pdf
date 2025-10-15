@@ -53,4 +53,6 @@ Rails.application.configure do
     google_eval_service_account: "asap-pdf/staging/GOOGLE_SERVICE_ACCOUNT",
     google_eval_sheet_id: "asap-pdf/staging/GOOGLE_SHEET_ID_EVALUATION"
   }
+
+  config.asset_host = "http://localhost:3000"
 end
