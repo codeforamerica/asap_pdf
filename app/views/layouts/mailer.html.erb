@@ -22,10 +22,17 @@
             border-radius: 5px;
         }
 
-        #header {
+        #header,
+        #footer {
             width: 100%;
             margin-bottom: 32px;
             text-align: center;
+        }
+
+        #footer {
+            font-size: 12px;
+            color: #6b7280 !important;
+            margin-bottom: 0;
         }
 
         #header img {
@@ -43,6 +50,7 @@
         #message-body {
             font-size: 14px;
             line-height: 1.5;
+            margin-bottom: 32px;
         }
 
         a {
@@ -59,12 +67,13 @@
     <div id="wrapper">
       <div id="wrapper-inner">
         <div id="header">
-          <img src="https://demo.codeforamerica.ai/assets/logo-81b734de.png" alt="The Code for America Logo"/>
-          <h1>Website PDF Accessibility Checker</h1>
+          <img src="<%= mailer_image_url("logo.png") %>" alt="Code for America Logo" />
+          <h1>Code for America PDF Accessibility App</h1>
         </div>
         <div id="message-body">
           <%= yield %>
         </div>
+        <div id="footer">Code for America, 2323 Broadway, Oakland, California 94612, USA</div>
       </div>
     </div>
   </body>
