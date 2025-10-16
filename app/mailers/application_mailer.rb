@@ -1,5 +1,6 @@
 class ApplicationMailer < Devise::Mailer
   layout "mailer"
+  helper :application
 
   def new_account_instructions(record, token)
     @token = token

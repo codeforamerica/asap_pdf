@@ -1,5 +1,6 @@
 module ApplicationHelper
   include ActionView::Helpers::AssetUrlHelper
+  include ActionView::Helpers::AssetTagHelper
 
   def document_source(source)
     return {text: "", url: nil} unless source
