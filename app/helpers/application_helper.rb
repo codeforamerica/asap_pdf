@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include ActionView::Helpers::AssetUrlHelper
+
   def document_source(source)
     return {text: "", url: nil} unless source
 
@@ -37,5 +39,15 @@ module ApplicationHelper
     uri.to_s
   rescue URI::InvalidURIError
     nil
+  end
+
+  def mailer_image_url(image)
+    mailer_config = Rails.configuration.action_mailer[:default_url_options]
+    path = image_path(image)
+    if mailer_config[:port]
+      "https://#{mailer_config[:host]}:#{mailer_config[:port]}#{path}"
+    else
+      "https://#{mailer_config[:host]}#{path}"
+    end
   end
 end

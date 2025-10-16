@@ -47,6 +47,4 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [:id]
 
   config.default_s3_bucket = "asap-pdf-prod-documents"
-
-  config.asset_host = "https://ada.codeforamerica.ai"
 end
