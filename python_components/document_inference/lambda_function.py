@@ -72,8 +72,6 @@ def handler(event, context):
             else:
                 helpers.logger.info("Dumping results into Lambda return")
                 helpers.collect_document(document["id"], response)
-        # Making a change to the handler to force layer rebuild.
-        helpers.logger.info("Rebuild this layer")
         if "asap_endpoint" in event.keys():
             return {
                 "statusCode": 200,
