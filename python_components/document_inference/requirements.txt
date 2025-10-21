@@ -6,7 +6,6 @@ importlib-metadata==8.0.0
 inflect==7.3.1
 jaraco-functools==4.3.0
 jaraco.collections==5.1.0
-#llm-anthropic==0.18
 llm-gemini==0.25
 markdown-it-py==4.0.0
 mccabe==0.7.0
