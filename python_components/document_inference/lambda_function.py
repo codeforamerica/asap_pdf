@@ -1,8 +1,14 @@
 import json
 import os
+import time
+
+start_time = time.time()
 
 import llm
 from document_inference import helpers
+
+import_time = time.time() - start_time
+print(f"TIMING: Imports took {import_time:.2f}s")
 
 API_USER_NAME_SECRET = "asap-pdf/{AWS_ENV}/RAILS_API_USER"
 API_PASSWORD_SECRET = "asap-pdf/{AWS_ENV}/RAILS_API_PASSWORD"
