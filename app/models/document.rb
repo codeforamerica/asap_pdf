@@ -200,7 +200,7 @@ class Document < ApplicationRecord
         lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
       end
       payload = {
-        model_name: "gemini-2.5-flash",
+        model_name: "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
         documents: [{id: id, title: file_name, url: normalized_url, purpose: document_category}],
         page_limit: 7,
         inference_type: "summary",
