@@ -28,6 +28,8 @@ def get_models(model_file: str):
 
 
 def get_secret(secret_name: str, local_mode: bool, aws_env: str) -> str:
+    if len(secret_name) == 0:
+        return ""
     secret_name = secret_name.format(AWS_ENV=aws_env)
     if local_mode:
         session = boto3.session.Session()

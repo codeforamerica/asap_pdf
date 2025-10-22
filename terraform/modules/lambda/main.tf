@@ -96,7 +96,8 @@ resource "aws_iam_role_policy" "lambda_invoke" {
         Action = [
           "lambda:InvokeFunction",
           "lambda:InvokeFunctionUrl",
-          "lambda:GetFunctionUrlConfig"
+          "lambda:GetFunctionUrlConfig",
+          "bedrock:*"
         ]
         Resource = [
           "*"
