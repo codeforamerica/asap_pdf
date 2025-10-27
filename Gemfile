@@ -53,7 +53,7 @@ group :test do
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "selenium-webdriver", "~> 4.36"
+  gem "selenium-webdriver", "~> 4.38"
 end
 
 gem "bcrypt", "~> 3.1"
