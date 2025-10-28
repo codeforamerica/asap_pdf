@@ -1,12 +1,9 @@
 awslambdaric==3.0.2
 backports.tarfile==1.2.0
-black==25.1.0
 boto3==1.37.10
 document-inference==0.0.0
-flake8==7.1.2
 importlib-metadata==8.0.0
 inflect==7.3.1
-isort==6.0.1
 jaraco-functools==4.3.0
 jaraco.collections==5.1.0
 llm-anthropic==0.18
