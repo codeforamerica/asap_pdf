@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.0.3"
+gem "rails", "~> 8.1.1"
 gem "propshaft"
 gem "pg"
 gem "puma", ">= 5.0"
@@ -21,7 +21,7 @@ gem "solid_cache"
 gem "bootsnap", require: false
 gem "thruster", require: false
 
-gem "view_component", "~> 4.0"
+gem "view_component", "~> 4.1"
 gem "kaminari", "~> 1.2"
 
 gem "devise", "~> 4.9.4"
@@ -53,11 +53,11 @@ group :test do
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "selenium-webdriver", "~> 4.36"
+  gem "selenium-webdriver", "~> 4.38"
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.200"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.202"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"
