@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import time
 
 import boto3
 import fitz
@@ -20,6 +21,21 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 _document_collection = {}
+
+minimal_headers = {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": "inline",
+}
+
+browser_headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "application/pdf,application/octet-stream,*/*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
 
 
 def get_models(model_file: str):
@@ -46,23 +62,32 @@ def get_secret(secret_name: str, local_mode: bool, aws_env: str) -> str:
     return response["SecretString"]
 
 
-def get_file(url: str, output_path: str) -> str:
+def get_file(url: str, output_path: str, wait_to_retry: int = 1000) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-        "Accept": "application/pdf,application/octet-stream,*/*",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate",
-        "DNT": "1",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-    }
-    with requests.get(url, headers=headers, stream=True) as response:
-        response.raise_for_status()
-        with open(f"{output_path}/{file_name}", "wb") as file:
-            shutil.copyfileobj(response.raw, file)
-    return local_path
+    strategies = [
+        {"headers": minimal_headers, "stream": True, "verify": True},
+        {"headers": browser_headers, "stream": True, "verify": True},
+        {"headers": minimal_headers, "stream": True, "verify": False},
+        {"headers": browser_headers, "stream": True, "verify": False},
+    ]
+    for strategy in strategies:
+        try:
+            with requests.get(url, **strategy) as response:
+                if response.status_code == 200:
+                    with open(local_path, "wb") as file:
+                        shutil.copyfileobj(response.raw, file)
+                        return local_path
+                else:
+                    raise RuntimeError(
+                        f"Request failed with status code: {response.status_code}"
+                    )
+        except (RuntimeError, requests.exceptions.RequestException) as e:
+            logger.info(
+                f"Download failed: {str(e)} with strategy: {json.dumps(strategy)}"
+            )
+            time.sleep(wait_to_retry)
+    raise RuntimeError("Failed to download file with all strategies.")
 
 
 def pdf_to_attachments(
