@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.0.3"
+gem "rails", "~> 8.1.1"
 gem "propshaft"
 gem "pg"
 gem "puma", ">= 5.0"
@@ -53,7 +53,7 @@ group :test do
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "selenium-webdriver", "~> 4.36"
+  gem "selenium-webdriver", "~> 4.38"
 end
 
 gem "bcrypt", "~> 3.1"
