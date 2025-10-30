@@ -67,5 +67,5 @@ gem "aws-sdk-ses"
 gem "grape", "~> 2.4"
 gem "grape-swagger"
 
-gem "paper_trail", "~> 16.0"
+gem "paper_trail", "~> 17.0"
 gem "tailwindcss-ruby", "~> 4.1"
