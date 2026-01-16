@@ -13,7 +13,8 @@ describe "admins can see admin pages", js: true, type: :feature do
       user_menu = find("[data-action='click->dropdown#toggle']")
       user_menu.click
     end
-    within("div[data-dropdown-target='menu']") do
+    menu = find("div[data-dropdown-target='menu']", visible: true)
+    within(menu) do
       expect(page).to have_content "My Sites"
       expect(page).to have_no_content "AI Settings"
     end
@@ -41,7 +42,8 @@ describe "admins can see admin pages", js: true, type: :feature do
         user_menu = find("[data-action='click->dropdown#toggle']")
         user_menu.click
       end
-      within("div[data-dropdown-target='menu']") do
+      menu = find("div[data-dropdown-target='menu']", visible: true)
+      within(menu) do
         expect(page).to have_content "My Sites"
         expect(page).to have_no_content "Admin Users"
       end
