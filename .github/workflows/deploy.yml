@@ -52,7 +52,7 @@ jobs:
         run: echo "Deploying to ${{ needs.determine_environment.outputs.env_name }}"
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Debug OIDC claims
         run: |

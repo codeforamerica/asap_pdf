@@ -52,7 +52,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       runs: ${{ steps.set-runs.outputs.runs }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Debug OIDC claims
         run: |
           echo "GitHub repository: ${{ github.repository }}"
@@ -188,7 +188,7 @@ jobs:
         run: ${{ fromJson(needs.build.outputs.runs) }}
       max-parallel: 10
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
