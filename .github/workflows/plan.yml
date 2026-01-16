@@ -27,7 +27,7 @@ jobs:
         run: echo "Tofu config directory ./terraform/config/${{ github.event.inputs.environment }}"
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
