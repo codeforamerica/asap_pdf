@@ -13,7 +13,7 @@ Rails.application.routes.draw do
 
   resources :sites do
     member do
-      get "workflow_audit_report/:bucket_name/*key", to: "sites#workflow_audit_report", format: false, as: :workflow_audit_report
+      get "workflow_audit_report/:id/:bucket_name/*key", to: "sites#workflow_audit_report", format: false, as: :workflow_audit_report
       post :create_workflow_audit_report
     end
     resources :documents do
