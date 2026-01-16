@@ -61,7 +61,7 @@ RSpec.describe SitesController, type: :request do
 
         expect(response).to redirect_to(sites_path)
         follow_redirect!
-        expect(response.body).to include("You don't have permission to access that site.")
+        expect(response.body).to include("You don&#39;t have permission to access that site.")
       end
     end
 
