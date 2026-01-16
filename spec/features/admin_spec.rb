@@ -7,13 +7,23 @@ describe "admins can see admin pages", js: true, type: :feature do
     login_user(@current_user)
   end
 
+  def open_user_menu
+    within("#header") do
+      find("[data-action='click->dropdown#toggle']").click
+    end
+    find("div[data-dropdown-target='menu']", visible: true)
+  rescue Capybara::ElementNotFound
+    # Retry once - Stimulus controller may not be connected yet
+    sleep 0.5
+    within("#header") do
+      find("[data-action='click->dropdown#toggle']").click
+    end
+    find("div[data-dropdown-target='menu']", visible: true)
+  end
+
   it "admins can view AI configuration" do
     visit "/"
-    within("#header") do
-      user_menu = find("[data-action='click->dropdown#toggle']")
-      user_menu.click
-    end
-    menu = find("div[data-dropdown-target='menu']", visible: true)
+    menu = open_user_menu
     within(menu) do
       expect(page).to have_content "My Sites"
       expect(page).to have_no_content "AI Settings"
@@ -24,11 +34,8 @@ describe "admins can see admin pages", js: true, type: :feature do
     @current_user.is_site_admin = true
     @current_user.save
     visit "/"
-    within("#header") do
-      user_menu = find("[data-action='click->dropdown#toggle']")
-      user_menu.click
-      click_link("AI Settings")
-    end
+    open_user_menu
+    click_link("AI Settings")
     expect(page).to have_current_path("/configuration/edit")
     expect(page).to have_content "AI Configuration Settings"
   end
@@ -38,11 +45,7 @@ describe "admins can see admin pages", js: true, type: :feature do
 
     it "view user admin pages" do
       visit "/"
-      within("#header") do
-        user_menu = find("[data-action='click->dropdown#toggle']")
-        user_menu.click
-      end
-      menu = find("div[data-dropdown-target='menu']", visible: true)
+      menu = open_user_menu
       within(menu) do
         expect(page).to have_content "My Sites"
         expect(page).to have_no_content "Admin Users"
