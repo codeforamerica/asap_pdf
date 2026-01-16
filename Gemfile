@@ -16,8 +16,6 @@ gem "chartkick"
 
 gem "tzinfo-data", platforms: %i[windows jruby]
 
-gem "solid_cache"
-
 gem "bootsnap", require: false
 gem "thruster", require: false
 
@@ -61,11 +59,9 @@ gem "aws-sdk-s3", "~> 1.202"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"
-gem "aws-sdk-ses"
 
 # API and Documentation
 gem "grape", "~> 2.4"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 17.0"
-gem "tailwindcss-ruby", "~> 4.1"
