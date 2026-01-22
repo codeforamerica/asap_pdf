@@ -29,6 +29,63 @@ from tqdm import tqdm
 # To enforce SSL verification remove this line.
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+minimal_headers = {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": "inline",
+}
+
+browser_headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
+
+strategies = [
+    {"headers": minimal_headers, "verify": True},
+    {"headers": browser_headers, "verify": True},
+    {"headers": minimal_headers, "verify": False},
+    {"headers": browser_headers, "verify": False},
+]
+
+preferred_strategy_index = 0
+
+
+def fetch_with_retry(url, timeout=90, wait_between_retries=2):
+    """
+    Fetch a URL trying multiple strategies (header combinations, SSL verification).
+    Remembers which strategy worked and tries it first next time.
+    Returns the response object on success, None on failure.
+    """
+    global preferred_strategy_index
+
+    order = [preferred_strategy_index] + [
+        i for i in range(len(strategies)) if i != preferred_strategy_index
+    ]
+
+    for strategy_index in order:
+        strategy = strategies[strategy_index]
+        try:
+            response = requests.get(
+                url,
+                timeout=timeout,
+                headers=strategy["headers"],
+                verify=strategy["verify"],
+                allow_redirects=True,
+            )
+            if response.status_code < 400:
+                if strategy_index != preferred_strategy_index:
+                    preferred_strategy_index = strategy_index
+                return response
+            tqdm.write(f"Strategy {strategy_index}: {url} returned status {response.status_code}")
+        except requests.exceptions.RequestException as e:
+            tqdm.write(f"Strategy {strategy_index}: {url} failed: {e}")
+        time.sleep(wait_between_retries)
+    return None
+
 
 def get_url(url, timeout=90, use_webdriver=False):
     if use_webdriver:
@@ -71,12 +128,20 @@ def get_url(url, timeout=90, use_webdriver=False):
 
         return atags
     else:
-        response = requests.get(url, timeout=timeout)
-        if response.status_code >= 400:
+        print("Trying new style fetch.")
+        response = fetch_with_retry(url, timeout=timeout)
+        if response is None:
             return None
+
+        # Debug output
+        print(f"Content-Type: {response.headers.get('Content-Type')}")
+        print(f"Content-Encoding: {response.headers.get('Content-Encoding')}")
+        print(f"Content-Length: {len(response.content)}")
+        print(f"First 500 chars: {response.text[:500]}")
 
         soup = BeautifulSoup(response.content, "html.parser")
         atags = soup.find_all("a")
+        print(f"Found {len(atags)} links")
         return atags
 
 
@@ -106,17 +171,25 @@ def parse_robots_txt(url, manual_crawl_delay):
     return sitemap, manual_crawl_delay
 
 
-def parse_sitemap(sitemap):
-    r = requests.get(sitemap)
+def parse_sitemap(sitemap, delay=0):
+    r = fetch_with_retry(sitemap)
+    if r is None:
+        tqdm.write(f"Failed to fetch sitemap: {sitemap}")
+        return set()
+
     soup = BeautifulSoup(r.text, "xml")
     more_site_maps = [site.text for site in soup.find_all("loc")]
 
     all_pages = set()
     for site in more_site_maps:
-        if manual_crawl_delay:
-            time.sleep(manual_crawl_delay)
+        if delay:
+            time.sleep(delay)
 
-        r = requests.get(site)
+        r = fetch_with_retry(site)
+        if r is None:
+            tqdm.write(f"Failed to fetch sitemap: {site}")
+            continue
+
         soup = BeautifulSoup(r.text, "xml")
         all_pages.update([x.find("loc").text for x in soup.find_all("url")])
 
@@ -270,21 +343,9 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
             default_file_name = url_parsed.path.split("/")[-1]
             if len(default_file_name) == 0:
                 default_file_name = url_parsed.netloc.split("\\")[-1]
-            headers = {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "inline",
-            }
-            # Since we control domain lists, it feels safe enough to disable SSL verification.
-            # To enforce SSL cert verification, set verify to True.
-            response = requests.get(
-                url=pdf_url,
-                timeout=90,
-                headers=headers,
-                allow_redirects=True,
-                verify=False,
-            )
             tqdm.write(f"Attempting metadata fetch for: {pdf_url}")
-            if response.status_code < 400:
+            response = fetch_with_retry(pdf_url)
+            if response is not None:
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
@@ -409,7 +470,7 @@ if __name__ == "__main__":
         sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
         if use_sitemap:
-            all_pages = parse_sitemap(sitemap)
+            all_pages = parse_sitemap(sitemap, delay=manual_crawl_delay)
             tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
 
             crawled_pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)

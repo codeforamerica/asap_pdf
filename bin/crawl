@@ -3,6 +3,7 @@
 # Script to crawl a website and extract PDF information
 # Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory] [previous_link_json]
 # Site site_url must exist in python_components/crawler/config.json.
+# output_dir, where to put the new crawl information.
 # previous_crawl_directory is the path to a previous version of the crawl to compare against.
 # previous_link_json is a list of links and sources produced by the first phase of the crawler.
 #     Useful if metadata fetching failed or to resume an otherwise halted process.

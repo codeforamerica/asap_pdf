@@ -62,7 +62,7 @@ def get_secret(secret_name: str, local_mode: bool, aws_env: str) -> str:
     return response["SecretString"]
 
 
-def get_file(url: str, output_path: str, wait_to_retry: int = 1000) -> str:
+def get_file(url: str, output_path: str, wait_to_retry: int = 2) -> str:
     file_name = os.path.basename(url)
     local_path = f"{output_path}/{file_name}"
     strategies = [
