@@ -348,10 +348,10 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
             default_file_name = url_parsed.path.split("/")[-1]
             if len(default_file_name) == 0:
                 default_file_name = url_parsed.netloc.split("\\")[-1]
-            tqdm.write(f"[{idx+1}/{total}] Fetching: {pdf_url}")
+            tqdm.write(f"[{idx + 1}/{total}] Fetching: {pdf_url}")
             response = fetch_with_retry(pdf_url)
             if response is not None:
-                tqdm.write(f"  Downloaded, processing...")
+                tqdm.write("  Downloaded, processing...")
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
