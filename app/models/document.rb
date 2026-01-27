@@ -290,7 +290,7 @@ class Document < ApplicationRecord
   end
 
   def get_crawl_status_display
-    if document_status == DOCUMENT_STATUS_NEW && last_crawl_date.present? && last_crawl_date.after?(2.weeks.ago)
+    if document_status == DOCUMENT_STATUS_NEW && last_crawl_date.present? && last_crawl_date.after?(1.month.ago)
       DOCUMENT_STATUS_NEW
     elsif document_status == DOCUMENT_STATUS_REMOVED
       DOCUMENT_STATUS_REMOVED
