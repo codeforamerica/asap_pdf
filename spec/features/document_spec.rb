@@ -736,7 +736,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_content "Removed"
       expect(page).to have_no_content "New"
     end
-    document.last_crawl_date = 9.days.ago
+    document.last_crawl_date = 31.days.ago
     document.document_status = Document::DOCUMENT_STATUS_NEW
     document.save!
     visit "sites/#{site.id}/documents"
@@ -746,7 +746,7 @@ describe "documents function as expected", js: true, type: :feature do
       expect(page).to have_no_content "Removed"
       expect(page).to have_no_content "New"
     end
-    document.last_crawl_date = 3.days.ago
+    document.last_crawl_date = 19.days.ago
     document.save!
     visit "sites/#{site.id}/documents"
     expect(page).to have_content "Colorado: City of Denver"

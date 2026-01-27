@@ -3,6 +3,7 @@
 # Script to crawl a website and extract PDF information
 # Usage: bin/crawl <site_url> <output_dir> [previous_crawl_directory] [previous_link_json]
 # Site site_url must exist in python_components/crawler/config.json.
+# output_dir, where to put the new crawl information.
 # previous_crawl_directory is the path to a previous version of the crawl to compare against.
 # previous_link_json is a list of links and sources produced by the first phase of the crawler.
 #     Useful if metadata fetching failed or to resume an otherwise halted process.
@@ -46,12 +47,13 @@ OUTPUT_FILE=$(jq -r --arg site_url "$SITE_URL" '
     end
 ' "$CONFIG_FILE" 2>/dev/null || echo "output.csv")
 
+CRAWLER_TMP_DIR="$PROJECT_ROOT/crawler_tmp"
+
 if [ -n "$PREVIOUS_CRAWL" ]; then
     if [ ! -e "$PREVIOUS_CRAWL" ]; then
         echo "Error: Previous crawl path '$PREVIOUS_CRAWL' does not exist"
         exit 1
     fi
-    CRAWLER_TMP_DIR="$PROJECT_ROOT/crawler_tmp"
     PREVIOUS_CRAWL_DIR="$CRAWLER_TMP_DIR/previous_crawl"
     mkdir -p $PREVIOUS_CRAWL_DIR
     if [ -f "$PREVIOUS_CRAWL" ] && [[ "$PREVIOUS_CRAWL" == *.zip ]]; then
@@ -87,9 +89,16 @@ if [ -n "$PREVIOUS_LINK_JSON" ]; then
 fi
 
 TMP_OUTPUT="$CRAWLER_TMP_DIR/output"
-mkdir -p $TMP_OUTPUT
-mkdir -p $OUTPUT_DIR
-echo "$OUTPUT_DIR"
+mkdir -p "$TMP_OUTPUT"
+mkdir -p "$OUTPUT_DIR"
+
+# Verify directories were created
+if [ ! -d "$TMP_OUTPUT" ]; then
+    echo "Error: Failed to create temp output directory: $TMP_OUTPUT"
+    exit 1
+fi
+echo "Output will be saved to: $OUTPUT_DIR"
+echo "Temp directory: $TMP_OUTPUT"
 
 set -x
 

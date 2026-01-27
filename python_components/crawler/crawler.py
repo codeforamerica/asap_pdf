@@ -29,6 +29,65 @@ from tqdm import tqdm
 # To enforce SSL verification remove this line.
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+minimal_headers = {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": "inline",
+}
+
+browser_headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate",
+    "Sec-Fetch-Dest": "document",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Site": "none",
+}
+
+strategies = [
+    {"headers": minimal_headers, "verify": True},
+    {"headers": browser_headers, "verify": True},
+    {"headers": minimal_headers, "verify": False},
+    {"headers": browser_headers, "verify": False},
+]
+
+preferred_strategy_index = 0
+
+
+def fetch_with_retry(url, timeout=90, wait_between_retries=2):
+    """
+    Fetch a URL trying multiple strategies (header combinations, SSL verification).
+    Remembers which strategy worked and tries it first next time.
+    Returns the response object on success, None on failure.
+    """
+    global preferred_strategy_index
+
+    order = [preferred_strategy_index] + [
+        i for i in range(len(strategies)) if i != preferred_strategy_index
+    ]
+
+    for strategy_index in order:
+        strategy = strategies[strategy_index]
+        try:
+            response = requests.get(
+                url,
+                timeout=timeout,
+                headers=strategy["headers"],
+                verify=strategy["verify"],
+                allow_redirects=True,
+            )
+            if response.status_code < 400:
+                if strategy_index != preferred_strategy_index:
+                    preferred_strategy_index = strategy_index
+                return response
+            tqdm.write(
+                f"Strategy {strategy_index}: {url} returned status {response.status_code}"
+            )
+        except requests.exceptions.RequestException as e:
+            tqdm.write(f"Strategy {strategy_index}: {url} failed: {e}")
+        time.sleep(wait_between_retries)
+    return None
+
 
 def get_url(url, timeout=90, use_webdriver=False):
     if use_webdriver:
@@ -71,8 +130,8 @@ def get_url(url, timeout=90, use_webdriver=False):
 
         return atags
     else:
-        response = requests.get(url, timeout=timeout)
-        if response.status_code >= 400:
+        response = fetch_with_retry(url, timeout=timeout)
+        if response is None:
             return None
 
         soup = BeautifulSoup(response.content, "html.parser")
@@ -106,17 +165,25 @@ def parse_robots_txt(url, manual_crawl_delay):
     return sitemap, manual_crawl_delay
 
 
-def parse_sitemap(sitemap):
-    r = requests.get(sitemap)
+def parse_sitemap(sitemap, delay=0):
+    r = fetch_with_retry(sitemap)
+    if r is None:
+        tqdm.write(f"Failed to fetch sitemap: {sitemap}")
+        return set()
+
     soup = BeautifulSoup(r.text, "xml")
     more_site_maps = [site.text for site in soup.find_all("loc")]
 
     all_pages = set()
     for site in more_site_maps:
-        if manual_crawl_delay:
-            time.sleep(manual_crawl_delay)
+        if delay:
+            time.sleep(delay)
 
-        r = requests.get(site)
+        r = fetch_with_retry(site)
+        if r is None:
+            tqdm.write(f"Failed to fetch sitemap: {site}")
+            continue
+
         soup = BeautifulSoup(r.text, "xml")
         all_pages.update([x.find("loc").text for x in soup.find_all("url")])
 
@@ -180,6 +247,7 @@ def bfs_search_pdfs(
     max_depth=7,
     timeout=90,
     use_webdriver=False,
+    max_pages=None,
 ):
     # Restricts search to links sharing the same domain, capture all PDFs
     # along the way
@@ -188,7 +256,14 @@ def bfs_search_pdfs(
     pdfs = defaultdict(list)
 
     pbar = tqdm(unit=" pages")
+    if max_pages:
+        tqdm.write(f"Will stop after {max_pages} pages.")
     while queue:
+        if max_pages and len(visited) >= max_pages:
+            tqdm.write(
+                f"Reached max_pages limit ({max_pages}), visited {len(visited)} pages."
+            )
+            break
         node, depth = queue.popleft()  # Get the next node from the queue
         pbar.update(1)
         if node not in visited:
@@ -262,7 +337,10 @@ def parse_pdf_date(date_string):
 
 def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
     output = []
-    for pdf_url in tqdm(pdfs.keys(), ncols=100):
+    pdf_urls = list(pdfs.keys())
+    total = len(pdf_urls)
+    tqdm.write(f"Starting metadata fetch for {total} PDFs...")
+    for idx, pdf_url in enumerate(tqdm(pdf_urls, ncols=100)):
         source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
         texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
         try:
@@ -270,21 +348,10 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
             default_file_name = url_parsed.path.split("/")[-1]
             if len(default_file_name) == 0:
                 default_file_name = url_parsed.netloc.split("\\")[-1]
-            headers = {
-                "Content-Type": "application/pdf",
-                "Content-Disposition": "inline",
-            }
-            # Since we control domain lists, it feels safe enough to disable SSL verification.
-            # To enforce SSL cert verification, set verify to True.
-            response = requests.get(
-                url=pdf_url,
-                timeout=90,
-                headers=headers,
-                allow_redirects=True,
-                verify=False,
-            )
-            tqdm.write(f"Attempting metadata fetch for: {pdf_url}")
-            if response.status_code < 400:
+            tqdm.write(f"[{idx + 1}/{total}] Fetching: {pdf_url}")
+            response = fetch_with_retry(pdf_url)
+            if response is not None:
+                tqdm.write("  Downloaded, processing...")
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
@@ -292,12 +359,16 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                             raise RuntimeError(
                                 "Could not read document metadata to get page count."
                             )
+                        tqdm.write(
+                            f"  {pdf_file.page_count} pages, scanning for images/tables..."
+                        )
                         file_name = default_file_name
                         pdf_title = pdf_file.metadata.get("title")
                         if pdf_title and (len(pdf_title.strip()) > 0):
                             file_name = pdf_title
                         file_bytes = mem_obj.getbuffer().nbytes
                         n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                        tqdm.write(f"  Done: {n_images} images, {n_tables} tables")
                         modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
                         created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
                         row = {
@@ -325,6 +396,7 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                         tqdm.write(f"Document isn't a PDF: {pdf_url}")
         except Exception as e:
             tqdm.write(f"Error reading: {pdf_url} Error: {str(e)}")
+    tqdm.write(f"Finished processing {len(output)} PDFs, creating DataFrame...")
     return pd.DataFrame(output)
 
 
@@ -374,8 +446,11 @@ def add_crawl_date(pdf_df: pd.DataFrame) -> pd.DataFrame:
 
 def output_pdfs(pdf_df: pd.DataFrame, output_path: str, site_config: dict) -> None:
     if os.path.isdir(output_path):
-        output_path = f"{output_path}/{site_config.get("output_file")}"
+        output_file = site_config.get("output_file", "crawl_results.csv")
+        output_path = f"{output_path}/{output_file}"
+    print(f"Writing {len(pdf_df)} rows to {output_path}", flush=True)
     pdf_df.to_csv(output_path, index=False)
+    print(f"Done. Output saved to {output_path}", flush=True)
 
 
 if __name__ == "__main__":
@@ -391,6 +466,12 @@ if __name__ == "__main__":
         "--crawled_links_json",
         default=None,
         help="Skip the link gathering process and use a previously created JSON file.",
+    )
+    parser.add_argument(
+        "--max_pages",
+        type=int,
+        default=None,
+        help="Maximum number of pages to crawl (for testing).",
     )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
@@ -409,7 +490,7 @@ if __name__ == "__main__":
         sitemap, manual_crawl_delay = parse_robots_txt(args.url, args.delay)
 
         if use_sitemap:
-            all_pages = parse_sitemap(sitemap)
+            all_pages = parse_sitemap(sitemap, delay=manual_crawl_delay)
             tqdm.write(f"Pages found from sitemap: {len(all_pages)}")
 
             crawled_pdfs = get_all_pages(all_pages, delay=manual_crawl_delay)
@@ -423,14 +504,23 @@ if __name__ == "__main__":
                 delay=manual_crawl_delay,
                 max_depth=depth,
                 use_webdriver=use_webdriver,
+                max_pages=args.max_pages,
             )
         tqdm.write(f"PDFs found: {len(crawled_pdfs)}")
+        output_dir = os.path.dirname(args.output_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+            tqdm.write(f"Created output directory: {output_dir}")
         with open(args.output_path.replace(".csv", ".json"), "w") as f:
             json.dump(dict(crawled_pdfs), f, indent=4)
     else:
         with open(args.crawled_links_json) as f:
             crawled_pdfs = json.load(f)
     crawled_pdfs = add_pdf_metadata(crawled_pdfs)
+    print(
+        f"Metadata collection complete. {len(crawled_pdfs)} documents processed.",
+        flush=True,
+    )
     if args.comparison_crawl is not None:
         comparison_df = pd.read_csv(args.comparison_crawl)
         crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
