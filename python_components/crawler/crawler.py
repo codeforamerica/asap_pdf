@@ -80,7 +80,9 @@ def fetch_with_retry(url, timeout=90, wait_between_retries=2):
                 if strategy_index != preferred_strategy_index:
                     preferred_strategy_index = strategy_index
                 return response
-            tqdm.write(f"Strategy {strategy_index}: {url} returned status {response.status_code}")
+            tqdm.write(
+                f"Strategy {strategy_index}: {url} returned status {response.status_code}"
+            )
         except requests.exceptions.RequestException as e:
             tqdm.write(f"Strategy {strategy_index}: {url} failed: {e}")
         time.sleep(wait_between_retries)
@@ -258,7 +260,9 @@ def bfs_search_pdfs(
         tqdm.write(f"Will stop after {max_pages} pages.")
     while queue:
         if max_pages and len(visited) >= max_pages:
-            tqdm.write(f"Reached max_pages limit ({max_pages}), visited {len(visited)} pages.")
+            tqdm.write(
+                f"Reached max_pages limit ({max_pages}), visited {len(visited)} pages."
+            )
             break
         node, depth = queue.popleft()  # Get the next node from the queue
         pbar.update(1)
@@ -355,7 +359,9 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                             raise RuntimeError(
                                 "Could not read document metadata to get page count."
                             )
-                        tqdm.write(f"  {pdf_file.page_count} pages, scanning for images/tables...")
+                        tqdm.write(
+                            f"  {pdf_file.page_count} pages, scanning for images/tables..."
+                        )
                         file_name = default_file_name
                         pdf_title = pdf_file.metadata.get("title")
                         if pdf_title and (len(pdf_title.strip()) > 0):
@@ -511,7 +517,10 @@ if __name__ == "__main__":
         with open(args.crawled_links_json) as f:
             crawled_pdfs = json.load(f)
     crawled_pdfs = add_pdf_metadata(crawled_pdfs)
-    print(f"Metadata collection complete. {len(crawled_pdfs)} documents processed.", flush=True)
+    print(
+        f"Metadata collection complete. {len(crawled_pdfs)} documents processed.",
+        flush=True,
+    )
     if args.comparison_crawl is not None:
         comparison_df = pd.read_csv(args.comparison_crawl)
         crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
