@@ -128,20 +128,12 @@ def get_url(url, timeout=90, use_webdriver=False):
 
         return atags
     else:
-        print("Trying new style fetch.")
         response = fetch_with_retry(url, timeout=timeout)
         if response is None:
             return None
 
-        # Debug output
-        print(f"Content-Type: {response.headers.get('Content-Type')}")
-        print(f"Content-Encoding: {response.headers.get('Content-Encoding')}")
-        print(f"Content-Length: {len(response.content)}")
-        print(f"First 500 chars: {response.text[:500]}")
-
         soup = BeautifulSoup(response.content, "html.parser")
         atags = soup.find_all("a")
-        print(f"Found {len(atags)} links")
         return atags
 
 
@@ -253,6 +245,7 @@ def bfs_search_pdfs(
     max_depth=7,
     timeout=90,
     use_webdriver=False,
+    max_pages=None,
 ):
     # Restricts search to links sharing the same domain, capture all PDFs
     # along the way
@@ -261,7 +254,12 @@ def bfs_search_pdfs(
     pdfs = defaultdict(list)
 
     pbar = tqdm(unit=" pages")
+    if max_pages:
+        tqdm.write(f"Will stop after {max_pages} pages.")
     while queue:
+        if max_pages and len(visited) >= max_pages:
+            tqdm.write(f"Reached max_pages limit ({max_pages}), visited {len(visited)} pages.")
+            break
         node, depth = queue.popleft()  # Get the next node from the queue
         pbar.update(1)
         if node not in visited:
@@ -335,7 +333,10 @@ def parse_pdf_date(date_string):
 
 def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
     output = []
-    for pdf_url in tqdm(pdfs.keys(), ncols=100):
+    pdf_urls = list(pdfs.keys())
+    total = len(pdf_urls)
+    tqdm.write(f"Starting metadata fetch for {total} PDFs...")
+    for idx, pdf_url in enumerate(tqdm(pdf_urls, ncols=100)):
         source = list(set([dat["source"] for dat in pdfs[pdf_url]]))
         texts = list(set([dat["text"] for dat in pdfs[pdf_url]]))
         try:
@@ -343,9 +344,10 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
             default_file_name = url_parsed.path.split("/")[-1]
             if len(default_file_name) == 0:
                 default_file_name = url_parsed.netloc.split("\\")[-1]
-            tqdm.write(f"Attempting metadata fetch for: {pdf_url}")
+            tqdm.write(f"[{idx+1}/{total}] Fetching: {pdf_url}")
             response = fetch_with_retry(pdf_url)
             if response is not None:
+                tqdm.write(f"  Downloaded, processing...")
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
@@ -353,12 +355,14 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                             raise RuntimeError(
                                 "Could not read document metadata to get page count."
                             )
+                        tqdm.write(f"  {pdf_file.page_count} pages, scanning for images/tables...")
                         file_name = default_file_name
                         pdf_title = pdf_file.metadata.get("title")
                         if pdf_title and (len(pdf_title.strip()) > 0):
                             file_name = pdf_title
                         file_bytes = mem_obj.getbuffer().nbytes
                         n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                        tqdm.write(f"  Done: {n_images} images, {n_tables} tables")
                         modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
                         created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
                         row = {
@@ -386,6 +390,7 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                         tqdm.write(f"Document isn't a PDF: {pdf_url}")
         except Exception as e:
             tqdm.write(f"Error reading: {pdf_url} Error: {str(e)}")
+    tqdm.write(f"Finished processing {len(output)} PDFs, creating DataFrame...")
     return pd.DataFrame(output)
 
 
@@ -435,8 +440,11 @@ def add_crawl_date(pdf_df: pd.DataFrame) -> pd.DataFrame:
 
 def output_pdfs(pdf_df: pd.DataFrame, output_path: str, site_config: dict) -> None:
     if os.path.isdir(output_path):
-        output_path = f"{output_path}/{site_config.get("output_file")}"
+        output_file = site_config.get("output_file", "crawl_results.csv")
+        output_path = f"{output_path}/{output_file}"
+    print(f"Writing {len(pdf_df)} rows to {output_path}", flush=True)
     pdf_df.to_csv(output_path, index=False)
+    print(f"Done. Output saved to {output_path}", flush=True)
 
 
 if __name__ == "__main__":
@@ -452,6 +460,12 @@ if __name__ == "__main__":
         "--crawled_links_json",
         default=None,
         help="Skip the link gathering process and use a previously created JSON file.",
+    )
+    parser.add_argument(
+        "--max_pages",
+        type=int,
+        default=None,
+        help="Maximum number of pages to crawl (for testing).",
     )
     parser.add_argument(
         "output_path", help="Path where a CSV with PDF information will be saved"
@@ -484,14 +498,20 @@ if __name__ == "__main__":
                 delay=manual_crawl_delay,
                 max_depth=depth,
                 use_webdriver=use_webdriver,
+                max_pages=args.max_pages,
             )
         tqdm.write(f"PDFs found: {len(crawled_pdfs)}")
+        output_dir = os.path.dirname(args.output_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir, exist_ok=True)
+            tqdm.write(f"Created output directory: {output_dir}")
         with open(args.output_path.replace(".csv", ".json"), "w") as f:
             json.dump(dict(crawled_pdfs), f, indent=4)
     else:
         with open(args.crawled_links_json) as f:
             crawled_pdfs = json.load(f)
     crawled_pdfs = add_pdf_metadata(crawled_pdfs)
+    print(f"Metadata collection complete. {len(crawled_pdfs)} documents processed.", flush=True)
     if args.comparison_crawl is not None:
         comparison_df = pd.read_csv(args.comparison_crawl)
         crawled_pdfs = compare_crawled_documents(crawled_pdfs, comparison_df)
