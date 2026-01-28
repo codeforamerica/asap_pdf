@@ -19,7 +19,7 @@ gem "tzinfo-data", platforms: %i[windows jruby]
 gem "bootsnap", require: false
 gem "thruster", require: false
 
-gem "view_component", "~> 4.1"
+gem "view_component", "~> 4.2"
 gem "kaminari", "~> 1.2"
 
 gem "devise", "~> 4.9.4"
