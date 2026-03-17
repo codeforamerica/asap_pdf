@@ -133,7 +133,7 @@ jobs:
             --overwrite
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v1
+        uses: opentofu/setup-opentofu@v2
 
       - name: Initialize OpenTofu
         working-directory: ./terraform/config/${{ needs.determine_environment.outputs.env_name }}
