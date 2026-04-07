@@ -22,7 +22,7 @@ gem "thruster", require: false
 gem "view_component", "~> 4.1"
 gem "kaminari", "~> 1.2"
 
-gem "devise", "~> 4.9.4"
+gem "devise", "~> 5.0"
 gem "activerecord-session_store"
 
 group :development, :test do
