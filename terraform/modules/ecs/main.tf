@@ -26,7 +26,7 @@ module "fargate_service" {
 
   environment_variables = {
     RAILS_ENV           = var.rails_environment
-    THRUSTER_HTTP_PORT  = tostring(var.container_port)
+    PORT = tostring(var.container_port)
     WEB_CONCURRENCY     = "2"
     MALLOC_ARENA_MAX    = "2"
     RAILS_MAX_THREADS   = "5"

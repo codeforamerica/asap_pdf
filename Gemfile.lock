@@ -460,11 +460,11 @@ GEM
       railties (>= 6.0.0)
     stringio (3.2.0)
     thor (1.5.0)
-    thruster (0.1.20)
-    thruster (0.1.20-aarch64-linux)
-    thruster (0.1.20-arm64-darwin)
-    thruster (0.1.20-x86_64-darwin)
-    thruster (0.1.20-x86_64-linux)
+    thruster (0.1.15)
+    thruster (0.1.15-aarch64-linux)
+    thruster (0.1.15-arm64-darwin)
+    thruster (0.1.15-x86_64-darwin)
+    thruster (0.1.15-x86_64-linux)
     timeout (0.6.1)
     tsort (0.2.0)
     turbo-rails (2.0.23)
@@ -552,7 +552,7 @@ DEPENDENCIES
   smarter_csv
   standard
   stimulus-rails
-  thruster
+  thruster (= 0.1.15)
   turbo-rails
   tzinfo-data
   view_component (~> 4.1)
