@@ -17,11 +17,27 @@ data "aws_iam_policy_document" "lambda_ecr" {
   }
 }
 
-# ECR 30 day expiration policy.
+# ECR expiration policy. Protects "latest"-tagged images; expires everything else after 30 days.
 data "aws_ecr_lifecycle_policy_document" "thirty_day_expiration_policy" {
   rule {
     priority    = 1
-    description = "Remove all images older than 30 days old that are not associated with an active service."
+    description = "Protect latest-tagged images."
+
+    selection {
+      tag_status        = "tagged"
+      tag_pattern_list  = ["latest"]
+      count_type        = "imageCountMoreThan"
+      count_number      = 9999
+    }
+
+    action {
+      type = "expire"
+    }
+  }
+
+  rule {
+    priority    = 2
+    description = "Remove all other images older than 30 days."
 
     selection {
       tag_status   = "any"
