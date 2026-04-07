@@ -1,6 +1,6 @@
 backports.tarfile==1.2.0
 beautifulsoup4==4.13.3
-black==25.1.0
+black==26.3.1
 boto3==1.38.30
 deepeval==3.3.6
 flake8==7.1.2
