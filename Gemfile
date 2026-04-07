@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.1.1"
+gem "rails", "~> 8.1.3"
 gem "propshaft"
 gem "pg"
 gem "puma", ">= 5.0"
@@ -17,12 +17,12 @@ gem "chartkick"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 gem "bootsnap", require: false
-gem "thruster", require: false
+gem "thruster", "= 0.1.15", require: false
 
 gem "view_component", "~> 4.1"
 gem "kaminari", "~> 1.2"
 
-gem "devise", "~> 4.9.4"
+gem "devise", "~> 5.0"
 gem "activerecord-session_store"
 
 group :development, :test do

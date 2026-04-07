@@ -1,6 +1,6 @@
 awslambdaric==3.0.2
 backports.tarfile==1.2.0
-black==25.1.0
+black==26.3.1
 boto3==1.38.3
 coverage==7.8.2
 deepeval==3.3.6

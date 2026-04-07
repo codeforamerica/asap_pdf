@@ -8,8 +8,8 @@ jaraco-functools==4.3.0
 jaraco.collections==5.1.0
 llm-anthropic==0.18
 llm-gemini==0.25
-pillow==11.3.0
+pillow==12.1.1
 pip-chill==1.0.3
 pymupdf==1.25.5
-requests==2.32.5
+requests==2.33.0
 tomli==2.0.1
