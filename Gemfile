@@ -33,7 +33,7 @@ group :development, :test do
 end
 
 group :development do
-  gem "overcommit", "~> 0.68.0"
+  gem "overcommit", "~> 0.69.0"
   gem "better_errors", "~> 2.10"
   gem "ruby-lsp", "~> 0.26"
   gem "web-console"
