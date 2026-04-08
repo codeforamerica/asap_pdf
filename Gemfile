@@ -61,7 +61,7 @@ gem "aws-sdk-lambda"
 gem "aws-sigv4"
 
 # API and Documentation
-gem "grape", "~> 2.4"
+gem "grape", "~> 3.1"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 17.0"
