@@ -26,7 +26,7 @@ gem "devise", "~> 5.0"
 gem "activerecord-session_store"
 
 group :development, :test do
-  gem "brakeman", "~> 7.1", require: false
+  gem "brakeman", "~> 8.0", require: false
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "dotenv-rails", "~> 3.1"
   gem "standard"
