@@ -12,8 +12,7 @@ Features:
 The feature set is an approach to organize your audit for ADA compliance - the features do not remediate documents or identify which parts of documents are inaccessible.
 
 ## Contact
-Fill out [this Google Form](
-https://docs.google.com/forms/d/e/1FAIpQLSf2C4uKOgCTf-nrBM7bBWRSyNDELhE6c6EaHMN5Or71vyd7fw/viewform) to connect with Code for America and learn more.
+Fill out [this interest form](https://codeforamerica.org/partner-with-us/) to connect with Code for America and learn more.
 
 ## Architecture
 ASAP has two major architectural realms, a Ruby on Rails powered user interface and [Python components](docs/python_components.md), which provide many of the document processing and AI features. The Rails-based UI is not required. The Python components may each be used as standalone services.
