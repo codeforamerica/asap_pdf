@@ -425,7 +425,7 @@ GEM
     ruby2_keywords (0.0.5)
     rubyzip (3.2.2)
     securerandom (0.4.1)
-    selenium-webdriver (4.41.0)
+    selenium-webdriver (4.43.0)
       base64 (~> 0.2)
       logger (~> 1.4)
       rexml (~> 3.2, >= 3.2.5)
@@ -545,7 +545,7 @@ DEPENDENCIES
   rspec-rails (~> 8.0)
   ruby-lsp (~> 0.26)
   rubyzip
-  selenium-webdriver (~> 4.38)
+  selenium-webdriver (~> 4.43)
   shoulda (~> 4.0)
   shoulda-matchers (~> 4.5)
   simplecov
