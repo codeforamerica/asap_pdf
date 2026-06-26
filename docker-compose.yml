@@ -4,6 +4,7 @@ services:
     ports:
       - "4566:4566"  # LocalStack edge port
     environment:
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN:?LocalStack now requires an auth token. Get one at https://app.localstack.cloud and set LOCALSTACK_AUTH_TOKEN in your shell or a gitignored .env file.}
       - SERVICES=s3,lambda,logs,secretsmanager
       - AWS_DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
