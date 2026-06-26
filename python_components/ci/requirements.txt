@@ -12,7 +12,7 @@ jaraco-functools==4.2.1
 jaraco.collections==5.1.0
 llm==0.26
 pandas==2.2.3
-pip-chill==1.0.3
+pip-chill==1.0.5
 pymupdf==1.25.5
 pysocks==1.7.1
 pytest-httpserver==1.1.3
