@@ -12,4 +12,4 @@ pillow==12.1.1
 pip-chill==1.0.3
 pymupdf==1.25.5
 requests==2.33.0
-tomli==2.0.1
+tomli==2.4.1
