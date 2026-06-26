@@ -1,7 +1,7 @@
 backports.tarfile==1.2.0
 beautifulsoup4==4.13.3
 black==26.3.1
-boto3==1.38.30
+boto3==1.43.33
 deepeval==3.3.6
 flake8==7.1.2
 google-api-python-client==2.171.0
