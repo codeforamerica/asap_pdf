@@ -26,14 +26,14 @@ gem "devise", "~> 5.0"
 gem "activerecord-session_store"
 
 group :development, :test do
-  gem "brakeman", "~> 7.1", require: false
+  gem "brakeman", "~> 8.0", require: false
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "dotenv-rails", "~> 3.1"
   gem "standard"
 end
 
 group :development do
-  gem "overcommit", "~> 0.68.0"
+  gem "overcommit", "~> 0.69.0"
   gem "better_errors", "~> 2.10"
   gem "ruby-lsp", "~> 0.26"
   gem "web-console"
@@ -61,7 +61,7 @@ gem "aws-sdk-lambda"
 gem "aws-sigv4"
 
 # API and Documentation
-gem "grape", "~> 2.4"
+gem "grape", "~> 3.2"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 17.0"

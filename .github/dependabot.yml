@@ -21,3 +21,16 @@ updates:
   open-pull-requests-limit: 10
   cooldown:
     default-days: 7
+- package-ecosystem: pip
+  directories:
+    - "/python_components/accessibility_scan"
+    - "/python_components/ci"
+    - "/python_components/classifier"
+    - "/python_components/crawler"
+    - "/python_components/document_inference"
+    - "/python_components/evaluation"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  cooldown:
+    default-days: 7
