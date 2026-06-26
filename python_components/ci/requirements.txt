@@ -9,7 +9,7 @@ google-auth-oauthlib==1.2.2
 inflect==7.3.1
 isort==6.0.1
 jaraco-functools==4.2.1
-jaraco.collections==5.1.0
+jaraco.collections==5.2.1
 llm==0.26
 pandas==2.2.3
 pip-chill==1.0.3
