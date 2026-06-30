@@ -44,7 +44,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2.1.5
 
       - name: Setup OpenTofu
-        uses: opentofu/setup-opentofu@v2
+        uses: opentofu/setup-opentofu@v2.0.1
 
       - name: Initialize OpenTofu
         working-directory: ./terraform/config/${{ github.event.inputs.environment }}
