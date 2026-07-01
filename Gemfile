@@ -65,3 +65,5 @@ gem "grape", "~> 3.2"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 17.0"
+
+gem 'net-imap', '>= 0.6.4.1'
