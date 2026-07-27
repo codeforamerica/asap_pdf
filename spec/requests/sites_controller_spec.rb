@@ -5,8 +5,8 @@ RSpec.describe SitesController, type: :request do
 
   describe "GET workflow_audit_report" do
     let(:site) { create(:site) }
-    let(:bucket_name) { "test-bucket" }
-    let(:file_key) { "reports/audit.csv" }
+    let(:bucket_name) { Rails.application.config.default_s3_bucket }
+    let(:file_key) { "reports/#{site.machine_name}/audit.csv" }
     let(:file_content) { "id,name,status\n1,doc1,complete" }
 
     let(:s3_response) do
@@ -16,8 +16,9 @@ RSpec.describe SitesController, type: :request do
       }
     end
 
+    let(:s3_manager) { instance_double(AwsS3Manager) }
+
     before do
-      s3_manager = instance_double(AwsS3Manager)
       allow(AwsS3Manager).to receive(:new).and_return(s3_manager)
       allow(s3_manager).to receive(:get_object!).and_return(s3_response)
     end
@@ -42,11 +43,44 @@ RSpec.describe SitesController, type: :request do
 
       before { login_as(user, scope: :user) }
 
-      it "serves the file" do
+      it "serves a file under its own site's prefix" do
         get workflow_audit_report_site_path(site, bucket_name: bucket_name, key: file_key)
 
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq(file_content)
+      end
+
+      it "refuses a non-default bucket without hitting S3" do
+        expect(s3_manager).not_to receive(:get_object!)
+
+        get workflow_audit_report_site_path(site, bucket_name: "some-other-bucket", key: file_key)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "refuses a key under another site's prefix" do
+        other_site = create(:site)
+
+        get workflow_audit_report_site_path(site, bucket_name: bucket_name, key: "reports/#{other_site.machine_name}/audit.csv")
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "refuses a key outside any reports prefix" do
+        get workflow_audit_report_site_path(site, bucket_name: bucket_name, key: "secrets/credentials.csv")
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it "enforces the trailing-slash boundary against sibling prefixes" do
+        revenue = create(:site, name: "Revenue")
+        revenue_user = create(:user, site: revenue)
+        login_as(revenue_user, scope: :user)
+
+        # "revenue" is a prefix of "revenue_dept" — must not be readable.
+        get workflow_audit_report_site_path(revenue, bucket_name: bucket_name, key: "reports/revenue_dept/audit.csv")
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
