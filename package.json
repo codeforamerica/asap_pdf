@@ -17,7 +17,7 @@
     "chartkick": "^5.0.1",
     "daisyui": "^4.12.23",
     "postcss": "^8.5.15",
-    "swagger-ui-dist": "^5.32.6",
+    "swagger-ui-dist": "^5.32.10",
     "tailwindcss": "^3.4.1"
   }
 }
