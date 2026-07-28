@@ -60,10 +60,13 @@ class SitesController < AuthenticatedController
   end
 
   def workflow_audit_report
+    key = params[:key]
+    key = key.start_with?("/") ? key : "/#{key}"
+    unless authorized_report_location?(params[:bucket_name], key)
+      return render plain: "File not found", status: 404
+    end
     s3_manager = AwsS3Manager.new
     begin
-      key = params[:key]
-      key = key.start_with?("/") ? key : "/#{key}"
       response = s3_manager.get_object!(params[:bucket_name], key)
       send_data response[:body].read,
         filename: File.basename(key),
@@ -78,6 +81,16 @@ class SitesController < AuthenticatedController
   end
 
   private
+
+  # Constrain audit-report downloads to the app's own bucket and to the
+  # requesting site's own reports/<machine_name>/ prefix. @site is the URL's
+  # site, already authorized by ensure_user_site_access. The trailing slash is
+  # load-bearing: without it, slug "revenue" could read "revenue_dept"'s keys.
+  # Returns the same 404 as a missing key so no bucket/key oracle leaks.
+  def authorized_report_location?(bucket_name, normalized_key)
+    bucket_name == Rails.application.config.default_s3_bucket &&
+      normalized_key.start_with?("/reports/#{@site.machine_name}/")
+  end
 
   def site_params
     params.require(:site).permit(:name, :location, :primary_url)
