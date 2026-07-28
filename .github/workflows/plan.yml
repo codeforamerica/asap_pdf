@@ -24,7 +24,9 @@ jobs:
       name: ${{ github.event.inputs.environment }}
     steps:
       - name: Config Directory
-        run: echo "Tofu config directory ./terraform/config/${{ github.event.inputs.environment }}"
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: echo "Tofu config directory ./terraform/config/$ENVIRONMENT"
 
       - name: Checkout
         uses: actions/checkout@v7
