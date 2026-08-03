@@ -107,4 +107,37 @@ RSpec.describe SitesController, type: :request do
       end
     end
   end
+
+  describe "POST create_workflow_audit_report" do
+    let(:site) { create(:site) }
+
+    after { Warden.test_reset! }
+
+    # Request specs carry no CSRF token; disable forgery protection for this
+    # spec only so the POST reaches the authorization check instead of being
+    # rejected with a 422 first.
+    around do |example|
+      original = ActionController::Base.allow_forgery_protection
+      ActionController::Base.allow_forgery_protection = false
+      example.run
+      ActionController::Base.allow_forgery_protection = original
+    end
+
+    context "as a non-admin assigned to a different site" do
+      let(:other_site) { create(:site) }
+      let(:user) { create(:user, site: other_site) }
+
+      before { login_as(user, scope: :user) }
+
+      it "refuses to generate a report for a site the user cannot access" do
+        expect_any_instance_of(Site).not_to receive(:export_document_audit!)
+
+        post create_workflow_audit_report_site_path(site)
+
+        expect(response).to redirect_to(sites_path)
+        follow_redirect!
+        expect(response.body).to include("You don&#39;t have permission to access that site.")
+      end
+    end
+  end
 end
