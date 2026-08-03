@@ -159,11 +159,13 @@ jobs:
 
       - name: Read JSON file and set matrix
         id: set-matrix
+        env:
+          LIMIT_TO_DOCUMENT: ${{ github.event.inputs.limit_to_document }}
         run: |
-          if [ -z "${{ github.event.inputs.limit_to_document }}" ]; then
+          if [ -z "$LIMIT_TO_DOCUMENT" ]; then
             matrix=$(jq -c '.' ./python_components/evaluation/truthset.json)
           else
-            matrix=$(jq -c '[.[] | select(.file_name == "${{ github.event.inputs.limit_to_document }}")]' ./python_components/evaluation/truthset.json)
+            matrix=$(jq -c '[.[] | select(.file_name == "'"$LIMIT_TO_DOCUMENT"'")]' ./python_components/evaluation/truthset.json)
           fi
           echo "Matrix data: $matrix"
           echo "matrix=$matrix" >> $GITHUB_OUTPUT      
