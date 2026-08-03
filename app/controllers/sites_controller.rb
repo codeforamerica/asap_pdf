@@ -3,7 +3,7 @@ class SitesController < AuthenticatedController
   include ParamsHelper
 
   before_action :find_site, only: [:show, :edit, :update, :destroy, :create_workflow_audit_report, :workflow_audit_report]
-  before_action :ensure_user_site_access, only: [:show, :edit, :update, :destroy, :workflow_audit_report]
+  before_action :ensure_user_site_access, only: [:show, :edit, :update, :destroy, :create_workflow_audit_report, :workflow_audit_report]
 
   def index
     @sites = if current_user.is_site_admin?
