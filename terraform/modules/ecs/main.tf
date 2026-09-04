@@ -23,6 +23,7 @@ module "fargate_service" {
   create_version_parameter = true
   public                   = true
   health_check_path        = "/up"
+  otel_collector_version   = "v0.49.0"
 
   environment_variables = {
     RAILS_ENV           = var.rails_environment
