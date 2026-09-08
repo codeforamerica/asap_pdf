@@ -112,6 +112,8 @@ module "deployment" {
   document_inference_lambda_arn            = module.lambda.document_inference_lambda_arn
   document_inference_evaluation_lambda_arn = module.lambda.document_inference_evaluation_lambda_arn
   evaluation_lambda_arn                    = module.lambda.evaluation_lambda_arn
+  ecs_execution_role_arn                   = module.ecs.execution_role_arn
+  ecs_task_role_arn                        = module.ecs.task_role_arn
   github_branch                            = var.github_branch
   github_environment                       = var.github_environment
 }

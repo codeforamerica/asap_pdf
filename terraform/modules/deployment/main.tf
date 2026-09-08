@@ -235,9 +235,11 @@ resource "aws_iam_role_policy" "github_actions" {
       {
         Effect = "Allow"
         Action = "iam:PassRole"
+        # Read from the ECS module so an upstream role rename cannot silently
+        # break RegisterTaskDefinition in CI.
         Resource = [
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-execution",
-          "arn:aws:iam::${var.aws_account_id}:role/${var.project_name}-${var.environment}-app-task"
+          var.ecs_execution_role_arn,
+          var.ecs_task_role_arn
         ]
       },
       {
