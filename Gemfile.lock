@@ -250,6 +250,7 @@ GEM
     marcel (1.1.0)
     matrix (0.4.3)
     mini_mime (1.1.5)
+    mini_portile2 (2.8.9)
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
@@ -257,7 +258,7 @@ GEM
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     mustermann (4.0.0)
-    net-imap (0.6.3)
+    net-imap (0.6.4.1)
       date
       net-protocol
     net-pop (0.1.2)
@@ -267,6 +268,9 @@ GEM
     net-smtp (0.5.1)
       net-protocol
     nio4r (2.7.5)
+    nokogiri (1.19.4)
+      mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
     nokogiri (1.19.4-aarch64-linux-gnu)
       racc (~> 1.4)
     nokogiri (1.19.4-aarch64-linux-musl)
@@ -504,6 +508,7 @@ PLATFORMS
   arm-linux-gnu
   arm-linux-musl
   arm64-darwin
+  ruby
   x86_64-darwin
   x86_64-linux
   x86_64-linux-gnu
@@ -535,6 +540,7 @@ DEPENDENCIES
   httpparty
   jsbundling-rails
   kaminari (~> 1.2)
+  net-imap (>= 0.6.4.1)
   overcommit (~> 0.69.0)
   paper_trail (~> 17.0)
   pg
