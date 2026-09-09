@@ -31,6 +31,11 @@ resource "aws_db_parameter_group" "main" {
     value = "1"
   }
 
+  parameter {
+    name  = "rds.force_ssl"
+    value = "1"
+  }
+
   tags = {
     Name = "${var.project_name}-${var.environment}-parameter-group"
   }
