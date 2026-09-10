@@ -7,5 +7,5 @@ pip-chill==1.0.3
 platformdirs==4.2.2
 pytest==8.3.5
 scikit-learn==1.6.1
-tomli==2.0.1
+tomli==2.4.1
 xgboost==2.1.4
