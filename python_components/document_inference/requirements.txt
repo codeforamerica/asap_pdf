@@ -5,7 +5,7 @@ document-inference==0.0.0
 importlib-metadata==8.0.0
 inflect==7.3.1
 jaraco-functools==4.3.0
-jaraco.collections==5.1.0
+jaraco.collections==5.2.1
 llm-anthropic==0.18
 llm-gemini==0.25
 pillow==12.1.1
