@@ -117,7 +117,7 @@ GEM
       rouge (>= 1.0.0)
     bigdecimal (4.1.2)
     bindex (0.8.1)
-    bootsnap (1.23.0)
+    bootsnap (1.24.6)
       msgpack (~> 1.2)
     brakeman (8.0.5)
       racc
@@ -253,7 +253,7 @@ GEM
     minitest (6.0.6)
       drb (~> 2.0)
       prism (~> 1.5)
-    msgpack (1.8.0)
+    msgpack (1.8.3)
     multi_xml (0.8.1)
       bigdecimal (>= 3.1, < 5)
     mustermann (4.0.0)
