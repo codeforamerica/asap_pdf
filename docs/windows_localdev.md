@@ -17,7 +17,7 @@ We've tested two approaches for Windows development:
 
 1. Follow the [Rails community WSL setup guide](https://gorails.com/setup/windows/11)
 2. Use these specific versions:
-    - Ruby 3.3.4
+    - Ruby 3.4.12
     - Node 24.22.1
 3. **Stop before the "Final Steps" section** and follow the instructions below instead
 
