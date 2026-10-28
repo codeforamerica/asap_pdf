@@ -41,7 +41,7 @@ The following instructions are intended for local development on macOS or Linux 
 
 Before you begin, ensure you have the following installed:
 
-* Ruby 3.3.4 (we recommend using a version manager like `rbenv` or `rvm`)
+* Ruby 3.4.12 (we recommend using a version manager like `rbenv` or `rvm`)
 * Node.js 24.4.1 (we recommend using `nvm` for version management)
 * Yarn (latest version)
 * PostgreSQL locally or in a container
