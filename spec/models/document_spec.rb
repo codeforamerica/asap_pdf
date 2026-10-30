@@ -81,4 +81,28 @@ RSpec.describe Document, type: :model do
       expect(complex_document_tables.complexity).to eq(Document::COMPLEX_STATUS)
     end
   end
+
+  describe "inference callback endpoint (SSRF guard)" do
+    let(:document) { create(:document) }
+
+    it "derives asap_endpoint from the configured host, ignoring a caller-supplied host" do
+      # Force the non-local (staging/prod) branch, where the callback host matters.
+      allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new("staging"))
+
+      lambda_manager = instance_double(AwsLambdaManager)
+      allow(AwsLambdaManager).to receive(:new).and_return(lambda_manager)
+
+      captured = nil
+      allow(lambda_manager).to receive(:invoke_lambda!) do |payload|
+        captured = payload
+        double("response", body: {statusCode: 200, body: "ok"}.to_json)
+      end
+
+      configured_host = Rails.application.config.action_mailer.default_url_options[:host]
+      document.inference_recommendation!("http://attacker.example.com")
+
+      expect(captured[:asap_endpoint]).to eq("https://#{configured_host}/api/documents/#{document.id}/inference")
+      expect(captured[:asap_endpoint]).not_to include("attacker.example.com")
+    end
+  end
 end

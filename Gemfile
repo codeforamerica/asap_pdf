@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "rails", "~> 8.1.3"
+gem "rails", "~> 8.1.3.1"
 gem "propshaft"
 gem "pg"
 gem "puma", ">= 5.0"
@@ -65,3 +65,5 @@ gem "grape", "~> 3.2"
 gem "grape-swagger"
 
 gem "paper_trail", "~> 17.0"
+
+gem "net-imap", ">= 0.6.4.1"
