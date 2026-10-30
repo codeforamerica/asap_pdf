@@ -198,6 +198,7 @@ class Document < ApplicationRecord
       else
         aws_env = (Rails.env == "production") ? "prod" : Rails.env
         lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
+        api_host = callback_base_url
       end
       payload = {
         model_name: "gemini-2.5-flash",
@@ -230,6 +231,7 @@ class Document < ApplicationRecord
     else
       aws_env = (Rails.env == "production") ? "prod" : Rails.env
       lambda_manager = AwsLambdaManager.new(function_name: "asap-pdf-document-inference-#{aws_env}")
+      api_host = callback_base_url
     end
     payload = {
       model_name: "gemini-2.5-pro",
@@ -298,6 +300,13 @@ class Document < ApplicationRecord
   end
 
   private
+
+  # Base URL the inference Lambda posts results back to. Derived from server-side
+  # config (never the request), so a spoofed X-Forwarded-Host can't redirect the
+  # Lambda's outbound callback to an attacker (SSRF).
+  def callback_base_url
+    "https://#{Rails.application.config.action_mailer.default_url_options[:host]}"
+  end
 
   def recursive_decode(url)
     decoded_url = URI::DEFAULT_PARSER.unescape(url)

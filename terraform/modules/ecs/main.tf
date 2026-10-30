@@ -1,5 +1,5 @@
 module "fargate_service" {
-  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.6.1"
+  source = "github.com/codeforamerica/tofu-modules-aws-fargate-service?ref=1.14.0"
 
   project       = var.project_name
   project_short = var.project_name
@@ -23,6 +23,7 @@ module "fargate_service" {
   create_version_parameter = true
   public                   = true
   health_check_path        = "/up"
+  otel_collector_version   = "v0.49.0"
 
   environment_variables = {
     RAILS_ENV           = var.rails_environment

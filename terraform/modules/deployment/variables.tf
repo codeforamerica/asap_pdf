@@ -40,6 +40,16 @@ variable "evaluation_lambda_arn" {
   type        = string
 }
 
+variable "ecs_execution_role_arn" {
+  description = "ARN of the ECS task execution role that deployments must pass."
+  type        = string
+}
+
+variable "ecs_task_role_arn" {
+  description = "ARN of the ECS task role that deployments must pass."
+  type        = string
+}
+
 variable "backend_kms_arn" {
   description = "Backend module's KMS key."
   type        = string

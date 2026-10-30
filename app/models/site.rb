@@ -129,6 +129,13 @@ class Site < ApplicationRecord
   validates :location, presence: true
   validates :primary_url, presence: true, uniqueness: true
   validate :ensure_safe_url
+  validate :machine_name_must_be_unique
+
+  # Filesystem/S3-safe identifier derived from the name. Used to scope this
+  # site's audit-report keys under reports/<machine_name>/.
+  def machine_name
+    name.to_s.downcase.gsub(/\W+/, "_")
+  end
 
   after_initialize :after_initialize
 
@@ -299,7 +306,7 @@ class Site < ApplicationRecord
   def export_document_audit!(current_user)
     assert_s3_manager
     bucket_name = Rails.application.config.default_s3_bucket
-    machine_site_name = name.downcase.gsub(/\W+/, "_")
+    machine_site_name = machine_name
     report_name = "audit_export_#{machine_site_name}_#{Time.now.strftime("%Y-%m-%dT%H-%M-%S")}"
     Tempfile.create([report_name, ".csv"]) do |temp_file|
       CSV.open(temp_file.path, "wb") do |csv|
@@ -319,7 +326,7 @@ class Site < ApplicationRecord
   def get_document_audit_exports!
     assert_s3_manager
     bucket_name = Rails.application.config.default_s3_bucket
-    machine_site_name = name.downcase.gsub(/\W+/, "_")
+    machine_site_name = machine_name
     {
       bucket_name: bucket_name,
       files: @s3_manager.get_files!(bucket_name, "/reports/#{machine_site_name}")
@@ -344,6 +351,16 @@ class Site < ApplicationRecord
   end
 
   private
+
+  # Two distinct names can normalize to the same machine_name (e.g. "SLC Gov"
+  # and "SLC.gov" both become "slc_gov"), which would let them share a
+  # reports/<machine_name>/ prefix and defeat per-site scoping. Guard against it.
+  def machine_name_must_be_unique
+    return if name.blank?
+    if Site.where.not(id: id).any? { |other| other.machine_name == machine_name }
+      errors.add(:name, "conflicts with an existing site's report identifier")
+    end
+  end
 
   def assert_s3_manager
     if @s3_manager.nil?
