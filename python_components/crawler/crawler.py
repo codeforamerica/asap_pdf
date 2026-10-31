@@ -355,7 +355,10 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                 with io.BytesIO(response.content) as mem_obj:
                     try:
                         pdf_file = pymupdf.Document(stream=mem_obj)
-                        if pdf_file.page_count is None or pdf_file.page_count == 0:
+                        if not pdf_file.is_pdf:
+                            tqdm.write(f"Document isn't a PDF: {pdf_url}")
+                            continue
+                        elif pdf_file.page_count is None or pdf_file.page_count == 0:
                             raise RuntimeError(
                                 "Could not read document metadata to get page count."
                             )
