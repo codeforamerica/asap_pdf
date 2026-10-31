@@ -30,6 +30,9 @@ def test_parse_pdf_date():
     assert parse_pdf_date("D:20000102030405-06'00'") == datetime.datetime(
         2000, 1, 2, 3, 4, 5
     )
+    assert parse_pdf_date(None) is None
+    assert parse_pdf_date("D:2022") is None
+    assert parse_pdf_date("not a date") is None
 
 
 def test_comparison():
