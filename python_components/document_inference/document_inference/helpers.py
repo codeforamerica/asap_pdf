@@ -93,18 +93,18 @@ def get_file(url: str, output_path: str, wait_to_retry: int = 2) -> str:
 def pdf_to_attachments(
     pdf_path: str, output_path: str, page_limit: int, dpi=100
 ) -> list:
-    with fitz.open(pdf_path) as doc:
-        attachments = []
-        file_name = os.path.splitext(os.path.basename(pdf_path))[0]
-        logger.info(f"Found {doc.page_count} pages total.")
-        for page_num in range(doc.page_count):
-            if page_num >= page_limit:
-                break
-            page = doc.load_page(page_num)
-            page_path = f"{output_path}/{file_name}-{page_num}.jpg"
-            pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
-            pix.save(page_path)
-            attachments.append(llm.Attachment(path=page_path, type="image/jpeg"))
+    doc = fitz.open(pdf_path)
+    attachments = []
+    file_name = os.path.splitext(os.path.basename(pdf_path))[0]
+    logger.info(f"Found {doc.page_count} pages total.")
+    for page_num in range(doc.page_count):
+        if page_num >= page_limit:
+            break
+        page = doc.load_page(page_num)
+        page_path = f"{output_path}/{file_name}-{page_num}.jpg"
+        pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72))
+        pix.save(page_path)
+        attachments.append(llm.Attachment(path=page_path, type="image/jpeg"))
     return attachments
 
 
