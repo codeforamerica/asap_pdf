@@ -328,11 +328,14 @@ def get_images_and_tables(pages, min_width=100, min_height=100):
 
 def parse_pdf_date(date_string):
     # Removes the timeszone information from the date string
-    if len(date_string) == 0:
+    if not date_string:
         return None
     if date_string.startswith("D:"):
-        return datetime.datetime.strptime(date_string[2:16], "%Y%m%d%H%M%S")
-    return datetime.datetime.strptime(date_string[:16], "%Y%m%d%H%M%S")
+        date_string = date_string[2:]
+    try:
+        return datetime.datetime.strptime(date_string[:14], "%Y%m%d%H%M%S")
+    except ValueError:
+        return None
 
 
 def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
@@ -354,44 +357,51 @@ def add_pdf_metadata(pdfs: dict) -> pd.DataFrame:
                 tqdm.write("  Downloaded, processing...")
                 with io.BytesIO(response.content) as mem_obj:
                     try:
-                        pdf_file = pymupdf.Document(stream=mem_obj)
-                        if pdf_file.page_count is None or pdf_file.page_count == 0:
-                            raise RuntimeError(
-                                "Could not read document metadata to get page count."
+                        with pymupdf.Document(stream=mem_obj) as pdf_file:
+                            if not pdf_file.is_pdf:
+                                tqdm.write(f"Document isn't a PDF: {pdf_url}")
+                                continue
+                            elif (
+                                pdf_file.page_count is None or pdf_file.page_count == 0
+                            ):
+                                raise RuntimeError(
+                                    "Could not read document metadata to get page count."
+                                )
+                            tqdm.write(
+                                f"  {pdf_file.page_count} pages, scanning for images/tables..."
                             )
-                        tqdm.write(
-                            f"  {pdf_file.page_count} pages, scanning for images/tables..."
-                        )
-                        file_name = default_file_name
-                        pdf_title = pdf_file.metadata.get("title")
-                        if pdf_title and (len(pdf_title.strip()) > 0):
-                            file_name = pdf_title
-                        file_bytes = mem_obj.getbuffer().nbytes
-                        n_images, n_tables = get_images_and_tables(pdf_file.pages())
-                        tqdm.write(f"  Done: {n_images} images, {n_tables} tables")
-                        modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
-                        created = parse_pdf_date(pdf_file.metadata.get("creationDate"))
-                        row = {
-                            "file_name": file_name,
-                            "url": pdf_url,
-                            "file_size": convert_bytes(file_bytes),
-                            "file_size_kilobytes": file_bytes / 1024,
-                            "last_modified_date": modified,
-                            "author": pdf_file.metadata.get("author"),
-                            "subject": pdf_file.metadata.get("subject"),
-                            "keywords": pdf_file.metadata.get("keywords"),
-                            "creation_date": created,
-                            "producer": pdf_file.metadata.get("producer"),
-                            "number_of_pages": pdf_file.page_count,
-                            "number_of_tables": n_tables,
-                            "number_of_images": n_images,
-                            # TODO: This is consistent with current behavior, but
-                            # pdf_file.version_count might be more appropriate
-                            "version": pdf_file.metadata.get("format"),
-                            "source": source,
-                            "text_around_link": texts,
-                        }
-                        output.append(row)
+                            file_name = default_file_name
+                            pdf_title = pdf_file.metadata.get("title")
+                            if pdf_title and (len(pdf_title.strip()) > 0):
+                                file_name = pdf_title
+                            file_bytes = mem_obj.getbuffer().nbytes
+                            n_images, n_tables = get_images_and_tables(pdf_file.pages())
+                            tqdm.write(f"  Done: {n_images} images, {n_tables} tables")
+                            modified = parse_pdf_date(pdf_file.metadata.get("modDate"))
+                            created = parse_pdf_date(
+                                pdf_file.metadata.get("creationDate")
+                            )
+                            row = {
+                                "file_name": file_name,
+                                "url": pdf_url,
+                                "file_size": convert_bytes(file_bytes),
+                                "file_size_kilobytes": file_bytes / 1024,
+                                "last_modified_date": modified,
+                                "author": pdf_file.metadata.get("author"),
+                                "subject": pdf_file.metadata.get("subject"),
+                                "keywords": pdf_file.metadata.get("keywords"),
+                                "creation_date": created,
+                                "producer": pdf_file.metadata.get("producer"),
+                                "number_of_pages": pdf_file.page_count,
+                                "number_of_tables": n_tables,
+                                "number_of_images": n_images,
+                                # TODO: This is consistent with current behavior, but
+                                # pdf_file.version_count might be more appropriate
+                                "version": pdf_file.metadata.get("format"),
+                                "source": source,
+                                "text_around_link": texts,
+                            }
+                            output.append(row)
                     except pymupdf.FileDataError:  # noqa:
                         tqdm.write(f"Document isn't a PDF: {pdf_url}")
         except Exception as e:
