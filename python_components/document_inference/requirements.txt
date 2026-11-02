@@ -11,5 +11,5 @@ llm-gemini==0.25
 pillow==13.0.0
 pip-chill==1.0.3
 pymupdf==1.28.0
-requests==2.33.0
+requests==2.34.0
 tomli==2.0.1

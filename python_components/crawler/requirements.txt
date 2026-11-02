@@ -5,7 +5,7 @@ inflect==7.3.1
 jaraco-functools==4.3.0
 jaraco.collections==5.1.0
 lxml==5.3.1
-pandas==2.2.3
+pandas==3.0.6
 pip-chill==1.0.3
 platformdirs==4.2.2
 pymupdf==1.28.0
