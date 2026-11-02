@@ -50,7 +50,7 @@ def get_features(pdfs_path):
             if ((len(chars) > 0) and (chars != "pdf"))
         ]
     )
-    pdfs["producer"] = pdfs["producer"].astype(str)
+    pdfs["producer"] = pdfs["producer"].fillna("").astype(str)
     pdfs["producer_keywords"] = pdfs["producer"].apply(
         lambda x: [
             chars.lower() for chars in re.split("[^a-zA-Z]", x) if ((len(chars) > 0))
@@ -139,7 +139,8 @@ def get_predictions(feature_matrix, model_path):
 
     feature_matrix = feature_matrix[list(model_features)]
     candidate_features = set(feature_matrix.columns)
-    assert candidate_features == model_features
+    if candidate_features != model_features:
+        raise Exception("Candidate features do not match the model features")
 
     feature_matrix = feature_matrix.sort_index(axis=1)
     prediction_probs = model.predict_proba(feature_matrix)
