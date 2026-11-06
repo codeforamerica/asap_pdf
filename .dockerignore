@@ -49,6 +49,24 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+/docker-compose.yml
 
 # Ignore terraform, we don't need it in production.
 terraform
+
+# Ignore the Python components. They are built into their own images, and
+# their dependency manifests would otherwise be reported by image scanners.
+/python_components
+
+# Ignore tests, documentation, and tooling that aren't needed at runtime.
+/spec
+/test
+/docs
+/swagger
+/script
+
+# Ignore editor and OS files.
+**/.DS_Store
+**/.idea
+**/.vscode
+**/*~
