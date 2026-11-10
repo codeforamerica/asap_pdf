@@ -2,6 +2,7 @@ version: 2
 updates:
   - package-ecosystem: "bundler"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -19,6 +20,7 @@ updates:
 
   - package-ecosystem: "github-actions"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -30,6 +32,7 @@ updates:
 
   - package-ecosystem: "npm"
     directory: "/"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
@@ -53,6 +56,7 @@ updates:
       - "/python_components/crawler"
       - "/python_components/document_inference"
       - "/python_components/evaluation"
+    target-branch: "dev"
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
