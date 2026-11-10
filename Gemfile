@@ -69,5 +69,8 @@ gem "paper_trail", "~> 17.0"
 gem "net-imap", ">= 0.6.4.1"
 
 gem "activestorage", ">= 8.1.4.1"
+<<<<<<< HEAD
 
 gem "websocket-driver", ">= 0.8.2"
+=======
+>>>>>>> main
