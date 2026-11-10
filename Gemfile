@@ -17,10 +17,10 @@ gem "chartkick"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 gem "bootsnap", require: false
-gem "thruster", "= 0.1.15", require: false
+gem "thruster", "0.1.27", require: false
 
-gem "view_component", "~> 4.1"
-gem "kaminari", "~> 1.2"
+gem "view_component", "~> 4.23"
+gem "kaminari", "~> 1.3"
 
 gem "devise", "~> 5.0"
 gem "activerecord-session_store"
@@ -55,7 +55,7 @@ group :test do
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.208"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.239"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"
