@@ -6,7 +6,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       ruby-dev-tooling:
         dependency-type: "development"
@@ -23,7 +23,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       actions-minor-patch:
         update-types: ["minor", "patch"]
@@ -34,7 +34,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       css-toolchain:
         patterns:
@@ -57,7 +57,7 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 7
+      default-days: 3
     groups:
       python-dev-tooling:
         patterns:
