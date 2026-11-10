@@ -1,8 +1,8 @@
 axe-selenium-python==2.1.6
 backports.tarfile==1.2.0
 importlib-metadata==8.0.0
-jaraco.collections==5.1.0
-pip-chill==1.0.3
-platformdirs==4.2.2
+jaraco.collections==5.2.1
+pip-chill==1.0.5
+platformdirs==4.14.5
 pysocks==1.7.1
-tomli==2.0.1
+tomli==2.5.0
