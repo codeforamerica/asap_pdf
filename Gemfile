@@ -11,7 +11,7 @@ gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
 gem "httpparty"
 gem "rubyzip"
-gem "smarter_csv"
+gem "smarter_csv", '>= 1.19.0'
 gem "chartkick"
 
 gem "tzinfo-data", platforms: %i[windows jruby]
