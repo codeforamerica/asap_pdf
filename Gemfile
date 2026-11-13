@@ -17,23 +17,23 @@ gem "chartkick"
 gem "tzinfo-data", platforms: %i[windows jruby]
 
 gem "bootsnap", require: false
-gem "thruster", "= 0.1.15", require: false
+gem "thruster", "0.1.27", require: false
 
-gem "view_component", "~> 4.1"
-gem "kaminari", "~> 1.2"
+gem "view_component", "~> 4.23"
+gem "kaminari", "~> 1.3"
 
 gem "devise", "~> 5.0"
 gem "activerecord-session_store"
 
 group :development, :test do
-  gem "brakeman", "~> 8.0", require: false
+  gem "brakeman", "~> 8.1", require: false
   gem "debug", platforms: %i[mri windows], require: "debug/prelude"
   gem "dotenv-rails", "~> 3.1"
   gem "standard"
 end
 
 group :development do
-  gem "overcommit", "~> 0.69.0"
+  gem "overcommit", "~> 0.75.0"
   gem "better_errors", "~> 2.10"
   gem "ruby-lsp", "~> 0.26"
   gem "web-console"
@@ -43,7 +43,7 @@ end
 
 group :test do
   gem "rspec", "~> 3.13"
-  gem "rspec-rails", "~> 8.0"
+  gem "rspec-rails", "~> 8.1"
   gem "shoulda", "~> 4.0"
   gem "shoulda-matchers", "~> 4.5"
   gem "simplecov", require: false
@@ -51,11 +51,11 @@ group :test do
   gem "factory_bot_rails", "~> 6.5"
   gem "capybara"
   gem "capybara-email"
-  gem "selenium-webdriver", "~> 4.38"
+  gem "selenium-webdriver", "~> 4.52"
 end
 
 gem "bcrypt", "~> 3.1"
-gem "aws-sdk-s3", "~> 1.208"  # For S3 versioning support
+gem "aws-sdk-s3", "~> 1.240"  # For S3 versioning support
 gem "aws-sdk-secretsmanager"
 gem "aws-sdk-lambda"
 gem "aws-sigv4"
