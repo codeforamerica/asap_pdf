@@ -1,6 +1,7 @@
 # Documentation
 * [Architecture](architecture.md)
 * [Deployment](deployment.md)
+* [Hardened Image Rollout](hardened-image-rollout.md)
 * [Python Components](python_components.md)
 * [Terraform/OpenTofu](../terraform/README.md)
 * [Todo - Loose development roadmap](todo.md)
