@@ -11,7 +11,7 @@ gem "cssbundling-rails", "~> 1.4.3"
 gem "csv"
 gem "httpparty"
 gem "rubyzip"
-gem "smarter_csv"
+gem "smarter_csv", ">= 1.19.0"
 gem "chartkick"
 
 gem "tzinfo-data", platforms: %i[windows jruby]
@@ -69,3 +69,5 @@ gem "paper_trail", "~> 17.0"
 gem "net-imap", ">= 0.6.4.1"
 
 gem "activestorage", ">= 8.1.4.1"
+
+gem "websocket-driver", ">= 0.8.2"

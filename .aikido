@@ -1,0 +1,4 @@
+# Open AutoFix pull requests against dev (staging) so fixes are tested there
+# before the dev -> main deploy, the same as Dependabot.
+autofix:
+  base_branch: dev
