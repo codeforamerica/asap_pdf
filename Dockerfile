@@ -18,7 +18,7 @@
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.4.12
+ARG RUBY_VERSION=3.4.13
 # Make sure NODE_VERSION matches the Node version in .node-version
 ARG NODE_VERSION=24.22.1
 
