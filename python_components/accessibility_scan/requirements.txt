@@ -1,4 +1,4 @@
-axe-selenium-python==2.1.6
+axe-selenium-python==3.0.0
 backports.tarfile==1.2.0
 importlib-metadata==8.0.0
 jaraco.collections==5.1.0
