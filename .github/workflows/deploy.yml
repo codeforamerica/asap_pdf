@@ -46,8 +46,19 @@ jobs:
           fi
           echo "environment_name=$env_name" >> "$GITHUB_OUTPUT"
 
-  deploy:
+  build_app:
     needs: [ determine_environment ]
+    permissions:
+      contents: read
+      id-token: write
+    uses: codeforamerica/github-actions/.github/workflows/ecr-build-push.yaml@61889bcabeb3caa8ed1be24f88fb63c8de1045ce # main
+    with:
+      ecr-repository: asap-pdf-${{ needs.determine_environment.outputs.env_name }}-app
+      environment: ${{ needs.determine_environment.outputs.env_name }}
+    secrets: inherit
+
+  deploy:
+    needs: [ determine_environment, build_app ]
     runs-on: ubuntu-latest
     environment:
       name: ${{ needs.determine_environment.outputs.env_name }}
@@ -113,17 +124,6 @@ jobs:
           aws lambda update-function-code \
              --function-name  $FUNCTION_NAME \
              --image-uri $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
-      - name: Build, tag, and push Rails App image to Amazon ECR
-        id: build-image
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_RAILS_APP }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Update SSM Version Parameter
         env:
