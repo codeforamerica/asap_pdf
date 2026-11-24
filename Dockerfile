@@ -107,6 +107,8 @@ USER 65532:65532
 # Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
 
-# Start server via Thruster by default, this can be overwritten at runtime
+# Start the Puma server by default, this can be overwritten at runtime. The load
+# balancer sends traffic straight to Puma on port 3000, so there's no proxy in
+# front of it in the container.
 EXPOSE 3000
-CMD ["./bin/thrust", "./bin/rails", "server"]
+CMD ["./bin/rails", "server"]
